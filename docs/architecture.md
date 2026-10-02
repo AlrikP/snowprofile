@@ -13,7 +13,7 @@ the project settles on back into the bootstrap kit.
 | Framework            | TanStack Start with React, server-rendered; file router and server functions                                                                                                                                                           | Close to snowtime's Solid stack; React has more agent training data and is what the team knows. Provisional                                                                   |
 | Runtime and packages | Bun 1.4.2 (`packageManager`) for installs, scripts, the dev server (`bun --bun run dev`), and server tests                                                                                                                             | Same as snowtime; `bun --bun` loads `.env*` files into `process.env`                                                                                                          |
 | Database             | SQLite as a local file (`file:<path>`) in every environment, through `@libsql/client` 0.18.0                                                                                                                                           | snowtime's self-hosted path: no database server, Litestream backups. The data is small, so one process is enough. Moving to PostgreSQL is [deferred](#deferred--out-of-scope) |
-| Database URL         | `DATABASE_URL`, no token                                                                                                                                                                                                               | A neutral name keeps a later move to PostgreSQL or Turso a configuration change                                                                                               |
+| Database URL         | `DATABASE_URL`, no token; a `file:` URL, `file:local.db` locally (`.env.development`)                                                                                                                                                  | A neutral name keeps a later move to PostgreSQL or Turso a configuration change                                                                                               |
 | ORM and migrations   | Drizzle `1.0.0-rc.4` as a query layer only; hand-written SQL migrations are the source of truth, and `src/db/schema.ts` is kept by hand to match                                                                                       | Generated migrations lose partial indexes and composite keys on SQLite. Same as snowtime                                                                                      |
 | Auth                 | Better Auth 1.7 with the Drizzle adapter and the organization plugin                                                                                                                                                                   | Self-hosted sessions; the organization plugin gives tenants, members, roles, and invitations                                                                                  |
 | Data fetching        | TanStack Query with optimistic updates                                                                                                                                                                                                 | From the profile                                                                                                                                                              |
@@ -39,7 +39,7 @@ the project settles on back into the bootstrap kit.
 | `src/components/`      | Shared components; `ui/` holds shadcn copies only            |
 | `src/lib/`             | Shared helpers, including code the server shares             |
 | `src/server/<domain>/` | Server functions, rules, schemas, and tests per domain       |
-| `src/db/`              | `schema.ts` and the database connection (planned)            |
+| `src/db/`              | Database connection; `schema.ts` (planned)                   |
 | `src/env.ts`           | Server environment, validated with Valibot                   |
 | `src/test/`            | Vitest setup for component tests                             |
 | `drizzle/`             | SQL migrations, `<timestamp>_<name>/migration.sql` (planned) |
@@ -197,8 +197,8 @@ What the import must handle (`Snowhound_CV_baas.xlsx`):
 - **Portable SQL.** Prefer SQL that PostgreSQL also accepts. Where SQLite needs its own
   form, keep it inside the repository or migration and note it.
 - **One SQLite writer.** Statements queue while a transaction is open, so concurrent
-  requests never fail on SQLite's write lock (snowtime's `src/db/connection.ts`, task
-  043, is the reference). Code inside a transaction uses its handle, never the client.
+  requests never fail on SQLite's write lock (`src/db/connection.ts`, after snowtime's
+  task 043). Code inside a transaction uses its handle, never the client.
 - **No stored files:** CVs are generated on request. Background work, if ever needed,
   runs in the app process.
 - **No hosting-platform SDKs or services in app code.**

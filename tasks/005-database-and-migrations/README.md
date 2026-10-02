@@ -1,6 +1,6 @@
 # 005: Database connection and migration tooling
 
-Status: todo
+Status: in-progress
 Depends on: task 004 (the SQL conventions the tooling and docs follow)
 
 Connect the app to its SQLite file and build the migration workflow from the profile's

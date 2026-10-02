@@ -19,3 +19,8 @@ todos.json
 
 # Built from the DBML by `bun run datamodel`.
 datamodel/*.chartdb.json
+
+# Local SQLite databases and their write-ahead log files.
+*.db
+*.db-wal
+*.db-shm

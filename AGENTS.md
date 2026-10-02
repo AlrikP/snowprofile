@@ -31,11 +31,11 @@ commits after reviewing.
 | `bun run format`          | Formats with oxfmt (`format:check` only checks)                                           |
 | `bun run typecheck`       | `tsc --noEmit`                                                                            |
 | `bun run build`           | Production build into `.output/`; also regenerates `src/routeTree.gen.ts`                 |
-| `bun run test`            | Runs every test runner present (Vitest for now)                                           |
+| `bun run test`            | Runs every test runner: `test:server`, then `test:components`                             |
+| `bun run test:server`     | Server and database tests (`*.test.ts`) with `bun test`                                   |
 | `bun run test:components` | Component tests (`*.test.tsx`) with Vitest in jsdom                                       |
 
-Server tests (`*.test.ts`, `bun test`) and end-to-end tests arrive with their tasks; add their
-commands here then, and to `test`.
+End-to-end tests arrive with their task; add the command here then, and to `test`.
 
 The dev server is the user's. Check whether it is running before starting one, and never
 kill a process you didn't start.
