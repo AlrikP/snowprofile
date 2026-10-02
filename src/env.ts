@@ -1,4 +1,4 @@
-import * as v from 'valibot'
+import * as v from "valibot"
 
 // Server-side settings, validated once at startup. Keep secrets unprefixed: VITE_ variables
 // reach the browser bundle.
