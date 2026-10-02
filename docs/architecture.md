@@ -203,6 +203,21 @@ What the import must handle (`Snowhound_CV_baas.xlsx`):
   runs in the app process.
 - **No hosting-platform SDKs or services in app code.**
 
+### Roles
+
+- Each membership has a role, `admin` or `employee`, stored in Better Auth's `member.role`.
+  The organization creator becomes `admin`.
+- `src/lib/permissions.ts` defines permission statements (`project: ['update']`,
+  `profile: ['requestUpdate']`, and so on) and grants them to each role. Access checks
+  ask for a permission, never a role name, so a new role (for example sales or read-only)
+  is a new entry in that file, with no change to the checks and no migration
+  (`member.role` has no `CHECK`).
+- Permissions cover actions on other people's data and on shared data. Rules about a
+  person's own data (an employee edits their own profile) are ownership checks in the
+  server rules.
+- Users can't create organizations; platform operators do (`product.md`). Organizations
+  can't be deleted, because they own all their data.
+
 ### Sign-in modes
 
 - `DEMO_MODE` is one runtime setting. It enables password sign-in for seeded users,

@@ -65,8 +65,8 @@ convention names a check, the "Lint rules" task builds it.
   in routes and `src/router.tsx`. Code moves to `src/components/` or `src/lib/` once a
   second feature needs it.
 - Backend code is grouped by domain in `src/server/<domain>/`. Server-only code lives in
-  `*.server.ts` files under `src/server/`; the scaffold's server-only files (the auth
-  instance in `src/lib/auth.ts`, for example) move there. Client code imports a domain's
+  `*.server.ts` files under `src/server/` (the auth instance is
+  `src/server/auth/better-auth.server.ts`). Client code imports a domain's
   `*.functions.ts` and `*.schemas.ts` only, never `*.server.ts`. Route files that only
   define server handlers (under `src/routes/api/`) are server code.
 - Database access goes only through repository modules, which apply the organization

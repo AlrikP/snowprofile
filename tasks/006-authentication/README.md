@@ -1,6 +1,6 @@
 # 006: Authentication
 
-Status: todo
+Status: in-progress
 Depends on: task 005 (migrations for the auth tables)
 
 Sign-in and membership as `docs/product.md` ("Users and access") describes, with the

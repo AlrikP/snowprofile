@@ -10,8 +10,8 @@ let db: Database
 let url: string
 let cleanup: () => void
 
-beforeAll(() => {
-  ;({ db, url, cleanup } = createTestDatabase())
+beforeAll(async () => {
+  ;({ db, url, cleanup } = await createTestDatabase())
 })
 
 afterAll(() => cleanup())
@@ -88,8 +88,11 @@ test('a rolled-back transaction ends its turn', async () => {
     await tx.run(sql`INSERT INTO rolled_back VALUES ('discarded')`)
     throw new Error('abort')
   })
-  expect(failing).rejects.toThrow('abort')
-  await failing.catch(() => {})
+  const error = await failing.then(
+    () => null,
+    (reason: unknown) => reason,
+  )
+  expect(error).toHaveProperty('message', 'abort')
 
   await db.run(sql`INSERT INTO rolled_back VALUES ('after rollback')`)
   expect(await committed('rolled_back')).toEqual(['after rollback'])

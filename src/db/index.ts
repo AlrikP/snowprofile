@@ -3,8 +3,9 @@
 import { drizzle } from 'drizzle-orm/libsql'
 import { env } from '#/env'
 import { openClient } from './connection'
+import { relations } from './relations'
 
-export const db = drizzle({ client: openClient({ url: env.DATABASE_URL }) })
+export const db = drizzle({ client: openClient({ url: env.DATABASE_URL }), relations })
 
 export type Database = typeof db
 

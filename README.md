@@ -12,9 +12,10 @@ Built with TanStack Start (React), Bun, SQLite, Drizzle, and Better Auth
 Requires Bun 1.4.2 (the version in `package.json`'s `packageManager`).
 
 ```bash
-bun install        # dependencies and the pre-commit hook
-bun run env:init   # creates .env.local with a generated BETTER_AUTH_SECRET
-bun --bun run dev  # http://localhost:3000
+bun install         # dependencies and the pre-commit hook
+bun run env:init    # creates .env.local with a generated BETTER_AUTH_SECRET
+bun run db:migrate  # creates local.db and applies the migrations
+bun --bun run dev   # http://localhost:3000
 ```
 
 Changing a GitHub Actions workflow also needs [actionlint](https://github.com/rhysd/actionlint):
