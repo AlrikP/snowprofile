@@ -21,18 +21,21 @@ commits after reviewing.
 
 ## Running things
 
-| Command             | Does                                                                                      |
-| ------------------- | ----------------------------------------------------------------------------------------- |
-| `bun install`       | Installs dependencies and the lefthook pre-commit hook                                    |
-| `bun run env:init`  | Creates `.env.local` with a generated `BETTER_AUTH_SECRET`; keeps existing values         |
-| `bun --bun run dev` | Starts the dev server on port 3000. `--bun` runs Vite under Bun, which loads `.env.local` |
-| `bun run check`     | Format check, lint, and type check                                                        |
-| `bun run lint`      | oxlint, type-aware; warnings fail                                                         |
-| `bun run format`    | Formats with oxfmt (`format:check` only checks)                                           |
-| `bun run typecheck` | `tsc --noEmit`                                                                            |
-| `bun run build`     | Production build into `.output/`; also regenerates `src/routeTree.gen.ts`                 |
+| Command                   | Does                                                                                      |
+| ------------------------- | ----------------------------------------------------------------------------------------- |
+| `bun install`             | Installs dependencies and the lefthook pre-commit hook                                    |
+| `bun run env:init`        | Creates `.env.local` with a generated `BETTER_AUTH_SECRET`; keeps existing values         |
+| `bun --bun run dev`       | Starts the dev server on port 3000. `--bun` runs Vite under Bun, which loads `.env.local` |
+| `bun run check`           | Format check, lint, and type check                                                        |
+| `bun run lint`            | oxlint, type-aware; warnings fail                                                         |
+| `bun run format`          | Formats with oxfmt (`format:check` only checks)                                           |
+| `bun run typecheck`       | `tsc --noEmit`                                                                            |
+| `bun run build`           | Production build into `.output/`; also regenerates `src/routeTree.gen.ts`                 |
+| `bun run test`            | Runs every test runner present (Vitest for now)                                           |
+| `bun run test:components` | Component tests (`*.test.tsx`) with Vitest in jsdom                                       |
 
-Test commands arrive with the tasks that add the test runners; add them here then.
+Server tests (`*.test.ts`, `bun test`) and end-to-end tests arrive with their tasks; add their
+commands here then, and to `test`.
 
 The dev server is the user's. Check whether it is running before starting one, and never
 kill a process you didn't start.

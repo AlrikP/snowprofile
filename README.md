@@ -24,15 +24,18 @@ Run the dev server with `bun --bun`: it runs Vite under Bun, which loads `.env.l
 Plain `bun run dev` runs Vite under Node, and the env validation in `src/env.ts` stops
 the server.
 
-| Command             | Does                                                                      |
-| ------------------- | ------------------------------------------------------------------------- |
-| `bun run check`     | Format check, lint, and type check                                        |
-| `bun run lint`      | oxlint, type-aware; warnings fail                                         |
-| `bun run format`    | Formats with oxfmt (`format:check` only checks)                           |
-| `bun run typecheck` | `tsc --noEmit`                                                            |
-| `bun run build`     | Production build into `.output/`; also regenerates `src/routeTree.gen.ts` |
+| Command                   | Does                                                                      |
+| ------------------------- | ------------------------------------------------------------------------- |
+| `bun run check`           | Format check, lint, and type check                                        |
+| `bun run lint`            | oxlint, type-aware; warnings fail                                         |
+| `bun run format`          | Formats with oxfmt (`format:check` only checks)                           |
+| `bun run typecheck`       | `tsc --noEmit`                                                            |
+| `bun run build`           | Production build into `.output/`; also regenerates `src/routeTree.gen.ts` |
+| `bun run test`            | Runs every test runner present (Vitest for now)                           |
+| `bun run test:components` | Component tests (`*.test.tsx`) with Vitest in jsdom                       |
 
-The database, seed data, and tests arrive with their tasks in `tasks/`.
+The database, seed data, and server and end-to-end tests arrive with their tasks in
+`tasks/`.
 
 ## Docs and tasks
 
