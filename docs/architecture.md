@@ -88,6 +88,12 @@ conventions apply to every app-owned table; Better Auth's tables keep the plugin
   `(<ref>_id, organization_id)` to the target's `(id, organization_id)`, which carries a
   unique index. A row then can't point into another organization, even if the app has a
   bug. Link tables carry `organization_id` too, for the same keys.
+- A server function on tenant data names its organization in its input
+  (`organizationId`). `scopeMiddleware` (`src/server/middleware.ts`) checks the caller's
+  membership and gives the rules a scope with the organization and role. The session's
+  active organization doesn't decide it: switching in one tab changes it for every tab, so
+  a form opened in one organization could save into another. The active organization only
+  picks where the app opens after sign-in.
 
 ### Types
 
