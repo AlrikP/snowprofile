@@ -18,7 +18,7 @@ import {
   technologyCategory,
   updateRequest,
 } from './schema'
-import { seed, seedIds } from './seed'
+import { seedIds } from './seed'
 import { createTestDatabase, failure } from './testing'
 
 let db: Database
@@ -85,7 +85,6 @@ function addParticipation(values: Partial<typeof participation.$inferInsert> = {
 
 beforeAll(async () => {
   ;({ db, cleanup } = await createTestDatabase())
-  await seed(db)
   await db.insert(organization).values([
     { id: home, name: 'Home', slug: 'home', createdAt: new Date() },
     { id: other, name: 'Other', slug: 'other', createdAt: new Date() },

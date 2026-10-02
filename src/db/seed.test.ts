@@ -107,7 +107,7 @@ describe('seed(db)', () => {
   let cleanup: () => void
 
   beforeAll(async () => {
-    ;({ db, cleanup } = await createTestDatabase())
+    ;({ db, cleanup } = await createTestDatabase({ seeded: false }))
     await seed(db)
   })
 
@@ -185,7 +185,6 @@ describe('seeding a seeded database', () => {
 
   beforeAll(async () => {
     ;({ db, cleanup } = await createTestDatabase())
-    await seed(db)
   })
 
   afterAll(() => cleanup())
@@ -203,7 +202,7 @@ describe('seeding a database with some organizations', () => {
   const company = uuidv7()
 
   beforeAll(async () => {
-    ;({ db, cleanup } = await createTestDatabase())
+    ;({ db, cleanup } = await createTestDatabase({ seeded: false }))
     // What the seed before the generator left: the dev users in an empty demo organization.
     const at = new Date()
     await db.insert(organization).values([
@@ -238,7 +237,6 @@ describe('resetOrganization', () => {
 
   beforeAll(async () => {
     ;({ db, cleanup } = await createTestDatabase())
-    await seed(db)
   })
 
   afterAll(() => cleanup())

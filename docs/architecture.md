@@ -248,13 +248,13 @@ What the import must handle (`Snowhound_CV_baas.xlsx`):
 
 ## Environments and deployment
 
-| Environment   | Where                          | Database                                        | Sign-in                         | Notes                                              |
-| ------------- | ------------------------------ | ----------------------------------------------- | ------------------------------- | -------------------------------------------------- |
-| Local dev     | `bun --bun run dev`, port 3000 | `file:local.db`                                 | `DEMO_MODE`, seeded users       | Generated demo data only                           |
-| Test          | `bun test`, Vitest, Playwright | A fresh file or in-memory database per test run | `DEMO_MODE`                     | Same seed as dev                                   |
-| Local Compose | `deploy/compose/` on a laptop  | A file on a Docker volume                       | `DEMO_MODE`                     | Rehearses a deployment (planned)                   |
-| Demo stack    | Hetzner, later                 | Its own volume                                  | `DEMO_MODE`                     | Fictional data only (planned)                      |
-| Company stack | Hetzner, later                 | Its own volume, Litestream backups              | Google, `ALLOWED_LOGIN_DOMAINS` | Real data; can't go live without backups (planned) |
+| Environment   | Where                          | Database                           | Sign-in                         | Notes                                              |
+| ------------- | ------------------------------ | ---------------------------------- | ------------------------------- | -------------------------------------------------- |
+| Local dev     | `bun --bun run dev`, port 3000 | `file:local.db`                    | `DEMO_MODE`, seeded users       | Generated demo data only                           |
+| Test          | `bun test`, Vitest, Playwright | A fresh, seeded file per test file | `DEMO_MODE`                     | Same seed as dev                                   |
+| Local Compose | `deploy/compose/` on a laptop  | A file on a Docker volume          | `DEMO_MODE`                     | Rehearses a deployment (planned)                   |
+| Demo stack    | Hetzner, later                 | Its own volume                     | `DEMO_MODE`                     | Fictional data only (planned)                      |
+| Company stack | Hetzner, later                 | Its own volume, Litestream backups | Google, `ALLOWED_LOGIN_DOMAINS` | Real data; can't go live without backups (planned) |
 
 - **One container image,** configured only through environment variables, logging to
   standard output, with a health endpoint.

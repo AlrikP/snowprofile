@@ -1,6 +1,6 @@
 # 009: Server foundation and tenancy
 
-Status: todo
+Status: in-progress
 Depends on: task 006 (sessions and memberships), task 007 (tables), task 008 (seed for test databases)
 
 The base every server feature builds on: test databases, middleware, errors, and

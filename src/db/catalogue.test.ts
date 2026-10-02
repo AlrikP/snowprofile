@@ -6,7 +6,7 @@ import { v7 as uuidv7 } from 'uuid'
 import type { Database } from '.'
 import { SYSTEM_USER_ID, withActor } from './actor'
 import { organization, technology, technologyCategory, user } from './schema'
-import { seed, seedIds } from './seed'
+import { seedIds } from './seed'
 import { createTestDatabase, failure } from './testing'
 
 let db: Database
@@ -26,7 +26,6 @@ function addTechnology(values: { organizationId: string; categoryId: string; nam
 
 beforeAll(async () => {
   ;({ db, cleanup } = await createTestDatabase())
-  await seed(db)
   homeOrg = uuidv7()
   otherOrg = uuidv7()
   category = uuidv7()

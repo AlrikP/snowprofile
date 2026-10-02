@@ -2,7 +2,7 @@
 
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
 import type { Database } from '#/db'
-import { SEED_PASSWORD, seed } from '#/db/seed'
+import { SEED_PASSWORD } from '#/db/seed'
 import { createTestDatabase } from '#/db/testing'
 import { createAuth } from './better-auth.server'
 import { signInOptions } from './sign-in.server'
@@ -12,7 +12,6 @@ let cleanup: () => void
 
 beforeAll(async () => {
   ;({ db, cleanup } = await createTestDatabase())
-  await seed(db)
 })
 
 afterAll(() => cleanup())
