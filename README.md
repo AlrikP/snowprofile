@@ -17,6 +17,10 @@ bun run env:init   # creates .env.local with a generated BETTER_AUTH_SECRET
 bun --bun run dev  # http://localhost:3000
 ```
 
+Changing a GitHub Actions workflow also needs [actionlint](https://github.com/rhysd/actionlint):
+`brew install actionlint`. The pre-commit hook runs it on staged workflow files and fails
+without it; other commits don't need it.
+
 Non-secret local defaults live in the tracked `.env.development`; secrets go only in
 `.env.local`, which git ignores. `env:init` never overwrites a value that is already set.
 

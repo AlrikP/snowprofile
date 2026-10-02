@@ -12,3 +12,10 @@ pre-commit:
       glob: '*.{js,mjs,ts,tsx,json,css,md,yml}'
       run: ./node_modules/.bin/oxfmt --no-error-on-unmatched-pattern {staged_files}
       stage_fixed: true
+
+    # Installed with Homebrew (README), needed only by commits that change a workflow.
+    - name: actionlint
+      glob: '.github/workflows/*.{yml,yaml}'
+      run: >-
+        command -v actionlint > /dev/null || { echo 'actionlint is missing: brew install actionlint'; exit 1; };
+        actionlint {staged_files}

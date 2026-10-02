@@ -89,7 +89,12 @@ convention names a check, the "Lint rules" task builds it.
   script check that runs in the pre-commit hook or CI, and name the check next to the
   convention here.
 - A lefthook pre-commit hook (`lefthook.yml`) runs the linters and formatters on staged
-  files; CI checks the whole repository. Disable a lint rule inline only with a reason.
+  files, and actionlint on staged workflow files. CI checks the whole repository. Disable a
+  lint rule inline only with a reason.
+- CI is one `check` job in `.github/workflows/ci.yml`, on pull requests and pushes to
+  `main`. A task that adds a check adds it as a step there and to the table above; knip,
+  the schema drift check, and the data model check join this way when their tasks add
+  them.
 
 ## Deployment
 
