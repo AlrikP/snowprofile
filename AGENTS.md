@@ -5,6 +5,7 @@
 - Product scope: `docs/product.md`
 - Architecture decisions: `docs/architecture.md`
 - Hosting constraints: `docs/hosting.md`
+- Database migrations: `docs/migrations.md`
 - Task tracking: `tasks/` (see `tasks/README.md`)
 - Writing docs: `.claude/skills/google-style/SKILL.md`
 - Checking UI in a browser: `docs/skills/ui-review/SKILL.md`
@@ -21,19 +22,23 @@ commits after reviewing.
 
 ## Running things
 
-| Command                   | Does                                                                                      |
-| ------------------------- | ----------------------------------------------------------------------------------------- |
-| `bun install`             | Installs dependencies and the lefthook pre-commit hook                                    |
-| `bun run env:init`        | Creates `.env.local` with a generated `BETTER_AUTH_SECRET`; keeps existing values         |
-| `bun --bun run dev`       | Starts the dev server on port 3000. `--bun` runs Vite under Bun, which loads `.env.local` |
-| `bun run check`           | Format check, lint, and type check                                                        |
-| `bun run lint`            | oxlint, type-aware; warnings fail                                                         |
-| `bun run format`          | Formats with oxfmt (`format:check` only checks)                                           |
-| `bun run typecheck`       | `tsc --noEmit`                                                                            |
-| `bun run build`           | Production build into `.output/`; also regenerates `src/routeTree.gen.ts`                 |
-| `bun run test`            | Runs every test runner: `test:server`, then `test:components`                             |
-| `bun run test:server`     | Server and database tests (`*.test.ts`) with `bun test`                                   |
-| `bun run test:components` | Component tests (`*.test.tsx`) with Vitest in jsdom                                       |
+| Command                      | Does                                                                                      |
+| ---------------------------- | ----------------------------------------------------------------------------------------- |
+| `bun install`                | Installs dependencies and the lefthook pre-commit hook                                    |
+| `bun run env:init`           | Creates `.env.local` with a generated `BETTER_AUTH_SECRET`; keeps existing values         |
+| `bun --bun run dev`          | Starts the dev server on port 3000. `--bun` runs Vite under Bun, which loads `.env.local` |
+| `bun run check`              | Format check, lint, and type check                                                        |
+| `bun run lint`               | oxlint, type-aware; warnings fail                                                         |
+| `bun run format`             | Formats with oxfmt (`format:check` only checks)                                           |
+| `bun run typecheck`          | `tsc --noEmit`                                                                            |
+| `bun run build`              | Production build into `.output/`; also regenerates `src/routeTree.gen.ts`                 |
+| `bun run db:generate <name>` | Creates an empty migration in `drizzle/`                                                  |
+| `bun run db:migrate`         | Checks applied migrations, then applies pending ones to `DATABASE_URL`                    |
+| `bun run db:drift`           | Fails if `src/db/schema.ts` no longer matches the migrations                              |
+| `bun run db:verify`          | Fails if an applied migration was edited or deleted                                       |
+| `bun run test`               | Runs every test runner: `test:server`, then `test:components`                             |
+| `bun run test:server`        | Server and database tests (`*.test.ts`) with `bun test`                                   |
+| `bun run test:components`    | Component tests (`*.test.tsx`) with Vitest in jsdom                                       |
 
 End-to-end tests arrive with their task; add the command here then, and to `test`.
 
