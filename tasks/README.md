@@ -13,6 +13,9 @@ A task with subtasks or supporting files is a folder with the same name,
 subtask as `NN-short-slug.md`, numbered within the folder (for example
 `006-environments/01-databases.md`). Subtasks use the same format as tasks.
 
+Fixes from a code review are numbered in their own sequence with a `cr-` prefix, for
+example `cr-001-review-001-010.md`; their commits use `task-cr-001`.
+
 ## Format
 
 ```markdown

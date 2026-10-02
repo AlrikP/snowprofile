@@ -1,6 +1,7 @@
 # 011: UI prototypes
 
 Status: todo
+Depends on: task cr-001 (fixes from the review of tasks 001–010)
 
 Static HTML prototypes of each MVP view, built with the classes of shadcn and Tailwind so
 the markup ports to React directly. They settle layout and flow before features are
