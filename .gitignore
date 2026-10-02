@@ -11,3 +11,8 @@ dist-ssr
 .vinxi
 __unconfig*
 todos.json
+
+# Editor settings shared by the project; overrides a global .vscode ignore.
+!.vscode/
+.vscode/*
+!.vscode/settings.json
