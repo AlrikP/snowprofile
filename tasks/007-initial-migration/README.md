@@ -1,6 +1,6 @@
 # 007: Initial migration
 
-Status: in-progress
+Status: done
 Depends on: task 004 (the reviewed model), task 006 (domain tables reference users and organizations)
 
 Create the MVP's domain tables from the reviewed diagram, one table group per subtask, so
@@ -16,8 +16,8 @@ each lands as a reviewable commit.
 
 ## Acceptance criteria
 
-- [ ] All subtasks are done.
-- [ ] Hand-written migrations create every domain table in the diagram, with the
+- [x] All subtasks are done.
+- [x] Hand-written migrations create every domain table in the diagram, with the
       conventions from task 004 (IDs, audit columns, deletion, constraints, indexes).
-- [ ] `src/db/schema.ts` and the relations map them; `db:drift` reports no changes; the
+- [x] `src/db/schema.ts` and the relations map them; `db:drift` reports no changes; the
       hand-written diagram matches the migrations (task 019 then generates it).

@@ -2,6 +2,7 @@
 // db:drift reports any difference (docs/migrations.md).
 import { sql } from 'drizzle-orm'
 import {
+  type AnySQLiteColumn,
   check,
   foreignKey,
   index,
@@ -74,6 +75,14 @@ function periodChecks(table: string, startNullable: boolean) {
       sql`end_date IS NULL OR end_date >= substr(start_date, 1, length(end_date))`,
     ),
   ]
+}
+
+// A calendar date: YYYY-MM-DD. NULL passes, as in every CHECK.
+function calendarDateCheck(table: string, column: string) {
+  return check(
+    `${table}_${column}`,
+    sql.raw(`${column} GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]'`),
+  )
 }
 
 export const QUALIFIERS = ['exact', 'approximately', 'more_than'] as const
@@ -471,5 +480,215 @@ export const projectCriterionAnswer = sqliteTable(
     }),
     index('project_criterion_answer_criterion_id_idx').on(t.criterionId),
     check('project_criterion_answer_answer', sql`answer IN (0, 1)`),
+  ],
+)
+
+// People ------------------------------------------------------------------------------------
+
+export const employeeProfile = sqliteTable(
+  'employee_profile',
+  {
+    id: text().primaryKey(),
+    organizationId: organizationId(),
+    // Not a foreign key to member: a leaver's profile outlives the membership.
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id),
+    fullName: text('full_name').notNull(),
+    joinDate: text('join_date'),
+    leftDate: text('left_date'),
+    birthDate: text('birth_date'),
+    confirmedAt: timestamp('confirmed_at'),
+    ...createdAudit(),
+    ...updatedAudit(),
+  },
+  (t) => [
+    uniqueIndex('employee_profile_organization_id_user_id_unique').on(t.organizationId, t.userId),
+    index('employee_profile_user_id_idx').on(t.userId),
+    uniqueIndex('employee_profile_id_organization_id_unique').on(t.id, t.organizationId),
+    calendarDateCheck('employee_profile', 'join_date'),
+    calendarDateCheck('employee_profile', 'left_date'),
+    calendarDateCheck('employee_profile', 'birth_date'),
+    check('employee_profile_employment', sql`left_date >= join_date`),
+  ],
+)
+
+function profileKey(table: string, profileId: AnySQLiteColumn, organization: AnySQLiteColumn) {
+  return foreignKey({
+    name: `${table}_profile`,
+    columns: [profileId, organization],
+    foreignColumns: [employeeProfile.id, employeeProfile.organizationId],
+  })
+}
+
+export const education = sqliteTable(
+  'education',
+  {
+    id: text().primaryKey(),
+    organizationId: organizationId(),
+    profileId: text('profile_id').notNull(),
+    institutionEt: text('institution_et'),
+    institutionEn: text('institution_en'),
+    fieldEt: text('field_et'),
+    fieldEn: text('field_en'),
+    degreeEt: text('degree_et'),
+    degreeEn: text('degree_en'),
+    startDate: text('start_date'),
+    endDate: text('end_date'),
+    ...createdAudit(),
+    ...updatedAudit(),
+    ...sysDeleted(),
+  },
+  (t) => [
+    profileKey('education', t.profileId, t.organizationId),
+    index('education_profile_id_idx').on(t.profileId),
+    check('education_institution', sql`institution_et IS NOT NULL OR institution_en IS NOT NULL`),
+    ...periodChecks('education', true),
+    check('education_sys_deleted', sql`sys_deleted IN (0, 1)`),
+  ],
+)
+
+export const participation = sqliteTable(
+  'participation',
+  {
+    id: text().primaryKey(),
+    organizationId: organizationId(),
+    profileId: text('profile_id').notNull(),
+    projectId: text('project_id').notNull(),
+    startDate: text('start_date').notNull(),
+    endDate: text('end_date'),
+    roleEt: text('role_et'),
+    roleEn: text('role_en'),
+    hours: integer(),
+    hoursQualifier: text('hours_qualifier', { enum: QUALIFIERS }),
+    tasksEt: text('tasks_et'),
+    tasksEn: text('tasks_en'),
+    ...createdAudit(),
+    ...updatedAudit(),
+    ...sysDeleted(),
+  },
+  (t) => [
+    profileKey('participation', t.profileId, t.organizationId),
+    foreignKey({
+      name: 'participation_project',
+      columns: [t.projectId, t.organizationId],
+      foreignColumns: [project.id, project.organizationId],
+    }),
+    index('participation_profile_id_idx').on(t.profileId),
+    index('participation_project_id_idx').on(t.projectId),
+    uniqueIndex('participation_id_organization_id_unique').on(t.id, t.organizationId),
+    ...periodChecks('participation', false),
+    ...approximateChecks('participation', 'hours'),
+    check('participation_sys_deleted', sql`sys_deleted IN (0, 1)`),
+  ],
+)
+
+export const participationTechnology = sqliteTable(
+  'participation_technology',
+  {
+    participationId: text('participation_id').notNull(),
+    technologyId: text('technology_id').notNull(),
+    organizationId: organizationId(),
+    ...createdAudit(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.participationId, t.technologyId] }),
+    foreignKey({
+      name: 'participation_technology_participation',
+      columns: [t.participationId, t.organizationId],
+      foreignColumns: [participation.id, participation.organizationId],
+    }),
+    foreignKey({
+      name: 'participation_technology_technology',
+      columns: [t.technologyId, t.organizationId],
+      foreignColumns: [technology.id, technology.organizationId],
+    }),
+    index('participation_technology_technology_id_idx').on(t.technologyId),
+  ],
+)
+
+export const ownProject = sqliteTable(
+  'own_project',
+  {
+    id: text().primaryKey(),
+    organizationId: organizationId(),
+    profileId: text('profile_id').notNull(),
+    name: text().notNull(),
+    employer: text(),
+    customerName: text('customer_name'),
+    descriptionEt: text('description_et'),
+    descriptionEn: text('description_en'),
+    startDate: text('start_date').notNull(),
+    endDate: text('end_date'),
+    tenderReference: text('tender_reference'),
+    totalHours: integer('total_hours'),
+    totalHoursQualifier: text('total_hours_qualifier', { enum: QUALIFIERS }),
+    cost: integer(),
+    costQualifier: text('cost_qualifier', { enum: QUALIFIERS }),
+    roleEt: text('role_et'),
+    roleEn: text('role_en'),
+    hours: integer(),
+    hoursQualifier: text('hours_qualifier', { enum: QUALIFIERS }),
+    tasksEt: text('tasks_et'),
+    tasksEn: text('tasks_en'),
+    ...createdAudit(),
+    ...updatedAudit(),
+    ...sysDeleted(),
+  },
+  (t) => [
+    profileKey('own_project', t.profileId, t.organizationId),
+    index('own_project_profile_id_idx').on(t.profileId),
+    uniqueIndex('own_project_id_organization_id_unique').on(t.id, t.organizationId),
+    ...periodChecks('own_project', false),
+    ...approximateChecks('own_project', 'total_hours'),
+    ...approximateChecks('own_project', 'cost'),
+    ...approximateChecks('own_project', 'hours'),
+    check('own_project_sys_deleted', sql`sys_deleted IN (0, 1)`),
+  ],
+)
+
+export const ownProjectTechnology = sqliteTable(
+  'own_project_technology',
+  {
+    ownProjectId: text('own_project_id').notNull(),
+    technologyId: text('technology_id').notNull(),
+    organizationId: organizationId(),
+    ...createdAudit(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.ownProjectId, t.technologyId] }),
+    foreignKey({
+      name: 'own_project_technology_own_project',
+      columns: [t.ownProjectId, t.organizationId],
+      foreignColumns: [ownProject.id, ownProject.organizationId],
+    }),
+    foreignKey({
+      name: 'own_project_technology_technology',
+      columns: [t.technologyId, t.organizationId],
+      foreignColumns: [technology.id, technology.organizationId],
+    }),
+    index('own_project_technology_technology_id_idx').on(t.technologyId),
+  ],
+)
+
+export const updateRequest = sqliteTable(
+  'update_request',
+  {
+    id: text().primaryKey(),
+    organizationId: organizationId(),
+    profileId: text('profile_id').notNull(),
+    message: text(),
+    closedAt: timestamp('closed_at'),
+    closedReason: text('closed_reason', { enum: ['confirmed', 'canceled'] }),
+    ...createdAudit(),
+    ...updatedAudit(),
+  },
+  (t) => [
+    profileKey('update_request', t.profileId, t.organizationId),
+    index('update_request_profile_id_open_idx')
+      .on(t.profileId)
+      .where(sql`closed_at IS NULL`),
+    check('update_request_closed_reason', sql`closed_reason IN ('confirmed', 'canceled')`),
+    check('update_request_closed_pair', sql`(closed_at IS NULL) = (closed_reason IS NULL)`),
   ],
 )

@@ -8,6 +8,7 @@ export const relations = defineRelations(schema, (r) => ({
     sessions: r.many.session(),
     accounts: r.many.account(),
     memberships: r.many.member(),
+    profiles: r.many.employeeProfile(),
   },
   session: {
     user: r.one.user({ from: r.session.userId, to: r.user.id, optional: false }),
@@ -23,6 +24,7 @@ export const relations = defineRelations(schema, (r) => ({
     tenderCriteria: r.many.tenderCriterion(),
     customers: r.many.customer(),
     projects: r.many.project(),
+    profiles: r.many.employeeProfile(),
   },
   member: {
     organization: r.one.organization({
@@ -61,6 +63,8 @@ export const relations = defineRelations(schema, (r) => ({
     }),
     mergedInto: r.one.technology({ from: r.technology.mergedIntoId, to: r.technology.id }),
     projects: r.many.projectTechnology(),
+    participations: r.many.participationTechnology(),
+    ownProjects: r.many.ownProjectTechnology(),
   },
   tenderCriterion: {
     organization: r.one.organization({
@@ -97,6 +101,7 @@ export const relations = defineRelations(schema, (r) => ({
     contacts: r.many.projectContact(),
     technologies: r.many.projectTechnology(),
     answers: r.many.projectCriterionAnswer(),
+    participations: r.many.participation(),
   },
   projectContact: {
     project: r.one.project({
@@ -131,6 +136,73 @@ export const relations = defineRelations(schema, (r) => ({
     criterion: r.one.tenderCriterion({
       from: r.projectCriterionAnswer.criterionId,
       to: r.tenderCriterion.id,
+      optional: false,
+    }),
+  },
+  employeeProfile: {
+    organization: r.one.organization({
+      from: r.employeeProfile.organizationId,
+      to: r.organization.id,
+      optional: false,
+    }),
+    user: r.one.user({ from: r.employeeProfile.userId, to: r.user.id, optional: false }),
+    education: r.many.education(),
+    participations: r.many.participation(),
+    ownProjects: r.many.ownProject(),
+    updateRequests: r.many.updateRequest(),
+  },
+  education: {
+    profile: r.one.employeeProfile({
+      from: r.education.profileId,
+      to: r.employeeProfile.id,
+      optional: false,
+    }),
+  },
+  participation: {
+    profile: r.one.employeeProfile({
+      from: r.participation.profileId,
+      to: r.employeeProfile.id,
+      optional: false,
+    }),
+    project: r.one.project({ from: r.participation.projectId, to: r.project.id, optional: false }),
+    technologies: r.many.participationTechnology(),
+  },
+  participationTechnology: {
+    participation: r.one.participation({
+      from: r.participationTechnology.participationId,
+      to: r.participation.id,
+      optional: false,
+    }),
+    technology: r.one.technology({
+      from: r.participationTechnology.technologyId,
+      to: r.technology.id,
+      optional: false,
+    }),
+  },
+  ownProject: {
+    profile: r.one.employeeProfile({
+      from: r.ownProject.profileId,
+      to: r.employeeProfile.id,
+      optional: false,
+    }),
+    technologies: r.many.ownProjectTechnology(),
+  },
+  ownProjectTechnology: {
+    ownProject: r.one.ownProject({
+      from: r.ownProjectTechnology.ownProjectId,
+      to: r.ownProject.id,
+      optional: false,
+    }),
+    technology: r.one.technology({
+      from: r.ownProjectTechnology.technologyId,
+      to: r.technology.id,
+      optional: false,
+    }),
+  },
+  updateRequest: {
+    profile: r.one.employeeProfile({
+      from: r.updateRequest.profileId,
+      to: r.employeeProfile.id,
       optional: false,
     }),
   },
