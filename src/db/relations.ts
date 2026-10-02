@@ -18,6 +18,9 @@ export const relations = defineRelations(schema, (r) => ({
   organization: {
     members: r.many.member(),
     invitations: r.many.invitation(),
+    technologyCategories: r.many.technologyCategory(),
+    technologies: r.many.technology(),
+    tenderCriteria: r.many.tenderCriterion(),
   },
   member: {
     organization: r.one.organization({
@@ -34,5 +37,33 @@ export const relations = defineRelations(schema, (r) => ({
       optional: false,
     }),
     inviter: r.one.user({ from: r.invitation.inviterId, to: r.user.id, optional: false }),
+  },
+  technologyCategory: {
+    organization: r.one.organization({
+      from: r.technologyCategory.organizationId,
+      to: r.organization.id,
+      optional: false,
+    }),
+    technologies: r.many.technology(),
+  },
+  technology: {
+    organization: r.one.organization({
+      from: r.technology.organizationId,
+      to: r.organization.id,
+      optional: false,
+    }),
+    category: r.one.technologyCategory({
+      from: r.technology.categoryId,
+      to: r.technologyCategory.id,
+      optional: false,
+    }),
+    mergedInto: r.one.technology({ from: r.technology.mergedIntoId, to: r.technology.id }),
+  },
+  tenderCriterion: {
+    organization: r.one.organization({
+      from: r.tenderCriterion.organizationId,
+      to: r.organization.id,
+      optional: false,
+    }),
   },
 }))

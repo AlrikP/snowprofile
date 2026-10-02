@@ -1,0 +1,15 @@
+# 007.3: People tables
+
+Status: todo
+Depends on: task 007.2 (participations reference projects)
+
+## Acceptance criteria
+
+- [ ] A migration creates `employee_profile`, `education`, `participation`,
+      `participation_technology`, `own_project`, `own_project_technology`, and
+      `update_request`, following `docs/migrations.md`; `schema.ts` and the relations map
+      them; `db:drift` reports no changes.
+- [ ] Tests cover organization consistency of references, periods, the
+      approximate-number qualifiers, `left_date` not before `join_date`, and closing an
+      update request.
+- [ ] The hand-written diagram matches all three migrations.

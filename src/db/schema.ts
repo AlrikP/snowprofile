@@ -1,10 +1,61 @@
 // Drizzle's view of the tables, kept by hand to match the SQL migrations in drizzle/.
 // db:drift reports any difference (docs/migrations.md).
 import { sql } from 'drizzle-orm'
-import { check, index, integer, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core'
+import {
+  check,
+  foreignKey,
+  index,
+  integer,
+  sqliteTable,
+  text,
+  uniqueIndex,
+} from 'drizzle-orm/sqlite-core'
+import { currentActor } from './actor'
+
+const nowMs = sql`(CAST(ROUND(unixepoch('subsec') * 1000) AS INTEGER))`
 
 function timestamp(name: string) {
   return integer(name, { mode: 'timestamp_ms' })
+}
+
+// Audit columns, in the order docs/migrations.md gives them. The app sets updated_at on
+// every update; the table's trigger only covers statements that bypass Drizzle.
+function createdAudit() {
+  return {
+    createdAt: timestamp('created_at').default(nowMs).notNull(),
+    createdBy: text('created_by')
+      .notNull()
+      .references(() => user.id)
+      .$defaultFn(currentActor),
+  }
+}
+
+function updatedAudit() {
+  return {
+    updatedAt: timestamp('updated_at')
+      .default(nowMs)
+      .notNull()
+      .$onUpdateFn(() => new Date()),
+    updatedBy: text('updated_by')
+      .notNull()
+      .references(() => user.id)
+      .$defaultFn(currentActor)
+      .$onUpdateFn(currentActor),
+  }
+}
+
+function sysDeleted() {
+  return {
+    sysDeleted: integer('sys_deleted', { mode: 'boolean' })
+      .default(sql`0`)
+      .notNull(),
+  }
+}
+
+function organizationId() {
+  return text('organization_id')
+    .notNull()
+    .references(() => organization.id)
 }
 
 // Auth (Better Auth core) -------------------------------------------------------------------
@@ -140,4 +191,77 @@ export const invitation = sqliteTable(
     createdAt: timestamp('created_at').notNull(),
   },
   (t) => [index('invitation_organization_id_email_idx').on(t.organizationId, t.email)],
+)
+
+// Catalogue ---------------------------------------------------------------------------------
+
+export const technologyCategory = sqliteTable(
+  'technology_category',
+  {
+    id: text().primaryKey(),
+    organizationId: organizationId(),
+    nameEt: text('name_et'),
+    nameEn: text('name_en'),
+    position: integer().default(0).notNull(),
+    ...createdAudit(),
+    ...updatedAudit(),
+    ...sysDeleted(),
+  },
+  (t) => [
+    uniqueIndex('technology_category_id_organization_id_unique').on(t.id, t.organizationId),
+    check('technology_category_name', sql`name_et IS NOT NULL OR name_en IS NOT NULL`),
+    check('technology_category_sys_deleted', sql`sys_deleted IN (0, 1)`),
+  ],
+)
+
+export const technology = sqliteTable(
+  'technology',
+  {
+    id: text().primaryKey(),
+    organizationId: organizationId(),
+    categoryId: text('category_id').notNull(),
+    name: text().notNull(),
+    normalizedName: text('normalized_name').notNull(),
+    mergedIntoId: text('merged_into_id'),
+    ...createdAudit(),
+    ...updatedAudit(),
+    ...sysDeleted(),
+  },
+  (t) => [
+    foreignKey({
+      name: 'technology_category',
+      columns: [t.categoryId, t.organizationId],
+      foreignColumns: [technologyCategory.id, technologyCategory.organizationId],
+    }),
+    foreignKey({
+      name: 'technology_merged_into',
+      columns: [t.mergedIntoId, t.organizationId],
+      foreignColumns: [t.id, t.organizationId],
+    }),
+    uniqueIndex('technology_organization_id_normalized_name_unique')
+      .on(t.organizationId, t.normalizedName)
+      .where(sql`sys_deleted = 0`),
+    uniqueIndex('technology_id_organization_id_unique').on(t.id, t.organizationId),
+    index('technology_category_id_idx').on(t.categoryId),
+    check('technology_sys_deleted', sql`sys_deleted IN (0, 1)`),
+  ],
+)
+
+export const tenderCriterion = sqliteTable(
+  'tender_criterion',
+  {
+    id: text().primaryKey(),
+    organizationId: organizationId(),
+    nameEt: text('name_et'),
+    nameEn: text('name_en'),
+    position: integer().default(0).notNull(),
+    ...createdAudit(),
+    ...updatedAudit(),
+    ...sysDeleted(),
+  },
+  (t) => [
+    uniqueIndex('tender_criterion_id_organization_id_unique').on(t.id, t.organizationId),
+    check('tender_criterion_name', sql`name_et IS NOT NULL OR name_en IS NOT NULL`),
+    check('tender_criterion_sys_deleted', sql`sys_deleted IN (0, 1)`),
+  ],
 )

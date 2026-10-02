@@ -138,7 +138,8 @@ conventions apply to every app-owned table; Better Auth's tables keep the plugin
   to the current time in the database; the app sets `updated_at` on every update, and a
   guarded `AFTER UPDATE` trigger sets it when a statement didn't. `*_by` is the acting
   user from the request, `NOT NULL` with no default, so a write without an actor fails;
-  scripts act as a fixed system user. Insert-and-delete link tables have only `created_*`.
+  scripts act as a fixed system user (`SYSTEM_USER_ID` in `src/db/actor.ts`), which a
+  migration creates without an account, so nobody can sign in as it. Insert-and-delete link tables have only `created_*`.
 - **Deletion:** entities that users delete from a list (customers, contact persons,
   projects, technologies, criteria, education, participations, own projects) carry
   `sys_deleted` (0/1) and are excluded from every query, list, search, and CV. A mistaken
