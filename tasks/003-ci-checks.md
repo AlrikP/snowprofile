@@ -1,6 +1,6 @@
 # 003: CI checks
 
-Status: in-progress
+Status: done
 
 Run the repository's checks on every pull request and on `main`, so a broken change
 can't merge unnoticed. Later tasks add their checks to the same job.
@@ -19,7 +19,7 @@ can't merge unnoticed. Later tasks add their checks to the same job.
       passes.
 - [x] `AGENTS.md` notes that knip, schema drift, and the data model check join this job
       when their tasks add them.
-- [ ] Done by the user on GitHub: push a branch with a deliberate failure and see the
+- [x] Done by the user on GitHub: push a branch with a deliberate failure and see the
       `check` job fail.
-- [ ] Done by the user on GitHub: require the `check` job in branch protection for
+- [x] Done by the user on GitHub: require the `check` job in branch protection for
       `main`.
