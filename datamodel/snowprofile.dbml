@@ -21,9 +21,10 @@ Table user [note: 'Better Auth user. One row per human, shared across organizati
   image text [note: 'Avatar URL.']
   created_at integer [not null, note: 'Epoch ms, UTC.']
   updated_at integer [not null, note: 'Epoch ms, UTC.']
+  locale text [note: 'The UI language the user chose: et or en (CHECK). Null until chosen; the cookie or the browser decides until then.']
 }
 
-Table session [note: 'Better Auth session. Carries the active organization, which every server function reads to scope its queries.'] {
+Table session [note: 'Better Auth session. Carries the active organization, where the app opens after sign-in. Server functions take the organization from their input, not from here.'] {
   id text [pk]
   user_id text [not null, ref: > user.id, note: 'ON DELETE CASCADE.']
   token text [not null, unique, note: 'Session token held in the cookie.']

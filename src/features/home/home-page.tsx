@@ -1,7 +1,9 @@
 import { Link } from '@tanstack/react-router'
+import { LanguageSwitch } from '#/components/language-switch'
 import { Button } from '#/components/ui/button'
 import { authClient } from '#/lib/auth-client'
 import { m } from '#/paraglide/messages.js'
+import { saveLocale } from '#/server/account/account.functions'
 
 // A placeholder home that shows who is signed in; task 012 replaces it with the app frame.
 export function HomePage() {
@@ -14,6 +16,7 @@ export function HomePage() {
       <h1 className="text-2xl font-semibold">{m.app_name()}</h1>
       {session ? (
         <>
+          <LanguageSwitch save={(locale) => saveLocale({ data: { locale } })} />
           <p>{m.home_signed_in_as({ name: session.user.name, email: session.user.email })}</p>
           <Button
             variant="outline"

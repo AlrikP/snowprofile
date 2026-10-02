@@ -205,8 +205,9 @@ What the import must handle (`Snowhound_CV_baas.xlsx`):
   (schema, seed, test helpers), `scripts/`, tests, and Better Auth's adapter.
 - **Every repository function takes the scope and applies it.** Its parameters are
   `(db, scope, ...)`; every query filters by `scope.organizationId`, and every insert sets
-  it from the scope, never from input. The membership lookup that builds the scope
-  (`organizations.findMemberRole`) is the one function without one.
+  it from the scope, never from input. Two kinds of function take no scope: the
+  membership lookup that builds it (`organizations.findMemberRole`), and the account
+  repository, which reaches only the signed-in user's own row by the session's user ID.
   `src/server/tenancy.test.ts` needs a case for every exported repository function showing
   that a scope in one organization can't read or change another's rows, and fails when a
   function has none.

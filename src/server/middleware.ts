@@ -1,7 +1,8 @@
-// Middleware for server functions. A function picks one: sessionMiddleware for calls about
-// the signed-in user, scopeMiddleware for calls on an organization's data. Both hand the
-// function the database as context.db, so functions don't import it and the rules they
-// call take it as a parameter, which tests fill with a test database.
+// Middleware for server functions. A function picks one: databaseMiddleware for calls that
+// work signed out, sessionMiddleware for calls about the signed-in user, scopeMiddleware
+// for calls on an organization's data. Each hands the function the database as context.db,
+// so functions don't import it and the rules they call take it as a parameter, which tests
+// fill with a test database.
 import { createMiddleware } from '@tanstack/react-start'
 import { getRequestHeaders } from '@tanstack/react-start/server'
 import { db } from '#/db'
@@ -11,11 +12,17 @@ import { parseOrganizationInput } from './schemas'
 import { resolveScope } from './scope.server'
 import { sessionUserId } from './session.server'
 
+export const databaseMiddleware = createMiddleware({ type: 'function' }).server(({ next }) =>
+  next({ context: { db } }),
+)
+
 // A signed-in user, as context.userId. The call's database writes run as that user.
-export const sessionMiddleware = createMiddleware({ type: 'function' }).server(async ({ next }) => {
-  const userId = await sessionUserId(auth, getRequestHeaders())
-  return withActor(userId, () => next({ context: { userId, db } }))
-})
+export const sessionMiddleware = createMiddleware({ type: 'function' })
+  .middleware([databaseMiddleware])
+  .server(async ({ next }) => {
+    const userId = await sessionUserId(auth, getRequestHeaders())
+    return withActor(userId, () => next({ context: { userId } }))
+  })
 
 // The organization the call names, checked against the user's memberships, as
 // context.scope. The organization comes from the call's input, not the session's active

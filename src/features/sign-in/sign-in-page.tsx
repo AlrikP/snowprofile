@@ -1,5 +1,6 @@
 import { useForm } from '@tanstack/react-form'
 import { useState } from 'react'
+import { LanguageSwitch } from '#/components/language-switch'
 import { Button } from '#/components/ui/button'
 import { Input } from '#/components/ui/input'
 import { Label } from '#/components/ui/label'
@@ -36,6 +37,7 @@ export function SignInPage({
   return (
     <main className="mx-auto flex max-w-sm flex-col gap-6 p-8">
       <h1 className="text-2xl font-semibold">{m.sign_in_title()}</h1>
+      <LanguageSwitch />
 
       {options.demo && (
         <section className="rounded-md border p-4 text-sm" aria-label={m.sign_in_demo_label()}>

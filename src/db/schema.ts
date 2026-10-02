@@ -87,6 +87,9 @@ function calendarDateCheck(table: string, column: string) {
 
 export const QUALIFIERS = ['exact', 'approximately', 'more_than'] as const
 
+// The UI languages, as messages/ and project.inlang/settings.json list them.
+export const LOCALES = ['et', 'en'] as const
+
 // An approximate number: the value and its qualifier, null together.
 function approximateChecks(table: string, column: string) {
   return [
@@ -121,10 +124,13 @@ export const user = sqliteTable(
     image: text(),
     createdAt: timestamp('created_at').notNull(),
     updatedAt: timestamp('updated_at').notNull(),
+    // The UI language the user chose; null until they choose.
+    locale: text({ enum: LOCALES }),
   },
   (t) => [
     uniqueIndex('user_email_unique').on(t.email),
     check('user_email_verified', sql`email_verified IN (0, 1)`),
+    check('user_locale', sql`locale IN ('et', 'en')`),
   ],
 )
 

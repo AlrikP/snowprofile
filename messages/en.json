@@ -14,6 +14,7 @@
   "sign_in_no_methods": "No sign-in method is configured yet.",
   "sign_in_error_domain": "This email domain can’t sign in here. Use your company Google account.",
   "sign_in_error_other": "Sign-in failed ({code}).",
+  "language_label": "Language",
   "sign_out": "Sign out",
   "home_signed_in_as": "Signed in as {name} ({email}).",
   "no_access_title": "No access yet",

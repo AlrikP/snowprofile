@@ -1,6 +1,6 @@
 # 010: i18n
 
-Status: in-progress
+Status: done
 
 Estonian and English UI, switchable per user (`docs/product.md`, "Languages"). Estonian
 is the base locale. The choice is kept in a cookie and on the user, so it follows them
@@ -13,7 +13,7 @@ across browsers.
 
 ## Acceptance criteria
 
-- [ ] All subtasks are done.
+- [x] All subtasks are done.
 - [x] Paraglide JS, installed by hand, with locales `et` and `en`; messages in
       `messages/`; compiled output gitignored and formatter-ignored.
 - [x] The locale is kept in a cookie; whether it is also stored per user is decided and

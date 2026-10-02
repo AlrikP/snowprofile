@@ -74,7 +74,8 @@ convention names a check, the "Lint rules" task builds it.
   define server handlers (under `src/routes/api/`) are server code.
 - Database access goes only through repository modules
   (`src/server/<domain>/<domain>.repository.server.ts`). Each function takes
-  `(db, scope, ...)` and scopes every query by `scope.organizationId`
+  `(db, scope, ...)` and scopes every query by `scope.organizationId`; the user's own
+  account data takes the session's user ID instead
   (`docs/architecture.md`, "Application rules"). Server functions get the database as
   `context.db` from the middleware. Check: `src/server/tenancy.test.ts` fails for a
   repository function without an isolation case; task 014 restricts `#/db/schema` and

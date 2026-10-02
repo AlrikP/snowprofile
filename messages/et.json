@@ -14,6 +14,7 @@
   "sign_in_no_methods": "Ühtegi sisselogimisviisi pole veel seadistatud.",
   "sign_in_error_domain": "Selle e-posti domeeniga ei saa siia sisse logida. Kasuta ettevõtte Google'i kontot.",
   "sign_in_error_other": "Sisselogimine ebaõnnestus ({code}).",
+  "language_label": "Keel",
   "sign_out": "Logi välja",
   "home_signed_in_as": "Sisse logitud: {name} ({email}).",
   "no_access_title": "Ligipääsu veel pole",
