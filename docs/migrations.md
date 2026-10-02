@@ -49,21 +49,20 @@ accurate, because drizzle-kit sees only part of the schema.
   difference.
 - Enums: `text` with a `CHECK` listing the values.
 - Calendar dates: `text`, `CHECK (x GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]')`.
-- Period dates: `text` in one of three lengths, and the end compared at its own precision:
+- Write each `CHECK` expression on one line, as `schema.ts` writes it: `db:drift` compares
+  the text, line breaks included.
+- Period dates: `text` in one of three lengths, and the end compared at its own precision.
+  `schema.ts` builds these with `periodChecks`:
 
   ```sql
-  CONSTRAINT project_start_date CHECK (
-    start_date GLOB '[0-9][0-9][0-9][0-9]'
-    OR start_date GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]'
-    OR start_date GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]'
-  ),
-  CONSTRAINT project_period CHECK (
-    end_date IS NULL OR end_date >= substr(start_date, 1, length(end_date))
-  )
+  CONSTRAINT project_start_date CHECK (start_date GLOB '[0-9][0-9][0-9][0-9]' OR start_date GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]' OR start_date GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]'),
+  CONSTRAINT project_end_date CHECK (end_date IS NULL OR end_date GLOB '[0-9][0-9][0-9][0-9]' OR end_date GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]' OR end_date GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]'),
+  CONSTRAINT project_period CHECK (end_date IS NULL OR end_date >= substr(start_date, 1, length(end_date)))
   ```
 
-- Approximate numbers: the value and its qualifier are null together:
-  `CHECK ((hours IS NULL) = (hours_qualifier IS NULL))`.
+- Approximate numbers: two checks, built by `approximateChecks` in `schema.ts`. One lists
+  the qualifier's values, the other keeps the value and the qualifier null together:
+  `CONSTRAINT project_cost_pair CHECK ((cost IS NULL) = (cost_qualifier IS NULL))`.
 - Name every `CHECK` and composite foreign key with `CONSTRAINT <table>_<what>`.
 - Unique constraints: a named `CREATE UNIQUE INDEX`, never an inline `UNIQUE (...)`, which
   drizzle-kit's introspection can't see.

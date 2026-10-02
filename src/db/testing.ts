@@ -28,3 +28,15 @@ export async function createTestDatabase(): Promise<{
     },
   }
 }
+
+// Why a statement failed, as SQLite (or the actor check) put it; null when it succeeded.
+// Drizzle wraps database errors and keeps SQLite's message on the cause.
+export function failure(run: () => Promise<unknown>): Promise<string | null> {
+  return run().then(
+    () => null,
+    (reason: unknown) => {
+      const cause = reason instanceof Error && reason.cause instanceof Error ? reason.cause : reason
+      return cause instanceof Error ? cause.message : String(cause)
+    },
+  )
+}

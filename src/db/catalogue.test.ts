@@ -7,25 +7,13 @@ import type { Database } from '.'
 import { SYSTEM_USER_ID, withActor } from './actor'
 import { organization, technology, technologyCategory, user } from './schema'
 import { seed, seedIds } from './seed'
-import { createTestDatabase } from './testing'
+import { createTestDatabase, failure } from './testing'
 
 let db: Database
 let cleanup: () => void
 let otherOrg: string
 let category: string
 let otherCategory: string
-
-// Why a statement failed, as SQLite (or the actor check) put it; null when it succeeded.
-// Drizzle wraps database errors and keeps SQLite's message on the cause.
-function failure(run: () => Promise<unknown>): Promise<string | null> {
-  return run().then(
-    () => null,
-    (reason: unknown) => {
-      const cause = reason instanceof Error && reason.cause instanceof Error ? reason.cause : reason
-      return cause instanceof Error ? cause.message : String(cause)
-    },
-  )
-}
 
 function addTechnology(values: { organizationId: string; categoryId: string; name: string }) {
   const id = uuidv7()
