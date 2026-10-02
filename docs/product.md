@@ -141,9 +141,10 @@ More roles come later; the role model must allow adding them.
   emails needed soon after the MVP? Decide after a first round of use.
 - **Snowhound domain auto-join:** should everyone with a company Google account join
   automatically, or only those an admin invites? Snowhound's management decides.
-- **Leavers:** keep, hide, or anonymize their profiles, and do their participations stay
-  visible on projects? Their participations still matter for project references, but
-  their profile shouldn't appear in new CVs. Needs a GDPR retention decision.
+- **Leavers:** a leaver's profile is kept with a leaving date, left out of search and new
+  CVs by default, and their participations stay visible on projects as references
+  (`architecture.md`, "Audit and deletion"). Open: whether, and after how long, the
+  profile is anonymized or deleted. Needs a GDPR retention decision.
 - **Certificates and trainings:** tenders often ask for them, and the sheet doesn't record
   them. In the MVP or later?
 - **Computed experience totals:** per-person totals derived from participations (years

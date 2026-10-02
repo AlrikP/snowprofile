@@ -8,6 +8,9 @@
   "scripts": {
     "dev": "vite dev --port 3000",
     "env:init": "bun scripts/env-init.ts",
+    "datamodel": "bun run datamodel:build && docker compose -f datamodel/docker-compose.yml up -d && echo 'ChartDB: http://localhost:8080 (Import > .json > datamodel/snowprofile.chartdb.json)'",
+    "datamodel:build": "bun datamodel/dbml-to-chartdb.mjs",
+    "datamodel:stop": "docker compose -f datamodel/docker-compose.yml down",
     "build": "vite build",
     "preview": "vite preview",
     "lint": "oxlint",

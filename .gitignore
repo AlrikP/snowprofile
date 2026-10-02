@@ -16,3 +16,6 @@ todos.json
 !.vscode/
 .vscode/*
 !.vscode/settings.json
+
+# Built from the DBML by `bun run datamodel`.
+datamodel/*.chartdb.json

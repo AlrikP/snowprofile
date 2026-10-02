@@ -16,5 +16,10 @@
     "newlinesBetween": false,
     "order": "asc"
   },
-  "ignorePatterns": ["src/routeTree.gen.ts", "bun.lock", "prototypes/**"]
+  "ignorePatterns": [
+    "src/routeTree.gen.ts",
+    "bun.lock",
+    "prototypes/**",
+    "datamodel/*.chartdb.json"
+  ]
 }
