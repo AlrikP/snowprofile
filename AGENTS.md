@@ -106,8 +106,10 @@ convention names a check, the "Lint rules" task builds it.
   files, and actionlint on staged workflow files. CI checks the whole repository. Disable a
   lint rule inline only with a reason.
 - CI is one `check` job in `.github/workflows/ci.yml`, on pull requests and pushes to
-  `main`. A task that adds a check adds it as a step there and to the table above; knip
-  and the data model check (task 019) join this way when their tasks add them.
+  `main`. Its steps: install, compile messages, format check, lint, type check, test,
+  schema drift, and build. A task that adds a check adds it as a step there and to the
+  table above; knip and the data model check (task 019) join this way when their tasks
+  add them.
 
 ## Deployment
 

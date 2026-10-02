@@ -48,3 +48,8 @@ jobs:
       # Applies every migration to a throwaway database and fails if src/db/schema.ts differs.
       - name: Schema drift
         run: bun run db:drift
+
+      # The production build, from the clean checkout CI has: it fails when a file the build
+      # needs exists only in someone's working copy.
+      - name: Build
+        run: bun run build
