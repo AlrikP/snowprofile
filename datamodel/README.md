@@ -5,8 +5,9 @@
 periods, audit columns, deletion) are in [`docs/architecture.md`](../docs/architecture.md),
 "Data conventions".
 
-Until the first migration exists, the DBML is written by hand. Task 005.3 then generates it
-from `src/db/schema.ts`, and from then on the SQL migrations are the source of truth.
+The SQL migrations in `drizzle/` are the source of truth for the schema. Until
+`src/db/schema.ts` maps every table (task 007), the DBML is written by hand and is the
+blueprint for those migrations; task 019 then generates it from `schema.ts`.
 
 ## Viewing the model
 

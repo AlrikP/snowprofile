@@ -1,13 +1,14 @@
-# 005.3: Data model generation and CI checks
+# 005.3: Schema drift in CI
 
-Status: todo
+Status: done
 Depends on: task 005.2 (`db:drift`), task 003 (the CI job to extend)
 
-Once `schema.ts` exists, the diagram is generated from it rather than kept by hand.
+Run the drift check in CI, so a migration and `schema.ts` can't diverge unnoticed from the
+first migration on. Generating the diagram from `schema.ts` moved to task 019: with
+`schema.ts` still empty, it would replace the reviewed diagram that tasks 006.1 and 007
+build from.
 
 ## Acceptance criteria
 
-- [ ] `datamodel:generate` writes the DBML from `schema.ts`; `--check` fails when the
-      committed diagram is stale.
-- [ ] `datamodel/README.md` describes the generated workflow.
-- [ ] The CI `check` job runs `db:drift` and `datamodel:generate --check`.
+- [x] The CI `check` job runs `db:drift`.
+- [x] Diagram generation and its CI check are filed as task 019, after task 007.

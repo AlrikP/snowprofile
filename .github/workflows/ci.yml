@@ -40,3 +40,7 @@ jobs:
 
       - name: Test
         run: bun run test
+
+      # Applies every migration to a throwaway database and fails if src/db/schema.ts differs.
+      - name: Schema drift
+        run: bun run db:drift

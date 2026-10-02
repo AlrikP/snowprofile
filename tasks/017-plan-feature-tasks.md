@@ -13,6 +13,8 @@ patterns rather than guesses.
       builds on.
 - [ ] Dependencies between features only where one truly blocks another, so independent
       features can run in parallel.
+- [ ] Feature tasks that add or change tables depend on task 019, so their migrations
+      regenerate the diagram instead of editing it by hand.
 - [ ] Product open questions that block a feature are resolved with the user or listed in
       that feature's task.
 - [ ] Each task or subtask fits one reviewable commit (`tasks/README.md`).
