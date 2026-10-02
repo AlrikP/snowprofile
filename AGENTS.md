@@ -36,7 +36,7 @@ commits after reviewing.
 | `bun run db:migrate`         | Checks applied migrations, then applies pending ones to `DATABASE_URL`                    |
 | `bun run db:drift`           | Fails if `src/db/schema.ts` no longer matches the migrations                              |
 | `bun run db:verify`          | Fails if an applied migration was edited or deleted                                       |
-| `bun run db:seed`            | Adds demo users and a demo organization to a local database                               |
+| `bun run db:seed`            | Adds missing demo organizations locally; `--reset <slug>` redoes one                      |
 | `bun run test`               | Runs every test runner: `test:server`, then `test:components`                             |
 | `bun run test:server`        | Server and database tests (`*.test.ts`) with `bun test`                                   |
 | `bun run test:components`    | Component tests (`*.test.tsx`) with Vitest in jsdom                                       |

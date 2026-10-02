@@ -15,7 +15,7 @@ Requires Bun 1.4.2 (the version in `package.json`'s `packageManager`).
 bun install         # dependencies and the pre-commit hook
 bun run env:init    # creates .env.local with a generated BETTER_AUTH_SECRET
 bun run db:migrate  # creates local.db and applies the migrations
-bun run db:seed     # adds the demo users; it prints how to sign in
+bun run db:seed     # adds the demo organizations and users; it prints how to sign in
 bun --bun run dev   # http://localhost:3000, then /sign-in
 ```
 
@@ -41,13 +41,13 @@ the server.
 | `bun run db:migrate`         | Checks applied migrations, then applies pending ones to `DATABASE_URL`    |
 | `bun run db:drift`           | Fails if `src/db/schema.ts` no longer matches the migrations              |
 | `bun run db:verify`          | Fails if an applied migration was edited or deleted                       |
-| `bun run db:seed`            | Adds demo users and a demo organization to a local database               |
+| `bun run db:seed`            | Adds missing demo organizations locally; `--reset <slug>` redoes one      |
 | `bun run test`               | Runs every test runner: `test:server`, then `test:components`             |
 | `bun run test:server`        | Server and database tests (`*.test.ts`) with `bun test`                   |
 | `bun run test:components`    | Component tests (`*.test.tsx`) with Vitest in jsdom                       |
 
-The migration workflow is in [`docs/migrations.md`](docs/migrations.md). Seed data and
-end-to-end tests arrive with their tasks in `tasks/`.
+The migration workflow is in [`docs/migrations.md`](docs/migrations.md). End-to-end
+tests arrive with their task in `tasks/`.
 
 ## Google sign-in
 

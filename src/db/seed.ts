@@ -1,4 +1,5 @@
 import { hashPassword } from 'better-auth/crypto'
+import { and, eq, isNotNull } from 'drizzle-orm'
 // Demo data for local and demo databases, and the data tests seed their throwaway databases
 // with. `bun run db:seed` runs it; tests call seed(db) and name rows through seedIds.
 // src/db/demo/generate.ts fills each organization.
@@ -116,14 +117,18 @@ export async function addPasswordUser(
     .values(passwordAccount(person.id, await hashPassword(password), now))
 }
 
-// SQLite limits the variables in one statement, so long lists go in slices.
+// SQLite limits the variables in one statement, so long lists go in slices. Users are never
+// deleted (docs/architecture.md, "Audit and deletion"), so a reset finds its users still
+// there and keeps them: existing rows are skipped.
 async function insertAll<T extends SQLiteTable>(
   db: Executor,
   table: T,
   rows: SQLiteInsertValue<T>[],
+  { skipExisting = false } = {},
 ) {
   for (let i = 0; i < rows.length; i += 100) {
-    await db.insert(table).values(rows.slice(i, i + 100))
+    const insert = db.insert(table).values(rows.slice(i, i + 100))
+    await (skipExisting ? insert.onConflictDoNothing() : insert)
   }
 }
 
@@ -131,11 +136,12 @@ async function insertAll<T extends SQLiteTable>(
 // them all, since hashing is slow.
 async function insertOrganization(db: Executor, data: DemoOrganization, passwordHash: string) {
   await db.insert(schema.organization).values(data.organization)
-  await insertAll(db, schema.user, data.users)
+  await insertAll(db, schema.user, data.users, { skipExisting: true })
   await insertAll(
     db,
     schema.account,
     data.users.map((row) => passwordAccount(row.id, passwordHash, row.createdAt)),
+    { skipExisting: true },
   )
   await insertAll(db, schema.member, data.members)
   await insertAll(db, schema.technologyCategory, data.technologyCategories)
@@ -156,25 +162,106 @@ async function insertOrganization(db: Executor, data: DemoOrganization, password
   await insertAll(db, schema.updateRequest, data.updateRequests)
 }
 
+// Everything the organization owns, children first, and the organization itself; its
+// memberships and invitations cascade. Users stay.
+async function deleteOrganization(db: Executor, organizationId: string) {
+  const tables = [
+    schema.projectContact,
+    schema.projectTechnology,
+    schema.projectCriterionAnswer,
+    schema.participationTechnology,
+    schema.ownProjectTechnology,
+    schema.updateRequest,
+    schema.participation,
+    schema.ownProject,
+    schema.education,
+    schema.employeeProfile,
+    schema.project,
+    schema.contactPerson,
+    schema.customer,
+  ]
+  for (const table of tables) {
+    await db.delete(table).where(eq(table.organizationId, organizationId))
+  }
+  // Merged technologies point at the ones they were merged into, so they go first.
+  await db
+    .delete(schema.technology)
+    .where(
+      and(
+        eq(schema.technology.organizationId, organizationId),
+        isNotNull(schema.technology.mergedIntoId),
+      ),
+    )
+  for (const table of [schema.technology, schema.technologyCategory, schema.tenderCriterion]) {
+    await db.delete(table).where(eq(table.organizationId, organizationId))
+  }
+  await db.delete(schema.organization).where(eq(schema.organization.id, organizationId))
+}
+
+async function addSeedUsers(db: Executor, passwordHash: string) {
+  const at = demoOrganizations[0]?.createdAt ?? DEMO_NOW
+  await insertAll(
+    db,
+    schema.user,
+    seedUsers.map((person) => ({
+      id: person.id,
+      name: person.name,
+      email: person.email,
+      emailVerified: true,
+      createdAt: at,
+      updatedAt: at,
+    })),
+    { skipExisting: true },
+  )
+  await insertAll(
+    db,
+    schema.account,
+    seedUsers.map((person) => passwordAccount(person.id, passwordHash, at)),
+    { skipExisting: true },
+  )
+}
+
+// Adds the dev users and the demo organizations the database doesn't have yet. An
+// organization that exists stays as it is, with whatever changes it has.
 export async function seed(db: Database, seedValue = DEMO_SEED) {
   const passwordHash = await hashPassword(SEED_PASSWORD)
-  const at = demoOrganizations[0]?.createdAt ?? DEMO_NOW
+  const existing = new Set(
+    (await db.select({ id: schema.organization.id }).from(schema.organization)).map(
+      (row) => row.id,
+    ),
+  )
+  const added: string[] = []
+  const skipped: string[] = []
   await db.transaction((tx) =>
     withActor(SYSTEM_USER_ID, async () => {
-      for (const person of seedUsers) {
-        await tx.insert(schema.user).values({
-          id: person.id,
-          name: person.name,
-          email: person.email,
-          emailVerified: true,
-          createdAt: at,
-          updatedAt: at,
-        })
-        await tx.insert(schema.account).values(passwordAccount(person.id, passwordHash, at))
+      await addSeedUsers(tx, passwordHash)
+      for (const spec of demoOrganizations) {
+        if (existing.has(spec.id)) {
+          skipped.push(spec.slug)
+          continue
+        }
+        await insertOrganization(tx, generateOrganization(seedValue, spec), passwordHash)
+        added.push(spec.slug)
       }
-      for (const data of generateDemoData(seedValue)) {
-        await insertOrganization(tx, data, passwordHash)
-      }
+    }),
+  )
+  return { added, skipped }
+}
+
+// Replaces one demo organization's data with freshly generated rows, leaving the other
+// organizations alone. Only the demo organizations' slugs are accepted.
+export async function resetOrganization(db: Database, slug: string, seedValue = DEMO_SEED) {
+  const spec = demoOrganizations.find((candidate) => candidate.slug === slug)
+  if (!spec) {
+    const slugs = demoOrganizations.map((candidate) => candidate.slug).join(', ')
+    throw new Error(`No demo organization "${slug}". Demo organizations: ${slugs}.`)
+  }
+  const passwordHash = await hashPassword(SEED_PASSWORD)
+  await db.transaction((tx) =>
+    withActor(SYSTEM_USER_ID, async () => {
+      await addSeedUsers(tx, passwordHash)
+      await deleteOrganization(tx, spec.id)
+      await insertOrganization(tx, generateOrganization(seedValue, spec), passwordHash)
     }),
   )
 }

@@ -2,11 +2,30 @@
 
 import { afterAll, beforeAll, describe, expect, setSystemTime, test } from 'bun:test'
 import { and, count, eq, isNull } from 'drizzle-orm'
+import { v7 as uuidv7 } from 'uuid'
 import type { Database } from '.'
+import { SYSTEM_USER_ID, withActor } from './actor'
 import { generateOrganization } from './demo/generate'
-import { employeeProfile, member, participation, project, updateRequest, user } from './schema'
-import { demoOrganizations, generateDemoData, seed, seedIds, seedUsers } from './seed'
-import { createTestDatabase } from './testing'
+import {
+  employeeProfile,
+  member,
+  organization,
+  participation,
+  project,
+  technology,
+  updateRequest,
+  user,
+} from './schema'
+import {
+  addPasswordUser,
+  demoOrganizations,
+  generateDemoData,
+  resetOrganization,
+  seed,
+  seedIds,
+  seedUsers,
+} from './seed'
+import { createTestDatabase, failure } from './testing'
 
 const data = generateDemoData()
 
@@ -134,5 +153,116 @@ describe('seed(db)', () => {
         and(eq(employeeProfile.userId, seedIds.users.employee), isNull(updateRequest.closedAt)),
       )
     expect(open).toHaveLength(1)
+  })
+})
+
+async function projectNames(db: Database, organizationId: string) {
+  const rows = await db
+    .select({ name: project.name })
+    .from(project)
+    .where(eq(project.organizationId, organizationId))
+  return rows.map((row) => row.name).sort()
+}
+
+async function renameFirstProject(db: Database, organizationId: string, name: string) {
+  const [first] = await db
+    .select({ id: project.id })
+    .from(project)
+    .where(eq(project.organizationId, organizationId))
+  if (!first) throw new Error('expected a project')
+  await withActor(SYSTEM_USER_ID, async () => {
+    await db.update(project).set({ name }).where(eq(project.id, first.id))
+  })
+}
+
+function generatedNames(index: number) {
+  return (data[index]?.projects ?? []).map((row) => row.name).sort()
+}
+
+describe('seeding a seeded database', () => {
+  let db: Database
+  let cleanup: () => void
+
+  beforeAll(async () => {
+    ;({ db, cleanup } = await createTestDatabase())
+    await seed(db)
+  })
+
+  afterAll(() => cleanup())
+
+  test('adds nothing and keeps changes', async () => {
+    await renameFirstProject(db, seedIds.orgs.demo, 'Renamed')
+    expect(await seed(db)).toEqual({ added: [], skipped: ['demo', 'rabasaare', 'tormilind'] })
+    expect(await projectNames(db, seedIds.orgs.demo)).toContain('Renamed')
+  })
+})
+
+describe('seeding a database with some organizations', () => {
+  let db: Database
+  let cleanup: () => void
+  const company = uuidv7()
+
+  beforeAll(async () => {
+    ;({ db, cleanup } = await createTestDatabase())
+    // What the seed before the generator left: the dev users in an empty demo organization.
+    const at = new Date()
+    await db.insert(organization).values([
+      { id: seedIds.orgs.demo, name: 'Demo Software', slug: 'demo', createdAt: at },
+      { id: company, name: 'Company', slug: 'company', createdAt: at },
+    ])
+    for (const person of seedUsers) {
+      await addPasswordUser(db, person)
+      await db.insert(member).values({
+        id: person.id,
+        organizationId: seedIds.orgs.demo,
+        userId: person.id,
+        role: person.role,
+        createdAt: at,
+      })
+    }
+  })
+
+  afterAll(() => cleanup())
+
+  test('adds only the missing demo organizations', async () => {
+    expect(await seed(db)).toEqual({ added: ['rabasaare', 'tormilind'], skipped: ['demo'] })
+    expect(await projectNames(db, seedIds.orgs.demo)).toEqual([])
+    expect(await projectNames(db, company)).toEqual([])
+    expect(await projectNames(db, seedIds.orgs.tormilind)).toEqual(generatedNames(2))
+  })
+})
+
+describe('resetOrganization', () => {
+  let db: Database
+  let cleanup: () => void
+
+  beforeAll(async () => {
+    ;({ db, cleanup } = await createTestDatabase())
+    await seed(db)
+  })
+
+  afterAll(() => cleanup())
+
+  test('replaces one organization’s data and leaves the others alone', async () => {
+    await renameFirstProject(db, seedIds.orgs.demo, 'Renamed in demo')
+    await renameFirstProject(db, seedIds.orgs.tormilind, 'Renamed in tormilind')
+    const [users] = await db.select({ n: count() }).from(user)
+
+    await resetOrganization(db, 'demo')
+
+    expect(await projectNames(db, seedIds.orgs.demo)).toEqual(generatedNames(0))
+    expect(await projectNames(db, seedIds.orgs.tormilind)).toContain('Renamed in tormilind')
+    const [technologies] = await db
+      .select({ n: count() })
+      .from(technology)
+      .where(eq(technology.organizationId, seedIds.orgs.demo))
+    expect(technologies?.n).toBe(data[0]?.technologies.length)
+    expect(await db.select({ n: count() }).from(user)).toEqual([users])
+  })
+
+  test('refuses an organization that isn’t a demo one', async () => {
+    expect(await failure(() => resetOrganization(db, 'company'))).toContain(
+      'No demo organization "company"',
+    )
   })
 })

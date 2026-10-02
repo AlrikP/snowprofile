@@ -229,9 +229,11 @@ What the import must handle (`Snowhound_CV_baas.xlsx`):
   hiding the form isn't the guard. Password sign-up is always off: password accounts
   exist only in seeded data. `src/server/auth/sign-in.server.ts` holds these rules, and
   both the auth instance and the sign-in page build from it.
-- The seeder (`bun run db:seed`) refuses a database that isn't a local file, refuses a
-  production stack unless `DEMO_MODE` is on, and refuses a database it has already
-  seeded.
+- The seeder (`bun run db:seed`) refuses a database that isn't a local file, and a
+  production stack unless `DEMO_MODE` is on. It adds only the demo organizations the
+  database lacks, so it never overwrites data; `--reset <slug>` replaces one demo
+  organization's data and leaves the others alone. Users are kept on reset, because users
+  are never hard-deleted.
 - Google sign-in is on when `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` are both set and
   `DEMO_MODE` is off; the app refuses to start with only one of them. The README has the
   OAuth client setup.

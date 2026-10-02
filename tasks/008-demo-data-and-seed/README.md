@@ -1,6 +1,6 @@
 # 008: Demo data generator and seed
 
-Status: in-progress
+Status: done
 Depends on: task 007 (the tables it fills)
 
 The generator serves local development, tests, performance data, and demos
@@ -14,7 +14,7 @@ The generator serves local development, tests, performance data, and demos
 
 ## Acceptance criteria
 
-- [ ] All subtasks are done.
+- [x] All subtasks are done.
 - [x] Given a seed, the generator always produces the same data, at a fixed moment, so
       counts and periods are the same on any day.
 - [x] It creates several fictional organizations with customers, contact persons,
@@ -24,9 +24,9 @@ The generator serves local development, tests, performance data, and demos
 - [x] Text is believable Estonian and English; some translations are missing on purpose,
       so the CV's missing-translation flag has data.
 - [x] Every person, company, and email address is fictional (`example.com` addresses).
-- [ ] `db:seed` loads it into the local database; it doesn't overwrite existing data
+- [x] `db:seed` loads it into the local database; it doesn't overwrite existing data
       unless asked to reset.
-- [ ] It can reset one demo organization without touching others.
-- [ ] It refuses a database that isn't a local file, and a production stack unless
+- [x] It can reset one demo organization without touching others.
+- [x] It refuses a database that isn't a local file, and a production stack unless
       `DEMO_MODE` is on; tests cover both refusals.
 - [x] The dev users from task 006.2 are part of the seed.
