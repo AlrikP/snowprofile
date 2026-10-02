@@ -17,17 +17,16 @@ import {
   technologyCategory,
   tenderCriterion,
 } from './schema'
-import { seed, seedIds } from './seed'
 import { createTestDatabase, failure } from './testing'
 
 let db: Database
 let cleanup: () => void
 
-const demo = seedIds.orgs.demo
+const home = uuidv7()
 const other = uuidv7()
 // One of each referenced row in both organizations, so a test can point across them.
 const rows = {
-  demo: { customer: uuidv7(), contact: uuidv7(), technology: uuidv7(), criterion: uuidv7() },
+  home: { customer: uuidv7(), contact: uuidv7(), technology: uuidv7(), criterion: uuidv7() },
   other: { customer: uuidv7(), contact: uuidv7(), technology: uuidv7(), criterion: uuidv7() },
 }
 
@@ -35,7 +34,7 @@ function asSystem<T>(fn: () => Promise<T>) {
   return withActor(SYSTEM_USER_ID, fn)
 }
 
-async function addReferencedRows(organizationId: string, ids: (typeof rows)['demo']) {
+async function addReferencedRows(organizationId: string, ids: (typeof rows)['home']) {
   const category = uuidv7()
   await db.insert(technologyCategory).values({ id: category, organizationId, nameEn: 'Data' })
   await db.insert(technology).values({
@@ -57,7 +56,7 @@ function addProject(values: Partial<typeof project.$inferInsert> = {}) {
   return asSystem(async () => {
     await db.insert(project).values({
       id,
-      organizationId: demo,
+      organizationId: home,
       name: 'Self-service portal',
       normalizedName: 'selfserviceportal',
       startDate: '2024-05',
@@ -69,12 +68,12 @@ function addProject(values: Partial<typeof project.$inferInsert> = {}) {
 
 beforeAll(async () => {
   ;({ db, cleanup } = await createTestDatabase())
-  await seed(db)
-  await db
-    .insert(organization)
-    .values({ id: other, name: 'Other', slug: 'other', createdAt: new Date() })
+  await db.insert(organization).values([
+    { id: home, name: 'Home', slug: 'home', createdAt: new Date() },
+    { id: other, name: 'Other', slug: 'other', createdAt: new Date() },
+  ])
   await asSystem(async () => {
-    await addReferencedRows(demo, rows.demo)
+    await addReferencedRows(home, rows.home)
     await addReferencedRows(other, rows.other)
   })
 })
@@ -86,7 +85,7 @@ describe('organization consistency', () => {
     expect(await failure(() => addProject({ customerId: rows.other.customer }))).toContain(
       'FOREIGN KEY',
     )
-    expect(await failure(() => addProject({ customerId: rows.demo.customer }))).toBeNull()
+    expect(await failure(() => addProject({ customerId: rows.home.customer }))).toBeNull()
   })
 
   test('a contact person cannot belong to another organization’s customer', async () => {
@@ -94,7 +93,7 @@ describe('organization consistency', () => {
       asSystem(async () => {
         await db.insert(contactPerson).values({
           id: uuidv7(),
-          organizationId: demo,
+          organizationId: home,
           customerId: rows.other.customer,
           name: 'Someone',
         })
@@ -117,14 +116,14 @@ describe('organization consistency', () => {
       await link(() =>
         db
           .insert(projectTechnology)
-          .values({ projectId, technologyId: rows.other.technology, organizationId: demo }),
+          .values({ projectId, technologyId: rows.other.technology, organizationId: home }),
       ),
     ).toContain('FOREIGN KEY')
     expect(
       await link(() =>
         db
           .insert(projectContact)
-          .values({ projectId, contactPersonId: rows.other.contact, organizationId: demo }),
+          .values({ projectId, contactPersonId: rows.other.contact, organizationId: home }),
       ),
     ).toContain('FOREIGN KEY')
     expect(
@@ -132,7 +131,7 @@ describe('organization consistency', () => {
         db.insert(projectCriterionAnswer).values({
           projectId,
           criterionId: rows.other.criterion,
-          organizationId: demo,
+          organizationId: home,
           answer: true,
         }),
       ),
@@ -150,7 +149,7 @@ describe('organization consistency', () => {
       await link(() =>
         db
           .insert(projectTechnology)
-          .values({ projectId, technologyId: rows.demo.technology, organizationId: demo }),
+          .values({ projectId, technologyId: rows.home.technology, organizationId: home }),
       ),
     ).toBeNull()
   })
@@ -229,15 +228,15 @@ test('two projects can share a name', async () => {
 })
 
 test('the relations load a project with its customer, technologies, and answers', async () => {
-  const projectId = await addProject({ customerId: rows.demo.customer })
+  const projectId = await addProject({ customerId: rows.home.customer })
   await asSystem(async () => {
     await db
       .insert(projectTechnology)
-      .values({ projectId, technologyId: rows.demo.technology, organizationId: demo })
+      .values({ projectId, technologyId: rows.home.technology, organizationId: home })
     await db.insert(projectCriterionAnswer).values({
       projectId,
-      criterionId: rows.demo.criterion,
-      organizationId: demo,
+      criterionId: rows.home.criterion,
+      organizationId: home,
       answer: true,
       note: 'Both REST and SOAP',
     })

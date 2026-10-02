@@ -11,6 +11,7 @@ import { createTestDatabase, failure } from './testing'
 
 let db: Database
 let cleanup: () => void
+let homeOrg: string
 let otherOrg: string
 let category: string
 let otherCategory: string
@@ -26,15 +27,17 @@ function addTechnology(values: { organizationId: string; categoryId: string; nam
 beforeAll(async () => {
   ;({ db, cleanup } = await createTestDatabase())
   await seed(db)
+  homeOrg = uuidv7()
   otherOrg = uuidv7()
   category = uuidv7()
   otherCategory = uuidv7()
-  await db
-    .insert(organization)
-    .values({ id: otherOrg, name: 'Other', slug: 'other', createdAt: new Date() })
+  await db.insert(organization).values([
+    { id: homeOrg, name: 'Home', slug: 'home', createdAt: new Date() },
+    { id: otherOrg, name: 'Other', slug: 'other', createdAt: new Date() },
+  ])
   await withActor(SYSTEM_USER_ID, async () => {
     await db.insert(technologyCategory).values([
-      { id: category, organizationId: seedIds.orgs.demo, nameEn: 'Backend' },
+      { id: category, organizationId: homeOrg, nameEn: 'Backend' },
       { id: otherCategory, organizationId: otherOrg, nameEn: 'Backend' },
     ])
   })
@@ -56,7 +59,7 @@ test('a write without an actor fails', async () => {
 
 test('the actor fills created_by and updated_by, and an update records its own actor', async () => {
   const id = await addTechnology({
-    organizationId: seedIds.orgs.demo,
+    organizationId: homeOrg,
     categoryId: category,
     name: 'Bun',
   })
@@ -70,7 +73,7 @@ test('the actor fills created_by and updated_by, and an update records its own a
 
 test('the trigger sets updated_at when a statement bypasses Drizzle', async () => {
   const id = await addTechnology({
-    organizationId: seedIds.orgs.demo,
+    organizationId: homeOrg,
     categoryId: category,
     name: 'Deno',
   })
@@ -82,14 +85,14 @@ test('the trigger sets updated_at when a statement bypasses Drizzle', async () =
 
 test('a technology cannot use another organization’s category', async () => {
   const error = await failure(() =>
-    addTechnology({ organizationId: seedIds.orgs.demo, categoryId: otherCategory, name: 'Go' }),
+    addTechnology({ organizationId: homeOrg, categoryId: otherCategory, name: 'Go' }),
   )
   expect(error).toContain('FOREIGN KEY')
 })
 
 test('a technology cannot be merged into another organization’s technology', async () => {
   const mine = await addTechnology({
-    organizationId: seedIds.orgs.demo,
+    organizationId: homeOrg,
     categoryId: category,
     name: 'Rust',
   })
@@ -108,12 +111,12 @@ test('a technology cannot be merged into another organization’s technology', a
 
 test('one live technology per name, and deleting one frees its name', async () => {
   const first = await addTechnology({
-    organizationId: seedIds.orgs.demo,
+    organizationId: homeOrg,
     categoryId: category,
     name: 'Kotlin',
   })
   const duplicate = await failure(() =>
-    addTechnology({ organizationId: seedIds.orgs.demo, categoryId: category, name: 'Kotlin' }),
+    addTechnology({ organizationId: homeOrg, categoryId: category, name: 'Kotlin' }),
   )
   expect(duplicate).toContain('UNIQUE')
 
@@ -121,7 +124,7 @@ test('one live technology per name, and deleting one frees its name', async () =
     await db.update(technology).set({ sysDeleted: true }).where(eq(technology.id, first))
   })
   const again = await addTechnology({
-    organizationId: seedIds.orgs.demo,
+    organizationId: homeOrg,
     categoryId: category,
     name: 'Kotlin',
   })
@@ -139,7 +142,7 @@ test('a category needs a name in at least one language', async () => {
 
 test('the relations load a technology with its category', async () => {
   const id = await addTechnology({
-    organizationId: seedIds.orgs.demo,
+    organizationId: homeOrg,
     categoryId: category,
     name: 'Elixir',
   })

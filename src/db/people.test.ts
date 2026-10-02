@@ -24,10 +24,10 @@ import { createTestDatabase, failure } from './testing'
 let db: Database
 let cleanup: () => void
 
-const demo = seedIds.orgs.demo
+const home = uuidv7()
 const other = uuidv7()
 const ids = {
-  demo: { profile: uuidv7(), project: uuidv7(), technology: uuidv7() },
+  home: { profile: uuidv7(), project: uuidv7(), technology: uuidv7() },
   other: { profile: uuidv7(), project: uuidv7(), technology: uuidv7() },
 }
 
@@ -44,7 +44,7 @@ function write(statement: () => Promise<unknown>) {
   )
 }
 
-async function addOrganizationRows(organizationId: string, rows: (typeof ids)['demo']) {
+async function addOrganizationRows(organizationId: string, rows: (typeof ids)['home']) {
   const category = uuidv7()
   await db.insert(technologyCategory).values({ id: category, organizationId, nameEn: 'Frontend' })
   await db.insert(technology).values({
@@ -74,9 +74,9 @@ function addParticipation(values: Partial<typeof participation.$inferInsert> = {
   return write(() =>
     db.insert(participation).values({
       id: uuidv7(),
-      organizationId: demo,
-      profileId: ids.demo.profile,
-      projectId: ids.demo.project,
+      organizationId: home,
+      profileId: ids.home.profile,
+      projectId: ids.home.project,
       startDate: '2023-02',
       ...values,
     }),
@@ -86,11 +86,12 @@ function addParticipation(values: Partial<typeof participation.$inferInsert> = {
 beforeAll(async () => {
   ;({ db, cleanup } = await createTestDatabase())
   await seed(db)
-  await db
-    .insert(organization)
-    .values({ id: other, name: 'Other', slug: 'other', createdAt: new Date() })
+  await db.insert(organization).values([
+    { id: home, name: 'Home', slug: 'home', createdAt: new Date() },
+    { id: other, name: 'Other', slug: 'other', createdAt: new Date() },
+  ])
   await asSystem(async () => {
-    await addOrganizationRows(demo, ids.demo)
+    await addOrganizationRows(home, ids.home)
     await addOrganizationRows(other, ids.other)
   })
 })
@@ -109,7 +110,7 @@ describe('organization consistency', () => {
       await write(() =>
         db.insert(education).values({
           id: uuidv7(),
-          organizationId: demo,
+          organizationId: home,
           profileId: ids.other.profile,
           institutionEt: 'Tartu Ülikool',
         }),
@@ -119,7 +120,7 @@ describe('organization consistency', () => {
       await write(() =>
         db.insert(ownProject).values({
           id: uuidv7(),
-          organizationId: demo,
+          organizationId: home,
           profileId: ids.other.profile,
           name: 'Earlier work',
           startDate: '2015',
@@ -134,15 +135,15 @@ describe('organization consistency', () => {
     await asSystem(async () => {
       await db.insert(participation).values({
         id: participationId,
-        organizationId: demo,
-        profileId: ids.demo.profile,
-        projectId: ids.demo.project,
+        organizationId: home,
+        profileId: ids.home.profile,
+        projectId: ids.home.project,
         startDate: '2023',
       })
       await db.insert(ownProject).values({
         id: ownProjectId,
-        organizationId: demo,
-        profileId: ids.demo.profile,
+        organizationId: home,
+        profileId: ids.home.profile,
         name: 'Earlier work',
         startDate: '2015',
       })
@@ -153,7 +154,7 @@ describe('organization consistency', () => {
         db.insert(participationTechnology).values({
           participationId,
           technologyId: ids.other.technology,
-          organizationId: demo,
+          organizationId: home,
         }),
       ),
     ).toContain('FOREIGN KEY')
@@ -162,7 +163,7 @@ describe('organization consistency', () => {
         db.insert(ownProjectTechnology).values({
           ownProjectId,
           technologyId: ids.other.technology,
-          organizationId: demo,
+          organizationId: home,
         }),
       ),
     ).toContain('FOREIGN KEY')
@@ -170,8 +171,8 @@ describe('organization consistency', () => {
       await write(() =>
         db.insert(participationTechnology).values({
           participationId,
-          technologyId: ids.demo.technology,
-          organizationId: demo,
+          technologyId: ids.home.technology,
+          organizationId: home,
         }),
       ),
     ).toBeNull()
@@ -191,8 +192,8 @@ describe('periods and dates', () => {
       write(() =>
         db.insert(education).values({
           id: uuidv7(),
-          organizationId: demo,
-          profileId: ids.demo.profile,
+          organizationId: home,
+          profileId: ids.home.profile,
           institutionEn: 'University of Tartu',
           ...values,
         }),
@@ -206,7 +207,7 @@ describe('periods and dates', () => {
   test('profile dates are full ISO dates, and leaving comes after joining', async () => {
     const setProfile = (values: Partial<typeof employeeProfile.$inferInsert>) =>
       write(() =>
-        db.update(employeeProfile).set(values).where(eq(employeeProfile.id, ids.demo.profile)),
+        db.update(employeeProfile).set(values).where(eq(employeeProfile.id, ids.home.profile)),
       )
     expect(await setProfile({ birthDate: '1990-07' })).toContain('employee_profile_birth_date')
     expect(await setProfile({ leftDate: '2019-12-31' })).toContain('employee_profile_employment')
@@ -219,7 +220,7 @@ describe('periods and dates', () => {
       await write(() =>
         db.insert(employeeProfile).values({
           id: uuidv7(),
-          organizationId: demo,
+          organizationId: home,
           userId: seedIds.users.employee,
           fullName: 'Second profile',
         }),
@@ -239,8 +240,8 @@ describe('approximate numbers', () => {
       write(() =>
         db.insert(ownProject).values({
           id: uuidv7(),
-          organizationId: demo,
-          profileId: ids.demo.profile,
+          organizationId: home,
+          profileId: ids.home.profile,
           name: 'Earlier work',
           startDate: '2015',
           ...values,
@@ -258,12 +259,12 @@ describe('update requests', () => {
     await withActor(seedIds.users.admin, async () => {
       await db
         .insert(updateRequest)
-        .values({ id, organizationId: demo, profileId: ids.demo.profile, message: 'Add 2026' })
+        .values({ id, organizationId: home, profileId: ids.home.profile, message: 'Add 2026' })
     })
     const open = await db
       .select()
       .from(updateRequest)
-      .where(and(eq(updateRequest.profileId, ids.demo.profile), isNull(updateRequest.closedAt)))
+      .where(and(eq(updateRequest.profileId, ids.home.profile), isNull(updateRequest.closedAt)))
     expect(open.map((request) => request.id)).toEqual([id])
 
     expect(
@@ -287,7 +288,7 @@ describe('update requests', () => {
 
 test('the relations load a profile with its participations and technologies', async () => {
   const loaded = await db.query.employeeProfile.findFirst({
-    where: { id: ids.demo.profile },
+    where: { id: ids.home.profile },
     with: {
       participations: { with: { project: true, technologies: { with: { technology: true } } } },
       ownProjects: true,
