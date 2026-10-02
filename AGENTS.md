@@ -70,8 +70,13 @@ convention names a check, the "Lint rules" task builds it.
   `src/server/auth/better-auth.server.ts`). Client code imports a domain's
   `*.functions.ts` and `*.schemas.ts` only, never `*.server.ts`. Route files that only
   define server handlers (under `src/routes/api/`) are server code.
-- Database access goes only through repository modules, which apply the organization
-  scoping (`docs/architecture.md`, "Application rules").
+- Database access goes only through repository modules
+  (`src/server/<domain>/<domain>.repository.server.ts`). Each function takes
+  `(db, scope, ...)` and scopes every query by `scope.organizationId`
+  (`docs/architecture.md`, "Application rules"). Server functions get the database as
+  `context.db` from the middleware. Check: `src/server/tenancy.test.ts` fails for a
+  repository function without an isolation case; task 014 restricts `#/db/schema` and
+  `drizzle-orm` imports to repositories.
 - Import with a relative path inside the importer's area, and through the `#/` alias for
   everything else. An area is one feature folder (`src/features/<name>/`), `src/server/`,
   or another top-level folder of `src/` (`src/components/`, `src/lib/`, `src/routes/`).

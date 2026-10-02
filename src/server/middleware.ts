@@ -1,5 +1,7 @@
 // Middleware for server functions. A function picks one: sessionMiddleware for calls about
-// the signed-in user, scopeMiddleware for calls on an organization's data.
+// the signed-in user, scopeMiddleware for calls on an organization's data. Both hand the
+// function the database as context.db, so functions don't import it and the rules they
+// call take it as a parameter, which tests fill with a test database.
 import { createMiddleware } from '@tanstack/react-start'
 import { getRequestHeaders } from '@tanstack/react-start/server'
 import { db } from '#/db'
@@ -12,7 +14,7 @@ import { sessionUserId } from './session.server'
 // A signed-in user, as context.userId. The call's database writes run as that user.
 export const sessionMiddleware = createMiddleware({ type: 'function' }).server(async ({ next }) => {
   const userId = await sessionUserId(auth, getRequestHeaders())
-  return withActor(userId, () => next({ context: { userId } }))
+  return withActor(userId, () => next({ context: { userId, db } }))
 })
 
 // The organization the call names, checked against the user's memberships, as
@@ -26,5 +28,7 @@ export const scopeMiddleware = createMiddleware({ type: 'function' })
   // rest, so it checks organizationId and returns the input whole.
   .validator((input: { organizationId: string }) => parseOrganizationInput(input))
   .server(async ({ next, context, data }) =>
-    next({ context: { scope: await resolveScope(db, context.userId, data.organizationId) } }),
+    next({
+      context: { scope: await resolveScope(context.db, context.userId, data.organizationId) },
+    }),
   )

@@ -82,8 +82,14 @@ conventions apply to every app-owned table; Better Auth's tables keep the plugin
 
 ### Tenancy
 
+- All organizations share one database, and rows belong to an organization through
+  `organization_id`. A SQLite file per organization would be simple, but it doesn't carry
+  over to the [PostgreSQL move](#deferred--out-of-scope): a PostgreSQL database per
+  organization isn't feasible to run. One database also keeps a single migration path,
+  backup, and writer.
 - Every tenant-owned table has a non-null `organization_id`, and queries always scope by
-  it.
+  it. The repositories apply the scope ([Application rules](#application-rules)), and the
+  composite keys below stop a cross-organization reference even where a query misses it.
 - A reference between tenant-owned rows is a composite foreign key on
   `(<ref>_id, organization_id)` to the target's `(id, organization_id)`, which carries a
   unique index. A row then can't point into another organization, even if the app has a
@@ -192,9 +198,22 @@ What the import must handle (`Snowhound_CV_baas.xlsx`):
 
 ## Application rules
 
-- **Data access only through repository modules,** one per area. They apply the
-  organization scoping in one place. No SQL or ORM calls in routes, server functions, or
-  UI code, so a database change stays inside the repositories.
+- **Data access only through repository modules,** one per area:
+  `src/server/<domain>/<domain>.repository.server.ts`. Only they build queries or import
+  `#/db/schema` and `drizzle-orm`; routes, server functions, rules, and UI code don't, so
+  a database change stays inside the repositories. The exceptions are `src/db/` itself
+  (schema, seed, test helpers), `scripts/`, tests, and Better Auth's adapter.
+- **Every repository function takes the scope and applies it.** Its parameters are
+  `(db, scope, ...)`; every query filters by `scope.organizationId`, and every insert sets
+  it from the scope, never from input. The membership lookup that builds the scope
+  (`organizations.findMemberRole`) is the one function without one.
+  `src/server/tenancy.test.ts` needs a case for every exported repository function showing
+  that a scope in one organization can't read or change another's rows, and fails when a
+  function has none.
+- **The database handle comes from the middleware** as `context.db`. Server functions pass
+  it to the rules, which pass it, or a transaction, to the repositories. Tests call the
+  rules with a test database. The rules own transactions; a repository function runs on
+  whichever handle it gets.
 - **Authorization is checked in the server rules** (`*.server.ts`); SQLite has no
   row-level security. Server functions are thin: pick a middleware, validate with Valibot,
   call the rules.
@@ -202,7 +221,7 @@ What the import must handle (`Snowhound_CV_baas.xlsx`):
 - **The server returns error codes, keys, dates, and numbers;** the client translates and
   formats them.
 - **Portable SQL.** Prefer SQL that PostgreSQL also accepts. Where SQLite needs its own
-  form, keep it inside the repository or migration and note it.
+  form, keep it inside the repository or migration and note it in a comment there.
 - **One SQLite writer.** Statements queue while a transaction is open, so concurrent
   requests never fail on SQLite's write lock (`src/db/connection.ts`, after snowtime's
   task 043). Code inside a transaction uses its handle, never the client.

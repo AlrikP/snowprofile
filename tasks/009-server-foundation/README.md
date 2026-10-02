@@ -1,6 +1,6 @@
 # 009: Server foundation and tenancy
 
-Status: in-progress
+Status: done
 Depends on: task 006 (sessions and memberships), task 007 (tables), task 008 (seed for test databases)
 
 The base every server feature builds on: test databases, middleware, errors, and
@@ -16,4 +16,4 @@ repository modules that apply organization scoping in one place
 
 ## Acceptance criteria
 
-- [ ] All subtasks are done.
+- [x] All subtasks are done.

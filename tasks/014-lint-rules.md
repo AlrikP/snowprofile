@@ -12,6 +12,8 @@ lose.
 - [ ] Import boundaries: `src/features/` only from routes and `src/router.tsx`; no
       `*.server.ts` from client code; relative imports only inside the importer's area,
       `#/` across areas.
+- [ ] Only repository modules (`*.repository.server.ts`), `src/db/`, `scripts/`, tests, and
+      `src/server/auth/better-auth.server.ts` import `#/db/schema` or `drizzle-orm`.
 - [ ] knip, with the app's entry points and ignores for generated files and prototypes,
       in the pre-commit hook and CI.
 - [ ] `icons:check` enforces the `Icon` suffix on Lucide imports and hand-written icons,

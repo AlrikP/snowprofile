@@ -1,11 +1,10 @@
 // The tenancy helper: who is acting, in which organization, with which role. Every server
 // function that touches tenant data gets its scope here (through scopeMiddleware) and
 // passes it to the rules, which check permissions with requirePermission.
-import { and, eq } from 'drizzle-orm'
 import type { Executor } from '#/db'
-import { member } from '#/db/schema'
 import { roles } from '#/lib/permissions'
 import { AppError, type AppErrorKey } from './errors'
+import { findMemberRole } from './organizations/organizations.repository.server'
 
 export type Scope = {
   userId: string
@@ -22,12 +21,9 @@ export async function resolveScope(
   userId: string,
   organizationId: string,
 ): Promise<Scope> {
-  const [membership] = await db
-    .select({ role: member.role })
-    .from(member)
-    .where(and(eq(member.organizationId, organizationId), eq(member.userId, userId)))
-  if (!membership) throw new AppError('FORBIDDEN', 'not_organization_member')
-  return { userId, organizationId, role: membership.role }
+  const role = await findMemberRole(db, userId, organizationId)
+  if (role === undefined) throw new AppError('FORBIDDEN', 'not_organization_member')
+  return { userId, organizationId, role }
 }
 
 function isRoleName(name: string): name is RoleName {
