@@ -26,4 +26,22 @@ describe('SignInPage', () => {
     expect(screen.queryByRole('region', { name: 'Demo version' })).not.toBeInTheDocument()
     expect(screen.queryByLabelText('Password')).not.toBeInTheDocument()
   })
+
+  it('offers Google sign-in when it is configured', () => {
+    render(<SignInPage options={{ methods: ['google'], demo: null }} onSignedIn={() => {}} />)
+
+    expect(screen.getByRole('button', { name: 'Sign in with Google' })).toBeInTheDocument()
+  })
+
+  it('explains a refused login domain', () => {
+    render(
+      <SignInPage
+        options={{ methods: ['google'], demo: null }}
+        initialError="LOGIN_DOMAIN_NOT_ALLOWED"
+        onSignedIn={() => {}}
+      />,
+    )
+
+    expect(screen.getByRole('alert')).toHaveTextContent('email domain')
+  })
 })

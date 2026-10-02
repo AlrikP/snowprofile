@@ -49,6 +49,30 @@ the server.
 The migration workflow is in [`docs/migrations.md`](docs/migrations.md). Seed data and
 end-to-end tests arrive with their tasks in `tasks/`.
 
+## Google sign-in
+
+Deployed environments sign in with Google; local development uses the seeded demo users
+(`DEMO_MODE`). To try Google locally, or to set up a deployed stack:
+
+1. In the [Google Cloud console](https://console.cloud.google.com/), pick or create a
+   project, then open **APIs & Services > OAuth consent screen**. Choose **Internal** for a
+   Google Workspace organization (only its accounts can sign in), or **External** with test
+   users while trying it out. Request only the `openid`, `email`, and `profile` scopes.
+2. Open **APIs & Services > Credentials > Create credentials > OAuth client ID**, with
+   application type **Web application**.
+3. Add the environment's URL (`BETTER_AUTH_URL`) under **Authorized JavaScript origins**,
+   and `<BETTER_AUTH_URL>/api/auth/callback/google` under **Authorized redirect URIs**, for
+   example `http://localhost:3000/api/auth/callback/google`. Each environment needs its own
+   entries.
+4. Put the client ID and secret in `.env.local` (or the deployed stack's environment) as
+   `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`. Google sign-in stays off while
+   `DEMO_MODE` is on, so set `DEMO_MODE=false` to try it locally.
+5. Optionally set `ALLOWED_LOGIN_DOMAINS` (for example `snowhound.eu`) to refuse other
+   domains. It can't be combined with `DEMO_MODE`.
+
+A Google account with no membership signs in to a "no access" page until an organization
+admin invites it.
+
 ## Docs and tasks
 
 - [`docs/product.md`](docs/product.md): what the MVP does and doesn't do.

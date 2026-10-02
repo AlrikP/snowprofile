@@ -25,7 +25,7 @@ function signIn(auth: ReturnType<typeof createAuth>, password = SEED_PASSWORD) {
 }
 
 describe('with DEMO_MODE on', () => {
-  const config = { DEMO_MODE: true }
+  const config = { DEMO_MODE: true, ALLOWED_LOGIN_DOMAINS: [] }
 
   test('a seeded user signs in with the seed password', async () => {
     const response = await signIn(createAuth(db, config))
@@ -57,7 +57,7 @@ describe('with DEMO_MODE on', () => {
 })
 
 describe('with DEMO_MODE off', () => {
-  const config = { DEMO_MODE: false }
+  const config = { DEMO_MODE: false, ALLOWED_LOGIN_DOMAINS: [] }
 
   test('the server rejects password sign-in, even with the right password', async () => {
     const response = await signIn(createAuth(db, config))
@@ -66,5 +66,25 @@ describe('with DEMO_MODE off', () => {
 
   test('the sign-in page offers no password form and no demo accounts', () => {
     expect(signInOptions(config)).toEqual({ methods: [], demo: null })
+  })
+})
+
+describe('Google', () => {
+  const google = {
+    GOOGLE_CLIENT_ID: 'id',
+    GOOGLE_CLIENT_SECRET: 'secret',
+    ALLOWED_LOGIN_DOMAINS: [],
+  }
+
+  test('is offered when its client is configured and demo mode is off', () => {
+    expect(signInOptions({ ...google, DEMO_MODE: false }).methods).toEqual(['google'])
+  })
+
+  test('is off in demo mode, even when configured', () => {
+    expect(signInOptions({ ...google, DEMO_MODE: true }).methods).toEqual(['password'])
+  })
+
+  test('is off without a configured client', () => {
+    expect(signInOptions({ DEMO_MODE: false, ALLOWED_LOGIN_DOMAINS: [] }).methods).toEqual([])
   })
 })

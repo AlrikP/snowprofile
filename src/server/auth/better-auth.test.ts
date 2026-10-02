@@ -15,7 +15,7 @@ const UUID_V7 = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f
 
 beforeAll(async () => {
   ;({ db, cleanup } = await createTestDatabase())
-  auth = createAuth(db, { DEMO_MODE: true })
+  auth = createAuth(db, { DEMO_MODE: true, ALLOWED_LOGIN_DOMAINS: [] })
 })
 
 afterAll(() => cleanup())

@@ -7,11 +7,21 @@ import { authClient } from '#/lib/auth-client'
 import type { SignInOptions } from '#/server/auth/auth.functions'
 
 // A minimal sign-in page; task 012 gives it the app's look, and task 010 its translations.
+// The error codes Better Auth sends back after a refused Google sign-in.
+function signInErrorMessage(code: string) {
+  if (code.toUpperCase() === 'LOGIN_DOMAIN_NOT_ALLOWED') {
+    return 'This email domain can’t sign in here. Use your company Google account.'
+  }
+  return `Sign-in failed (${code}).`
+}
+
 export function SignInPage({
   options,
+  initialError,
   onSignedIn,
 }: {
   options: SignInOptions
+  initialError?: string
   onSignedIn: () => void
 }) {
   const [failed, setFailed] = useState(false)
@@ -38,7 +48,23 @@ export function SignInPage({
         </section>
       )}
 
-      {options.methods.includes('password') ? (
+      {initialError && <p role="alert">{signInErrorMessage(initialError)}</p>}
+
+      {options.methods.includes('google') && (
+        <Button
+          onClick={() =>
+            void authClient.signIn.social({
+              provider: 'google',
+              callbackURL: '/',
+              errorCallbackURL: '/sign-in',
+            })
+          }
+        >
+          Sign in with Google
+        </Button>
+      )}
+
+      {options.methods.includes('password') && (
         <form
           className="flex flex-col gap-4"
           onSubmit={(event) => {
@@ -87,9 +113,9 @@ export function SignInPage({
             )}
           </form.Subscribe>
         </form>
-      ) : (
-        <p>No sign-in method is configured yet.</p>
       )}
+
+      {options.methods.length === 0 && <p>No sign-in method is configured yet.</p>}
     </main>
   )
 }

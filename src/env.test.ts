@@ -27,3 +27,39 @@ test('an explicit DEMO_MODE wins over the default', () => {
 test('DATABASE_URL must be a local file', () => {
   expect(() => parseEnv({ ...base, DATABASE_URL: 'libsql://remote.example.com' })).toThrow()
 })
+
+test('Google needs both its client ID and secret', () => {
+  expect(() => parseEnv({ ...base, GOOGLE_CLIENT_ID: 'id' })).toThrow('GOOGLE_CLIENT_SECRET')
+  const both = parseEnv({ ...base, GOOGLE_CLIENT_ID: 'id', GOOGLE_CLIENT_SECRET: 'secret' })
+  expect(both.GOOGLE_CLIENT_ID).toBe('id')
+})
+
+test('empty values count as unset, as in a copied .env.example', () => {
+  const parsed = parseEnv({
+    ...base,
+    NODE_ENV: 'production',
+    GOOGLE_CLIENT_ID: '',
+    GOOGLE_CLIENT_SECRET: '',
+    ALLOWED_LOGIN_DOMAINS: '',
+  })
+  expect(parsed.GOOGLE_CLIENT_ID).toBeUndefined()
+  expect(parsed.ALLOWED_LOGIN_DOMAINS).toEqual([])
+})
+
+test('ALLOWED_LOGIN_DOMAINS is a list of lowercased domains', () => {
+  const parsed = parseEnv({
+    ...base,
+    NODE_ENV: 'production',
+    ALLOWED_LOGIN_DOMAINS: 'Snowhound.eu, @example.com',
+  })
+  expect(parsed.ALLOWED_LOGIN_DOMAINS).toEqual(['snowhound.eu', 'example.com'])
+  expect(() =>
+    parseEnv({ ...base, NODE_ENV: 'production', ALLOWED_LOGIN_DOMAINS: 'not a domain' }),
+  ).toThrow()
+})
+
+test('the app refuses DEMO_MODE together with ALLOWED_LOGIN_DOMAINS', () => {
+  expect(() =>
+    parseEnv({ ...base, NODE_ENV: 'development', ALLOWED_LOGIN_DOMAINS: 'snowhound.eu' }),
+  ).toThrow('DEMO_MODE')
+})

@@ -231,9 +231,15 @@ What the import must handle (`Snowhound_CV_baas.xlsx`):
 - The seeder (`bun run db:seed`) refuses a database that isn't a local file, refuses a
   production stack unless `DEMO_MODE` is on, and refuses a database it has already
   seeded.
+- Google sign-in is on when `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` are both set and
+  `DEMO_MODE` is off; the app refuses to start with only one of them. The README has the
+  OAuth client setup.
 - `ALLOWED_LOGIN_DOMAINS` (for example `snowhound.eu`) restricts sign-in to company
-  addresses. The app refuses to start with both `DEMO_MODE` and `ALLOWED_LOGIN_DOMAINS`
+  addresses. Better Auth hooks refuse a new user and every new session for another
+  domain, so narrowing the list also locks out existing users at their next sign-in. The app refuses to start with both `DEMO_MODE` and `ALLOWED_LOGIN_DOMAINS`
   set, because seeded users have `example.com` addresses. A test checks this.
+- A signed-in user without a membership lands on a "no access" page. A new session starts
+  with the user's first organization active; a member of several switches.
 - The Google path gets a manual check after each deploy to the company stack. A local mock
   identity provider can be added if that path proves fragile.
 
