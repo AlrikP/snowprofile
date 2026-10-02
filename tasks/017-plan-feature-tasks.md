@@ -1,0 +1,21 @@
+# 017: Plan feature tasks
+
+Status: todo
+Depends on: task 007 (tables), task 009 (server foundation), task 011 (prototypes), task 012 (app frame)
+
+Write the feature tasks once the foundation exists, so they build on real tables and
+patterns rather than guesses.
+
+## Acceptance criteria
+
+- [ ] One feature task per MVP scope row in `docs/product.md`, split where a row is large
+      (for example Import and CV document); each names the docs, prototype, and tables it
+      builds on.
+- [ ] Dependencies between features only where one truly blocks another, so independent
+      features can run in parallel.
+- [ ] Product open questions that block a feature are resolved with the user or listed in
+      that feature's task.
+- [ ] Each task or subtask fits one reviewable commit (`tasks/README.md`).
+- [ ] A performance checks task is filed, following snowtime's `perf/` approach (bundle
+      size, query plans, page weight, load, on seeded data at a fixed moment), to start
+      once the first features exist.
