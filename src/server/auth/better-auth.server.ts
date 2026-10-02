@@ -7,16 +7,19 @@ import { type Database, db } from '#/db'
 import * as schema from '#/db/schema'
 import { env } from '#/env'
 import { ac, roles } from '#/lib/permissions'
+import { passwordSignInEnabled, type SignInConfig } from './sign-in.server'
 
-// A factory, so tests run the same configuration against their own database.
-export function createAuth(database: Database) {
+// A factory, so tests run the same configuration against their own database and settings.
+export function createAuth(database: Database, config: SignInConfig = env) {
   return betterAuth({
     secret: env.BETTER_AUTH_SECRET,
     baseURL: env.BETTER_AUTH_URL,
     database: drizzleAdapter(database, { provider: 'sqlite', schema }),
     advanced: { database: { generateId: () => uuidv7() } },
+    // Password accounts exist only in seeded data, so sign-up is always off.
     emailAndPassword: {
-      enabled: true,
+      enabled: passwordSignInEnabled(config),
+      disableSignUp: true,
     },
     plugins: [
       organization({

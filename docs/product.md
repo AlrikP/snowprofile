@@ -67,6 +67,7 @@ More roles come later; the role model must allow adding them.
 - Personal ID codes (isikukood): never stored.
 - Public self-signup for organizations; platform admins create organizations.
 - A one-click demo login without a Google account.
+- Passkey sign-in, as a second method beside Google (task 020).
 
 ## Users and access
 

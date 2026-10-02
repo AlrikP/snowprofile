@@ -221,10 +221,16 @@ What the import must handle (`Snowhound_CV_baas.xlsx`):
 ### Sign-in modes
 
 - `DEMO_MODE` is one runtime setting. It enables password sign-in for seeded users,
-  disables Google sign-in and password sign-up, and shows a "demo version" notice on the
-  sign-in page. It defaults to on in dev and test, and off otherwise.
-- The seeder refuses a database that isn't a local file, and refuses a production stack
-  unless `DEMO_MODE` is on. Password accounts exist only in seeded data.
+  disables Google sign-in, and shows a "demo version" notice on the sign-in page with the
+  seeded accounts. Unset, it defaults to on when `NODE_ENV` is `development` or `test`,
+  and off otherwise, including when `NODE_ENV` is unset.
+- With `DEMO_MODE` off, Better Auth's password endpoints reject every request; the page
+  hiding the form isn't the guard. Password sign-up is always off: password accounts
+  exist only in seeded data. `src/server/auth/sign-in.server.ts` holds these rules, and
+  both the auth instance and the sign-in page build from it.
+- The seeder (`bun run db:seed`) refuses a database that isn't a local file, refuses a
+  production stack unless `DEMO_MODE` is on, and refuses a database it has already
+  seeded.
 - `ALLOWED_LOGIN_DOMAINS` (for example `snowhound.eu`) restricts sign-in to company
   addresses. The app refuses to start with both `DEMO_MODE` and `ALLOWED_LOGIN_DOMAINS`
   set, because seeded users have `example.com` addresses. A test checks this.

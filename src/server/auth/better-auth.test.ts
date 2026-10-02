@@ -1,7 +1,9 @@
 /// <reference types="bun" />
 
 import { afterAll, beforeAll, expect, test } from 'bun:test'
+import { v7 as uuidv7 } from 'uuid'
 import type { Database } from '#/db'
+import { addPasswordUser } from '#/db/seed'
 import { createTestDatabase } from '#/db/testing'
 import { createAuth } from './better-auth.server'
 
@@ -13,14 +15,15 @@ const UUID_V7 = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f
 
 beforeAll(async () => {
   ;({ db, cleanup } = await createTestDatabase())
-  auth = createAuth(db)
+  auth = createAuth(db, { DEMO_MODE: true })
 })
 
 afterAll(() => cleanup())
 
+// Password accounts exist only in seeded data, so tests add users the way the seed does.
 async function signUp(name: string) {
   const email = `${name}@example.com`
-  await auth.api.signUpEmail({ body: { name, email, password: 'correct-horse-battery' } })
+  await addPasswordUser(db, { id: uuidv7(), name, email }, 'correct-horse-battery')
   const response = await auth.api.signInEmail({
     body: { email, password: 'correct-horse-battery' },
     asResponse: true,
@@ -48,11 +51,12 @@ async function can(headers: Headers, organizationId: string, permissions: object
   return result.success
 }
 
-test('users and organizations get UUIDv7 ids', async () => {
-  const { userId } = await signUp('ids')
+test('organizations and sessions get UUIDv7 ids', async () => {
+  const { userId, headers } = await signUp('ids')
   const organizationId = await createOrganization('ids-org', userId)
-  expect(userId).toMatch(UUID_V7)
+  const session = await auth.api.getSession({ headers })
   expect(organizationId).toMatch(UUID_V7)
+  expect(session?.session.id).toMatch(UUID_V7)
 })
 
 test('a user cannot create an organization on their own', async () => {
