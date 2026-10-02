@@ -10,9 +10,9 @@ export type AppErrorCode =
   // Input that passed the schema but breaks a rule that needs the database.
   | 'INVALID'
 
-// Every message an AppError can carry, by key. Keys are stable and snake_case, so task 010
-// can name its messages error_<key>; the English text is the fallback for a client built
-// before a key existed.
+// Every message an AppError can carry, by key. Keys are stable and snake_case, and each
+// has a Paraglide message error_<key> (src/lib/errors.ts); the English text is the fallback
+// for a client built before a key existed.
 export const errorMessages = {
   sign_in_required: 'Sign in first.',
   not_organization_member: 'You are not a member of this organization.',

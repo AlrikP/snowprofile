@@ -29,6 +29,10 @@ jobs:
       - name: Install
         run: bun install --frozen-lockfile
 
+      # Lint, type check, and tests import the compiled messages in src/paraglide/.
+      - name: Compile messages
+        run: bun run i18n:compile
+
       - name: Format
         run: bun run format:check
 

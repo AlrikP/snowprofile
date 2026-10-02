@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "vite dev --port 3000",
     "env:init": "bun scripts/env-init.ts",
+    "i18n:compile": "paraglide-js compile --project ./project.inlang --silent",
     "db:generate": "bun scripts/db-generate.ts",
     "db:migrate": "bun scripts/db-migrate.ts",
     "db:verify": "bun scripts/db-verify.ts",
@@ -22,8 +23,8 @@
     "format": "oxfmt",
     "format:check": "oxfmt --check",
     "typecheck": "tsc --noEmit",
-    "check": "bun run format:check && bun run lint && bun run typecheck",
-    "test": "bun test && vitest run",
+    "check": "bun run i18n:compile && bun run format:check && bun run lint && bun run typecheck",
+    "test": "bun run i18n:compile && bun test && vitest run",
     "test:server": "bun test",
     "test:components": "vitest run",
     "prepare": "lefthook install || true"
@@ -56,6 +57,7 @@
     "valibot": "1.5.0"
   },
   "devDependencies": {
+    "@inlang/paraglide-js": "2.25.4",
     "@tailwindcss/typography": "0.5.20",
     "@tanstack/devtools-vite": "0.8.5",
     "@testing-library/dom": "10.4.2",

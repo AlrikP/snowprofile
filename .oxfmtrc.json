@@ -18,6 +18,7 @@
   },
   "ignorePatterns": [
     "src/routeTree.gen.ts",
+    "src/paraglide/**",
     "bun.lock",
     "prototypes/**",
     "datamodel/*.chartdb.json"

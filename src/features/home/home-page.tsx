@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { Button } from '#/components/ui/button'
 import { authClient } from '#/lib/auth-client'
+import { m } from '#/paraglide/messages.js'
 
 // A placeholder home that shows who is signed in; task 012 replaces it with the app frame.
 export function HomePage() {
@@ -10,12 +11,10 @@ export function HomePage() {
 
   return (
     <main className="flex flex-col items-start gap-4 p-8">
-      <h1 className="text-2xl font-semibold">snowprofile</h1>
+      <h1 className="text-2xl font-semibold">{m.app_name()}</h1>
       {session ? (
         <>
-          <p>
-            Signed in as {session.user.name} ({session.user.email}).
-          </p>
+          <p>{m.home_signed_in_as({ name: session.user.name, email: session.user.email })}</p>
           <Button
             variant="outline"
             onClick={async () => {
@@ -23,12 +22,12 @@ export function HomePage() {
               await refetch()
             }}
           >
-            Sign out
+            {m.sign_out()}
           </Button>
         </>
       ) : (
         <Link to="/sign-in" className="underline">
-          Sign in
+          {m.sign_in_submit()}
         </Link>
       )}
     </main>

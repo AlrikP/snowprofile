@@ -24,3 +24,6 @@ datamodel/*.chartdb.json
 *.db
 *.db-wal
 *.db-shm
+
+# Paraglide output, compiled from messages/ (bun run i18n:compile)
+src/paraglide/

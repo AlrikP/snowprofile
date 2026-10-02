@@ -4,15 +4,14 @@ import { Button } from '#/components/ui/button'
 import { Input } from '#/components/ui/input'
 import { Label } from '#/components/ui/label'
 import { authClient } from '#/lib/auth-client'
+import { m } from '#/paraglide/messages.js'
 import type { SignInOptions } from '#/server/auth/auth.functions'
 
-// A minimal sign-in page; task 012 gives it the app's look, and task 010 its translations.
+// A minimal sign-in page; task 012 gives it the app's look.
 // The error codes Better Auth sends back after a refused Google sign-in.
 function signInErrorMessage(code: string) {
-  if (code.toUpperCase() === 'LOGIN_DOMAIN_NOT_ALLOWED') {
-    return 'This email domain can’t sign in here. Use your company Google account.'
-  }
-  return `Sign-in failed (${code}).`
+  if (code.toUpperCase() === 'LOGIN_DOMAIN_NOT_ALLOWED') return m.sign_in_error_domain()
+  return m.sign_in_error_other({ code })
 }
 
 export function SignInPage({
@@ -36,13 +35,15 @@ export function SignInPage({
 
   return (
     <main className="mx-auto flex max-w-sm flex-col gap-6 p-8">
-      <h1 className="text-2xl font-semibold">Sign in to snowprofile</h1>
+      <h1 className="text-2xl font-semibold">{m.sign_in_title()}</h1>
 
       {options.demo && (
-        <section className="rounded-md border p-4 text-sm" aria-label="Demo version">
-          <p className="font-medium">Demo version: all data is fictional.</p>
+        <section className="rounded-md border p-4 text-sm" aria-label={m.sign_in_demo_label()}>
+          <p className="font-medium">{m.sign_in_demo_notice()}</p>
           <p className="mt-2">
-            Sign in as {options.demo.emails.join(' or ')} with the password{' '}
+            {m.sign_in_demo_accounts({
+              emails: options.demo.emails.join(` ${m.sign_in_demo_accounts_or()} `),
+            })}{' '}
             <code>{options.demo.password}</code>.
           </p>
         </section>
@@ -60,7 +61,7 @@ export function SignInPage({
             })
           }
         >
-          Sign in with Google
+          {m.sign_in_google()}
         </Button>
       )}
 
@@ -75,7 +76,7 @@ export function SignInPage({
           <form.Field name="email">
             {(field) => (
               <div className="flex flex-col gap-2">
-                <Label htmlFor={field.name}>Email</Label>
+                <Label htmlFor={field.name}>{m.sign_in_email()}</Label>
                 <Input
                   id={field.name}
                   type="email"
@@ -91,7 +92,7 @@ export function SignInPage({
           <form.Field name="password">
             {(field) => (
               <div className="flex flex-col gap-2">
-                <Label htmlFor={field.name}>Password</Label>
+                <Label htmlFor={field.name}>{m.sign_in_password()}</Label>
                 <Input
                   id={field.name}
                   type="password"
@@ -104,18 +105,18 @@ export function SignInPage({
               </div>
             )}
           </form.Field>
-          {failed && <p role="alert">Wrong email or password.</p>}
+          {failed && <p role="alert">{m.sign_in_wrong_password()}</p>}
           <form.Subscribe selector={(state) => state.isSubmitting}>
             {(isSubmitting) => (
               <Button type="submit" disabled={isSubmitting}>
-                Sign in
+                {m.sign_in_submit()}
               </Button>
             )}
           </form.Subscribe>
         </form>
       )}
 
-      {options.methods.length === 0 && <p>No sign-in method is configured yet.</p>}
+      {options.methods.length === 0 && <p>{m.sign_in_no_methods()}</p>}
     </main>
   )
 }
@@ -123,7 +124,7 @@ export function SignInPage({
 export function SignInPending() {
   return (
     <main className="mx-auto max-w-sm p-8">
-      <h1 className="text-2xl font-semibold">Sign in to snowprofile</h1>
+      <h1 className="text-2xl font-semibold">{m.sign_in_title()}</h1>
     </main>
   )
 }

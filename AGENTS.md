@@ -24,10 +24,12 @@ commits after reviewing.
 
 | Command                      | Does                                                                                      |
 | ---------------------------- | ----------------------------------------------------------------------------------------- |
-| `bun install`                | Installs dependencies and the lefthook pre-commit hook                                    |
+| `bun install`                | Installs dependencies; no install script may be relied on (`ignore-scripts`)              |
+| `bunx lefthook install`      | Installs the pre-commit hook; `prepare` does it only when scripts run                     |
 | `bun run env:init`           | Creates `.env.local` with a generated `BETTER_AUTH_SECRET`; keeps existing values         |
+| `bun run i18n:compile`       | Compiles `messages/` into `src/paraglide/`; `check` and `test` run it first               |
 | `bun --bun run dev`          | Starts the dev server on port 3000. `--bun` runs Vite under Bun, which loads `.env.local` |
-| `bun run check`              | Format check, lint, and type check                                                        |
+| `bun run check`              | Compiles messages, then format check, lint, and type check                                |
 | `bun run lint`               | oxlint, type-aware; warnings fail                                                         |
 | `bun run format`             | Formats with oxfmt (`format:check` only checks)                                           |
 | `bun run typecheck`          | `tsc --noEmit`                                                                            |
@@ -37,7 +39,7 @@ commits after reviewing.
 | `bun run db:drift`           | Fails if `src/db/schema.ts` no longer matches the migrations                              |
 | `bun run db:verify`          | Fails if an applied migration was edited or deleted                                       |
 | `bun run db:seed`            | Adds missing demo organizations locally; `--reset <slug>` redoes one                      |
-| `bun run test`               | Runs every test runner: `test:server`, then `test:components`                             |
+| `bun run test`               | Compiles messages, then runs `test:server` and `test:components`                          |
 | `bun run test:server`        | Server and database tests (`*.test.ts`) with `bun test`                                   |
 | `bun run test:components`    | Component tests (`*.test.tsx`) with Vitest in jsdom                                       |
 

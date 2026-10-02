@@ -11,11 +11,12 @@ test('message keys are snake_case, so they can name translated messages', () => 
 test('an AppError carries its code and key, and shows its message', () => {
   const error = new AppError('CONFLICT', 'update_request_open')
   expect(error).toMatchObject({ code: 'CONFLICT', key: 'update_request_open' })
-  expect(errorMessage(error)).toBe('This profile already has an open update request.')
+  // Outside a request, messages are in the base locale, Estonian.
+  expect(errorMessage(error)).toBe('Sellel profiilil on juba avatud uuendamise palve.')
 })
 
 test('any other error shows a generic message, not its internals', () => {
   expect(errorMessage(new Error('SQLITE_CONSTRAINT: UNIQUE constraint failed'))).toBe(
-    'Something went wrong. Try again.',
+    'Midagi läks valesti. Proovi uuesti.',
   )
 })
