@@ -1,0 +1,150 @@
+# Product
+
+## Purpose
+
+snowprofile replaces the Google Sheet (`Snowhound_CV_baas.xlsx`) that records Snowhound's
+projects, the technologies used, and which employees worked on them. Its main job is
+producing CVs for public procurement tenders (riigihanked): a personal CV, or a team CV
+that combines several people's CVs. Tenders rarely share a format, so the MVP gives a
+table to copy and paste into the tender's own document, plus a minimal Word document.
+
+Users:
+
+- **Admins (managers)** maintain projects, request profile updates, find people by
+  technology, and generate personal and team CVs.
+- **Employees** keep their own profile and project participations current.
+
+More roles come later; the role model must allow adding them.
+
+## Principles
+
+- **Minimal first.** Ship the smallest version that replaces the sheet; grow from real
+  use.
+- **Data quality over speed.** Structured fields (real dates, numeric hours, catalogue
+  technologies) even when entry takes a little longer. The sheet's free text is what we
+  are leaving behind.
+- **Privacy by default.** Store only the personal data CVs need, and show the minimum by
+  default.
+- **Demo-safe.** Every feature works with fictional data, and nothing leaks between
+  organizations.
+
+## MVP scope
+
+| Area                    | Included                                                                                                                                                                                                                 |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Sign-in                 | Google sign-in; access by organization membership (see [Users and access](#users-and-access))                                                                                                                            |
+| Organizations           | Several organizations in one deployment, with data fully isolated per organization. A demo stack holds several fictional organizations; the company stack holds Snowhound and possibly other companies later             |
+| Members and roles       | Roles `admin` and `employee` per organization; admins invite members and change roles                                                                                                                                    |
+| Projects                | Admins create and edit org projects: name, description (ET/EN), customer, start and end month or "ongoing", tender reference number, customer contact persons, total hours, cost, technologies, tender criteria answers  |
+| Technology catalogue    | Shared list per organization, grouped by category (Frontend, Backend, Data, Infra, Testing, Other). Anyone can add an entry; admins rename, recategorize, and merge duplicates (Postgres → PostgreSQL)                   |
+| Tender criteria         | Admins manage a checklist of yes/no criteria (automated tests, REST/SOAP, relational DB, DB migrations, Linux, X-Road, containers/K8s, monitoring…); each project answers yes or no, with an optional note               |
+| Employee profile        | Name, join date, optional birth date, education (institution, field, period, degree; several entries)                                                                                                                    |
+| Project participation   | Employee on a project: start and end month (or ongoing), role (ET/EN), approximate hours, tasks (ET/EN), technologies they used (a subset of or addition to the project's)                                               |
+| Own projects            | An employee adds a project that appears only on their own CV (from an earlier employer, or several engagements merged into one); same fields as an org project                                                           |
+| Profile update requests | An admin requests an update from an employee; the employee sees it on sign-in and confirms the profile is current. Admins see each profile's last confirmation and open requests                                         |
+| Search                  | Filter people by technology and optionally a time period; results show the matching projects and participations                                                                                                          |
+| CV selection            | Pick one person (personal CV) or several (team CV), pick the language (ET/EN), and choose which projects to include (all by default, or filtered by technology or period)                                                |
+| CV view                 | The selection shown on screen as a project and technology table, built so it pastes cleanly into Word or Google Docs with its table structure kept                                                                       |
+| CV document             | DOCX from one minimal built-in template per language: people, their projects, roles, periods, and technologies. A team CV is one document, with shared projects listed once. No per-organization or per-tender templates |
+| Bilingual content       | Text fields hold an Estonian and an English version; the CV uses the chosen language and flags missing translations before generating                                                                                    |
+| Import                  | Repeatable import from the xlsx format: re-running updates matched records instead of duplicating them. Values that can't be parsed go into a report for an admin to fix                                                 |
+| Demo data               | A generator of fictional organizations, customers, projects, employees, and participations, for demos, automated tests, and performance checks, so no real personal data is needed outside the company stack             |
+| UI languages            | Estonian and English, switchable per user                                                                                                                                                                                |
+
+## Not in MVP
+
+- Email of any kind (invitations are shared as links; update requests appear in the app).
+- Integrations: Google Drive export, Google Sheets sync, HR systems.
+- AI help (translation, description drafting, matching people to a tender).
+- PDF output (export the DOCX to PDF by hand if needed).
+- Custom or uploaded CV templates, and formats tailored to a tender. Nearly every tender
+  wants a slightly different format; whether a common representation is worth building
+  is decided after the MVP, from real use.
+- Per-CV text overrides and saved, named CV versions.
+- Advanced matching: scoring people against a tender's requirements.
+- Skill levels or self-assessed proficiency per technology.
+- Roles beyond `admin` and `employee` (for example sales or read-only).
+- Personal ID codes (isikukood): never stored.
+- Public self-signup for organizations; platform admins create organizations.
+- A one-click demo login without a Google account.
+
+## Users and access
+
+- **Sign-in:** Google sign-in (OAuth / OpenID Connect) in every deployed environment that
+  holds real data. No passwords of our own there.
+- **Demo and development sign-in:** local development, automated tests, and a demo stack
+  allow email and password sign-in for seeded, fictional users (for example
+  `admin@demo.example.com`), so people and agents can sign in without Google. One setting
+  switches this on, and the sign-in page then shows a "demo version" notice.
+  `architecture.md` ("Sign-in modes") holds the guardrails.
+- **Company login domains:** the company stack can restrict sign-in to company addresses
+  (for example `snowhound.eu`).
+- **Tenancy:** multi-tenant from day one. Every record belongs to one organization, and a
+  user only ever sees data from the organization they are working in.
+- **Membership:**
+  - Snowhound: users with a company Google Workspace account (company domain) join the
+    Snowhound organization automatically as `employee`.
+  - Other organizations, including demo ones: any Google account can sign in, but access
+    needs an invitation from an organization admin.
+  - A user can belong to several organizations (for example a Snowhound admin who also
+    runs the demo organization) and switches between them.
+- **Roles per organization:** `admin` and `employee`, designed so more roles can be added
+  later without reworking access checks.
+- **Platform operator:** someone creates organizations and their first admin. In the MVP
+  that can be a seeded configuration or a script rather than a UI.
+
+## Data and privacy
+
+### Data kept
+
+- Organizations, members, roles, invitations.
+- Customers (ordering organizations) and customer contact persons.
+- Projects, with technologies and tender criteria answers.
+- Employees' profiles, education, project participations, and own projects.
+- The technology catalogue and the tender criteria list.
+- Profile update requests and confirmations.
+
+### Personal data and GDPR
+
+- **Employees:** name, Google account email, join date, optional birth date (some tenders
+  ask for it), education, work history. The personal ID code is **not** stored, even
+  though the sheet has it.
+- **Third parties:** customer contact persons (name, email, phone) appear as tender
+  references. Store only what references need, and allow marking a contact as no longer
+  valid (the sheet already notes "no longer works at Telia").
+- **Visibility:** admins edit cost, hours, customer contacts, and tender reference
+  numbers. Employees can read them on projects they took part in.
+- **Birth date** shows only to admins and the person, and goes into a CV only when chosen
+  explicitly.
+- **Residency:** data stays in the EU (`hosting.md`).
+- **Isolation:** no data crosses organizations. Demo organizations contain only
+  generated, fictional data.
+- **Change tracking:** record who last changed a project or profile and when; this
+  supports the profile confirmation flow. A full audit history can come later.
+
+### Languages
+
+- **UI:** Estonian and English, switchable per user.
+- **Content:** text fields hold both Estonian and English; either may be missing.
+- **CV output:** generated in Estonian or English; missing translations are flagged
+  before generating.
+- **Import:** the existing sheet is in Estonian and fills the Estonian versions.
+
+## Open questions
+
+- **CV table columns:** which columns the copy-and-paste table needs (project, customer,
+  period, role, hours, technologies…), and whether a team CV gets one table or one per
+  person. Settle it from one or two past tender submissions.
+- **Common CV format:** after the MVP, is there a meaningful common format across
+  tenders, or is copy and paste enough? Decide from how the MVP outputs are used.
+- **Update requests without email:** is an in-app notice on sign-in enough, or are update
+  emails needed soon after the MVP? Decide after a first round of use.
+- **Snowhound domain auto-join:** should everyone with a company Google account join
+  automatically, or only those an admin invites? Snowhound's management decides.
+- **Leavers:** keep, hide, or anonymize their profiles, and do their participations stay
+  visible on projects? Their participations still matter for project references, but
+  their profile shouldn't appear in new CVs. Needs a GDPR retention decision.
+- **Certificates and trainings:** tenders often ask for them, and the sheet doesn't record
+  them. In the MVP or later?
+- **Computed experience totals:** per-person totals derived from participations (years
+  with a technology, total hours) in search and CVs: in the MVP or later?
