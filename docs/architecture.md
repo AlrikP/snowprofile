@@ -69,7 +69,9 @@ import the `cn` package. Imports across areas use the `#/*` alias (`package.json
 Changes after the scaffold: dependencies pinned to exact versions; `lucide-react`
 0.577.0 → 1.49.0, TypeScript 6.0.3 → 7.0.2, and `nitro` → 3.0.260903-beta; Zod, the demo
 header, `.cursorrules`, and the `@/*` alias removed. The CLI's `routeTree.gen.ts` lacked
-TanStack Start's type registration; the Vite build regenerates it correctly.
+TanStack Start's type registration, so the `generate-routes` script (`tsr generate`) and
+`@tanstack/router-cli` were removed; the Vite plugin regenerates the file in `dev` and
+`build`.
 
 ## Data conventions
 

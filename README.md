@@ -12,22 +12,25 @@ Built with TanStack Start (React), Bun, SQLite, Drizzle, and Better Auth
 Requires Bun 1.4.2 (the version in `package.json`'s `packageManager`).
 
 ```bash
-bun install                 # dependencies and the pre-commit hook
-cp .env.example .env.local  # then fill in the values; see the comments in the file
-bun --bun run dev           # http://localhost:3000
+bun install        # dependencies and the pre-commit hook
+bun run env:init   # creates .env.local with a generated BETTER_AUTH_SECRET
+bun --bun run dev  # http://localhost:3000
 ```
+
+Non-secret local defaults live in the tracked `.env.development`; secrets go only in
+`.env.local`, which git ignores. `env:init` never overwrites a value that is already set.
 
 Run the dev server with `bun --bun`: it runs Vite under Bun, which loads `.env.local`.
 Plain `bun run dev` runs Vite under Node, and the env validation in `src/env.ts` stops
 the server.
 
-| Command             | Does                                            |
-| ------------------- | ----------------------------------------------- |
-| `bun run check`     | Format check, lint, and type check              |
-| `bun run lint`      | oxlint, type-aware; warnings fail               |
-| `bun run format`    | Formats with oxfmt (`format:check` only checks) |
-| `bun run typecheck` | `tsc --noEmit`                                  |
-| `bun run build`     | Production build into `.output/`                |
+| Command             | Does                                                                      |
+| ------------------- | ------------------------------------------------------------------------- |
+| `bun run check`     | Format check, lint, and type check                                        |
+| `bun run lint`      | oxlint, type-aware; warnings fail                                         |
+| `bun run format`    | Formats with oxfmt (`format:check` only checks)                           |
+| `bun run typecheck` | `tsc --noEmit`                                                            |
+| `bun run build`     | Production build into `.output/`; also regenerates `src/routeTree.gen.ts` |
 
 The database, seed data, and tests arrive with their tasks in `tasks/`.
 

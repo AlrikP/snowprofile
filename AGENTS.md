@@ -24,6 +24,7 @@ commits after reviewing.
 | Command             | Does                                                                                      |
 | ------------------- | ----------------------------------------------------------------------------------------- |
 | `bun install`       | Installs dependencies and the lefthook pre-commit hook                                    |
+| `bun run env:init`  | Creates `.env.local` with a generated `BETTER_AUTH_SECRET`; keeps existing values         |
 | `bun --bun run dev` | Starts the dev server on port 3000. `--bun` runs Vite under Bun, which loads `.env.local` |
 | `bun run check`     | Format check, lint, and type check                                                        |
 | `bun run lint`      | oxlint, type-aware; warnings fail                                                         |
