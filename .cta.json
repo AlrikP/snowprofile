@@ -13,11 +13,5 @@
   "routerOnly": false,
   "version": 1,
   "framework": "react",
-  "chosenAddOns": [
-    "better-auth",
-    "tanstack-query",
-    "form",
-    "shadcn",
-    "nitro"
-  ]
+  "chosenAddOns": ["better-auth", "tanstack-query", "form", "shadcn", "nitro"]
 }
