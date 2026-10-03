@@ -213,8 +213,10 @@ What the import must handle (`Snowhound_CV_baas.xlsx`):
   function has none.
 - **The database handle comes from the middleware** as `context.db`. Server functions pass
   it to the rules, which pass it, or a transaction, to the repositories. Tests call the
-  rules with a test database. The rules own transactions; a repository function runs on
-  whichever handle it gets.
+  rules with a test database. A test that needs the middleware chain, or a handler's
+  cookies, calls the server function through `callServerFn` in `src/server/testing.ts`.
+  It relies on Start internals, which `src/test/bun-preload.ts` and that helper wrap. The
+  rules own transactions; a repository function runs on whichever handle it gets.
 - **Authorization is checked in the server rules** (`*.server.ts`); SQLite has no
   row-level security. Server functions are thin: pick a middleware, validate with Valibot,
   call the rules.

@@ -24,8 +24,8 @@
     "format:check": "oxfmt --check",
     "typecheck": "tsc --noEmit",
     "check": "bun run i18n:compile && bun run format:check && bun run lint && bun run typecheck",
-    "test": "bun run i18n:compile && bun test && vitest run",
-    "test:server": "bun test",
+    "test": "bun run i18n:compile && bun test --randomize && vitest run",
+    "test:server": "bun test --randomize",
     "test:components": "vitest run",
     "prepare": "lefthook install || true"
   },

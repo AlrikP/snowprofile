@@ -65,8 +65,9 @@ const cases: Record<string, () => Promise<void>> = {
   // The account is the user's own, not organization data: it takes the session's user ID,
   // and reaches only that user's row.
   'account.findLocale': async () => {
+    await account.updateLocale(db, seedIds.users.admin, 'et')
     await account.updateLocale(db, seedIds.users.employee, 'en')
-    expect(await account.findLocale(db, seedIds.users.admin)).toBeNull()
+    expect(await account.findLocale(db, seedIds.users.admin)).toBe('et')
   },
   'account.updateLocale': async () => {
     await account.updateLocale(db, seedIds.users.employee, 'en')

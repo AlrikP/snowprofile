@@ -1,3 +1,5 @@
 [test]
 # Component tests (*.test.tsx) run on Vitest; see vitest.config.ts.
 pathIgnorePatterns = ["**/*.test.tsx", "node_modules/**"]
+# Lets server functions run their handlers in tests; see the file.
+preload = ["./src/test/bun-preload.ts"]

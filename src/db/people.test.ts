@@ -286,6 +286,30 @@ describe('update requests', () => {
 })
 
 test('the relations load a profile with its participations and technologies', async () => {
+  const participationId = uuidv7()
+  const ownProjectId = uuidv7()
+  await asSystem(async () => {
+    await db.insert(participation).values({
+      id: participationId,
+      organizationId: home,
+      profileId: ids.home.profile,
+      projectId: ids.home.project,
+      startDate: '2023',
+    })
+    await db.insert(participationTechnology).values({
+      participationId,
+      technologyId: ids.home.technology,
+      organizationId: home,
+    })
+    await db.insert(ownProject).values({
+      id: ownProjectId,
+      organizationId: home,
+      profileId: ids.home.profile,
+      name: 'Earlier work',
+      startDate: '2015',
+    })
+  })
+
   const loaded = await db.query.employeeProfile.findFirst({
     where: { id: ids.home.profile },
     with: {
@@ -293,8 +317,8 @@ test('the relations load a profile with its participations and technologies', as
       ownProjects: true,
     },
   })
-  const withTechnology = loaded?.participations.find((p) => p.technologies.length > 0)
-  expect(withTechnology?.project.name).toBe('Portal')
-  expect(withTechnology?.technologies[0]?.technology.name).toBe('React')
-  expect(loaded?.ownProjects.length).toBeGreaterThan(0)
+  const added = loaded?.participations.find((p) => p.id === participationId)
+  expect(added?.project.name).toBe('Portal')
+  expect(added?.technologies[0]?.technology.name).toBe('React')
+  expect(loaded?.ownProjects.map((p) => p.id)).toContain(ownProjectId)
 })

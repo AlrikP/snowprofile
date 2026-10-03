@@ -40,7 +40,7 @@ commits after reviewing.
 | `bun run db:verify`          | Fails if an applied migration was edited or deleted                                       |
 | `bun run db:seed`            | Adds missing demo organizations locally; `--reset <slug>` redoes one                      |
 | `bun run test`               | Compiles messages, then runs `test:server` and `test:components`                          |
-| `bun run test:server`        | Server and database tests (`*.test.ts`) with `bun test`                                   |
+| `bun run test:server`        | Server and database tests (`*.test.ts`), in random order; it prints `--seed`              |
 | `bun run test:components`    | Component tests (`*.test.tsx`) with Vitest in jsdom                                       |
 
 End-to-end tests arrive with their task; add the command here then, and to `test`.

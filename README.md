@@ -31,22 +31,22 @@ Run the dev server with `bun --bun`: it runs Vite under Bun, which loads `.env.l
 Plain `bun run dev` runs Vite under Node, and the env validation in `src/env.ts` stops
 the server.
 
-| Command                      | Does                                                                      |
-| ---------------------------- | ------------------------------------------------------------------------- |
-| `bun run i18n:compile`       | Compiles `messages/`; `check` and `test` run it first                     |
-| `bun run check`              | Compiles messages, then format check, lint, type check                    |
-| `bun run lint`               | oxlint, type-aware; warnings fail                                         |
-| `bun run format`             | Formats with oxfmt (`format:check` only checks)                           |
-| `bun run typecheck`          | `tsc --noEmit`                                                            |
-| `bun run build`              | Production build into `.output/`; also regenerates `src/routeTree.gen.ts` |
-| `bun run db:generate <name>` | Creates an empty migration in `drizzle/`                                  |
-| `bun run db:migrate`         | Checks applied migrations, then applies pending ones to `DATABASE_URL`    |
-| `bun run db:drift`           | Fails if `src/db/schema.ts` no longer matches the migrations              |
-| `bun run db:verify`          | Fails if an applied migration was edited or deleted                       |
-| `bun run db:seed`            | Adds missing demo organizations locally; `--reset <slug>` redoes one      |
-| `bun run test`               | Compiles messages, then runs `test:server` and `test:components`          |
-| `bun run test:server`        | Server and database tests (`*.test.ts`) with `bun test`                   |
-| `bun run test:components`    | Component tests (`*.test.tsx`) with Vitest in jsdom                       |
+| Command                      | Does                                                                         |
+| ---------------------------- | ---------------------------------------------------------------------------- |
+| `bun run i18n:compile`       | Compiles `messages/`; `check` and `test` run it first                        |
+| `bun run check`              | Compiles messages, then format check, lint, type check                       |
+| `bun run lint`               | oxlint, type-aware; warnings fail                                            |
+| `bun run format`             | Formats with oxfmt (`format:check` only checks)                              |
+| `bun run typecheck`          | `tsc --noEmit`                                                               |
+| `bun run build`              | Production build into `.output/`; also regenerates `src/routeTree.gen.ts`    |
+| `bun run db:generate <name>` | Creates an empty migration in `drizzle/`                                     |
+| `bun run db:migrate`         | Checks applied migrations, then applies pending ones to `DATABASE_URL`       |
+| `bun run db:drift`           | Fails if `src/db/schema.ts` no longer matches the migrations                 |
+| `bun run db:verify`          | Fails if an applied migration was edited or deleted                          |
+| `bun run db:seed`            | Adds missing demo organizations locally; `--reset <slug>` redoes one         |
+| `bun run test`               | Compiles messages, then runs `test:server` and `test:components`             |
+| `bun run test:server`        | Server and database tests (`*.test.ts`), in random order; it prints `--seed` |
+| `bun run test:components`    | Component tests (`*.test.tsx`) with Vitest in jsdom                          |
 
 The migration workflow is in [`docs/migrations.md`](docs/migrations.md). End-to-end
 tests arrive with their task in `tasks/`.
