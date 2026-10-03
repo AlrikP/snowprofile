@@ -1,6 +1,6 @@
 # CR-001: Fixes from the review of tasks 001–010
 
-Status: in-progress
+Status: done
 
 A code review of tasks 001–010 (commits `5e59fbe..3c74466`, reviewed 2026-10-02) found the
 issues below. `check`, `test`, `db:drift`, `db:verify`, and `build` pass in the working
@@ -20,4 +20,4 @@ task 011.
 
 ## Acceptance criteria
 
-- [ ] All subtasks are done.
+- [x] All subtasks are done.

@@ -56,39 +56,42 @@ files at the paths above so both agents use the same instructions.
 ## Code conventions
 
 These conventions are **provisional**: they adapt snowtime's proven Solid conventions to
-React. Task "Harvest stack profile" feeds corrections back into the bootstrap kit. Where a
-convention names a check, the "Lint rules" task builds it.
+React. Task "Harvest stack profile" feeds corrections back into the bootstrap kit. A check
+marked "planned" doesn't exist yet: task 014 ("Lint rules") builds it, and until then
+reviews enforce the convention.
 
 - Frontend code is grouped by feature in `src/features/<name>/`, with its page component
   (`<Name>Page` in `<name>-page.tsx`), subcomponents, queries, helpers, and tests.
 - Route files only wire the route and pass search params and context to the page as
   props. A prop read once for an initial value is named `initial<Name>`.
 - A page whose loader waits on the server has a `<Name>Pending` component.
-- Features don't import from each other; oxlint allows imports from `src/features/` only
-  in routes and `src/router.tsx`. Code moves to `src/components/` or `src/lib/` once a
-  second feature needs it.
+- Features don't import from each other: only routes and `src/router.tsx` import from
+  `src/features/` (planned check: oxlint). Code moves to `src/components/` or `src/lib/`
+  once a second feature needs it.
 - Backend code is grouped by domain in `src/server/<domain>/`. Server-only code lives in
   `*.server.ts` files under `src/server/` (the auth instance is
   `src/server/auth/better-auth.server.ts`). Client code imports a domain's
-  `*.functions.ts` and `*.schemas.ts` only, never `*.server.ts`. Route files that only
-  define server handlers (under `src/routes/api/`) are server code.
+  `*.functions.ts` and `*.schemas.ts`, and the shared `src/server/errors.ts` and
+  `src/server/schemas.ts`, never `*.server.ts`. `src/server/middleware.ts` is server-only
+  code without the suffix: only `*.functions.ts` import it. Route files that only define
+  server handlers (under `src/routes/api/`) are server code.
 - Database access goes only through repository modules
   (`src/server/<domain>/<domain>.repository.server.ts`). Each function takes
   `(db, scope, ...)` and scopes every query by `scope.organizationId`; the user's own
   account data takes the session's user ID instead
   (`docs/architecture.md`, "Application rules"). Server functions get the database as
   `context.db` from the middleware. Check: `src/server/tenancy.test.ts` fails for a
-  repository function without an isolation case; task 014 restricts `#/db/schema` and
-  `drizzle-orm` imports to repositories.
+  repository function without an isolation case. Planned check: oxlint restricts
+  `#/db/schema` and `drizzle-orm` imports to repositories.
 - Import with a relative path inside the importer's area, and through the `#/` alias for
   everything else. An area is one feature folder (`src/features/<name>/`), `src/server/`,
   or another top-level folder of `src/` (`src/components/`, `src/lib/`, `src/routes/`).
-  oxlint checks both directions.
-- Named functions are `function` declarations (oxlint `func-style`); shadcn copies in
-  `src/components/ui/` are exempt.
+  Files at the `src/` root belong to no area. Planned check: oxlint, both directions.
+- Named functions are `function` declarations; shadcn copies in `src/components/ui/` are
+  exempt. Planned check: oxlint `func-style`.
 - Icon components end in `Icon`, so JSX shows what they are. Import Lucide icons by their
   suffixed names: `import { ClockIcon } from 'lucide-react'`. Name hand-written icons the
-  same way. An `icons:check` script enforces it.
+  same way. Planned check: an `icons:check` script.
 - Server functions are thin: pick a middleware, validate with Valibot, call the rules in
   `*.server.ts`. Authorization is checked there. Writes are named mutations, not generic
   CRUD.

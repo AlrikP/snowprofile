@@ -28,7 +28,7 @@ the project settles on back into the bootstrap kit.
 | Task runner          | `package.json` scripts; no `mise.toml`                                                                                                                                                                                                 | One language; `packageManager` pins Bun                                                                                                                                                               |
 | CI                   | GitHub Actions: one `check` job on pull requests and pushes to `main`; actions pinned to major versions, kept current by Dependabot                                                                                                    | Every check in one place, so branch protection requires one job                                                                                                                                       |
 | Deployment           | Docker Compose on Hetzner (EU) following snowtime's Compose setup; local only until the first deployment                                                                                                                               | Existing Snowhound infrastructure, flat cost, commercial use allowed. Provisional, no kit profile (`hosting.md`)                                                                                      |
-| Build                | Nitro (generic adapter), `bun` preset for the server build                                                                                                                                                                             | Runs in any container host                                                                                                                                                                            |
+| Build                | Nitro's default `node-server` preset; the output also runs under Bun                                                                                                                                                                   | Runs in any container host, on Node or Bun                                                                                                                                                            |
 
 The inlang message-format plugin that compiles the messages is a pinned dev dependency,
 loaded from `node_modules` (`project.inlang/settings.json`), not from jsDelivr. Compiling
@@ -43,10 +43,13 @@ messages then needs no network, and the lockfile checks the plugin like any pack
 | `src/components/`      | Shared components; `ui/` holds shadcn copies only            |
 | `src/lib/`             | Shared helpers, including code the server shares             |
 | `src/server/<domain>/` | Server functions, rules, schemas, and tests per domain       |
-| `src/db/`              | Database connection; `schema.ts` (planned)                   |
+| `src/db/`              | Database connection, `schema.ts`, relations, seed, demo data |
+| `src/integrations/`    | TanStack Query setup and devtools, from the scaffold         |
 | `src/env.ts`           | Server environment, validated with Valibot                   |
-| `src/test/`            | Vitest setup for component tests                             |
-| `drizzle/`             | SQL migrations, `<timestamp>_<name>/migration.sql` (planned) |
+| `src/test/`            | Test setup: Vitest for components, a preload for `bun test`  |
+| `messages/`            | UI messages per locale (`et.json`, `en.json`)                |
+| `project.inlang/`      | Paraglide settings; `i18n:compile` builds `src/paraglide/`   |
+| `drizzle/`             | SQL migrations, `<timestamp>_<name>/migration.sql`           |
 | `datamodel/`           | DBML diagram and ChartDB viewer (`datamodel/README.md`)      |
 | `scripts/`             | Project scripts, such as `env-init.ts`                       |
 | `e2e/`                 | Playwright end-to-end tests (planned)                        |
@@ -181,6 +184,8 @@ a move to PostgreSQL ([deferred](#deferred--out-of-scope)) replaces:
 - Format checks on periods and dates use `GLOB`; PostgreSQL uses `~` with a regular
   expression.
 - Triggers use SQLite's inline `BEGIN ... END` body; PostgreSQL needs a trigger function.
+- Better Auth's `user` table name is a reserved word in PostgreSQL, so raw SQL there must
+  quote it as `"user"`.
 
 ### From the sheet
 
@@ -266,21 +271,22 @@ What the import must handle (`Snowhound_CV_baas.xlsx`):
   email, and profile changes, account linking and deletion, and signing out other
   sessions). The seeded accounts are shared and their password is published, so one
   visitor must not lock the others out.
-- The seeder (`bun run db:seed`) refuses a database that isn't a local file, an
-  environment where `DEMO_MODE` is off by the rule above (so `.env.development` turns it
-  on, because Bun leaves `NODE_ENV` unset for scripts), and a database that holds any
-  organization that isn't a demo one. It adds only the demo organizations the
-  database lacks, so it never overwrites data; `--reset <slug>` replaces one demo
-  organization's data and leaves the others alone. Users are kept on reset, because users
-  are never hard-deleted.
+- The seeder (`bun run db:seed`, also with `--reset`) refuses three cases: a database
+  that isn't a local file, `DEMO_MODE` off by the rule above, and a database that holds
+  any organization that isn't a demo one. Bun leaves `NODE_ENV` unset for scripts, so
+  `.env.development` sets `DEMO_MODE=true` for a local seed.
+- The seeder adds only the demo organizations the database lacks, so it never overwrites
+  data; `--reset <slug>` replaces one demo organization's data and leaves the others
+  alone. Users are kept on reset, because users are never hard-deleted.
 - Google sign-in is on when `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` are both set and
   `DEMO_MODE` is off; the app refuses to start with only one of them. The README has the
   OAuth client setup.
 - `ALLOWED_LOGIN_DOMAINS` (for example `snowhound.eu`) restricts sign-in to company
   addresses. Better Auth hooks refuse a new user and every new session for another
   domain or for an address the provider hasn't verified, so narrowing the list also locks
-  out existing users at their next sign-in. The app refuses to start with both `DEMO_MODE` and `ALLOWED_LOGIN_DOMAINS`
-  set, because seeded users have `example.com` addresses. A test checks this.
+  out existing users at their next sign-in. The app refuses to start with both
+  `DEMO_MODE` and `ALLOWED_LOGIN_DOMAINS` set, because seeded users have `example.com`
+  addresses. A test checks this.
 - A signed-in user without a membership lands on a "no access" page. A new session starts
   with the user's first organization active; a member of several switches.
 - The Google path gets a manual check after each deploy to the company stack. A local mock
