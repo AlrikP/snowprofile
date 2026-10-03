@@ -216,7 +216,8 @@ function periodDate(value: string) {
 // Content the server would send, formatted for the page's language:
 // - data-date="2026-10-05": a date;
 // - data-number="4200" and data-euros="250000": numbers;
-// - data-period="2024-03/" or "2019/2021-06": a period, open-ended while ongoing;
+// - data-period="2024-03/", "2019/2021-06", or "2019": a period, open-ended while ongoing,
+//   and a single date when it starts and ends in the same unit;
 // - data-et/data-en: a bilingual field, falling back to the other language when one is
 //   missing.
 function applyContent(element: HTMLElement) {
@@ -236,8 +237,11 @@ function applyContent(element: HTMLElement) {
     }).format(Number(euros))
   }
   if (period) {
-    const [start = '', end = ''] = period.split('/')
-    element.textContent = `${periodDate(start)} – ${end ? periodDate(end) : t('period_ongoing')}`
+    const [start = '', end] = period.split('/')
+    element.textContent =
+      end === undefined
+        ? periodDate(start)
+        : `${periodDate(start)} – ${end ? periodDate(end) : t('period_ongoing')}`
   }
   if (estonian !== undefined || english !== undefined) {
     element.textContent = (pageLocale() === 'en' ? english || estonian : estonian || english) ?? ''

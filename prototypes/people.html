@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="et">
+  <head>
+    <title>People · snowprofile prototype</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="build/prototype.css" />
+    <script src="build/icons.js"></script>
+    <script src="build/prototype.js"></script>
+  </head>
+  <body data-frame="people" data-roles="admin" data-states="list:People|leavers:With leavers|request:Request an update|request-all:Request from everyone|leave:Mark as left">
+    <main class="flex flex-col gap-6 p-4 md:p-8">
+      <div class="flex flex-wrap items-end justify-between gap-4">
+        <div class="flex flex-col gap-1">
+          <h1 class="text-3xl" data-t="people_title"></h1>
+          
+        </div>
+        <button type="button" data-slot="button" commandfor="request-all-dialog" command="show-modal"><i data-icon="SendIcon"></i><span data-t="people_request_all"></span></button>
+      </div>
+
+      <label class="flex items-center gap-2 text-sm">
+        <input type="checkbox" data-slot="checkbox" data-goto-state="leavers" />
+        <span data-t="people_show_leavers"></span>
+      </label>
+
+      <div data-slot="card" class="gap-0 py-0">
+        <div data-slot="table-container">
+          <table data-slot="table">
+            <thead data-slot="table-header">
+              <tr data-slot="table-row" class="hover:bg-transparent">
+                <th data-slot="table-head" class="px-4" data-t="people_col_person"></th>
+                <th data-slot="table-head" class="hidden md:table-cell" data-t="people_col_confirmed"></th>
+                <th data-slot="table-head" class="hidden lg:table-cell" data-t="people_col_request"></th>
+                <th data-slot="table-head" class="hidden text-right sm:table-cell" data-t="people_col_participations"></th>
+                <th data-slot="table-head" class="pr-4"><span class="sr-only" data-t="action_actions"></span></th>
+              </tr>
+            </thead>
+            <tbody data-slot="table-body">
+            <tr data-slot="table-row" data-show-in="list request request-all leave leavers">
+              <td data-slot="table-cell" class="px-4">
+                <div class="font-medium">Anna Admin</div>
+                <div class="text-sm text-muted-foreground md:hidden"><span data-date="2026-08-30"></span></div>
+                <div class="text-sm text-muted-foreground lg:hidden"></div>
+              </td>
+              <td data-slot="table-cell" class="hidden md:table-cell"><span data-date="2026-08-30"></span></td>
+              <td data-slot="table-cell" class="hidden lg:table-cell"><span class="text-muted-foreground">—</span></td>
+              <td data-slot="table-cell" class="hidden text-right tabular-nums sm:table-cell">14</td>
+              <td data-slot="table-cell" class="w-12 pr-4 text-right"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="person-0"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Anna Admin"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="person-0" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" class="w-full" data-goto-state="request"><i data-icon="SendIcon"></i><span data-t="people_request"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" class="w-full" data-goto-state="leave"><i data-icon="UserMinusIcon"></i><span data-t="people_mark_left"></span></button>
+            </div></td>
+            </tr>
+            <tr data-slot="table-row" data-show-in="list request request-all leave leavers">
+              <td data-slot="table-cell" class="px-4">
+                <div class="font-medium">Kalle Kask</div>
+                <div class="text-sm text-muted-foreground md:hidden"><span data-date="2026-06-02"></span></div>
+                <div class="text-sm text-muted-foreground lg:hidden"></div>
+              </td>
+              <td data-slot="table-cell" class="hidden md:table-cell"><span data-date="2026-06-02"></span></td>
+              <td data-slot="table-cell" class="hidden lg:table-cell"><span class="text-muted-foreground">—</span></td>
+              <td data-slot="table-cell" class="hidden text-right tabular-nums sm:table-cell">11</td>
+              <td data-slot="table-cell" class="w-12 pr-4 text-right"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="person-1"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Kalle Kask"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="person-1" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" class="w-full" data-goto-state="request"><i data-icon="SendIcon"></i><span data-t="people_request"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" class="w-full" data-goto-state="leave"><i data-icon="UserMinusIcon"></i><span data-t="people_mark_left"></span></button>
+            </div></td>
+            </tr>
+            <tr data-slot="table-row" data-show-in="list request request-all leave leavers">
+              <td data-slot="table-cell" class="px-4">
+                <div class="font-medium">Erik Employee</div>
+                <div class="text-sm text-muted-foreground md:hidden"><span data-date="2026-03-15"></span> <span data-slot="badge" data-variant="outline" class="border-amber-500 text-amber-800" data-t="people_stale"></span></div>
+                <div class="text-sm text-muted-foreground lg:hidden"><span class="flex items-center gap-1"><i data-icon="SendIcon" class="size-3.5 text-muted-foreground"></i><span data-t="people_request_sent"></span> <span data-date="2026-09-12"></span></span></div>
+              </td>
+              <td data-slot="table-cell" class="hidden md:table-cell"><span data-date="2026-03-15"></span> <span data-slot="badge" data-variant="outline" class="border-amber-500 text-amber-800" data-t="people_stale"></span></td>
+              <td data-slot="table-cell" class="hidden lg:table-cell"><span class="flex items-center gap-1"><i data-icon="SendIcon" class="size-3.5 text-muted-foreground"></i><span data-t="people_request_sent"></span> <span data-date="2026-09-12"></span></span></td>
+              <td data-slot="table-cell" class="hidden text-right tabular-nums sm:table-cell">3</td>
+              <td data-slot="table-cell" class="w-12 pr-4 text-right"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="person-2"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Erik Employee"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="person-2" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" class="w-full"><i data-icon="XIcon"></i><span data-t="people_cancel_request"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" class="w-full" data-goto-state="leave"><i data-icon="UserMinusIcon"></i><span data-t="people_mark_left"></span></button>
+            </div></td>
+            </tr>
+            <tr data-slot="table-row" data-show-in="list request request-all leave leavers">
+              <td data-slot="table-cell" class="px-4">
+                <div class="font-medium">Liis Lepp</div>
+                <div class="text-sm text-muted-foreground md:hidden"><span class="text-muted-foreground" data-t="profile_never_confirmed"></span></div>
+                <div class="text-sm text-muted-foreground lg:hidden"><span class="flex items-center gap-1"><i data-icon="SendIcon" class="size-3.5 text-muted-foreground"></i><span data-t="people_request_sent"></span> <span data-date="2026-09-12"></span></span></div>
+              </td>
+              <td data-slot="table-cell" class="hidden md:table-cell"><span class="text-muted-foreground" data-t="profile_never_confirmed"></span></td>
+              <td data-slot="table-cell" class="hidden lg:table-cell"><span class="flex items-center gap-1"><i data-icon="SendIcon" class="size-3.5 text-muted-foreground"></i><span data-t="people_request_sent"></span> <span data-date="2026-09-12"></span></span></td>
+              <td data-slot="table-cell" class="hidden text-right tabular-nums sm:table-cell">6</td>
+              <td data-slot="table-cell" class="w-12 pr-4 text-right"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="person-3"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Liis Lepp"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="person-3" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" class="w-full"><i data-icon="XIcon"></i><span data-t="people_cancel_request"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" class="w-full" data-goto-state="leave"><i data-icon="UserMinusIcon"></i><span data-t="people_mark_left"></span></button>
+            </div></td>
+            </tr>
+            <tr data-slot="table-row" data-show-in="list request request-all leave leavers">
+              <td data-slot="table-cell" class="px-4">
+                <div class="font-medium">Peeter Puu</div>
+                <div class="text-sm text-muted-foreground md:hidden"><span data-date="2025-11-20"></span> <span data-slot="badge" data-variant="outline" class="border-amber-500 text-amber-800" data-t="people_stale"></span></div>
+                <div class="text-sm text-muted-foreground lg:hidden"></div>
+              </td>
+              <td data-slot="table-cell" class="hidden md:table-cell"><span data-date="2025-11-20"></span> <span data-slot="badge" data-variant="outline" class="border-amber-500 text-amber-800" data-t="people_stale"></span></td>
+              <td data-slot="table-cell" class="hidden lg:table-cell"><span class="text-muted-foreground">—</span></td>
+              <td data-slot="table-cell" class="hidden text-right tabular-nums sm:table-cell">5</td>
+              <td data-slot="table-cell" class="w-12 pr-4 text-right"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="person-4"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Peeter Puu"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="person-4" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" class="w-full" data-goto-state="request"><i data-icon="SendIcon"></i><span data-t="people_request"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" class="w-full" data-goto-state="leave"><i data-icon="UserMinusIcon"></i><span data-t="people_mark_left"></span></button>
+            </div></td>
+            </tr>
+            <tr data-slot="table-row" data-show-in="list request request-all leave leavers">
+              <td data-slot="table-cell" class="px-4">
+                <div class="font-medium">Kadri Kuusk</div>
+                <div class="text-sm text-muted-foreground md:hidden"><span data-date="2026-09-01"></span></div>
+                <div class="text-sm text-muted-foreground lg:hidden"></div>
+              </td>
+              <td data-slot="table-cell" class="hidden md:table-cell"><span data-date="2026-09-01"></span></td>
+              <td data-slot="table-cell" class="hidden lg:table-cell"><span class="text-muted-foreground">—</span></td>
+              <td data-slot="table-cell" class="hidden text-right tabular-nums sm:table-cell">4</td>
+              <td data-slot="table-cell" class="w-12 pr-4 text-right"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="person-5"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Kadri Kuusk"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="person-5" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" class="w-full" data-goto-state="request"><i data-icon="SendIcon"></i><span data-t="people_request"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" class="w-full" data-goto-state="leave"><i data-icon="UserMinusIcon"></i><span data-t="people_mark_left"></span></button>
+            </div></td>
+            </tr>
+            <tr data-slot="table-row" data-show-in="list request request-all leave leavers">
+              <td data-slot="table-cell" class="px-4">
+                <div class="font-medium">Tõnu Tamm</div>
+                <div class="text-sm text-muted-foreground md:hidden"><span data-date="2026-05-11"></span></div>
+                <div class="text-sm text-muted-foreground lg:hidden"></div>
+              </td>
+              <td data-slot="table-cell" class="hidden md:table-cell"><span data-date="2026-05-11"></span></td>
+              <td data-slot="table-cell" class="hidden lg:table-cell"><span class="text-muted-foreground">—</span></td>
+              <td data-slot="table-cell" class="hidden text-right tabular-nums sm:table-cell">8</td>
+              <td data-slot="table-cell" class="w-12 pr-4 text-right"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="person-6"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Tõnu Tamm"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="person-6" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" class="w-full" data-goto-state="request"><i data-icon="SendIcon"></i><span data-t="people_request"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" class="w-full" data-goto-state="leave"><i data-icon="UserMinusIcon"></i><span data-t="people_mark_left"></span></button>
+            </div></td>
+            </tr>
+            <tr data-slot="table-row" data-show-in="list request request-all leave leavers">
+              <td data-slot="table-cell" class="px-4">
+                <div class="font-medium">Jaanika Jõgi</div>
+                <div class="text-sm text-muted-foreground md:hidden"><span class="text-muted-foreground" data-t="profile_never_confirmed"></span></div>
+                <div class="text-sm text-muted-foreground lg:hidden"></div>
+              </td>
+              <td data-slot="table-cell" class="hidden md:table-cell"><span class="text-muted-foreground" data-t="profile_never_confirmed"></span></td>
+              <td data-slot="table-cell" class="hidden lg:table-cell"><span class="text-muted-foreground">—</span></td>
+              <td data-slot="table-cell" class="hidden text-right tabular-nums sm:table-cell">0</td>
+              <td data-slot="table-cell" class="w-12 pr-4 text-right"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="person-7"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Jaanika Jõgi"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="person-7" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" class="w-full" data-goto-state="request"><i data-icon="SendIcon"></i><span data-t="people_request"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" class="w-full" data-goto-state="leave"><i data-icon="UserMinusIcon"></i><span data-t="people_mark_left"></span></button>
+            </div></td>
+            </tr>
+            <tr data-slot="table-row" data-show-in="list request request-all leave leavers">
+              <td data-slot="table-cell" class="px-4">
+                <div class="font-medium">Mart Mänd</div>
+                <div class="text-sm text-muted-foreground md:hidden"><span data-date="2026-07-19"></span></div>
+                <div class="text-sm text-muted-foreground lg:hidden"></div>
+              </td>
+              <td data-slot="table-cell" class="hidden md:table-cell"><span data-date="2026-07-19"></span></td>
+              <td data-slot="table-cell" class="hidden lg:table-cell"><span class="text-muted-foreground">—</span></td>
+              <td data-slot="table-cell" class="hidden text-right tabular-nums sm:table-cell">2</td>
+              <td data-slot="table-cell" class="w-12 pr-4 text-right"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="person-8"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Mart Mänd"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="person-8" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" class="w-full" data-goto-state="request"><i data-icon="SendIcon"></i><span data-t="people_request"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" class="w-full" data-goto-state="leave"><i data-icon="UserMinusIcon"></i><span data-t="people_mark_left"></span></button>
+            </div></td>
+            </tr>
+            <tr data-slot="table-row" data-show-in="leavers">
+              <td data-slot="table-cell" class="px-4">
+                <div class="font-medium">Riho Raudsepp <span data-slot="badge" data-variant="outline"><span data-t="people_left"></span>&nbsp;<span data-date="2026-04-30"></span></span></div>
+                <div class="text-sm text-muted-foreground md:hidden"><span data-date="2025-12-03"></span></div>
+                <div class="text-sm text-muted-foreground lg:hidden"></div>
+              </td>
+              <td data-slot="table-cell" class="hidden md:table-cell"><span data-date="2025-12-03"></span></td>
+              <td data-slot="table-cell" class="hidden lg:table-cell"><span class="text-muted-foreground">—</span></td>
+              <td data-slot="table-cell" class="hidden text-right tabular-nums sm:table-cell">9</td>
+              <td data-slot="table-cell" class="w-12 pr-4 text-right"></td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+
+    <dialog id="request-dialog" data-slot="dialog-content" data-open-in="request" aria-labelledby="request-dialog-title">
+      <form data-goto-state="list" class="contents">
+        <div data-slot="dialog-header">
+          <h2 data-slot="dialog-title" id="request-dialog-title" data-t="request_title"></h2>
+          <p data-slot="dialog-description" data-t="request_description" data-t-params='{"name": "Peeter Puu"}'></p>
+        </div>
+        <div class="flex flex-col gap-2">
+          <label data-slot="label" for="request-message" data-t="request_message"></label>
+          <textarea data-slot="textarea" id="request-message" rows="3" data-t-placeholder="request_message_placeholder"></textarea>
+          
+        </div>
+        <div data-slot="dialog-footer">
+          <button type="button" data-slot="button" data-variant="outline" commandfor="request-dialog" command="close" data-t="action_cancel"></button><button type="submit" data-slot="button"><i data-icon="SendIcon"></i><span data-t="request_submit"></span></button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="request-all-dialog" data-slot="dialog-content" data-open-in="request-all" aria-labelledby="request-all-dialog-title">
+      <form data-goto-state="list" class="contents">
+        <div data-slot="dialog-header">
+          <h2 data-slot="dialog-title" id="request-all-dialog-title" data-t="request_title_all"></h2>
+          <p data-slot="dialog-description" data-t="request_description_all" data-t-params='{"count": "7"}'></p>
+        </div>
+        <div class="flex flex-col gap-2">
+          <label data-slot="label" for="request-all-message" data-t="request_message"></label>
+          <textarea data-slot="textarea" id="request-all-message" rows="3" data-t-placeholder="request_message_placeholder"></textarea>
+          
+        </div>
+        <div data-slot="dialog-footer">
+          <button type="button" data-slot="button" data-variant="outline" commandfor="request-all-dialog" command="close" data-t="action_cancel"></button><button type="submit" data-slot="button"><i data-icon="SendIcon"></i><span data-t="request_submit"></span></button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="leave-dialog" data-slot="dialog-content" data-open-in="leave" aria-labelledby="leave-dialog-title">
+      <form data-goto-state="list" class="contents">
+        <div data-slot="dialog-header">
+          <h2 data-slot="dialog-title" id="leave-dialog-title" data-t="leave_title" data-t-params='{"name": "Tõnu Tamm"}'></h2>
+          
+        </div>
+        <div class="flex flex-col gap-2">
+          <label data-slot="label" for="leave-date" data-t="leave_date"></label>
+          <input data-slot="input" id="leave-date" type="date" value="2026-10-31" />
+          
+        </div><p class="text-sm text-muted-foreground" data-t="leave_body"></p>
+        <div data-slot="dialog-footer">
+          <button type="button" data-slot="button" data-variant="outline" commandfor="leave-dialog" command="close" data-t="action_cancel"></button><button type="submit" data-slot="button"><i data-icon="UserMinusIcon"></i><span data-t="leave_submit"></span></button>
+        </div>
+      </form>
+    </dialog>
+  </body>
+</html>

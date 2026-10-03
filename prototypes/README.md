@@ -11,7 +11,7 @@ bun run prototypes:build           # writes prototypes/build/ (gitignored)
 bun run prototypes:build --watch   # rebuilds the CSS and script on change
 ```
 
-Then open a page from disk, for example `file:///<repository>/prototypes/frame.html`. No
+Then open a page from disk, for example `file:///<repository>/prototypes/profile.html`. No
 server is needed, and the pages load nothing from the network. Rebuild after changing a
 page's classes or anything in `lib/`; the watch mode rebuilds everything but the icons.
 
@@ -95,6 +95,8 @@ and role.
     with `data-expanded-in="<state>"` is `aria-expanded`.
 - A form or button with `data-goto-state="link"` shows that state, as the app would after
   the action.
+- A checkbox with `data-goto-state` is a filter: it's ticked in that state, and unticking it
+  returns to the page's first state.
 
 The data is fictional and follows the demo seed (`src/db/seed.ts`). Pages show the
 Snowhound mark from `public/`, as the app will.

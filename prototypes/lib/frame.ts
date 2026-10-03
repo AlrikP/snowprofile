@@ -23,7 +23,7 @@ const users: Record<Role, { name: string; email: string; organizations: Organiza
 }
 
 // Pages without an href aren't prototyped yet.
-const profile: NavItem = { id: 'profile', icon: 'UserIcon', label: 'nav_my_profile', href: 'frame.html' }
+const profile: NavItem = { id: 'profile', icon: 'UserIcon', label: 'nav_my_profile', href: 'profile.html' }
 const projects: NavItem = { id: 'projects', icon: 'FolderKanbanIcon', label: 'nav_projects' }
 const technologies: NavItem = {
   id: 'technologies',
@@ -39,7 +39,7 @@ const navigation: Record<Role, { label?: string; items: NavItem[] }[]> = {
       label: 'nav_group_work',
       items: [
         projects,
-        { id: 'people', icon: 'UsersIcon', label: 'nav_people' },
+        { id: 'people', icon: 'UsersIcon', label: 'nav_people', href: 'people.html' },
         { id: 'search', icon: 'SearchIcon', label: 'nav_search' },
         { id: 'cvs', icon: 'FileTextIcon', label: 'nav_cvs' },
       ],
@@ -68,13 +68,14 @@ export function pageRole(): Role {
 
 // A link to this page with changed params, or to another page in the same language and
 // role. Other params, such as state, belong to the page.
-function withState(href: string, changes: Record<string, string> = {}) {
+function withState(target: string, changes: Record<string, string> = {}) {
+  const [href = '', own = ''] = target.split('?')
   const current = new URLSearchParams(location.search)
-  const params = href ? new URLSearchParams() : current
+  const params = href ? new URLSearchParams(own) : current
   if (href) {
     for (const key of ['lang', 'role']) {
       const value = current.get(key)
-      if (value) params.set(key, value)
+      if (value && !params.has(key)) params.set(key, value)
     }
   }
   for (const [key, value] of Object.entries(changes)) params.set(key, value)
@@ -85,7 +86,7 @@ function withState(href: string, changes: Record<string, string> = {}) {
 // Plain links and forms between pages keep the language and role; <a data-locale="en">
 // switches the language, styled as the app's language switch.
 function connectPages() {
-  for (const link of document.querySelectorAll<HTMLAnchorElement>('a[href$=".html"]')) {
+  for (const link of document.querySelectorAll<HTMLAnchorElement>('a[href*=".html"]')) {
     link.href = withState(link.getAttribute('href') ?? '')
   }
   for (const form of document.querySelectorAll<HTMLFormElement>('form[action]')) {
@@ -228,7 +229,7 @@ export function prototypeBar(controls: { param: string; label: string; options: 
           `<a href="${withState('', { [control.param]: value })}" class="rounded px-1.5 py-0.5 ${value === current ? 'bg-amber-200 font-semibold' : 'underline'}"${value === current ? ' aria-current="true"' : ''}>${label}</a>`,
       )
       .join('')
-    return `<span class="flex items-center gap-1">${control.label}: ${links}</span>`
+    return `<span class="flex flex-wrap items-center gap-1">${control.label}: ${links}</span>`
   })
   const bar = document.createElement('div')
   bar.className =
@@ -296,7 +297,10 @@ function connectStates() {
   }
   for (const button of document.querySelectorAll<HTMLElement>(':not(form)[data-goto-state]')) {
     button.addEventListener('click', () => {
-      location.href = withState('', { state: button.dataset.gotoState ?? '' })
+      // A checkbox is a filter: unticking it returns to the page's first state.
+      const off = button instanceof HTMLInputElement && !button.checked
+      const first = document.body.dataset.states?.split(':')[0] ?? ''
+      location.href = withState('', { state: off ? first : (button.dataset.gotoState ?? '') })
     })
   }
 }
@@ -304,6 +308,9 @@ function connectStates() {
 function showState(current: string) {
   for (const element of document.querySelectorAll<HTMLElement>('[data-show-in]')) {
     element.hidden = !element.dataset.showIn?.split(' ').includes(current)
+  }
+  for (const box of document.querySelectorAll<HTMLInputElement>('input[type=checkbox][data-goto-state]')) {
+    box.checked = box.dataset.gotoState === current
   }
   for (const input of document.querySelectorAll<HTMLInputElement>('[data-state-values]')) {
     const values = JSON.parse(input.dataset.stateValues ?? '{}') as Record<string, string>
