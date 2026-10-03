@@ -30,6 +30,10 @@ the project settles on back into the bootstrap kit.
 | Deployment           | Docker Compose on Hetzner (EU) following snowtime's Compose setup; local only until the first deployment                                                                                                                               | Existing Snowhound infrastructure, flat cost, commercial use allowed. Provisional, no kit profile (`hosting.md`)                                                                                      |
 | Build                | Nitro (generic adapter), `bun` preset for the server build                                                                                                                                                                             | Runs in any container host                                                                                                                                                                            |
 
+The inlang message-format plugin that compiles the messages is a pinned dev dependency,
+loaded from `node_modules` (`project.inlang/settings.json`), not from jsDelivr. Compiling
+messages then needs no network, and the lockfile checks the plugin like any package.
+
 ## Repository layout
 
 | Path                   | Holds                                                        |
@@ -274,7 +278,8 @@ What the import must handle (`Snowhound_CV_baas.xlsx`):
   OAuth client setup.
 - `ALLOWED_LOGIN_DOMAINS` (for example `snowhound.eu`) restricts sign-in to company
   addresses. Better Auth hooks refuse a new user and every new session for another
-  domain, so narrowing the list also locks out existing users at their next sign-in. The app refuses to start with both `DEMO_MODE` and `ALLOWED_LOGIN_DOMAINS`
+  domain or for an address the provider hasn't verified, so narrowing the list also locks
+  out existing users at their next sign-in. The app refuses to start with both `DEMO_MODE` and `ALLOWED_LOGIN_DOMAINS`
   set, because seeded users have `example.com` addresses. A test checks this.
 - A signed-in user without a membership lands on a "no access" page. A new session starts
   with the user's first organization active; a member of several switches.

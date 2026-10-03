@@ -10,7 +10,8 @@
 import { parseArgs } from 'node:util'
 import type { Database } from '#/db'
 import { openDatabase } from '#/db/connection'
-import { SEED_PASSWORD, nonDemoOrganizations, resetOrganization, seed, seedUsers } from '#/db/seed'
+import { nonDemoOrganizations, resetOrganization, seed } from '#/db/seed'
+import { SEED_PASSWORD, seedUsers } from '#/db/seed-accounts'
 import { demoModeOn } from '#/lib/demo-mode'
 
 export function seedRefusal(source: Record<string, string | undefined>): string | null {

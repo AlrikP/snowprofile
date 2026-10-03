@@ -4,7 +4,7 @@ import { requestHandler } from '@tanstack/react-start/server'
 import { mock } from 'bun:test'
 import type { AsyncLocalStorage } from 'node:async_hooks'
 import type { Database } from '#/db'
-import { SEED_PASSWORD } from '#/db/seed'
+import { SEED_PASSWORD } from '#/db/seed-accounts'
 import { paraglideMiddleware } from '#/paraglide/server.js'
 import type { createAuth } from './auth/better-auth.server'
 

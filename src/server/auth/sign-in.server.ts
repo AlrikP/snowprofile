@@ -1,7 +1,7 @@
 // Which sign-in methods an environment offers, as pure functions of its settings, so the
 // auth instance and the sign-in page build from the same rule (docs/architecture.md,
 // "Sign-in modes").
-import { SEED_PASSWORD, seedUsers } from '#/db/seed'
+import { SEED_PASSWORD, seedUsers } from '#/db/seed-accounts'
 import type { Env } from '#/env'
 
 export type SignInConfig = Pick<

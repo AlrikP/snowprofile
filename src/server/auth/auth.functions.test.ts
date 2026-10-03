@@ -2,7 +2,7 @@
 
 import { afterAll, beforeAll, expect, test } from 'bun:test'
 import type { Database } from '#/db'
-import { seedUsers } from '#/db/seed'
+import { seedUsers } from '#/db/seed-accounts'
 import { createTestDatabase } from '#/db/testing'
 import { cookieName } from '#/paraglide/runtime.js'
 import { saveLocale } from '../account/account.server'

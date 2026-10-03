@@ -2,9 +2,9 @@ import { TanStackDevtools } from '@tanstack/react-devtools'
 import type { QueryClient } from '@tanstack/react-query'
 import { HeadContent, Scripts, createRootRouteWithContext } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
+import TanStackQueryDevtools from '#/integrations/tanstack-query/devtools'
 import { getLocale } from '#/paraglide/runtime.js'
-import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
-import appCss from '../styles.css?url'
+import appCss from '#/styles.css?url'
 
 interface MyRouterContext {
   queryClient: QueryClient

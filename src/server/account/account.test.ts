@@ -3,7 +3,7 @@
 import { afterAll, beforeAll, expect, test } from 'bun:test'
 import * as v from 'valibot'
 import type { Database } from '#/db'
-import { seedIds } from '#/db/seed'
+import { seedIds } from '#/db/seed-accounts'
 import { createTestDatabase } from '#/db/testing'
 import { SaveLocaleInput } from './account.schemas'
 import { saveLocale, savedLocale } from './account.server'

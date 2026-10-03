@@ -1,8 +1,12 @@
 /// <reference types="bun" />
 
 import { afterAll, beforeAll, expect, test } from 'bun:test'
+import { eq } from 'drizzle-orm'
+import { v7 as uuidv7 } from 'uuid'
 import type { Database } from '#/db'
-import { SEED_PASSWORD, seedIds } from '#/db/seed'
+import { user } from '#/db/schema'
+import { addPasswordUser } from '#/db/seed'
+import { SEED_PASSWORD, seedIds } from '#/db/seed-accounts'
 import { createTestDatabase } from '#/db/testing'
 import { createAuth } from './better-auth.server'
 
@@ -66,6 +70,30 @@ test('a new user outside the allowed domains is refused', async () => {
     { method: 'admin' },
   )
   expect(inside.email).toBe('someone@snowhound.eu')
+})
+
+test('with an allowlist, an unverified address is refused', async () => {
+  const auth = authWith(['demo.example.com'])
+  const id = uuidv7()
+  const email = 'unverified@demo.example.com'
+  await addPasswordUser(db, { id, name: 'Unverified', email }, SEED_PASSWORD)
+  await db.update(user).set({ emailVerified: false }).where(eq(user.id, id))
+  const response = await auth.api.signInEmail({
+    body: { email, password: SEED_PASSWORD },
+    asResponse: true,
+  })
+  expect(response.status).toBe(403)
+
+  const context = await auth.$context
+  const created = context.internalAdapter.createUser(
+    { name: 'New', email: 'new@demo.example.com', emailVerified: false },
+    { method: 'admin' },
+  )
+  const error = await created.then(
+    () => null,
+    (reason: unknown) => reason,
+  )
+  expect(error).toHaveProperty('body.code', 'LOGIN_DOMAIN_NOT_ALLOWED')
 })
 
 test('a new session starts in the user’s organization', async () => {

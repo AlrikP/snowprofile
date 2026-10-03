@@ -22,9 +22,8 @@ import {
   generateDemoData,
   resetOrganization,
   seed,
-  seedIds,
-  seedUsers,
 } from './seed'
+import { seedIds, seedUsers } from './seed-accounts'
 import { createTestDatabase, failure } from './testing'
 
 const data = generateDemoData()

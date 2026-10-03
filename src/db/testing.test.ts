@@ -5,7 +5,7 @@ import { count, eq } from 'drizzle-orm'
 import { existsSync } from 'node:fs'
 import type { Database } from '.'
 import { organization } from './schema'
-import { seedIds } from './seed'
+import { seedIds } from './seed-accounts'
 import { createTestDatabase } from './testing'
 
 function organizations(db: Database) {

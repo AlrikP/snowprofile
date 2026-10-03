@@ -18,7 +18,7 @@ import {
   technologyCategory,
   updateRequest,
 } from './schema'
-import { seedIds } from './seed'
+import { seedIds } from './seed-accounts'
 import { createTestDatabase, failure } from './testing'
 
 let db: Database

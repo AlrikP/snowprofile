@@ -6,7 +6,7 @@ import { v7 as uuidv7 } from 'uuid'
 import type { Database } from '.'
 import { SYSTEM_USER_ID, withActor } from './actor'
 import { organization, technology, technologyCategory, user } from './schema'
-import { seedIds } from './seed'
+import { seedIds } from './seed-accounts'
 import { createTestDatabase, failure } from './testing'
 
 let db: Database

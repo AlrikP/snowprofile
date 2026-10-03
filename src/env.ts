@@ -1,6 +1,6 @@
 import * as v from 'valibot'
-import { demoModeOn } from './lib/demo-mode'
-import { parseLoginDomains } from './lib/login-domains'
+import { demoModeOn } from '#/lib/demo-mode'
+import { parseLoginDomains } from '#/lib/login-domains'
 
 const nonEmpty = v.pipe(v.string(), v.minLength(1))
 

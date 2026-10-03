@@ -1,8 +1,8 @@
 import { hashPassword } from 'better-auth/crypto'
 import { and, eq, isNotNull } from 'drizzle-orm'
 // Demo data for local and demo databases, and the data tests seed their throwaway databases
-// with. `bun run db:seed` runs it; tests call seed(db) and name rows through seedIds.
-// src/db/demo/generate.ts fills each organization.
+// with. `bun run db:seed` runs it; tests call seed(db) and name rows through seedIds
+// (seed-accounts.ts). src/db/demo/generate.ts fills each organization.
 import type { SQLiteInsertValue, SQLiteTable } from 'drizzle-orm/sqlite-core'
 import type { Database, Executor } from '.'
 import { SYSTEM_USER_ID, withActor } from './actor'
@@ -13,34 +13,10 @@ import {
   type OrganizationSpec,
 } from './demo/generate'
 import * as schema from './schema'
-
-// Every seeded user signs in with this password, in demo mode only (docs/architecture.md,
-// "Sign-in modes").
-export const SEED_PASSWORD = 'snowprofile-demo'
+import { SEED_PASSWORD, seedIds, seedUsers } from './seed-accounts'
 
 // The seed `bun run db:seed` uses; tests use it too, so they see the same data.
 export const DEMO_SEED = 1
-
-// Fixed UUIDv7-shaped ids, so tests can name seeded rows.
-function id(n: number) {
-  return `01900000-0000-7000-8000-${n.toString(16).padStart(12, '0')}`
-}
-
-export const seedIds = {
-  users: { admin: id(0x101), employee: id(0x102) },
-  orgs: { demo: id(0x201), rabasaare: id(0x202), tormilind: id(0x203) },
-} as const
-
-// The sign-in page lists these in demo mode.
-export const seedUsers = [
-  { id: seedIds.users.admin, name: 'Anna Admin', email: 'admin@demo.example.com', role: 'admin' },
-  {
-    id: seedIds.users.employee,
-    name: 'Erik Employee',
-    email: 'employee@demo.example.com',
-    role: 'employee',
-  },
-] as const
 
 const [admin, employee] = seedUsers
 
