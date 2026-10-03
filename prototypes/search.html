@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="et">
+  <head>
+    <title>Search · snowprofile prototype</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="build/prototype.css" />
+    <script src="build/icons.js"></script>
+    <script src="build/prototype.js"></script>
+  </head>
+  <body data-frame="search" data-roles="admin" data-states="results:Results|leavers:With leavers|prompt:Nothing chosen|no-match:No match">
+    <main class="flex flex-col gap-6 p-4 md:p-8">
+      <div class="flex flex-wrap items-end justify-between gap-4">
+        <div class="flex flex-col gap-1">
+          <h1 class="text-3xl" data-t="search_title"></h1>
+          <p class="text-sm text-muted-foreground" data-t="search_description"></p>
+        </div>
+        
+      </div>
+
+      <section data-slot="card" class="max-w-5xl gap-4 py-4" aria-label="Filters">
+        <div data-slot="card-content" class="grid gap-4 px-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+          <fieldset class="flex flex-col gap-2">
+            <legend data-slot="label" class="mb-2" data-t="search_technologies"></legend>
+            <div class="flex flex-wrap gap-2" data-show-in="results leavers no-match"><span data-slot="badge" data-variant="secondary" class="h-7 gap-1 pr-1 pl-2.5 text-sm">Java
+            <button type="button" class="rounded-sm p-0.5 hover:bg-background" data-t-label="project_remove_technology" data-t-params='{"name": "Java"}'><i data-icon="XIcon" class="size-3.5"></i></button></span><span data-slot="badge" data-variant="secondary" class="h-7 gap-1 pr-1 pl-2.5 text-sm">X-tee
+            <button type="button" class="rounded-sm p-0.5 hover:bg-background" data-t-label="project_remove_technology" data-t-params='{"name": "X-tee"}'><i data-icon="XIcon" class="size-3.5"></i></button></span><span data-show-in="no-match"><span data-slot="badge" data-variant="secondary" class="h-7 gap-1 pr-1 pl-2.5 text-sm">Rust
+            <button type="button" class="rounded-sm p-0.5 hover:bg-background" data-t-label="project_remove_technology" data-t-params='{"name": "Rust"}'><i data-icon="XIcon" class="size-3.5"></i></button></span></span></div>
+            <div class="relative">
+            <i data-icon="SearchIcon" class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"></i>
+            <input data-slot="input" id="search-technology" class="pl-9" data-t-label="project_technology_search" data-t-placeholder="project_technology_search" />
+          </div>
+            <div class="flex flex-wrap items-center gap-3 text-sm">
+              <span data-t="search_match_label"></span>
+              <div role="radiogroup" data-slot="toggle-group" data-t-label="search_match_label"><label data-slot="toggle-group-item"><input type="radio" class="sr-only" name="match" value="all" checked /><span data-t="search_match_all"></span></label><label data-slot="toggle-group-item"><input type="radio" class="sr-only" name="match" value="any" /><span data-t="search_match_any"></span></label></div>
+            </div>
+          </fieldset>
+          <fieldset class="flex flex-col gap-2">
+            <legend data-slot="label" class="mb-2" data-t="search_period"></legend>
+            <div class="grid grid-cols-2 gap-2">
+              <div class="flex flex-col gap-1.5">
+                <label for="search-from" class="text-xs text-muted-foreground" data-t="search_from"></label>
+                <input data-slot="input" id="search-from" inputmode="numeric" placeholder="MM-YYYY" value="2019" />
+              </div>
+              <div class="flex flex-col gap-1.5">
+                <label for="search-to" class="text-xs text-muted-foreground" data-t="search_to"></label>
+                <input data-slot="input" id="search-to" inputmode="numeric" placeholder="MM-YYYY" />
+              </div>
+            </div>
+            <label class="mt-2 flex items-center gap-2 text-sm">
+              <input type="checkbox" data-slot="checkbox" data-goto-state="leavers" />
+              <span data-t="people_show_leavers"></span>
+            </label>
+          </fieldset>
+        </div>
+      </section>
+
+      <div class="flex max-w-5xl flex-wrap items-center justify-between gap-3" data-show-in="results leavers">
+        <p class="font-medium" role="status"><span data-show-in="results" data-t="search_results" data-t-params='{"count": "3"}'></span><span data-show-in="leavers" data-t="search_results" data-t-params='{"count": "4"}'></span></p>
+        <a href="cv.html?state=team-per-person" data-slot="button"><i data-icon="FileTextIcon"></i><span data-t="search_make_cv" data-t-params='{"count": "2"}'></span></a>
+      </div>
+      <div class="flex max-w-5xl flex-col gap-4">
+        <section data-slot="card" class="gap-3 py-4" data-show-in="results leavers" aria-labelledby="person-0">
+          <div data-slot="card-header" class="grid-cols-[auto_1fr] items-center gap-x-3 px-4">
+            <input type="checkbox" data-slot="checkbox" data-t-label="search_select_person" data-t-params='{"name": "Erik Employee"}' checked />
+            <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+              <h2 id="person-0" class="flex flex-wrap items-center gap-2 text-xl">Erik Employee </h2>
+              <span class="text-sm text-muted-foreground" data-t="search_matches" data-t-params='{"count": "2"}'></span>
+            </div>
+          </div>
+          <div data-slot="card-content" class="px-4 sm:pl-11">
+            <ul class="flex flex-col divide-y">
+              <li class="flex flex-col gap-1.5 py-3">
+                <span class="flex flex-wrap items-center gap-2"><a href="project.html" class="font-medium underline-offset-4 hover:underline">e-MTA deklaratsioonid</a></span>
+                <span class="text-sm text-muted-foreground">Maksu- ja Tolliamet · <span>Arendaja</span> · <span data-period="2021-05/2023-12"></span></span>
+                <div class="flex flex-wrap gap-1"><span data-slot="badge" data-variant="default">Java</span><span data-slot="badge" data-variant="secondary">Spring Boot</span><span data-slot="badge" data-variant="secondary">Angular</span><span data-slot="badge" data-variant="default">X-tee</span></div>
+              </li>
+              <li class="flex flex-col gap-1.5 py-3">
+                <span class="flex flex-wrap items-center gap-2"><a href="project.html" class="font-medium underline-offset-4 hover:underline">Äriregistri avaandmete API</a></span>
+                <span class="text-sm text-muted-foreground">Registrite ja Infosüsteemide Keskus · <span>Arendaja</span> · <span data-period="2020-02/2020-11"></span></span>
+                <div class="flex flex-wrap gap-1"><span data-slot="badge" data-variant="default">Java</span><span data-slot="badge" data-variant="default">X-tee</span><span data-slot="badge" data-variant="secondary">PostgreSQL</span></div>
+              </li>
+            </ul>
+          </div>
+        </section>
+        <section data-slot="card" class="gap-3 py-4" data-show-in="results leavers" aria-labelledby="person-1">
+          <div data-slot="card-header" class="grid-cols-[auto_1fr] items-center gap-x-3 px-4">
+            <input type="checkbox" data-slot="checkbox" data-t-label="search_select_person" data-t-params='{"name": "Kalle Kask"}' checked />
+            <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+              <h2 id="person-1" class="flex flex-wrap items-center gap-2 text-xl">Kalle Kask </h2>
+              <span class="text-sm text-muted-foreground" data-t="search_matches" data-t-params='{"count": "1"}'></span>
+            </div>
+          </div>
+          <div data-slot="card-content" class="px-4 sm:pl-11">
+            <ul class="flex flex-col divide-y">
+              <li class="flex flex-col gap-1.5 py-3">
+                <span class="flex flex-wrap items-center gap-2"><a href="project.html" class="font-medium underline-offset-4 hover:underline">e-MTA deklaratsioonid</a></span>
+                <span class="text-sm text-muted-foreground">Maksu- ja Tolliamet · <span>Tarkvaraarhitekt</span> · <span data-period="2021-05/2022-08"></span></span>
+                <div class="flex flex-wrap gap-1"><span data-slot="badge" data-variant="default">Java</span><span data-slot="badge" data-variant="secondary">Spring Boot</span><span data-slot="badge" data-variant="default">X-tee</span></div>
+              </li>
+            </ul>
+          </div>
+        </section>
+        <section data-slot="card" class="gap-3 py-4" data-show-in="results leavers" aria-labelledby="person-2">
+          <div data-slot="card-header" class="grid-cols-[auto_1fr] items-center gap-x-3 px-4">
+            <input type="checkbox" data-slot="checkbox" data-t-label="search_select_person" data-t-params='{"name": "Tõnu Tamm"}' />
+            <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+              <h2 id="person-2" class="flex flex-wrap items-center gap-2 text-xl">Tõnu Tamm </h2>
+              <span class="text-sm text-muted-foreground" data-t="search_matches" data-t-params='{"count": "1"}'></span>
+            </div>
+          </div>
+          <div data-slot="card-content" class="px-4 sm:pl-11">
+            <ul class="flex flex-col divide-y">
+              <li class="flex flex-col gap-1.5 py-3">
+                <span class="flex flex-wrap items-center gap-2"><span class="font-medium">Riigiportaali liidesed</span><span data-slot="badge" data-variant="outline" class="border-dashed" data-t="own_badge"></span></span>
+                <span class="text-sm text-muted-foreground">Helmes · <span>Arendaja</span> · <span data-period="2015/2017"></span></span>
+                <div class="flex flex-wrap gap-1"><span data-slot="badge" data-variant="default">Java</span><span data-slot="badge" data-variant="default">X-tee</span><span data-slot="badge" data-variant="secondary">Oracle</span></div>
+              </li>
+            </ul>
+          </div>
+        </section>
+        <section data-slot="card" class="gap-3 py-4" data-show-in="leavers" aria-labelledby="person-3">
+          <div data-slot="card-header" class="grid-cols-[auto_1fr] items-center gap-x-3 px-4">
+            <input type="checkbox" data-slot="checkbox" data-t-label="search_select_person" data-t-params='{"name": "Riho Raudsepp"}' />
+            <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+              <h2 id="person-3" class="flex flex-wrap items-center gap-2 text-xl">Riho Raudsepp <span data-slot="badge" data-variant="outline"><span data-t="people_left"></span>&nbsp;<span data-date="2026-04-30"></span></span></h2>
+              <span class="text-sm text-muted-foreground" data-t="search_matches" data-t-params='{"count": "1"}'></span>
+            </div>
+          </div>
+          <div data-slot="card-content" class="px-4 sm:pl-11">
+            <ul class="flex flex-col divide-y">
+              <li class="flex flex-col gap-1.5 py-3">
+                <span class="flex flex-wrap items-center gap-2"><a href="project.html" class="font-medium underline-offset-4 hover:underline">e-MTA deklaratsioonid</a></span>
+                <span class="text-sm text-muted-foreground">Maksu- ja Tolliamet · <span>Testija</span> · <span data-period="2021-05/2022-02"></span></span>
+                <div class="flex flex-wrap gap-1"><span data-slot="badge" data-variant="default">Java</span><span data-slot="badge" data-variant="default">X-tee</span><span data-slot="badge" data-variant="secondary">JUnit</span></div>
+              </li>
+            </ul>
+          </div>
+        </section>
+      </div>
+      <p class="max-w-5xl rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground" data-show-in="prompt" data-t="search_prompt"></p>
+      <p class="max-w-5xl rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground" data-show-in="no-match" data-t="search_no_match"></p>
+    </main>
+  </body>
+</html>

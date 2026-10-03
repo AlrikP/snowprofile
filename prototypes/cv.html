@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="et">
+  <head>
+    <title>CV · snowprofile prototype</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="build/prototype.css" />
+    <script src="build/icons.js"></script>
+    <script src="build/prototype.js"></script>
+  </head>
+  <body data-frame="cvs" data-roles="admin" data-states="personal:Personal CV|team-per-person:Team, a table each|team-combined:Team, one table|missing:English, missing translations|empty:Nobody chosen">
+    <main class="flex flex-col gap-6 p-4 md:p-8">
+      <div class="flex flex-wrap items-end justify-between gap-4">
+        <div class="flex flex-col gap-1">
+          <h1 class="text-3xl" data-t="cv_title"></h1>
+          <p class="text-sm text-muted-foreground" data-t="cv_description"></p>
+        </div>
+        
+      </div>
+
+      <div class="grid items-start gap-6 2xl:grid-cols-[22rem_minmax(0,1fr)]">
+        <section data-slot="card" class="gap-5 py-5" aria-label="CV">
+          <div data-slot="card-content" class="grid gap-5 px-5 md:grid-cols-2 2xl:grid-cols-1">
+            <fieldset class="flex flex-col gap-2">
+              <legend data-slot="label" class="mb-2" data-t="cv_people"></legend>
+              <div class="flex flex-wrap gap-2">
+            <span data-show-in="personal team-per-person team-combined missing" data-slot="badge" data-variant="secondary" class="h-7 gap-1 pr-1 pl-2.5 text-sm">Erik Employee
+            <button type="button" class="rounded-sm p-0.5 hover:bg-background" data-t-label="project_remove_technology" data-t-params='{"name": "Erik Employee"}'><i data-icon="XIcon" class="size-3.5"></i></button></span>
+            <span class="contents" data-show-in="team-per-person team-combined"><span data-slot="badge" data-variant="secondary" class="h-7 gap-1 pr-1 pl-2.5 text-sm">Kalle Kask
+            <button type="button" class="rounded-sm p-0.5 hover:bg-background" data-t-label="project_remove_technology" data-t-params='{"name": "Kalle Kask"}'><i data-icon="XIcon" class="size-3.5"></i></button></span></span>
+          </div>
+              <div class="relative">
+            <i data-icon="SearchIcon" class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"></i>
+            <input data-slot="input" id="cv-person" class="pl-9" data-t-label="cv_add_person" data-t-placeholder="cv_add_person" />
+          </div>
+            </fieldset>
+            <div class="flex flex-col gap-2">
+              <span data-slot="label" id="cv-language-label" data-t="cv_language"></span>
+              <div data-show-in="personal team-per-person team-combined empty"><div role="radiogroup" data-slot="toggle-group" data-t-label="cv_language"><label data-slot="toggle-group-item"><input type="radio" class="sr-only" name="language" value="et" checked />Eesti</label><label data-slot="toggle-group-item"><input type="radio" class="sr-only" name="language" value="en" />English</label></div></div>
+              <div data-show-in="missing"><div role="radiogroup" data-slot="toggle-group" data-t-label="cv_language"><label data-slot="toggle-group-item"><input type="radio" class="sr-only" name="language-en" value="et" />Eesti</label><label data-slot="toggle-group-item"><input type="radio" class="sr-only" name="language-en" value="en" checked />English</label></div></div>
+            </div>
+            <fieldset class="flex flex-col gap-2">
+              <legend data-slot="label" class="mb-2" data-t="cv_projects"></legend>
+              <label class="flex items-center gap-2 text-sm"><input type="radio" name="projects" class="size-4 accent-foreground" checked /><span data-t="cv_projects_all"></span></label>
+              <label class="flex items-center gap-2 text-sm"><input type="radio" name="projects" class="size-4 accent-foreground" /><span data-t="cv_projects_filtered"></span></label>
+            </fieldset>
+            <div class="flex flex-col gap-2" data-show-in="team-per-person team-combined">
+              <span data-slot="label" data-t="cv_team_layout"></span>
+              <div data-show-in="team-per-person"><div role="radiogroup" data-slot="toggle-group" data-t-label="cv_team_layout"><label data-slot="toggle-group-item"><input type="radio" class="sr-only" name="layout" value="each" checked /><span data-t="cv_layout_per_person"></span></label><label data-slot="toggle-group-item"><input type="radio" class="sr-only" name="layout" value="one" /><span data-t="cv_layout_combined"></span></label></div></div>
+              <div data-show-in="team-combined"><div role="radiogroup" data-slot="toggle-group" data-t-label="cv_team_layout"><label data-slot="toggle-group-item"><input type="radio" class="sr-only" name="layout-one" value="each" /><span data-t="cv_layout_per_person"></span></label><label data-slot="toggle-group-item"><input type="radio" class="sr-only" name="layout-one" value="one" checked /><span data-t="cv_layout_combined"></span></label></div></div>
+            </div>
+            <div class="flex items-start gap-2">
+              <input type="checkbox" data-slot="checkbox" id="cv-birth" class="mt-0.5" aria-describedby="cv-birth-hint" data-state-checked="missing" />
+              <div class="flex flex-col gap-0.5">
+                <label for="cv-birth" class="text-sm font-medium" data-t="cv_include_birth_date"></label>
+                <p id="cv-birth-hint" class="text-sm text-muted-foreground" data-t="cv_include_birth_date_hint"></p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div class="flex min-w-0 flex-col gap-4">
+          <div data-slot="alert" data-show-in="missing" class="border-amber-500">
+            <i data-icon="LanguagesIcon" class="text-amber-800"></i>
+            <div data-slot="alert-title" data-t="cv_missing_title" data-t-params='{"count": "2"}'></div>
+            <div data-slot="alert-description" class="w-full">
+              <p data-t="cv_missing_body"></p>
+              <ul class="flex w-full flex-col text-foreground">
+            <li class="flex flex-wrap items-center gap-x-2 py-1"><span class="font-medium">Äriregistri avaandmete API</span> · <span data-t="cv_missing_role"></span>
+              <a href="profile.html?state=participation" class="ml-auto underline underline-offset-4" data-t="cv_missing_fix"></a></li>
+            <li class="flex flex-wrap items-center gap-x-2 py-1"><span class="font-medium">Äriregistri avaandmete API</span> · <span data-t="cv_missing_description"></span>
+              <a href="project-edit.html" class="ml-auto underline underline-offset-4" data-t="cv_missing_fix"></a></li>
+              </ul>
+            </div>
+          </div>
+
+          <section data-slot="card" class="gap-4 py-5" aria-labelledby="cv-preview-title" data-show-in="personal team-per-person team-combined missing">
+            <div data-slot="card-header" class="flex flex-wrap items-center justify-between gap-3 px-5">
+              <h2 id="cv-preview-title" class="text-xl" data-t="cv_preview"></h2>
+              <div class="flex flex-wrap gap-2">
+                <button type="button" data-slot="button" data-variant="outline" data-copy="cv-table"><i data-icon="ClipboardCopyIcon"></i><span data-t="cv_copy"></span></button>
+                <button type="button" data-slot="button"><i data-icon="DownloadIcon"></i><span data-t="cv_download"></span></button>
+              </div>
+            </div>
+            <div data-slot="card-content" class="flex flex-col gap-4 px-5">
+              <p class="rounded-md border border-dashed border-amber-500 bg-amber-50 px-3 py-2 text-sm text-amber-950" data-t="cv_columns_provisional"></p>
+              <p id="cv-table-status" class="sr-only" role="status"></p>
+              <div id="cv-table" class="flex flex-col gap-6"><div class="flex flex-col gap-6" data-show-in="personal"><div class="flex flex-col gap-2">
+            <h3 class="font-sans text-lg font-semibold tracking-normal">Erik Employee</h3>
+            
+            <div class="overflow-x-auto"><table class="w-full border-collapse text-sm">
+              <thead><tr><th class="border border-foreground/30 px-2 py-1.5 text-left align-top bg-muted font-semibold">Projekt</th><th class="border border-foreground/30 px-2 py-1.5 text-left align-top bg-muted font-semibold">Klient</th><th class="border border-foreground/30 px-2 py-1.5 text-left align-top bg-muted font-semibold">Periood</th><th class="border border-foreground/30 px-2 py-1.5 text-left align-top bg-muted font-semibold">Roll</th><th class="border border-foreground/30 px-2 py-1.5 text-left align-top bg-muted font-semibold">Maht</th><th class="border border-foreground/30 px-2 py-1.5 text-left align-top bg-muted font-semibold">Tehnoloogiad</th></tr></thead>
+              <tbody>
+              <tr>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top"><strong>Kodanikuportaali uuendus</strong><br />Siseministeeriumi kodanikuportaali uus versioon.</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top">Siseministeerium</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top whitespace-nowrap">05-2024 – kestab</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top"><strong>Arendaja</strong><br />Elukoha registreerimise ja teavituste moodulite arendus.</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top whitespace-nowrap">umbes&nbsp;1&nbsp;800&nbsp;h</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top">React, TypeScript, Java, Spring Boot</td>
+              </tr>
+              <tr>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top"><strong>e-MTA deklaratsioonid</strong><br />Maksudeklaratsioonide esitamise e-teenus.</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top">Maksu- ja Tolliamet</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top whitespace-nowrap">05-2021 – 12-2023</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top"><strong>Arendaja</strong><br />Deklaratsioonide vormide ja X-tee liideste arendus.</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top whitespace-nowrap">rohkem&nbsp;kui&nbsp;3&nbsp;000&nbsp;h</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top">Java, Spring Boot, Angular, X-tee</td>
+              </tr>
+              <tr>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top"><strong>Äriregistri avaandmete API</strong><br />Äriregistri avaandmete väljastamine API kaudu.</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top">Registrite ja Infosüsteemide Keskus</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top whitespace-nowrap">02-2020 – 11-2020</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top"><strong>Arendaja</strong><br />Avaandmete REST API ja X-tee teenuse arendus.</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top whitespace-nowrap">umbes&nbsp;900&nbsp;h</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top">Java, X-tee, PostgreSQL</td>
+              </tr>
+              <tr>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top"><strong>Kliendiportaal (Nortal)</strong></td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top">Elisa Eesti</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top whitespace-nowrap">2016 – 2019</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top"><strong>Arendaja</strong><br />Tellimuste ja arvete vaated.</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top whitespace-nowrap"></td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top">Java, Oracle, Angular</td>
+              </tr>
+              </tbody>
+            </table></div>
+          </div></div><div class="flex flex-col gap-6" data-show-in="team-per-person"><div class="flex flex-col gap-2">
+            <h3 class="font-sans text-lg font-semibold tracking-normal">Erik Employee</h3>
+            
+            <div class="overflow-x-auto"><table class="w-full border-collapse text-sm">
+              <thead><tr><th class="border border-foreground/30 px-2 py-1.5 text-left align-top bg-muted font-semibold">Projekt</th><th class="border border-foreground/30 px-2 py-1.5 text-left align-top bg-muted font-semibold">Klient</th><th class="border border-foreground/30 px-2 py-1.5 text-left align-top bg-muted font-semibold">Periood</th><th class="border border-foreground/30 px-2 py-1.5 text-left align-top bg-muted font-semibold">Roll</th><th class="border border-foreground/30 px-2 py-1.5 text-left align-top bg-muted font-semibold">Maht</th><th class="border border-foreground/30 px-2 py-1.5 text-left align-top bg-muted font-semibold">Tehnoloogiad</th></tr></thead>
+              <tbody>
+              <tr>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top"><strong>Kodanikuportaali uuendus</strong><br />Siseministeeriumi kodanikuportaali uus versioon.</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top">Siseministeerium</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top whitespace-nowrap">05-2024 – kestab</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top"><strong>Arendaja</strong><br />Elukoha registreerimise ja teavituste moodulite arendus.</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top whitespace-nowrap">umbes&nbsp;1&nbsp;800&nbsp;h</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top">React, TypeScript, Java, Spring Boot</td>
+              </tr>
+              <tr>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top"><strong>e-MTA deklaratsioonid</strong><br />Maksudeklaratsioonide esitamise e-teenus.</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top">Maksu- ja Tolliamet</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top whitespace-nowrap">05-2021 – 12-2023</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top"><strong>Arendaja</strong><br />Deklaratsioonide vormide ja X-tee liideste arendus.</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top whitespace-nowrap">rohkem&nbsp;kui&nbsp;3&nbsp;000&nbsp;h</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top">Java, Spring Boot, Angular, X-tee</td>
+              </tr>
+              <tr>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top"><strong>Äriregistri avaandmete API</strong><br />Äriregistri avaandmete väljastamine API kaudu.</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top">Registrite ja Infosüsteemide Keskus</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top whitespace-nowrap">02-2020 – 11-2020</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top"><strong>Arendaja</strong><br />Avaandmete REST API ja X-tee teenuse arendus.</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top whitespace-nowrap">umbes&nbsp;900&nbsp;h</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top">Java, X-tee, PostgreSQL</td>
+              </tr>
+              <tr>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top"><strong>Kliendiportaal (Nortal)</strong></td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top">Elisa Eesti</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top whitespace-nowrap">2016 – 2019</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top"><strong>Arendaja</strong><br />Tellimuste ja arvete vaated.</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top whitespace-nowrap"></td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top">Java, Oracle, Angular</td>
+              </tr>
+              </tbody>
+            </table></div>
+          </div><div class="flex flex-col gap-2">
+            <h3 class="font-sans text-lg font-semibold tracking-normal">Kalle Kask</h3>
+            
+            <div class="overflow-x-auto"><table class="w-full border-collapse text-sm">
+              <thead><tr><th class="border border-foreground/30 px-2 py-1.5 text-left align-top bg-muted font-semibold">Projekt</th><th class="border border-foreground/30 px-2 py-1.5 text-left align-top bg-muted font-semibold">Klient</th><th class="border border-foreground/30 px-2 py-1.5 text-left align-top bg-muted font-semibold">Periood</th><th class="border border-foreground/30 px-2 py-1.5 text-left align-top bg-muted font-semibold">Roll</th><th class="border border-foreground/30 px-2 py-1.5 text-left align-top bg-muted font-semibold">Maht</th><th class="border border-foreground/30 px-2 py-1.5 text-left align-top bg-muted font-semibold">Tehnoloogiad</th></tr></thead>
+              <tbody>
+              <tr>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top"><strong>e-MTA deklaratsioonid</strong><br />Maksudeklaratsioonide esitamise e-teenus.</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top">Maksu- ja Tolliamet</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top whitespace-nowrap">05-2021 – 08-2022</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top"><strong>Tarkvaraarhitekt</strong><br />Lahenduse arhitektuur ja X-tee liidestuse kavandamine.</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top whitespace-nowrap">umbes&nbsp;1&nbsp;200&nbsp;h</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top">Java, Spring Boot, X-tee</td>
+              </tr>
+              <tr>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top"><strong>Tellimuste haldus</strong><br />Telia tellimuste haldussüsteem.</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top">Telia Eesti</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top whitespace-nowrap">2019 – 2021</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top"><strong>Arendusjuht</strong><br />Meeskonna juhtimine ja arenduse planeerimine.</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top whitespace-nowrap">umbes&nbsp;2&nbsp;500&nbsp;h</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top">Java, Oracle, Angular</td>
+              </tr>
+              </tbody>
+            </table></div>
+          </div></div><div class="flex flex-col gap-6" data-show-in="team-combined"><div class="overflow-x-auto"><table class="w-full border-collapse text-sm">
+              <thead><tr><th class="border border-foreground/30 px-2 py-1.5 text-left align-top bg-muted font-semibold">Projekt</th><th class="border border-foreground/30 px-2 py-1.5 text-left align-top bg-muted font-semibold">Klient</th><th class="border border-foreground/30 px-2 py-1.5 text-left align-top bg-muted font-semibold">Periood</th><th class="border border-foreground/30 px-2 py-1.5 text-left align-top bg-muted font-semibold">Inimesed ja rollid</th><th class="border border-foreground/30 px-2 py-1.5 text-left align-top bg-muted font-semibold">Maht</th><th class="border border-foreground/30 px-2 py-1.5 text-left align-top bg-muted font-semibold">Tehnoloogiad</th></tr></thead>
+              <tbody>
+              <tr>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top"><strong>Tellimuste haldus</strong><br />Telia tellimuste haldussüsteem.</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top">Telia Eesti</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top whitespace-nowrap">2019 – 2021</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top">Kalle Kask: <strong>Arendusjuht</strong> – Meeskonna juhtimine ja arenduse planeerimine.</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top">umbes&nbsp;2&nbsp;500&nbsp;h</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top">Java, Oracle, Angular</td>
+              </tr>
+              <tr>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top"><strong>Kodanikuportaali uuendus</strong><br />Siseministeeriumi kodanikuportaali uus versioon.</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top">Siseministeerium</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top whitespace-nowrap">05-2024 – kestab</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top">Erik Employee: <strong>Arendaja</strong> – Elukoha registreerimise ja teavituste moodulite arendus.</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top">umbes&nbsp;1&nbsp;800&nbsp;h</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top">React, TypeScript, Java, Spring Boot</td>
+              </tr>
+              <tr>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top"><strong>e-MTA deklaratsioonid</strong><br />Maksudeklaratsioonide esitamise e-teenus.</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top">Maksu- ja Tolliamet</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top whitespace-nowrap">05-2021 – 12-2023</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top">Erik Employee: <strong>Arendaja</strong> – Deklaratsioonide vormide ja X-tee liideste arendus.<br />Kalle Kask: <strong>Tarkvaraarhitekt</strong> – Lahenduse arhitektuur ja X-tee liidestuse kavandamine.</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top">Erik: rohkem&nbsp;kui&nbsp;3&nbsp;000&nbsp;h<br />Kalle: umbes&nbsp;1&nbsp;200&nbsp;h</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top">Java, Spring Boot, Angular, X-tee</td>
+              </tr>
+              <tr>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top"><strong>Äriregistri avaandmete API</strong><br />Äriregistri avaandmete väljastamine API kaudu.</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top">Registrite ja Infosüsteemide Keskus</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top whitespace-nowrap">02-2020 – 11-2020</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top">Erik Employee: <strong>Arendaja</strong> – Avaandmete REST API ja X-tee teenuse arendus.</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top">umbes&nbsp;900&nbsp;h</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top">Java, X-tee, PostgreSQL</td>
+              </tr>
+              </tbody>
+            </table></div></div><div class="flex flex-col gap-6" data-show-in="missing"><div class="flex flex-col gap-2">
+            <h3 class="font-sans text-lg font-semibold tracking-normal">Erik Employee</h3>
+            <p class="text-sm">Born: 14.06.1990</p>
+            <div class="overflow-x-auto"><table class="w-full border-collapse text-sm">
+              <thead><tr><th class="border border-foreground/30 px-2 py-1.5 text-left align-top bg-muted font-semibold">Project</th><th class="border border-foreground/30 px-2 py-1.5 text-left align-top bg-muted font-semibold">Customer</th><th class="border border-foreground/30 px-2 py-1.5 text-left align-top bg-muted font-semibold">Period</th><th class="border border-foreground/30 px-2 py-1.5 text-left align-top bg-muted font-semibold">Role</th><th class="border border-foreground/30 px-2 py-1.5 text-left align-top bg-muted font-semibold">Size</th><th class="border border-foreground/30 px-2 py-1.5 text-left align-top bg-muted font-semibold">Technologies</th></tr></thead>
+              <tbody>
+              <tr>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top"><strong>Kodanikuportaali uuendus</strong><br />A new version of the Ministry of the Interior’s citizen portal.</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top">Siseministeerium</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top whitespace-nowrap">05-2024 – ongoing</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top"><strong>Developer</strong><br />Developed the residence registration and notification modules.</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top whitespace-nowrap">approximately&nbsp;1&nbsp;800&nbsp;h</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top">React, TypeScript, Java, Spring Boot</td>
+              </tr>
+              <tr>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top"><strong>e-MTA deklaratsioonid</strong><br />An e-service for filing tax declarations.</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top">Maksu- ja Tolliamet</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top whitespace-nowrap">05-2021 – 12-2023</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top"><strong>Developer</strong><br />Built the declaration forms and X-Road interfaces.</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top whitespace-nowrap">more&nbsp;than&nbsp;3&nbsp;000&nbsp;h</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top">Java, Spring Boot, Angular, X-tee</td>
+              </tr>
+              <tr>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top"><strong>Äriregistri avaandmete API</strong><br /><span class="bg-amber-100 text-amber-900">Äriregistri avaandmete väljastamine API kaudu.</span></td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top">Registrite ja Infosüsteemide Keskus</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top whitespace-nowrap">02-2020 – 11-2020</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top"><strong><span class="bg-amber-100 text-amber-900">Arendaja</span></strong><br /><span class="bg-amber-100 text-amber-900">Avaandmete REST API ja X-tee teenuse arendus.</span></td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top whitespace-nowrap">approximately&nbsp;900&nbsp;h</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top">Java, X-tee, PostgreSQL</td>
+              </tr>
+              <tr>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top"><strong>Kliendiportaal (Nortal)</strong></td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top">Elisa Eesti</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top whitespace-nowrap">2016 – 2019</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top"><strong>Developer</strong><br />Order and invoice views.</td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top whitespace-nowrap"></td>
+                <td class="border border-foreground/30 px-2 py-1.5 text-left align-top">Java, Oracle, Angular</td>
+              </tr>
+              </tbody>
+            </table></div>
+          </div></div>
+              </div>
+            </div>
+          </section>
+          <p class="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground" data-show-in="empty" data-t="cv_empty"></p>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

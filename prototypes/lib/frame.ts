@@ -40,8 +40,8 @@ const navigation: Record<Role, { label?: string; items: NavItem[] }[]> = {
       items: [
         projects,
         { id: 'people', icon: 'UsersIcon', label: 'nav_people', href: 'people.html' },
-        { id: 'search', icon: 'SearchIcon', label: 'nav_search' },
-        { id: 'cvs', icon: 'FileTextIcon', label: 'nav_cvs' },
+        { id: 'search', icon: 'SearchIcon', label: 'nav_search', href: 'search.html' },
+        { id: 'cvs', icon: 'FileTextIcon', label: 'nav_cvs', href: 'cv.html' },
       ],
     },
     {
@@ -55,7 +55,7 @@ const navigation: Record<Role, { label?: string; items: NavItem[] }[]> = {
           label: 'nav_tender_criteria',
           href: 'criteria.html',
         },
-        { id: 'import', icon: 'UploadIcon', label: 'nav_import' },
+        { id: 'import', icon: 'UploadIcon', label: 'nav_import', href: 'import.html' },
       ],
     },
   ],
@@ -286,7 +286,8 @@ function startFrame(page: string, role: Role) {
 // default.
 // A form or button with data-goto-state="<state>" shows that state of the page, as the
 // app would after the action. An input with data-state-values='{"<state>": "…"}' holds that
-// value in that state. An element with data-invalid-in="<state>" is marked invalid in it,
+// value in that state, and a checkbox with data-state-checked="<state>" is ticked in it.
+// An element with data-invalid-in="<state>" is marked invalid in it,
 // and a combobox with data-expanded-in="<state>" is expanded in it.
 function connectStates() {
   for (const form of document.querySelectorAll<HTMLFormElement>('form[data-goto-state]')) {
@@ -311,6 +312,9 @@ function showState(current: string) {
   }
   for (const box of document.querySelectorAll<HTMLInputElement>('input[type=checkbox][data-goto-state]')) {
     box.checked = box.dataset.gotoState === current
+  }
+  for (const box of document.querySelectorAll<HTMLInputElement>('[data-state-checked]')) {
+    box.checked = box.dataset.stateChecked?.split(' ').includes(current) ?? false
   }
   for (const input of document.querySelectorAll<HTMLInputElement>('[data-state-values]')) {
     const values = JSON.parse(input.dataset.stateValues ?? '{}') as Record<string, string>

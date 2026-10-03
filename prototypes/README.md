@@ -96,7 +96,10 @@ and role.
 - A form or button with `data-goto-state="link"` shows that state, as the app would after
   the action.
 - A checkbox with `data-goto-state` is a filter: it's ticked in that state, and unticking it
-  returns to the page's first state.
+  returns to the page's first state. A checkbox with `data-state-checked="<state>"` is only
+  ticked in that state.
+- `<button data-copy="<id>">` copies that element as HTML with inline styles, and as plain
+  text, so pasting the CV table into Word or Google Docs can be tried from the prototype.
 
 The data is fictional and follows the demo seed (`src/db/seed.ts`). Pages show the
 Snowhound mark from `public/`, as the app will.

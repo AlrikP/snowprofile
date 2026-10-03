@@ -291,8 +291,38 @@ function placeMenus() {
   document.addEventListener('toggle', place, true)
 }
 
+// <button data-copy="<id>"> copies that element as HTML, with plain text beside it, as the
+// app's copy button will: Word and Google Docs keep a table's structure from the HTML. The
+// computed styles go inline, because pasted HTML loses the stylesheet.
+function connectCopy() {
+  document.addEventListener('click', (event) => {
+    const button = (event.target as HTMLElement).closest<HTMLElement>('[data-copy]')
+    const source = button && document.getElementById(button.dataset.copy ?? '')
+    if (!button || !source) return
+    const copy = source.cloneNode(true) as HTMLElement
+    const originals = [source, ...source.querySelectorAll<HTMLElement>('*')]
+    const clones = [copy, ...copy.querySelectorAll<HTMLElement>('*')]
+    originals.forEach((original, i) => {
+      const style = getComputedStyle(original)
+      const keep = ['border', 'padding', 'font-weight', 'text-align', 'vertical-align', 'background-color', 'color']
+      clones[i]?.setAttribute('style', keep.map((name) => `${name}: ${style.getPropertyValue(name)}`).join('; '))
+      clones[i]?.removeAttribute('class')
+    })
+    copy.setAttribute('style', `${copy.getAttribute('style')}; border-collapse: collapse`)
+    void navigator.clipboard.write([
+      new ClipboardItem({
+        'text/html': new Blob([copy.outerHTML], { type: 'text/html' }),
+        'text/plain': new Blob([source.innerText], { type: 'text/plain' }),
+      }),
+    ])
+    const status = document.getElementById(`${button.dataset.copy}-status`)
+    if (status) status.textContent = t('cv_copied')
+  })
+}
+
 export function startUi() {
   document.documentElement.lang = pageLocale()
   applyUi()
   placeMenus()
+  connectCopy()
 }
