@@ -66,6 +66,9 @@ accurate, because drizzle-kit sees only part of the schema.
 - Name every `CHECK` and composite foreign key with `CONSTRAINT <table>_<what>`.
 - Unique constraints: a named `CREATE UNIQUE INDEX`, never an inline `UNIQUE (...)`, which
   drizzle-kit's introspection can't see.
+- Tenant tables get an index that leads with `organization_id`, such as
+  `<table>_organization_id_idx`, so a list per organization doesn't scan the table. A
+  unique index that leads with it already counts; `(id, organization_id)` doesn't.
 - Partial indexes: drizzle-kit can't see `WHERE` clauses, so reviewers check them by hand.
   Unique indexes on soft-deleted tables include `WHERE sys_deleted = 0`. Queries compare
   `sys_deleted` with a literal `0`, not a bound parameter: SQLite uses a partial index only

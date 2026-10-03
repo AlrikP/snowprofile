@@ -131,6 +131,7 @@ Table technology_category [note: 'A group in the technology catalogue, per organ
   sys_deleted integer [not null, default: 0, note: 'Audit. Logical delete, CHECK 0 or 1. Refused while live technologies use the category.']
 
   indexes {
+    organization_id
     (id, organization_id) [unique, note: 'Target of composite foreign keys.']
   }
 }
@@ -168,6 +169,7 @@ Table tender_criterion [note: 'A yes or no question that tenders ask about proje
   sys_deleted integer [not null, default: 0, note: 'Audit. Logical delete, CHECK 0 or 1. Answers stay but no longer show.']
 
   indexes {
+    organization_id
     (id, organization_id) [unique, note: 'Target of composite foreign keys.']
   }
 }
@@ -206,6 +208,7 @@ Table contact_person [note: 'A person at a customer, given as a tender reference
   sys_deleted integer [not null, default: 0, note: 'Audit. Logical delete, CHECK 0 or 1.']
 
   indexes {
+    organization_id
     customer_id
     (id, organization_id) [unique, note: 'Target of composite foreign keys.']
   }
@@ -249,6 +252,7 @@ Table project_contact [note: 'A contact person given as a reference for a projec
   created_by text [not null, ref: > user.id, note: 'Audit. Acting user, set by the app per request.']
 
   indexes {
+    organization_id
     (project_id, contact_person_id) [pk]
     contact_person_id
   }
@@ -262,6 +266,7 @@ Table project_technology [note: 'A technology used on a project. Rows are insert
   created_by text [not null, ref: > user.id, note: 'Audit. Acting user, set by the app per request.']
 
   indexes {
+    organization_id
     (project_id, technology_id) [pk]
     technology_id
   }
@@ -279,6 +284,7 @@ Table project_criterion_answer [note: 'A project answer to a tender criterion. N
   updated_by text [not null, ref: > user.id, note: 'Audit. Acting user of the last change, set by the app.']
 
   indexes {
+    organization_id
     (project_id, criterion_id) [pk]
     criterion_id
   }
@@ -326,6 +332,7 @@ Table education [note: 'An education entry on a profile; a profile has several.'
   sys_deleted integer [not null, default: 0, note: 'Audit. Logical delete, CHECK 0 or 1.']
 
   indexes {
+    organization_id
     profile_id
   }
 }
@@ -350,6 +357,7 @@ Table participation [note: 'A person on an organization project. A person can ha
   sys_deleted integer [not null, default: 0, note: 'Audit. Logical delete, CHECK 0 or 1.']
 
   indexes {
+    organization_id
     profile_id
     project_id
     (id, organization_id) [unique, note: 'Target of composite foreign keys.']
@@ -364,6 +372,7 @@ Table participation_technology [note: 'A technology the person used in a partici
   created_by text [not null, ref: > user.id, note: 'Audit. Acting user, set by the app per request.']
 
   indexes {
+    organization_id
     (participation_id, technology_id) [pk]
     technology_id
   }
@@ -398,6 +407,7 @@ Table own_project [note: 'A project that appears only on its owner CV: from an e
   sys_deleted integer [not null, default: 0, note: 'Audit. Logical delete, CHECK 0 or 1.']
 
   indexes {
+    organization_id
     profile_id
     (id, organization_id) [unique, note: 'Target of composite foreign keys.']
   }
@@ -411,6 +421,7 @@ Table own_project_technology [note: 'A catalogue technology used on an own proje
   created_by text [not null, ref: > user.id, note: 'Audit. Acting user, set by the app per request.']
 
   indexes {
+    organization_id
     (own_project_id, technology_id) [pk]
     technology_id
   }
@@ -429,7 +440,8 @@ Table update_request [note: 'An admin asks a person to bring their profile up to
   updated_by text [not null, ref: > user.id, note: 'Audit. Acting user of the last change: who closed it.']
 
   indexes {
-    profile_id [note: 'Partial: WHERE closed_at IS NULL. Open requests per profile.']
+    organization_id
+    profile_id [unique, note: 'Partial: WHERE closed_at IS NULL. At most one open request per profile.']
   }
 }
 

@@ -283,6 +283,25 @@ describe('update requests', () => {
     expect(closed?.createdBy).toBe(seedIds.users.admin)
     expect(closed?.updatedBy).toBe(seedIds.users.employee)
   })
+
+  test('a profile has at most one open request', async () => {
+    const profileId = ids.other.profile
+    function open() {
+      return write(() =>
+        db.insert(updateRequest).values({ id: uuidv7(), organizationId: other, profileId }),
+      )
+    }
+    expect(await open()).toBeNull()
+    expect(await open()).toContain('UNIQUE')
+
+    await asSystem(async () => {
+      await db
+        .update(updateRequest)
+        .set({ closedAt: new Date(), closedReason: 'canceled' })
+        .where(eq(updateRequest.profileId, profileId))
+    })
+    expect(await open()).toBeNull()
+  })
 })
 
 test('the relations load a profile with its participations and technologies', async () => {

@@ -263,6 +263,7 @@ export const technologyCategory = sqliteTable(
     ...sysDeleted(),
   },
   (t) => [
+    index('technology_category_organization_id_idx').on(t.organizationId),
     uniqueIndex('technology_category_id_organization_id_unique').on(t.id, t.organizationId),
     check('technology_category_name', sql`name_et IS NOT NULL OR name_en IS NOT NULL`),
     check('technology_category_sys_deleted', sql`sys_deleted IN (0, 1)`),
@@ -315,6 +316,7 @@ export const tenderCriterion = sqliteTable(
     ...sysDeleted(),
   },
   (t) => [
+    index('tender_criterion_organization_id_idx').on(t.organizationId),
     uniqueIndex('tender_criterion_id_organization_id_unique').on(t.id, t.organizationId),
     check('tender_criterion_name', sql`name_et IS NOT NULL OR name_en IS NOT NULL`),
     check('tender_criterion_sys_deleted', sql`sys_deleted IN (0, 1)`),
@@ -360,6 +362,7 @@ export const contactPerson = sqliteTable(
     ...sysDeleted(),
   },
   (t) => [
+    index('contact_person_organization_id_idx').on(t.organizationId),
     foreignKey({
       name: 'contact_person_customer',
       columns: [t.customerId, t.organizationId],
@@ -422,6 +425,7 @@ export const projectContact = sqliteTable(
     ...createdAudit(),
   },
   (t) => [
+    index('project_contact_organization_id_idx').on(t.organizationId),
     primaryKey({ columns: [t.projectId, t.contactPersonId] }),
     foreignKey({
       name: 'project_contact_project',
@@ -446,6 +450,7 @@ export const projectTechnology = sqliteTable(
     ...createdAudit(),
   },
   (t) => [
+    index('project_technology_organization_id_idx').on(t.organizationId),
     primaryKey({ columns: [t.projectId, t.technologyId] }),
     foreignKey({
       name: 'project_technology_project',
@@ -473,6 +478,7 @@ export const projectCriterionAnswer = sqliteTable(
     ...updatedAudit(),
   },
   (t) => [
+    index('project_criterion_answer_organization_id_idx').on(t.organizationId),
     primaryKey({ columns: [t.projectId, t.criterionId] }),
     foreignKey({
       name: 'project_criterion_answer_project',
@@ -546,6 +552,7 @@ export const education = sqliteTable(
     ...sysDeleted(),
   },
   (t) => [
+    index('education_organization_id_idx').on(t.organizationId),
     profileKey('education', t.profileId, t.organizationId),
     index('education_profile_id_idx').on(t.profileId),
     check('education_institution', sql`institution_et IS NOT NULL OR institution_en IS NOT NULL`),
@@ -574,6 +581,7 @@ export const participation = sqliteTable(
     ...sysDeleted(),
   },
   (t) => [
+    index('participation_organization_id_idx').on(t.organizationId),
     profileKey('participation', t.profileId, t.organizationId),
     foreignKey({
       name: 'participation_project',
@@ -598,6 +606,7 @@ export const participationTechnology = sqliteTable(
     ...createdAudit(),
   },
   (t) => [
+    index('participation_technology_organization_id_idx').on(t.organizationId),
     primaryKey({ columns: [t.participationId, t.technologyId] }),
     foreignKey({
       name: 'participation_technology_participation',
@@ -642,6 +651,7 @@ export const ownProject = sqliteTable(
     ...sysDeleted(),
   },
   (t) => [
+    index('own_project_organization_id_idx').on(t.organizationId),
     profileKey('own_project', t.profileId, t.organizationId),
     index('own_project_profile_id_idx').on(t.profileId),
     uniqueIndex('own_project_id_organization_id_unique').on(t.id, t.organizationId),
@@ -662,6 +672,7 @@ export const ownProjectTechnology = sqliteTable(
     ...createdAudit(),
   },
   (t) => [
+    index('own_project_technology_organization_id_idx').on(t.organizationId),
     primaryKey({ columns: [t.ownProjectId, t.technologyId] }),
     foreignKey({
       name: 'own_project_technology_own_project',
@@ -690,8 +701,9 @@ export const updateRequest = sqliteTable(
     ...updatedAudit(),
   },
   (t) => [
+    index('update_request_organization_id_idx').on(t.organizationId),
     profileKey('update_request', t.profileId, t.organizationId),
-    index('update_request_profile_id_open_idx')
+    uniqueIndex('update_request_profile_id_open_unique')
       .on(t.profileId)
       .where(sql`closed_at IS NULL`),
     check('update_request_closed_reason', sql`closed_reason IN ('confirmed', 'canceled')`),

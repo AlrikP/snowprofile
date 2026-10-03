@@ -4,11 +4,11 @@ import { defineRelations } from 'drizzle-orm'
 import * as schema from './schema'
 
 export const relations = defineRelations(schema, (r) => ({
+  // No relations from a user to memberships or profiles: those span organizations, so a
+  // query through them would skip the organization scope.
   user: {
     sessions: r.many.session(),
     accounts: r.many.account(),
-    memberships: r.many.member(),
-    profiles: r.many.employeeProfile(),
   },
   session: {
     user: r.one.user({ from: r.session.userId, to: r.user.id, optional: false }),
