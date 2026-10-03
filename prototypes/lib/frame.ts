@@ -285,7 +285,8 @@ function startFrame(page: string, role: Role) {
 // default.
 // A form or button with data-goto-state="<state>" shows that state of the page, as the
 // app would after the action. An input with data-state-values='{"<state>": "…"}' holds that
-// value in that state.
+// value in that state. An element with data-invalid-in="<state>" is marked invalid in it,
+// and a combobox with data-expanded-in="<state>" is expanded in it.
 function connectStates() {
   for (const form of document.querySelectorAll<HTMLFormElement>('form[data-goto-state]')) {
     form.addEventListener('submit', (event) => {
@@ -307,6 +308,17 @@ function showState(current: string) {
   for (const input of document.querySelectorAll<HTMLInputElement>('[data-state-values]')) {
     const values = JSON.parse(input.dataset.stateValues ?? '{}') as Record<string, string>
     if (values[current] !== undefined) input.value = values[current]
+  }
+  for (const element of document.querySelectorAll<HTMLElement>('[data-invalid-in]')) {
+    if (element.dataset.invalidIn?.split(' ').includes(current)) {
+      element.setAttribute('aria-invalid', 'true')
+    }
+  }
+  for (const element of document.querySelectorAll<HTMLElement>('[data-expanded-in]')) {
+    element.setAttribute(
+      'aria-expanded',
+      String(element.dataset.expandedIn?.split(' ').includes(current) ?? false),
+    )
   }
   for (const dialog of document.querySelectorAll<HTMLDialogElement>('dialog[data-open-in]')) {
     if (dialog.dataset.openIn?.split(' ').includes(current)) dialog.showModal()

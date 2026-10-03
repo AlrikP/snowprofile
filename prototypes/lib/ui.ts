@@ -52,6 +52,21 @@ const slots: Record<string, Slot> = {
   input: {
     base: `h-9 w-full min-w-0 rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm dark:bg-input/30 ${focusRing} ${invalid}`,
   },
+  textarea: {
+    base: 'flex field-sizing-content min-h-16 w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-xs transition-[color,box-shadow] outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 md:text-sm dark:bg-input/30 dark:aria-invalid:ring-destructive/40',
+  },
+  // A native checkbox in navy: mint is too light to mark a check on white.
+  checkbox: {
+    base: 'size-4 shrink-0 cursor-pointer rounded-[4px] accent-foreground disabled:cursor-not-allowed disabled:opacity-50',
+  },
+  // shadcn's ToggleGroup as native radios: each item is a <label> around a visually hidden
+  // <input type="radio">, so the group needs no script and keeps keyboard selection.
+  'toggle-group': {
+    base: 'inline-flex w-fit items-center rounded-md border shadow-xs',
+  },
+  'toggle-group-item': {
+    base: 'inline-flex h-8 min-w-9 cursor-pointer items-center justify-center gap-1 border-l px-3 text-sm font-medium whitespace-nowrap first:rounded-l-md first:border-l-0 last:rounded-r-md hover:bg-muted has-checked:bg-foreground has-checked:text-background has-focus-visible:ring-[3px] has-focus-visible:ring-ring/50',
+  },
   label: {
     base: 'flex items-center gap-2 text-sm leading-none font-medium select-none peer-disabled:cursor-not-allowed peer-disabled:opacity-50',
   },
@@ -192,16 +207,37 @@ function applyText(element: HTMLElement) {
   }
 }
 
-// Content the server would send: data-date="2026-10-05" is formatted for the page's
-// language, and data-et/data-en hold a bilingual field, falling back to the other language
-// when one is missing.
+// A period date as precise as it is known: DD-MM-YYYY, MM-YYYY, or YYYY
+// (datamodel/snowprofile.dbml, project.start_date).
+function periodDate(value: string) {
+  return value.split('-').reverse().join('-')
+}
+
+// Content the server would send, formatted for the page's language:
+// - data-date="2026-10-05": a date;
+// - data-number="4200" and data-euros="250000": numbers;
+// - data-period="2024-03/" or "2019/2021-06": a period, open-ended while ongoing;
+// - data-et/data-en: a bilingual field, falling back to the other language when one is
+//   missing.
 function applyContent(element: HTMLElement) {
-  const { date, et: estonian, en: english } = element.dataset
+  const { date, number, euros, period, et: estonian, en: english } = element.dataset
+  const locale = pageLocale() === 'en' ? 'en-GB' : 'et-EE'
   if (date) {
-    const format = new Intl.DateTimeFormat(pageLocale() === 'en' ? 'en-GB' : 'et-EE', {
-      dateStyle: 'medium',
-    })
-    element.textContent = format.format(new Date(date))
+    element.textContent = new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(
+      new Date(date),
+    )
+  }
+  if (number) element.textContent = new Intl.NumberFormat(locale).format(Number(number))
+  if (euros) {
+    element.textContent = new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency: 'EUR',
+      maximumFractionDigits: 0,
+    }).format(Number(euros))
+  }
+  if (period) {
+    const [start = '', end = ''] = period.split('/')
+    element.textContent = `${periodDate(start)} – ${end ? periodDate(end) : t('period_ongoing')}`
   }
   if (estonian !== undefined || english !== undefined) {
     element.textContent = (pageLocale() === 'en' ? english || estonian : estonian || english) ?? ''
@@ -211,7 +247,11 @@ function applyContent(element: HTMLElement) {
 export function applyUi(root: ParentNode = document) {
   root.querySelectorAll<HTMLElement>('[data-icon]').forEach(applyIcon)
   root.querySelectorAll<HTMLElement>('[data-t], [data-t-label], [data-t-placeholder]').forEach(applyText)
-  root.querySelectorAll<HTMLElement>('[data-date], [data-et], [data-en]').forEach(applyContent)
+  root
+    .querySelectorAll<HTMLElement>(
+      '[data-date], [data-number], [data-euros], [data-period], [data-et], [data-en]',
+    )
+    .forEach(applyContent)
   root.querySelectorAll<HTMLElement>('[data-slot]').forEach(applySlot)
 }
 

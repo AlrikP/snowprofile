@@ -50,9 +50,10 @@ merged:
 <!-- <Button variant="outline" size="sm">Export</Button> -->
 ```
 
-The button, input, and label classes copy `src/components/ui/`. The others (card, badge,
-alert, avatar, separator, table, dialog, native select, dropdown menu, sheet, sidebar)
-copy shadcn's `new-york` registry until task 012 adds them to the app. Behavior uses the
+The button, input, label, and textarea classes copy `src/components/ui/`. The others
+(card, badge, alert, avatar, separator, table, dialog, native select, dropdown menu, sheet,
+sidebar, toggle group) copy shadcn's `new-york` registry until task 012 adds them to the
+app. A checkbox is a native one in navy, and a toggle group is a row of native radios. Behavior uses the
 platform instead of Radix: a dropdown menu is a native `popover`, and a dialog or sheet a
 modal `<dialog>` opened with `commandfor` and `command="show-modal"`. Focus handling and
 animations aren't reproduced.
@@ -68,9 +69,11 @@ row's name), so a screen reader can tell the menus apart.
   page's language; `data-t-params` fills the message's parameters, and `data-t-label` and
   `data-t-placeholder` set an `aria-label` and a placeholder. A key in `lib/messages.ts`
   that `messages/` also has is a proposed change to that message.
-- Content the server would send stays data, not a message: `data-date="2026-10-05"` is
-  formatted for the page's language, and `data-et`/`data-en` hold a bilingual field,
-  showing the other language when one is missing.
+- Content the server would send stays data, not a message, and is formatted for the
+  page's language: `data-date="2026-10-05"`, `data-number="4200"`, `data-euros="250000"`,
+  and `data-period="2024-03/"` (a period as precise as known, open-ended while ongoing).
+  `data-et`/`data-en` hold a bilingual field, showing the other language when one is
+  missing.
 
 ### States
 
@@ -87,7 +90,9 @@ and role.
   first is the default. In a state:
   - an element with `data-show-in="demo google"` shows only in those states;
   - a `<dialog data-open-in="add">` opens;
-  - an input with `data-state-values='{"duplicate": "Postgres"}'` holds that value.
+  - an input with `data-state-values='{"duplicate": "Postgres"}'` holds that value;
+  - an element with `data-invalid-in="<state>"` is marked `aria-invalid`, and a combobox
+    with `data-expanded-in="<state>"` is `aria-expanded`.
 - A form or button with `data-goto-state="link"` shows that state, as the app would after
   the action.
 

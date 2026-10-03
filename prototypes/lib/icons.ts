@@ -2,12 +2,18 @@
 // renders each to SVG (scripts/prototypes-build.ts); a page shows one with
 // <i data-icon="FolderKanbanIcon"></i>.
 export {
+  ArrowLeftIcon,
   ArrowRightIcon,
+  BuildingIcon,
+  CalendarIcon,
   CheckIcon,
   ChevronDownIcon,
   ChevronUpIcon,
   ChevronsUpDownIcon,
+  CircleCheckIcon,
   CircleIcon,
+  CircleMinusIcon,
+  CircleXIcon,
   CopyIcon,
   CpuIcon,
   EllipsisIcon,
@@ -18,8 +24,10 @@ export {
   LinkIcon,
   ListChecksIcon,
   LogOutIcon,
+  MailIcon,
   MenuIcon,
   PencilIcon,
+  PhoneIcon,
   PlusIcon,
   SearchIcon,
   Trash2Icon,
@@ -27,6 +35,7 @@ export {
   UploadIcon,
   UserCogIcon,
   UserIcon,
+  UserPlusIcon,
   UsersIcon,
   XIcon,
 } from 'lucide-react'

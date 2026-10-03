@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="et">
+  <head>
+    <title>Edit project · snowprofile prototype</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="build/prototype.css" />
+    <script src="build/icons.js"></script>
+    <script src="build/prototype.js"></script>
+  </head>
+  <body data-frame="projects" data-roles="admin" data-states="edit:Edit|new:New|similar:Similar name|invalid-period:Invalid period|technology:Add technology|contact:Contact dialog">
+    <main class="flex flex-col gap-6 p-4 pb-0 md:p-8 md:pb-0">
+      <div class="flex flex-col gap-2">
+        <a href="projects.html" class="flex w-fit items-center gap-1 text-sm text-muted-foreground hover:text-foreground"><i data-icon="ArrowLeftIcon" class="size-4"></i><span data-t="action_back_to_projects"></span></a>
+        <h1 class="text-3xl" data-show-in="edit similar invalid-period technology contact">Kodanikuportaali uuendus</h1>
+        <h1 class="text-3xl" data-show-in="new" data-t="project_new_title"></h1>
+        <p class="text-sm text-muted-foreground" data-show-in="edit similar invalid-period technology contact"><span data-t="last_changed"></span>: <span data-date="2026-09-12"></span> · Anna Admin</p>
+      </div>
+
+      <form class="flex max-w-5xl flex-col gap-6" data-goto-state="edit">
+        
+      <section data-slot="card" aria-labelledby="section-general">
+        <div data-slot="card-header" class="">
+          <h2 id="section-general" class="text-xl" data-t="project_section_general"></h2>
+          
+          
+        </div>
+        <div data-slot="card-content" class="flex flex-col gap-4"><div class="flex flex-col gap-2">
+          <label data-slot="label" for="project-name" data-t="project_name"></label>
+          <input data-slot="input" id="project-name" value="Kodanikuportaali uuendus" aria-describedby="project-name-hint" data-state-values='{"new": "", "similar": "Kodanikuportaal"}' /><div data-slot="alert" role="status" data-show-in="similar"><i data-icon="TriangleAlertIcon"></i><div data-slot="alert-description" class="text-foreground"><p data-t="project_similar" data-t-params='{"name": "Kodanikuportaali uuendus", "customer": "Siseministeerium"}'></p><a href="project.html" data-slot="button" data-variant="outline" data-size="sm" class="mt-1" data-t="project_open_existing"></a></div></div>
+          <p id="project-name-hint" class="text-sm text-muted-foreground" data-t="project_name_hint"></p>
+        </div><div class="flex flex-col gap-2">
+          <label data-slot="label" for="project-customer" data-t="project_customer"></label>
+          <div class="flex flex-col gap-2 sm:flex-row">
+            <div data-slot="native-select-wrapper">
+            <select data-slot="native-select" id="project-customer"><option value="" data-t="project_customer_none"></option><option value="Siseministeerium" selected >Siseministeerium</option><option value="Telia Eesti" >Telia Eesti</option><option value="Maksu- ja Tolliamet" >Maksu- ja Tolliamet</option><option value="Tallinna Linnavalitsus" >Tallinna Linnavalitsus</option><option value="Elering" >Elering</option><option value="Registrite ja Infosüsteemide Keskus" >Registrite ja Infosüsteemide Keskus</option><option value="Eesti Haigekassa" >Eesti Haigekassa</option></select>
+            <i data-icon="ChevronDownIcon"></i>
+          </div>
+            <button type="button" data-slot="button" data-variant="outline" class="shrink-0" commandfor="customer-dialog" command="show-modal"><i data-icon="PlusIcon"></i><span data-t="project_customer_new"></span></button>
+          </div>
+        </div><fieldset class="flex flex-col gap-2">
+          <legend class="sr-only" data-t="projects_col_period"></legend>
+          <div class="grid gap-4 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
+            <div class="flex flex-col gap-2">
+              <label data-slot="label" for="project-start" data-t="project_start"></label>
+              <input data-slot="input" id="project-start" inputmode="numeric" placeholder="MM-YYYY" value="03-2024" aria-describedby="project-period-hint" data-state-values='{"new": "", "invalid-period": "2024"}' />
+            </div>
+            <div class="flex flex-col gap-2">
+              <label data-slot="label" for="project-end" data-t="project_end"></label>
+              <input data-slot="input" id="project-end" inputmode="numeric" placeholder="MM-YYYY" aria-describedby="project-period-hint project-period-error" data-invalid-in="invalid-period" data-state-values='{"invalid-period": "12-2023"}' />
+            </div>
+            <label class="flex h-9 items-center gap-2 text-sm">
+              <input type="checkbox" data-slot="checkbox" checked data-show-in="edit similar contact technology new" />
+              <input type="checkbox" data-slot="checkbox" data-show-in="invalid-period" />
+              <span data-t="project_ongoing"></span>
+            </label>
+          </div>
+          <p id="project-period-hint" class="text-sm text-muted-foreground" data-t="project_period_hint"></p>
+          <p id="project-period-error" class="text-sm text-destructive" data-show-in="invalid-period" data-t="project_period_invalid"></p>
+        </fieldset>
+        </div>
+      </section>
+        
+      <section data-slot="card" aria-labelledby="section-description">
+        <div data-slot="card-header" class="">
+          <h2 id="section-description" class="text-xl" data-t="project_section_description"></h2>
+          
+          <p data-slot="card-description" data-t="project_section_description_hint"></p>
+        </div>
+        <div data-slot="card-content" class="flex flex-col gap-4"><div class="grid gap-4 md:grid-cols-2">
+          <div class="flex flex-col gap-2">
+            <label data-slot="label" for="description-et" data-t="field_in_et"></label>
+            <textarea data-slot="textarea" id="description-et" lang="et" rows="5" data-state-values='{"new": ""}'>Siseministeeriumi kodanikuportaali uus versioon: elukoha registreerimine, dokumentide taotlemine ja teavitused ühes kohas. Snowhound vastutas analüüsi, arenduse ja testimise eest.</textarea>
+          </div>
+          <div class="flex flex-col gap-2">
+            <label data-slot="label" for="description-en" data-t="field_in_en"></label>
+            <textarea data-slot="textarea" id="description-en" lang="en" rows="5" data-state-values='{"new": ""}'>A new version of the Ministry of the Interior’s citizen portal: registering a residence, applying for documents, and notifications in one place. Snowhound was responsible for analysis, development, and testing.</textarea>
+          </div>
+        </div>
+        </div>
+      </section>
+        
+      <section data-slot="card" aria-labelledby="section-tender">
+        <div data-slot="card-header" class="">
+          <h2 id="section-tender" class="text-xl" data-t="project_section_tender"></h2>
+          
+          <p data-slot="card-description" data-t="project_section_tender_hint"></p>
+        </div>
+        <div data-slot="card-content" class="flex flex-col gap-4"><div class="grid gap-4 md:grid-cols-3">
+          <div class="flex flex-col gap-2">
+          <label data-slot="label" for="tender-reference" data-t="project_tender_reference"></label>
+          <input data-slot="input" id="tender-reference" value="275431"  data-state-values='{"new": ""}' />
+          
+        </div>
+          <fieldset class="flex flex-col gap-2">
+            <legend data-slot="label" class="mb-2" data-t="project_hours"></legend>
+            <div class="grid grid-cols-[minmax(0,10rem)_1fr] gap-2">
+              <div data-slot="native-select-wrapper">
+            <select data-slot="native-select" id="project-hours-qualifier" data-t-label="qualifier_label"><option value="exact" data-t="qualifier_exact"></option><option value="approximately" selected data-t="qualifier_approximately"></option><option value="more_than" data-t="qualifier_more_than"></option></select>
+            <i data-icon="ChevronDownIcon"></i>
+          </div>
+              <input data-slot="input" id="project-hours" inputmode="numeric" value="4200" data-t-label="project_hours" data-state-values='{"new": ""}' />
+            </div>
+          </fieldset>
+          <fieldset class="flex flex-col gap-2">
+            <legend data-slot="label" class="mb-2" data-t="project_cost"></legend>
+            <div class="grid grid-cols-[minmax(0,10rem)_1fr] gap-2">
+              <div data-slot="native-select-wrapper">
+            <select data-slot="native-select" id="project-cost-qualifier" data-t-label="qualifier_label"><option value="exact" data-t="qualifier_exact"></option><option value="approximately" data-t="qualifier_approximately"></option><option value="more_than" selected data-t="qualifier_more_than"></option></select>
+            <i data-icon="ChevronDownIcon"></i>
+          </div>
+              <input data-slot="input" id="project-cost" inputmode="numeric" value="250000" data-t-label="project_cost" data-state-values='{"new": ""}' />
+            </div>
+          </fieldset>
+        </div>
+        </div>
+      </section>
+        
+      <section data-slot="card" aria-labelledby="section-contacts">
+        <div data-slot="card-header" class="grid-cols-[1fr_auto]">
+          <h2 id="section-contacts" class="text-xl" data-t="project_section_contacts"></h2>
+          <button type="button" data-slot="button" data-variant="outline" data-size="sm" commandfor="contact-dialog" command="show-modal"><i data-icon="UserPlusIcon"></i><span data-t="contact_add"></span></button>
+          <p data-slot="card-description" data-t="project_section_contacts_hint"></p>
+        </div>
+        <div data-slot="card-content" class="flex flex-col gap-4">
+        <ul class="flex flex-col divide-y" data-show-in="edit similar invalid-period contact technology">
+          <li class="flex items-start gap-3 py-3">
+            <input type="checkbox" data-slot="checkbox" id="contact-0" class="mt-1" checked />
+            <div class="flex min-w-0 flex-1 flex-col gap-0.5">
+              <label for="contact-0" class="flex flex-wrap items-center gap-2 font-medium">Mari Mets </label>
+              <p class="text-sm break-words text-muted-foreground"><span class="block">mari.mets@siseministeerium.example.ee</span><span class="block">+372 612 5000</span></p>
+              
+            </div>
+            <button type="button" data-slot="button" data-variant="ghost" data-size="icon-sm" commandfor="contact-dialog" command="show-modal"
+              data-t-label="contact_edit_label" data-t-params='{"name": "Mari Mets"}'><i data-icon="PencilIcon"></i></button>
+          </li>
+          <li class="flex items-start gap-3 py-3">
+            <input type="checkbox" data-slot="checkbox" id="contact-1" class="mt-1" checked />
+            <div class="flex min-w-0 flex-1 flex-col gap-0.5">
+              <label for="contact-1" class="flex flex-wrap items-center gap-2 font-medium">Jüri Jõe <span data-slot="badge" data-variant="outline" class="border-amber-500 text-amber-800" data-t="contact_no_longer_valid"></span></label>
+              <p class="text-sm break-words text-muted-foreground"><span class="block">juri.joe@siseministeerium.example.ee</span></p>
+              <p class="text-sm text-muted-foreground italic">Ei tööta enam ministeeriumis.</p>
+            </div>
+            <button type="button" data-slot="button" data-variant="ghost" data-size="icon-sm" commandfor="contact-dialog" command="show-modal"
+              data-t-label="contact_edit_label" data-t-params='{"name": "Jüri Jõe"}'><i data-icon="PencilIcon"></i></button>
+          </li>
+          <li class="flex items-start gap-3 py-3">
+            <input type="checkbox" data-slot="checkbox" id="contact-2" class="mt-1" />
+            <div class="flex min-w-0 flex-1 flex-col gap-0.5">
+              <label for="contact-2" class="flex flex-wrap items-center gap-2 font-medium">Kai Kivi </label>
+              <p class="text-sm break-words text-muted-foreground"><span class="block">kai.kivi@siseministeerium.example.ee</span><span class="block">+372 612 5012</span></p>
+              
+            </div>
+            <button type="button" data-slot="button" data-variant="ghost" data-size="icon-sm" commandfor="contact-dialog" command="show-modal"
+              data-t-label="contact_edit_label" data-t-params='{"name": "Kai Kivi"}'><i data-icon="PencilIcon"></i></button>
+          </li>
+        </ul>
+        <p class="text-sm text-muted-foreground" data-show-in="new">—</p>
+        </div>
+      </section>
+        
+      <section data-slot="card" aria-labelledby="section-technologies">
+        <div data-slot="card-header" class="">
+          <h2 id="section-technologies" class="text-xl" data-t="project_section_technologies"></h2>
+          
+          
+        </div>
+        <div data-slot="card-content" class="flex flex-col gap-4">
+        <div class="flex flex-wrap gap-2" data-show-in="edit similar invalid-period contact technology"><span data-slot="badge" data-variant="secondary" class="h-7 gap-1 pr-1 pl-2.5 text-sm">React
+            <button type="button" class="rounded-sm p-0.5 hover:bg-background" data-t-label="project_remove_technology" data-t-params='{"name": "React"}'><i data-icon="XIcon" class="size-3.5"></i></button></span><span data-slot="badge" data-variant="secondary" class="h-7 gap-1 pr-1 pl-2.5 text-sm">TypeScript
+            <button type="button" class="rounded-sm p-0.5 hover:bg-background" data-t-label="project_remove_technology" data-t-params='{"name": "TypeScript"}'><i data-icon="XIcon" class="size-3.5"></i></button></span><span data-slot="badge" data-variant="secondary" class="h-7 gap-1 pr-1 pl-2.5 text-sm">Java
+            <button type="button" class="rounded-sm p-0.5 hover:bg-background" data-t-label="project_remove_technology" data-t-params='{"name": "Java"}'><i data-icon="XIcon" class="size-3.5"></i></button></span><span data-slot="badge" data-variant="secondary" class="h-7 gap-1 pr-1 pl-2.5 text-sm">Spring Boot
+            <button type="button" class="rounded-sm p-0.5 hover:bg-background" data-t-label="project_remove_technology" data-t-params='{"name": "Spring Boot"}'><i data-icon="XIcon" class="size-3.5"></i></button></span><span data-slot="badge" data-variant="secondary" class="h-7 gap-1 pr-1 pl-2.5 text-sm">PostgreSQL
+            <button type="button" class="rounded-sm p-0.5 hover:bg-background" data-t-label="project_remove_technology" data-t-params='{"name": "PostgreSQL"}'><i data-icon="XIcon" class="size-3.5"></i></button></span><span data-slot="badge" data-variant="secondary" class="h-7 gap-1 pr-1 pl-2.5 text-sm">Kubernetes
+            <button type="button" class="rounded-sm p-0.5 hover:bg-background" data-t-label="project_remove_technology" data-t-params='{"name": "Kubernetes"}'><i data-icon="XIcon" class="size-3.5"></i></button></span></div>
+        <div class="relative max-w-sm">
+          <label data-slot="label" for="technology-search" class="sr-only" data-t="project_technology_search"></label>
+          <i data-icon="SearchIcon" class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"></i>
+          <input data-slot="input" id="technology-search" class="pl-9" role="combobox" aria-autocomplete="list" aria-controls="technology-options" aria-expanded="false" data-expanded-in="technology"
+            data-t-placeholder="project_technology_search" data-state-values='{"technology": "Ko"}' />
+          <div id="technology-options" role="listbox" data-show-in="technology" data-slot="dropdown-menu-content" class="absolute top-full left-0 mt-1 w-full">
+            <div role="option" aria-selected="true" data-slot="dropdown-menu-item" class="bg-accent">Kotlin <span class="ml-auto text-xs text-muted-foreground">Backend</span></div>
+            <div role="option" aria-selected="false" data-slot="dropdown-menu-item"><i data-icon="PlusIcon"></i><span data-t="project_technology_new" data-t-params='{"name": "Ko"}'></span></div>
+          </div>
+        </div>
+        </div>
+      </section>
+        
+      <section data-slot="card" aria-labelledby="section-criteria">
+        <div data-slot="card-header" class="">
+          <h2 id="section-criteria" class="text-xl" data-t="project_section_criteria"></h2>
+          
+          <p data-slot="card-description" data-t="project_section_criteria_hint"></p>
+        </div>
+        <div data-slot="card-content" class="flex flex-col gap-4">
+        <ul class="flex flex-col divide-y">
+          <li class="grid gap-2 py-3 sm:grid-cols-[1fr_auto] sm:items-center md:grid-cols-[1fr_auto_minmax(0,18rem)]">
+            <span class="flex flex-wrap items-center gap-2"><span class="font-medium" data-et="Automaattestid" data-en="Automated tests" id="criterion-0-name"></span></span>
+            <div role="radiogroup" data-slot="toggle-group" aria-labelledby="criterion-0-name">
+              <label data-slot="toggle-group-item"><input type="radio" class="sr-only" name="criterion-0" value="yes" checked /><span data-t="answer_yes"></span></label><label data-slot="toggle-group-item"><input type="radio" class="sr-only" name="criterion-0" value="no" /><span data-t="answer_no"></span></label><label data-slot="toggle-group-item"><input type="radio" class="sr-only" name="criterion-0" value="" /><span aria-hidden="true">—</span><span class="sr-only" data-t="answer_none"></span></label>
+            </div>
+            <input data-slot="input" value="JUnit, Playwright" data-t-label="criterion_note" data-t-placeholder="criterion_note" class="sm:col-span-2 md:col-span-1" data-state-values='{"new": ""}' />
+          </li>
+          <li class="grid gap-2 py-3 sm:grid-cols-[1fr_auto] sm:items-center md:grid-cols-[1fr_auto_minmax(0,18rem)]">
+            <span class="flex flex-wrap items-center gap-2"><span class="font-medium" data-et="REST- või SOAP-liidesed" data-en="REST or SOAP APIs" id="criterion-1-name"></span></span>
+            <div role="radiogroup" data-slot="toggle-group" aria-labelledby="criterion-1-name">
+              <label data-slot="toggle-group-item"><input type="radio" class="sr-only" name="criterion-1" value="yes" checked /><span data-t="answer_yes"></span></label><label data-slot="toggle-group-item"><input type="radio" class="sr-only" name="criterion-1" value="no" /><span data-t="answer_no"></span></label><label data-slot="toggle-group-item"><input type="radio" class="sr-only" name="criterion-1" value="" /><span aria-hidden="true">—</span><span class="sr-only" data-t="answer_none"></span></label>
+            </div>
+            <input data-slot="input" value="REST" data-t-label="criterion_note" data-t-placeholder="criterion_note" class="sm:col-span-2 md:col-span-1" data-state-values='{"new": ""}' />
+          </li>
+          <li class="grid gap-2 py-3 sm:grid-cols-[1fr_auto] sm:items-center md:grid-cols-[1fr_auto_minmax(0,18rem)]">
+            <span class="flex flex-wrap items-center gap-2"><span class="font-medium" data-et="Relatsiooniline andmebaas" data-en="Relational database" id="criterion-2-name"></span></span>
+            <div role="radiogroup" data-slot="toggle-group" aria-labelledby="criterion-2-name">
+              <label data-slot="toggle-group-item"><input type="radio" class="sr-only" name="criterion-2" value="yes" checked /><span data-t="answer_yes"></span></label><label data-slot="toggle-group-item"><input type="radio" class="sr-only" name="criterion-2" value="no" /><span data-t="answer_no"></span></label><label data-slot="toggle-group-item"><input type="radio" class="sr-only" name="criterion-2" value="" /><span aria-hidden="true">—</span><span class="sr-only" data-t="answer_none"></span></label>
+            </div>
+            <input data-slot="input" value="" data-t-label="criterion_note" data-t-placeholder="criterion_note" class="sm:col-span-2 md:col-span-1" data-state-values='{"new": ""}' />
+          </li>
+          <li class="grid gap-2 py-3 sm:grid-cols-[1fr_auto] sm:items-center md:grid-cols-[1fr_auto_minmax(0,18rem)]">
+            <span class="flex flex-wrap items-center gap-2"><span class="font-medium" data-et="Andmebaasi migratsioonid" data-en="Database migrations" id="criterion-3-name"></span></span>
+            <div role="radiogroup" data-slot="toggle-group" aria-labelledby="criterion-3-name">
+              <label data-slot="toggle-group-item"><input type="radio" class="sr-only" name="criterion-3" value="yes" checked /><span data-t="answer_yes"></span></label><label data-slot="toggle-group-item"><input type="radio" class="sr-only" name="criterion-3" value="no" /><span data-t="answer_no"></span></label><label data-slot="toggle-group-item"><input type="radio" class="sr-only" name="criterion-3" value="" /><span aria-hidden="true">—</span><span class="sr-only" data-t="answer_none"></span></label>
+            </div>
+            <input data-slot="input" value="Liquibase" data-t-label="criterion_note" data-t-placeholder="criterion_note" class="sm:col-span-2 md:col-span-1" data-state-values='{"new": ""}' />
+          </li>
+          <li class="grid gap-2 py-3 sm:grid-cols-[1fr_auto] sm:items-center md:grid-cols-[1fr_auto_minmax(0,18rem)]">
+            <span class="flex flex-wrap items-center gap-2"><span class="font-medium" data-et="Linux" data-en="Linux" id="criterion-4-name"></span></span>
+            <div role="radiogroup" data-slot="toggle-group" aria-labelledby="criterion-4-name">
+              <label data-slot="toggle-group-item"><input type="radio" class="sr-only" name="criterion-4" value="yes" checked /><span data-t="answer_yes"></span></label><label data-slot="toggle-group-item"><input type="radio" class="sr-only" name="criterion-4" value="no" /><span data-t="answer_no"></span></label><label data-slot="toggle-group-item"><input type="radio" class="sr-only" name="criterion-4" value="" /><span aria-hidden="true">—</span><span class="sr-only" data-t="answer_none"></span></label>
+            </div>
+            <input data-slot="input" value="" data-t-label="criterion_note" data-t-placeholder="criterion_note" class="sm:col-span-2 md:col-span-1" data-state-values='{"new": ""}' />
+          </li>
+          <li class="grid gap-2 py-3 sm:grid-cols-[1fr_auto] sm:items-center md:grid-cols-[1fr_auto_minmax(0,18rem)]">
+            <span class="flex flex-wrap items-center gap-2"><span class="font-medium" data-et="X-tee" data-en="" id="criterion-5-name"></span><span data-slot="badge" data-variant="outline" class="border-amber-500 text-amber-800" data-t="translation_missing_en"></span></span>
+            <div role="radiogroup" data-slot="toggle-group" aria-labelledby="criterion-5-name">
+              <label data-slot="toggle-group-item"><input type="radio" class="sr-only" name="criterion-5" value="yes" /><span data-t="answer_yes"></span></label><label data-slot="toggle-group-item"><input type="radio" class="sr-only" name="criterion-5" value="no" checked /><span data-t="answer_no"></span></label><label data-slot="toggle-group-item"><input type="radio" class="sr-only" name="criterion-5" value="" /><span aria-hidden="true">—</span><span class="sr-only" data-t="answer_none"></span></label>
+            </div>
+            <input data-slot="input" value="" data-t-label="criterion_note" data-t-placeholder="criterion_note" class="sm:col-span-2 md:col-span-1" data-state-values='{"new": ""}' />
+          </li>
+          <li class="grid gap-2 py-3 sm:grid-cols-[1fr_auto] sm:items-center md:grid-cols-[1fr_auto_minmax(0,18rem)]">
+            <span class="flex flex-wrap items-center gap-2"><span class="font-medium" data-et="Konteinerid ja Kubernetes" data-en="Containers and Kubernetes" id="criterion-6-name"></span></span>
+            <div role="radiogroup" data-slot="toggle-group" aria-labelledby="criterion-6-name">
+              <label data-slot="toggle-group-item"><input type="radio" class="sr-only" name="criterion-6" value="yes" checked /><span data-t="answer_yes"></span></label><label data-slot="toggle-group-item"><input type="radio" class="sr-only" name="criterion-6" value="no" /><span data-t="answer_no"></span></label><label data-slot="toggle-group-item"><input type="radio" class="sr-only" name="criterion-6" value="" /><span aria-hidden="true">—</span><span class="sr-only" data-t="answer_none"></span></label>
+            </div>
+            <input data-slot="input" value="Kubernetes" data-t-label="criterion_note" data-t-placeholder="criterion_note" class="sm:col-span-2 md:col-span-1" data-state-values='{"new": ""}' />
+          </li>
+          <li class="grid gap-2 py-3 sm:grid-cols-[1fr_auto] sm:items-center md:grid-cols-[1fr_auto_minmax(0,18rem)]">
+            <span class="flex flex-wrap items-center gap-2"><span class="font-medium" data-et="Monitooring" data-en="Monitoring" id="criterion-7-name"></span></span>
+            <div role="radiogroup" data-slot="toggle-group" aria-labelledby="criterion-7-name">
+              <label data-slot="toggle-group-item"><input type="radio" class="sr-only" name="criterion-7" value="yes" /><span data-t="answer_yes"></span></label><label data-slot="toggle-group-item"><input type="radio" class="sr-only" name="criterion-7" value="no" /><span data-t="answer_no"></span></label><label data-slot="toggle-group-item"><input type="radio" class="sr-only" name="criterion-7" value="" checked /><span aria-hidden="true">—</span><span class="sr-only" data-t="answer_none"></span></label>
+            </div>
+            <input data-slot="input" value="" data-t-label="criterion_note" data-t-placeholder="criterion_note" class="sm:col-span-2 md:col-span-1" data-state-values='{"new": ""}' />
+          </li>
+        </ul>
+        </div>
+      </section>
+        
+      <section data-slot="card" aria-labelledby="section-people">
+        <div data-slot="card-header" class="">
+          <h2 id="section-people" class="text-xl" data-t="project_section_people"></h2>
+          
+          <p data-slot="card-description" data-t="project_section_people_hint"></p>
+        </div>
+        <div data-slot="card-content" class="flex flex-col gap-4">
+        <ul class="flex flex-col divide-y" data-show-in="edit similar invalid-period contact technology">
+          <li class="flex flex-wrap items-baseline justify-between gap-x-4 py-2">
+            <span class="font-medium">Anna Admin</span>
+            <span class="text-sm text-muted-foreground"><span data-et="Tarkvaraarhitekt" data-en="Software architect"></span> · <span data-period="2024-03/"></span></span>
+          </li>
+          <li class="flex flex-wrap items-baseline justify-between gap-x-4 py-2">
+            <span class="font-medium">Erik Employee</span>
+            <span class="text-sm text-muted-foreground"><span data-et="Arendaja" data-en="Developer"></span> · <span data-period="2024-05/"></span></span>
+          </li>
+          <li class="flex flex-wrap items-baseline justify-between gap-x-4 py-2">
+            <span class="font-medium">Liis Lepp</span>
+            <span class="text-sm text-muted-foreground"><span data-et="Analüütik" data-en="Analyst"></span> · <span data-period="2024-03/2025-02"></span></span>
+          </li>
+          <li class="flex flex-wrap items-baseline justify-between gap-x-4 py-2">
+            <span class="font-medium">Peeter Puu</span>
+            <span class="text-sm text-muted-foreground"><span data-et="Testija" data-en="Tester"></span> · <span data-period="2024-09/"></span></span>
+          </li>
+          <li class="flex flex-wrap items-baseline justify-between gap-x-4 py-2">
+            <span class="font-medium">Kadri Kuusk</span>
+            <span class="text-sm text-muted-foreground"><span data-et="Arendaja" data-en="Developer"></span> · <span data-period="2025-01/"></span></span>
+          </li>
+        </ul>
+        <p class="text-sm text-muted-foreground" data-show-in="new">—</p>
+        </div>
+      </section>
+
+        <div class="sticky bottom-0 -mx-4 flex justify-end gap-2 border-t bg-background/95 px-4 py-3 backdrop-blur md:-mx-8 md:px-8">
+          <a href="project.html" data-slot="button" data-variant="outline" data-t="action_cancel"></a>
+          <button type="submit" data-slot="button" data-t="action_save"></button>
+        </div>
+      </form>
+    </main>
+
+    <dialog id="contact-dialog" data-slot="dialog-content" data-open-in="contact" aria-labelledby="contact-dialog-title">
+      <form data-goto-state="edit" class="contents">
+        <div data-slot="dialog-header">
+          <h2 data-slot="dialog-title" id="contact-dialog-title" data-t="contact_dialog_title"></h2>
+          
+        </div>
+        <div class="flex flex-col gap-2">
+          <label data-slot="label" for="contact-name" data-t="contact_name"></label>
+          <input data-slot="input" id="contact-name" value="Jüri Jõe" />
+          
+        </div><div class="grid gap-4 sm:grid-cols-2"><div class="flex flex-col gap-2">
+          <label data-slot="label" for="contact-email" data-t="contact_email"></label>
+          <input data-slot="input" id="contact-email" type="email" value="juri.joe@siseministeerium.example.ee" />
+          
+        </div><div class="flex flex-col gap-2">
+          <label data-slot="label" for="contact-phone" data-t="contact_phone"></label>
+          <input data-slot="input" id="contact-phone" type="tel" />
+          
+        </div></div><div class="flex items-start gap-3">
+          <input type="checkbox" data-slot="checkbox" id="contact-invalid" class="mt-0.5" checked aria-describedby="contact-invalid-hint" />
+          <div class="flex flex-col gap-1">
+            <label data-slot="label" for="contact-invalid" data-t="contact_invalid_label"></label>
+            <p id="contact-invalid-hint" class="text-sm text-muted-foreground" data-t="contact_invalid_hint"></p>
+          </div>
+        </div><div class="flex flex-col gap-2">
+          <label data-slot="label" for="contact-note" data-t="contact_note"></label>
+          <textarea data-slot="textarea" id="contact-note" rows="2" aria-describedby="contact-note-hint">Ei tööta enam ministeeriumis.</textarea>
+          <p id="contact-note-hint" class="text-sm text-muted-foreground" data-t="contact_note_hint"></p>
+        </div>
+        <div data-slot="dialog-footer">
+          <button type="button" data-slot="button" data-variant="outline" commandfor="contact-dialog" command="close" data-t="action_cancel"></button><button type="submit" data-slot="button" data-t="action_save"></button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="customer-dialog" data-slot="dialog-content" data-open-in="customer" aria-labelledby="customer-dialog-title">
+      <form data-goto-state="edit" class="contents">
+        <div data-slot="dialog-header">
+          <h2 data-slot="dialog-title" id="customer-dialog-title" data-t="project_customer_new"></h2>
+          
+        </div>
+        <div class="flex flex-col gap-2">
+          <label data-slot="label" for="customer-name" data-t="contact_name"></label>
+          <input data-slot="input" id="customer-name" autocomplete="off" />
+          
+        </div>
+        <div data-slot="dialog-footer">
+          <button type="button" data-slot="button" data-variant="outline" commandfor="customer-dialog" command="close" data-t="action_cancel"></button><button type="submit" data-slot="button" data-t="action_save"></button>
+        </div>
+      </form>
+    </dialog>
+  </body>
+</html>

@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="et">
+  <head>
+    <title>Projects · snowprofile prototype</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="build/prototype.css" />
+    <script src="build/icons.js"></script>
+    <script src="build/prototype.js"></script>
+  </head>
+  <body data-frame="projects" data-states="list:All|mine:Only mine|no-match:No match|empty:Empty">
+    <main class="flex flex-col gap-6 p-4 md:p-8">
+      <div class="flex flex-wrap items-end justify-between gap-4">
+        <div class="flex flex-col gap-1">
+          <h1 class="text-3xl" data-t="projects_title"></h1>
+          <p class="text-sm text-muted-foreground" data-t="projects_count" data-t-params='{"count": "9"}'></p>
+        </div>
+        <a href="project-edit.html?state=new" data-role="admin" data-slot="button"><i data-icon="PlusIcon"></i><span data-t="projects_add"></span></a>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-3" data-show-in="list mine no-match">
+        <div class="relative w-full max-w-sm">
+          <i data-icon="SearchIcon" class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"></i>
+          <input data-slot="input" type="search" class="pl-9" data-t-label="projects_search" data-t-placeholder="projects_search" data-state-values='{"no-match": "Blockchain"}' />
+        </div>
+        <div class="w-full sm:w-64"><div data-slot="native-select-wrapper">
+            <select data-slot="native-select" id="customer-filter" data-t-label="projects_col_customer"><option value="" selected data-t="projects_all_customers"></option><option value="Siseministeerium" >Siseministeerium</option><option value="Telia Eesti" >Telia Eesti</option><option value="Maksu- ja Tolliamet" >Maksu- ja Tolliamet</option><option value="Tallinna Linnavalitsus" >Tallinna Linnavalitsus</option><option value="Elering" >Elering</option><option value="Registrite ja Infosüsteemide Keskus" >Registrite ja Infosüsteemide Keskus</option><option value="Eesti Haigekassa" >Eesti Haigekassa</option></select>
+            <i data-icon="ChevronDownIcon"></i>
+          </div></div>
+        <label class="flex items-center gap-2 text-sm">
+          <input type="checkbox" data-slot="checkbox" data-goto-state="mine" />
+          <span data-t="projects_only_mine"></span>
+        </label>
+      </div>
+
+      <div data-slot="card" class="gap-0 py-0" data-show-in="list mine">
+        <div data-slot="table-container">
+          <table data-slot="table">
+            <thead data-slot="table-header">
+              <tr data-slot="table-row" class="hover:bg-transparent">
+                <th data-slot="table-head" class="px-4" data-t="projects_col_name"></th>
+                <th data-slot="table-head" class="hidden lg:table-cell" data-t="projects_col_customer"></th>
+                <th data-slot="table-head" class="hidden sm:table-cell" data-t="projects_col_period"></th>
+                <th data-slot="table-head" class="hidden md:table-cell" data-t="projects_col_technologies"></th>
+                <th data-slot="table-head" class="hidden pr-4 text-right xl:table-cell" data-t="projects_col_people"></th>
+              </tr>
+            </thead>
+            <tbody data-slot="table-body">
+            <tr data-slot="table-row" data-show-in="list mine">
+              <td data-slot="table-cell" class="px-4">
+                <div class="flex flex-wrap items-center gap-1">
+                  <a href="project.html" class="font-medium underline-offset-4 hover:underline">Kodanikuportaali uuendus</a><span data-slot="badge" class="ml-1" data-role="employee" data-t="projects_you_took_part"></span>
+                  
+                </div>
+                <div class="text-muted-foreground lg:hidden">Siseministeerium</div>
+                <div class="text-muted-foreground sm:hidden" data-period="2024-03/"></div>
+              </td>
+              <td data-slot="table-cell" class="hidden lg:table-cell">Siseministeerium</td>
+              <td data-slot="table-cell" class="hidden whitespace-nowrap sm:table-cell" data-period="2024-03/"></td>
+              <td data-slot="table-cell" class="hidden md:table-cell"><div class="flex flex-wrap gap-1"><span data-slot="badge" data-variant="secondary">React</span><span data-slot="badge" data-variant="secondary">TypeScript</span><span data-slot="badge" data-variant="secondary">Java</span><span data-slot="badge" data-variant="outline" data-t="projects_more" data-t-params='{"count": "3"}'></span></div></td>
+              <td data-slot="table-cell" class="hidden pr-4 text-right tabular-nums xl:table-cell">5</td>
+            </tr>
+            <tr data-slot="table-row" data-show-in="list">
+              <td data-slot="table-cell" class="px-4">
+                <div class="flex flex-wrap items-center gap-1">
+                  <a href="project.html" class="font-medium underline-offset-4 hover:underline">Võrguandmete platvorm</a>
+                  
+                </div>
+                <div class="text-muted-foreground lg:hidden">Elering</div>
+                <div class="text-muted-foreground sm:hidden" data-period="2023-09/"></div>
+              </td>
+              <td data-slot="table-cell" class="hidden lg:table-cell">Elering</td>
+              <td data-slot="table-cell" class="hidden whitespace-nowrap sm:table-cell" data-period="2023-09/"></td>
+              <td data-slot="table-cell" class="hidden md:table-cell"><div class="flex flex-wrap gap-1"><span data-slot="badge" data-variant="secondary">Python</span><span data-slot="badge" data-variant="secondary">Kafka</span><span data-slot="badge" data-variant="secondary">PostgreSQL</span><span data-slot="badge" data-variant="outline" data-t="projects_more" data-t-params='{"count": "1"}'></span></div></td>
+              <td data-slot="table-cell" class="hidden pr-4 text-right tabular-nums xl:table-cell">4</td>
+            </tr>
+            <tr data-slot="table-row" data-show-in="list">
+              <td data-slot="table-cell" class="px-4">
+                <div class="flex flex-wrap items-center gap-1">
+                  <a href="project.html" class="font-medium underline-offset-4 hover:underline">Sisevõrgu analüütika</a>
+                  <span data-slot="badge" data-variant="outline" class="border-amber-500 text-amber-800" data-t="translation_missing_en"></span>
+                </div>
+                <div class="text-muted-foreground lg:hidden">Telia Eesti</div>
+                <div class="text-muted-foreground sm:hidden" data-period="2024/"></div>
+              </td>
+              <td data-slot="table-cell" class="hidden lg:table-cell">Telia Eesti</td>
+              <td data-slot="table-cell" class="hidden whitespace-nowrap sm:table-cell" data-period="2024/"></td>
+              <td data-slot="table-cell" class="hidden md:table-cell"><div class="flex flex-wrap gap-1"><span data-slot="badge" data-variant="secondary">Python</span><span data-slot="badge" data-variant="secondary">Kafka</span><span data-slot="badge" data-variant="secondary">Docker</span></div></td>
+              <td data-slot="table-cell" class="hidden pr-4 text-right tabular-nums xl:table-cell">3</td>
+            </tr>
+            <tr data-slot="table-row" data-show-in="list mine">
+              <td data-slot="table-cell" class="px-4">
+                <div class="flex flex-wrap items-center gap-1">
+                  <a href="project.html" class="font-medium underline-offset-4 hover:underline">e-MTA deklaratsioonid</a><span data-slot="badge" class="ml-1" data-role="employee" data-t="projects_you_took_part"></span>
+                  
+                </div>
+                <div class="text-muted-foreground lg:hidden">Maksu- ja Tolliamet</div>
+                <div class="text-muted-foreground sm:hidden" data-period="2021-05/2023-12"></div>
+              </td>
+              <td data-slot="table-cell" class="hidden lg:table-cell">Maksu- ja Tolliamet</td>
+              <td data-slot="table-cell" class="hidden whitespace-nowrap sm:table-cell" data-period="2021-05/2023-12"></td>
+              <td data-slot="table-cell" class="hidden md:table-cell"><div class="flex flex-wrap gap-1"><span data-slot="badge" data-variant="secondary">Java</span><span data-slot="badge" data-variant="secondary">Spring Boot</span><span data-slot="badge" data-variant="secondary">Oracle</span><span data-slot="badge" data-variant="outline" data-t="projects_more" data-t-params='{"count": "2"}'></span></div></td>
+              <td data-slot="table-cell" class="hidden pr-4 text-right tabular-nums xl:table-cell">6</td>
+            </tr>
+            <tr data-slot="table-row" data-show-in="list">
+              <td data-slot="table-cell" class="px-4">
+                <div class="flex flex-wrap items-center gap-1">
+                  <a href="project.html" class="font-medium underline-offset-4 hover:underline">Parkimise mobiilirakendus</a>
+                  
+                </div>
+                <div class="text-muted-foreground lg:hidden">Tallinna Linnavalitsus</div>
+                <div class="text-muted-foreground sm:hidden" data-period="2022/2023"></div>
+              </td>
+              <td data-slot="table-cell" class="hidden lg:table-cell">Tallinna Linnavalitsus</td>
+              <td data-slot="table-cell" class="hidden whitespace-nowrap sm:table-cell" data-period="2022/2023"></td>
+              <td data-slot="table-cell" class="hidden md:table-cell"><div class="flex flex-wrap gap-1"><span data-slot="badge" data-variant="secondary">React</span><span data-slot="badge" data-variant="secondary">Node.js</span><span data-slot="badge" data-variant="secondary">AWS</span></div></td>
+              <td data-slot="table-cell" class="hidden pr-4 text-right tabular-nums xl:table-cell">3</td>
+            </tr>
+            <tr data-slot="table-row" data-show-in="list mine">
+              <td data-slot="table-cell" class="px-4">
+                <div class="flex flex-wrap items-center gap-1">
+                  <a href="project.html" class="font-medium underline-offset-4 hover:underline">Äriregistri avaandmete API</a><span data-slot="badge" class="ml-1" data-role="employee" data-t="projects_you_took_part"></span>
+                  <span data-slot="badge" data-variant="outline" class="border-amber-500 text-amber-800" data-t="translation_missing_en"></span>
+                </div>
+                <div class="text-muted-foreground lg:hidden">Registrite ja Infosüsteemide Keskus</div>
+                <div class="text-muted-foreground sm:hidden" data-period="2020-02/2020-11"></div>
+              </td>
+              <td data-slot="table-cell" class="hidden lg:table-cell">Registrite ja Infosüsteemide Keskus</td>
+              <td data-slot="table-cell" class="hidden whitespace-nowrap sm:table-cell" data-period="2020-02/2020-11"></td>
+              <td data-slot="table-cell" class="hidden md:table-cell"><div class="flex flex-wrap gap-1"><span data-slot="badge" data-variant="secondary">Java</span><span data-slot="badge" data-variant="secondary">X-tee</span><span data-slot="badge" data-variant="secondary">PostgreSQL</span></div></td>
+              <td data-slot="table-cell" class="hidden pr-4 text-right tabular-nums xl:table-cell">2</td>
+            </tr>
+            <tr data-slot="table-row" data-show-in="list">
+              <td data-slot="table-cell" class="px-4">
+                <div class="flex flex-wrap items-center gap-1">
+                  <a href="project.html" class="font-medium underline-offset-4 hover:underline">Tellimuste haldus</a>
+                  
+                </div>
+                <div class="text-muted-foreground lg:hidden">Telia Eesti</div>
+                <div class="text-muted-foreground sm:hidden" data-period="2019/2021"></div>
+              </td>
+              <td data-slot="table-cell" class="hidden lg:table-cell">Telia Eesti</td>
+              <td data-slot="table-cell" class="hidden whitespace-nowrap sm:table-cell" data-period="2019/2021"></td>
+              <td data-slot="table-cell" class="hidden md:table-cell"><div class="flex flex-wrap gap-1"><span data-slot="badge" data-variant="secondary">Java</span><span data-slot="badge" data-variant="secondary">Oracle</span><span data-slot="badge" data-variant="secondary">Angular</span><span data-slot="badge" data-variant="outline" data-t="projects_more" data-t-params='{"count": "1"}'></span></div></td>
+              <td data-slot="table-cell" class="hidden pr-4 text-right tabular-nums xl:table-cell">4</td>
+            </tr>
+            <tr data-slot="table-row" data-show-in="list">
+              <td data-slot="table-cell" class="px-4">
+                <div class="flex flex-wrap items-center gap-1">
+                  <a href="project.html" class="font-medium underline-offset-4 hover:underline">Ravikindlustuse infosüsteem</a>
+                  
+                </div>
+                <div class="text-muted-foreground lg:hidden">Eesti Haigekassa</div>
+                <div class="text-muted-foreground sm:hidden" data-period="2018-01/2020-06"></div>
+              </td>
+              <td data-slot="table-cell" class="hidden lg:table-cell">Eesti Haigekassa</td>
+              <td data-slot="table-cell" class="hidden whitespace-nowrap sm:table-cell" data-period="2018-01/2020-06"></td>
+              <td data-slot="table-cell" class="hidden md:table-cell"><div class="flex flex-wrap gap-1"><span data-slot="badge" data-variant="secondary">Java</span><span data-slot="badge" data-variant="secondary">Oracle</span><span data-slot="badge" data-variant="secondary">Linux</span></div></td>
+              <td data-slot="table-cell" class="hidden pr-4 text-right tabular-nums xl:table-cell">7</td>
+            </tr>
+            <tr data-slot="table-row" data-show-in="list">
+              <td data-slot="table-cell" class="px-4">
+                <div class="flex flex-wrap items-center gap-1">
+                  <a href="project.html" class="font-medium underline-offset-4 hover:underline">Sisemine ajaarvestus</a>
+                  <span data-slot="badge" data-variant="outline" class="border-amber-500 text-amber-800" data-t="translation_missing_en"></span>
+                </div>
+                <div class="text-muted-foreground lg:hidden"><span class="text-muted-foreground" data-t="projects_no_customer"></span></div>
+                <div class="text-muted-foreground sm:hidden" data-period="2017/2018"></div>
+              </td>
+              <td data-slot="table-cell" class="hidden lg:table-cell"><span class="text-muted-foreground" data-t="projects_no_customer"></span></td>
+              <td data-slot="table-cell" class="hidden whitespace-nowrap sm:table-cell" data-period="2017/2018"></td>
+              <td data-slot="table-cell" class="hidden md:table-cell"><div class="flex flex-wrap gap-1"><span data-slot="badge" data-variant="secondary">Vue.js</span><span data-slot="badge" data-variant="secondary">Node.js</span></div></td>
+              <td data-slot="table-cell" class="hidden pr-4 text-right tabular-nums xl:table-cell">2</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <p class="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground" data-show-in="no-match" data-t="projects_no_match"></p>
+      <p class="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground" data-show-in="empty" data-t="projects_empty"></p>
+    </main>
+  </body>
+</html>
