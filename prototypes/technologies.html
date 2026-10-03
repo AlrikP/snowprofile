@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="et">
+  <head>
+    <title>Technologies · snowprofile prototype</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="build/prototype.css" />
+    <script src="build/icons.js"></script>
+    <script src="build/prototype.js"></script>
+  </head>
+  <body data-frame="technologies" data-states="list:Catalogue|add:Add|duplicate:Add a duplicate|edit:Edit|merge:Merge">
+    <main class="flex flex-col gap-6 p-4 md:p-8">
+      <div class="flex flex-wrap items-end justify-between gap-4">
+        <div class="flex flex-col gap-1">
+          <h1 class="text-3xl" data-t="technologies_title"></h1>
+          <p class="text-sm text-muted-foreground" data-role="employee" data-t="technologies_employee_hint"></p>
+        </div>
+        <button data-slot="button" commandfor="add-dialog" command="show-modal"><i data-icon="PlusIcon"></i><span data-t="technologies_add"></span></button>
+      </div>
+
+      <div class="relative max-w-sm">
+        <i data-icon="SearchIcon" class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"></i>
+        <input data-slot="input" type="search" class="pl-9" data-t-label="technologies_search" data-t-placeholder="technologies_search" />
+      </div>
+
+      <section data-role="admin" data-slot="alert" class="max-w-3xl" aria-labelledby="duplicates-title">
+        <i data-icon="InfoIcon"></i>
+        <div data-slot="alert-title" id="duplicates-title" data-t="technologies_duplicates_title"></div>
+        <div data-slot="alert-description" class="w-full">
+          <p data-t="technologies_duplicates_body"></p>
+          <ul class="flex w-full flex-col divide-y text-foreground">
+            <li class="flex flex-wrap items-center gap-x-3 gap-y-1 py-2">
+              <span class="font-medium">Postgres</span>
+              <span class="text-sm text-muted-foreground" data-t="technologies_uses" data-t-params='{"count": "3"}'></span>
+              <i data-icon="ArrowRightIcon" class="size-4 text-muted-foreground"></i>
+              <span class="font-medium">PostgreSQL</span>
+              <span class="text-sm text-muted-foreground" data-t="technologies_uses" data-t-params='{"count": "41"}'></span>
+              <button type="button" data-slot="button" data-variant="outline" data-size="sm" class="ml-auto" data-goto-state="merge"><i data-icon="GitMergeIcon"></i><span data-t="merge_submit"></span></button>
+            </li>
+            <li class="flex flex-wrap items-center gap-x-3 gap-y-1 py-2">
+              <span class="font-medium">React.js</span>
+              <span class="text-sm text-muted-foreground" data-t="technologies_uses" data-t-params='{"count": "2"}'></span>
+              <i data-icon="ArrowRightIcon" class="size-4 text-muted-foreground"></i>
+              <span class="font-medium">React</span>
+              <span class="text-sm text-muted-foreground" data-t="technologies_uses" data-t-params='{"count": "35"}'></span>
+              <button type="button" data-slot="button" data-variant="outline" data-size="sm" class="ml-auto" data-goto-state="merge"><i data-icon="GitMergeIcon"></i><span data-t="merge_submit"></span></button>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <div class="grid gap-4 md:grid-cols-2 2xl:grid-cols-3">
+        <section data-slot="card" class="gap-3 pb-3" aria-labelledby="category-frontend">
+          <div data-slot="card-header" class="grid-cols-[1fr_auto]">
+            <h2 id="category-frontend" class="text-xl" data-et="Frontend" data-en="Frontend"></h2>
+            <span data-slot="badge" data-variant="secondary">6</span>
+          </div>
+          <div data-slot="card-content">
+            <ul class="flex flex-col divide-y">
+              <li class="flex min-h-10 items-center gap-2 py-1">
+                <span class="flex-1 font-medium">Angular</span>
+                <span class="text-sm text-muted-foreground" data-t="technologies_uses" data-t-params='{"count": "12"}'></span>
+                <span data-role="admin"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="technology-1"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Angular"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="technology-1" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="edit" class="w-full"><i data-icon="PencilIcon"></i><span data-t="technologies_edit"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="merge" class="w-full"><i data-icon="GitMergeIcon"></i><span data-t="technologies_merge"></span></button>
+            </div></span>
+              </li>
+              <li class="flex min-h-10 items-center gap-2 py-1">
+                <span class="flex-1 font-medium">React</span>
+                <span class="text-sm text-muted-foreground" data-t="technologies_uses" data-t-params='{"count": "35"}'></span>
+                <span data-role="admin"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="technology-2"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "React"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="technology-2" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="edit" class="w-full"><i data-icon="PencilIcon"></i><span data-t="technologies_edit"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="merge" class="w-full"><i data-icon="GitMergeIcon"></i><span data-t="technologies_merge"></span></button>
+            </div></span>
+              </li>
+              <li class="flex min-h-10 items-center gap-2 py-1">
+                <span class="flex-1 font-medium">React.js</span>
+                <span class="text-sm text-muted-foreground" data-t="technologies_uses" data-t-params='{"count": "2"}'></span>
+                <span data-role="admin"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="technology-3"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "React.js"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="technology-3" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="edit" class="w-full"><i data-icon="PencilIcon"></i><span data-t="technologies_edit"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="merge" class="w-full"><i data-icon="GitMergeIcon"></i><span data-t="technologies_merge"></span></button>
+            </div></span>
+              </li>
+              <li class="flex min-h-10 items-center gap-2 py-1">
+                <span class="flex-1 font-medium">Tailwind CSS</span>
+                <span class="text-sm text-muted-foreground" data-t="technologies_uses" data-t-params='{"count": "9"}'></span>
+                <span data-role="admin"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="technology-4"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Tailwind CSS"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="technology-4" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="edit" class="w-full"><i data-icon="PencilIcon"></i><span data-t="technologies_edit"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="merge" class="w-full"><i data-icon="GitMergeIcon"></i><span data-t="technologies_merge"></span></button>
+            </div></span>
+              </li>
+              <li class="flex min-h-10 items-center gap-2 py-1">
+                <span class="flex-1 font-medium">TypeScript</span>
+                <span class="text-sm text-muted-foreground" data-t="technologies_uses" data-t-params='{"count": "48"}'></span>
+                <span data-role="admin"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="technology-5"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "TypeScript"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="technology-5" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="edit" class="w-full"><i data-icon="PencilIcon"></i><span data-t="technologies_edit"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="merge" class="w-full"><i data-icon="GitMergeIcon"></i><span data-t="technologies_merge"></span></button>
+            </div></span>
+              </li>
+              <li class="flex min-h-10 items-center gap-2 py-1">
+                <span class="flex-1 font-medium">Vue.js</span>
+                <span class="text-sm text-muted-foreground" data-t="technologies_uses" data-t-params='{"count": "8"}'></span>
+                <span data-role="admin"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="technology-6"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Vue.js"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="technology-6" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="edit" class="w-full"><i data-icon="PencilIcon"></i><span data-t="technologies_edit"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="merge" class="w-full"><i data-icon="GitMergeIcon"></i><span data-t="technologies_merge"></span></button>
+            </div></span>
+              </li>
+            </ul>
+          </div>
+        </section>
+        <section data-slot="card" class="gap-3 pb-3" aria-labelledby="category-backend">
+          <div data-slot="card-header" class="grid-cols-[1fr_auto]">
+            <h2 id="category-backend" class="text-xl" data-et="Backend" data-en="Backend"></h2>
+            <span data-slot="badge" data-variant="secondary">6</span>
+          </div>
+          <div data-slot="card-content">
+            <ul class="flex flex-col divide-y">
+              <li class="flex min-h-10 items-center gap-2 py-1">
+                <span class="flex-1 font-medium">.NET</span>
+                <span class="text-sm text-muted-foreground" data-t="technologies_uses" data-t-params='{"count": "5"}'></span>
+                <span data-role="admin"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="technology-7"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": ".NET"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="technology-7" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="edit" class="w-full"><i data-icon="PencilIcon"></i><span data-t="technologies_edit"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="merge" class="w-full"><i data-icon="GitMergeIcon"></i><span data-t="technologies_merge"></span></button>
+            </div></span>
+              </li>
+              <li class="flex min-h-10 items-center gap-2 py-1">
+                <span class="flex-1 font-medium">Java</span>
+                <span class="text-sm text-muted-foreground" data-t="technologies_uses" data-t-params='{"count": "40"}'></span>
+                <span data-role="admin"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="technology-8"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Java"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="technology-8" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="edit" class="w-full"><i data-icon="PencilIcon"></i><span data-t="technologies_edit"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="merge" class="w-full"><i data-icon="GitMergeIcon"></i><span data-t="technologies_merge"></span></button>
+            </div></span>
+              </li>
+              <li class="flex min-h-10 items-center gap-2 py-1">
+                <span class="flex-1 font-medium">Kotlin</span>
+                <span class="text-sm text-muted-foreground" data-t="technologies_uses" data-t-params='{"count": "6"}'></span>
+                <span data-role="admin"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="technology-9"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Kotlin"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="technology-9" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="edit" class="w-full"><i data-icon="PencilIcon"></i><span data-t="technologies_edit"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="merge" class="w-full"><i data-icon="GitMergeIcon"></i><span data-t="technologies_merge"></span></button>
+            </div></span>
+              </li>
+              <li class="flex min-h-10 items-center gap-2 py-1">
+                <span class="flex-1 font-medium">Node.js</span>
+                <span class="text-sm text-muted-foreground" data-t="technologies_uses" data-t-params='{"count": "22"}'></span>
+                <span data-role="admin"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="technology-10"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Node.js"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="technology-10" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="edit" class="w-full"><i data-icon="PencilIcon"></i><span data-t="technologies_edit"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="merge" class="w-full"><i data-icon="GitMergeIcon"></i><span data-t="technologies_merge"></span></button>
+            </div></span>
+              </li>
+              <li class="flex min-h-10 items-center gap-2 py-1">
+                <span class="flex-1 font-medium">Python</span>
+                <span class="text-sm text-muted-foreground" data-t="technologies_uses" data-t-params='{"count": "14"}'></span>
+                <span data-role="admin"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="technology-11"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Python"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="technology-11" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="edit" class="w-full"><i data-icon="PencilIcon"></i><span data-t="technologies_edit"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="merge" class="w-full"><i data-icon="GitMergeIcon"></i><span data-t="technologies_merge"></span></button>
+            </div></span>
+              </li>
+              <li class="flex min-h-10 items-center gap-2 py-1">
+                <span class="flex-1 font-medium">Spring Boot</span>
+                <span class="text-sm text-muted-foreground" data-t="technologies_uses" data-t-params='{"count": "31"}'></span>
+                <span data-role="admin"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="technology-12"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Spring Boot"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="technology-12" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="edit" class="w-full"><i data-icon="PencilIcon"></i><span data-t="technologies_edit"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="merge" class="w-full"><i data-icon="GitMergeIcon"></i><span data-t="technologies_merge"></span></button>
+            </div></span>
+              </li>
+            </ul>
+          </div>
+        </section>
+        <section data-slot="card" class="gap-3 pb-3" aria-labelledby="category-data">
+          <div data-slot="card-header" class="grid-cols-[1fr_auto]">
+            <h2 id="category-data" class="text-xl" data-et="Andmed" data-en="Data"></h2>
+            <span data-slot="badge" data-variant="secondary">5</span>
+          </div>
+          <div data-slot="card-content">
+            <ul class="flex flex-col divide-y">
+              <li class="flex min-h-10 items-center gap-2 py-1">
+                <span class="flex-1 font-medium">Kafka</span>
+                <span class="text-sm text-muted-foreground" data-t="technologies_uses" data-t-params='{"count": "7"}'></span>
+                <span data-role="admin"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="technology-13"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Kafka"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="technology-13" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="edit" class="w-full"><i data-icon="PencilIcon"></i><span data-t="technologies_edit"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="merge" class="w-full"><i data-icon="GitMergeIcon"></i><span data-t="technologies_merge"></span></button>
+            </div></span>
+              </li>
+              <li class="flex min-h-10 items-center gap-2 py-1">
+                <span class="flex-1 font-medium">MongoDB</span>
+                <span class="text-sm text-muted-foreground" data-t="technologies_uses" data-t-params='{"count": "4"}'></span>
+                <span data-role="admin"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="technology-14"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "MongoDB"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="technology-14" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="edit" class="w-full"><i data-icon="PencilIcon"></i><span data-t="technologies_edit"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="merge" class="w-full"><i data-icon="GitMergeIcon"></i><span data-t="technologies_merge"></span></button>
+            </div></span>
+              </li>
+              <li class="flex min-h-10 items-center gap-2 py-1">
+                <span class="flex-1 font-medium">Oracle</span>
+                <span class="text-sm text-muted-foreground" data-t="technologies_uses" data-t-params='{"count": "11"}'></span>
+                <span data-role="admin"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="technology-15"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Oracle"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="technology-15" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="edit" class="w-full"><i data-icon="PencilIcon"></i><span data-t="technologies_edit"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="merge" class="w-full"><i data-icon="GitMergeIcon"></i><span data-t="technologies_merge"></span></button>
+            </div></span>
+              </li>
+              <li class="flex min-h-10 items-center gap-2 py-1">
+                <span class="flex-1 font-medium">Postgres</span>
+                <span class="text-sm text-muted-foreground" data-t="technologies_uses" data-t-params='{"count": "3"}'></span>
+                <span data-role="admin"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="technology-16"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Postgres"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="technology-16" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="edit" class="w-full"><i data-icon="PencilIcon"></i><span data-t="technologies_edit"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="merge" class="w-full"><i data-icon="GitMergeIcon"></i><span data-t="technologies_merge"></span></button>
+            </div></span>
+              </li>
+              <li class="flex min-h-10 items-center gap-2 py-1">
+                <span class="flex-1 font-medium">PostgreSQL</span>
+                <span class="text-sm text-muted-foreground" data-t="technologies_uses" data-t-params='{"count": "41"}'></span>
+                <span data-role="admin"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="technology-17"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "PostgreSQL"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="technology-17" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="edit" class="w-full"><i data-icon="PencilIcon"></i><span data-t="technologies_edit"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="merge" class="w-full"><i data-icon="GitMergeIcon"></i><span data-t="technologies_merge"></span></button>
+            </div></span>
+              </li>
+            </ul>
+          </div>
+        </section>
+        <section data-slot="card" class="gap-3 pb-3" aria-labelledby="category-infra">
+          <div data-slot="card-header" class="grid-cols-[1fr_auto]">
+            <h2 id="category-infra" class="text-xl" data-et="Infra" data-en="Infra"></h2>
+            <span data-slot="badge" data-variant="secondary">6</span>
+          </div>
+          <div data-slot="card-content">
+            <ul class="flex flex-col divide-y">
+              <li class="flex min-h-10 items-center gap-2 py-1">
+                <span class="flex-1 font-medium">AWS</span>
+                <span class="text-sm text-muted-foreground" data-t="technologies_uses" data-t-params='{"count": "9"}'></span>
+                <span data-role="admin"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="technology-18"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "AWS"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="technology-18" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="edit" class="w-full"><i data-icon="PencilIcon"></i><span data-t="technologies_edit"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="merge" class="w-full"><i data-icon="GitMergeIcon"></i><span data-t="technologies_merge"></span></button>
+            </div></span>
+              </li>
+              <li class="flex min-h-10 items-center gap-2 py-1">
+                <span class="flex-1 font-medium">Azure</span>
+                <span class="text-sm text-muted-foreground" data-t="technologies_uses" data-t-params='{"count": "6"}'></span>
+                <span data-role="admin"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="technology-19"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Azure"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="technology-19" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="edit" class="w-full"><i data-icon="PencilIcon"></i><span data-t="technologies_edit"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="merge" class="w-full"><i data-icon="GitMergeIcon"></i><span data-t="technologies_merge"></span></button>
+            </div></span>
+              </li>
+              <li class="flex min-h-10 items-center gap-2 py-1">
+                <span class="flex-1 font-medium">Docker</span>
+                <span class="text-sm text-muted-foreground" data-t="technologies_uses" data-t-params='{"count": "38"}'></span>
+                <span data-role="admin"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="technology-20"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Docker"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="technology-20" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="edit" class="w-full"><i data-icon="PencilIcon"></i><span data-t="technologies_edit"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="merge" class="w-full"><i data-icon="GitMergeIcon"></i><span data-t="technologies_merge"></span></button>
+            </div></span>
+              </li>
+              <li class="flex min-h-10 items-center gap-2 py-1">
+                <span class="flex-1 font-medium">Kubernetes</span>
+                <span class="text-sm text-muted-foreground" data-t="technologies_uses" data-t-params='{"count": "19"}'></span>
+                <span data-role="admin"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="technology-21"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Kubernetes"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="technology-21" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="edit" class="w-full"><i data-icon="PencilIcon"></i><span data-t="technologies_edit"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="merge" class="w-full"><i data-icon="GitMergeIcon"></i><span data-t="technologies_merge"></span></button>
+            </div></span>
+              </li>
+              <li class="flex min-h-10 items-center gap-2 py-1">
+                <span class="flex-1 font-medium">Linux</span>
+                <span class="text-sm text-muted-foreground" data-t="technologies_uses" data-t-params='{"count": "30"}'></span>
+                <span data-role="admin"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="technology-22"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Linux"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="technology-22" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="edit" class="w-full"><i data-icon="PencilIcon"></i><span data-t="technologies_edit"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="merge" class="w-full"><i data-icon="GitMergeIcon"></i><span data-t="technologies_merge"></span></button>
+            </div></span>
+              </li>
+              <li class="flex min-h-10 items-center gap-2 py-1">
+                <span class="flex-1 font-medium">X-tee</span>
+                <span class="text-sm text-muted-foreground" data-t="technologies_uses" data-t-params='{"count": "9"}'></span>
+                <span data-role="admin"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="technology-23"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "X-tee"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="technology-23" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="edit" class="w-full"><i data-icon="PencilIcon"></i><span data-t="technologies_edit"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="merge" class="w-full"><i data-icon="GitMergeIcon"></i><span data-t="technologies_merge"></span></button>
+            </div></span>
+              </li>
+            </ul>
+          </div>
+        </section>
+        <section data-slot="card" class="gap-3 pb-3" aria-labelledby="category-testing">
+          <div data-slot="card-header" class="grid-cols-[1fr_auto]">
+            <h2 id="category-testing" class="text-xl" data-et="Testimine" data-en="Testing"></h2>
+            <span data-slot="badge" data-variant="secondary">4</span>
+          </div>
+          <div data-slot="card-content">
+            <ul class="flex flex-col divide-y">
+              <li class="flex min-h-10 items-center gap-2 py-1">
+                <span class="flex-1 font-medium">Cypress</span>
+                <span class="text-sm text-muted-foreground" data-t="technologies_uses" data-t-params='{"count": "5"}'></span>
+                <span data-role="admin"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="technology-24"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Cypress"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="technology-24" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="edit" class="w-full"><i data-icon="PencilIcon"></i><span data-t="technologies_edit"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="merge" class="w-full"><i data-icon="GitMergeIcon"></i><span data-t="technologies_merge"></span></button>
+            </div></span>
+              </li>
+              <li class="flex min-h-10 items-center gap-2 py-1">
+                <span class="flex-1 font-medium">JUnit</span>
+                <span class="text-sm text-muted-foreground" data-t="technologies_uses" data-t-params='{"count": "25"}'></span>
+                <span data-role="admin"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="technology-25"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "JUnit"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="technology-25" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="edit" class="w-full"><i data-icon="PencilIcon"></i><span data-t="technologies_edit"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="merge" class="w-full"><i data-icon="GitMergeIcon"></i><span data-t="technologies_merge"></span></button>
+            </div></span>
+              </li>
+              <li class="flex min-h-10 items-center gap-2 py-1">
+                <span class="flex-1 font-medium">Playwright</span>
+                <span class="text-sm text-muted-foreground" data-t="technologies_uses" data-t-params='{"count": "7"}'></span>
+                <span data-role="admin"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="technology-26"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Playwright"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="technology-26" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="edit" class="w-full"><i data-icon="PencilIcon"></i><span data-t="technologies_edit"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="merge" class="w-full"><i data-icon="GitMergeIcon"></i><span data-t="technologies_merge"></span></button>
+            </div></span>
+              </li>
+              <li class="flex min-h-10 items-center gap-2 py-1">
+                <span class="flex-1 font-medium">Selenium</span>
+                <span class="text-sm text-muted-foreground" data-t="technologies_uses" data-t-params='{"count": "4"}'></span>
+                <span data-role="admin"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="technology-27"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Selenium"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="technology-27" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="edit" class="w-full"><i data-icon="PencilIcon"></i><span data-t="technologies_edit"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="merge" class="w-full"><i data-icon="GitMergeIcon"></i><span data-t="technologies_merge"></span></button>
+            </div></span>
+              </li>
+            </ul>
+          </div>
+        </section>
+        <section data-slot="card" class="gap-3 pb-3" aria-labelledby="category-other">
+          <div data-slot="card-header" class="grid-cols-[1fr_auto]">
+            <h2 id="category-other" class="text-xl" data-et="Muu" data-en="Other"></h2>
+            <span data-slot="badge" data-variant="secondary">2</span>
+          </div>
+          <div data-slot="card-content">
+            <ul class="flex flex-col divide-y">
+              <li class="flex min-h-10 items-center gap-2 py-1">
+                <span class="flex-1 font-medium">Figma</span>
+                <span class="text-sm text-muted-foreground" data-t="technologies_uses" data-t-params='{"count": "6"}'></span>
+                <span data-role="admin"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="technology-28"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Figma"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="technology-28" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="edit" class="w-full"><i data-icon="PencilIcon"></i><span data-t="technologies_edit"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="merge" class="w-full"><i data-icon="GitMergeIcon"></i><span data-t="technologies_merge"></span></button>
+            </div></span>
+              </li>
+              <li class="flex min-h-10 items-center gap-2 py-1">
+                <span class="flex-1 font-medium">Jira</span>
+                <span class="text-sm text-muted-foreground" data-t="technologies_uses" data-t-params='{"count": "20"}'></span>
+                <span data-role="admin"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="technology-29"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Jira"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="technology-29" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="edit" class="w-full"><i data-icon="PencilIcon"></i><span data-t="technologies_edit"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="merge" class="w-full"><i data-icon="GitMergeIcon"></i><span data-t="technologies_merge"></span></button>
+            </div></span>
+              </li>
+            </ul>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <dialog id="add-dialog" data-slot="dialog-content" data-open-in="add duplicate" aria-labelledby="add-dialog-title">
+      <form data-goto-state="list" class="contents">
+        <div data-slot="dialog-header">
+          <h2 data-slot="dialog-title" id="add-dialog-title" data-t="technologies_add"></h2>
+          
+        </div>
+        <div class="flex flex-col gap-2">
+          <label data-slot="label" for="add-name" data-t="technology_name"></label>
+          <input data-slot="input" id="add-name" required autocomplete="off" aria-describedby="add-name-hint" data-state-values='{"duplicate": "Postgres"}' />
+          <p id="add-name-hint" class="text-sm text-muted-foreground" data-t="technology_name_hint"></p>
+        </div><div class="flex flex-col gap-2">
+          <label data-slot="label" for="add-category" data-t="technology_category"></label>
+          <div data-slot="native-select-wrapper">
+            <select data-slot="native-select" id="add-category"><option value="frontend" data-et="Frontend" data-en="Frontend"></option><option value="backend" data-et="Backend" data-en="Backend"></option><option value="data" selected data-et="Andmed" data-en="Data"></option><option value="infra" data-et="Infra" data-en="Infra"></option><option value="testing" data-et="Testimine" data-en="Testing"></option><option value="other" data-et="Muu" data-en="Other"></option></select>
+            <i data-icon="ChevronDownIcon"></i>
+          </div>
+          
+        </div><div data-slot="alert" data-show-in="duplicate" role="status"><i data-icon="TriangleAlertIcon"></i><div data-slot="alert-description" class="text-foreground" data-t="technology_exists" data-t-params='{"name": "PostgreSQL"}'></div></div>
+        <div data-slot="dialog-footer">
+          <button type="button" data-slot="button" data-variant="outline" commandfor="add-dialog" command="close" data-t="action_cancel"></button><button type="submit" data-slot="button" data-show-in="list add edit merge" data-t="action_save"></button><button type="submit" data-slot="button" data-variant="outline" data-show-in="duplicate" data-t="technology_add_anyway"></button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="edit-dialog" data-slot="dialog-content" data-open-in="edit" aria-labelledby="edit-dialog-title">
+      <form data-goto-state="list" class="contents">
+        <div data-slot="dialog-header">
+          <h2 data-slot="dialog-title" id="edit-dialog-title" data-t="technology_edit_title"></h2>
+          
+        </div>
+        <div class="flex flex-col gap-2">
+          <label data-slot="label" for="edit-name" data-t="technology_name"></label>
+          <input data-slot="input" id="edit-name" required value="React.js" aria-describedby="edit-name-hint" />
+          <p id="edit-name-hint" class="text-sm text-muted-foreground" data-t="technology_name_hint"></p>
+        </div><div class="flex flex-col gap-2">
+          <label data-slot="label" for="edit-category" data-t="technology_category"></label>
+          <div data-slot="native-select-wrapper">
+            <select data-slot="native-select" id="edit-category"><option value="frontend" selected data-et="Frontend" data-en="Frontend"></option><option value="backend" data-et="Backend" data-en="Backend"></option><option value="data" data-et="Andmed" data-en="Data"></option><option value="infra" data-et="Infra" data-en="Infra"></option><option value="testing" data-et="Testimine" data-en="Testing"></option><option value="other" data-et="Muu" data-en="Other"></option></select>
+            <i data-icon="ChevronDownIcon"></i>
+          </div>
+          
+        </div>
+        <div data-slot="dialog-footer">
+          <button type="button" data-slot="button" data-variant="outline" commandfor="edit-dialog" command="close" data-t="action_cancel"></button><button type="submit" data-slot="button" data-t="action_save"></button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="merge-dialog" data-slot="dialog-content" data-open-in="merge" aria-labelledby="merge-dialog-title">
+      <form data-goto-state="list" class="contents">
+        <div data-slot="dialog-header">
+          <h2 data-slot="dialog-title" id="merge-dialog-title" data-t="merge_title" data-t-params='{"name": "Postgres"}'></h2>
+          
+        </div>
+        <div class="flex flex-col gap-2">
+          <label data-slot="label" for="merge-target" data-t="merge_target"></label>
+          <div data-slot="native-select-wrapper">
+            <select data-slot="native-select" id="merge-target"><option value="PostgreSQL" selected >PostgreSQL</option><option value="Oracle" >Oracle</option><option value="MongoDB" >MongoDB</option></select>
+            <i data-icon="ChevronDownIcon"></i>
+          </div>
+          
+        </div><p class="text-sm text-muted-foreground" data-t="merge_explanation" data-t-params='{"count": "3", "name": "Postgres"}'></p>
+        <div data-slot="dialog-footer">
+          <button type="button" data-slot="button" data-variant="outline" commandfor="merge-dialog" command="close" data-t="action_cancel"></button><button type="submit" data-slot="button"><i data-icon="GitMergeIcon"></i><span data-t="merge_submit"></span></button>
+        </div>
+      </form>
+    </dialog>
+  </body>
+</html>

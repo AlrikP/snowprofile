@@ -51,19 +51,26 @@ merged:
 ```
 
 The button, input, and label classes copy `src/components/ui/`. The others (card, badge,
-alert, avatar, separator, dropdown menu, sheet, sidebar) copy shadcn's `new-york`
-registry until task 012 adds them to the app. Behavior uses the platform instead of
-Radix: a dropdown menu is a native `popover`, a sheet a modal `<dialog>` opened with
-`commandfor` and `command="show-modal"`. Focus handling and animations aren't reproduced.
+alert, avatar, separator, table, dialog, native select, dropdown menu, sheet, sidebar)
+copy shadcn's `new-york` registry until task 012 adds them to the app. Behavior uses the
+platform instead of Radix: a dropdown menu is a native `popover`, and a dialog or sheet a
+modal `<dialog>` opened with `commandfor` and `command="show-modal"`. Focus handling and
+animations aren't reproduced.
+
+A row's action menu is named for its row (`data-t-label="action_actions_for"` with the
+row's name), so a screen reader can tell the menus apart.
 
 ### Icons and texts
 
 - `<i data-icon="FolderKanbanIcon"></i>` becomes that Lucide icon. Add a new one to
   `lib/icons.ts` under the name the app imports it by.
 - `data-t="key"` sets an element's text from `messages/` or `lib/messages.ts`, in the
-  page's language; `data-t-params` fills the message's parameters, and `data-t-label`
-  sets an `aria-label`. A key in `lib/messages.ts` that `messages/` also has is a
-  proposed change to that message.
+  page's language; `data-t-params` fills the message's parameters, and `data-t-label` and
+  `data-t-placeholder` set an `aria-label` and a placeholder. A key in `lib/messages.ts`
+  that `messages/` also has is a proposed change to that message.
+- Content the server would send stays data, not a message: `data-date="2026-10-05"` is
+  formatted for the page's language, and `data-et`/`data-en` hold a bilingual field,
+  showing the other language when one is missing.
 
 ### States
 
@@ -74,8 +81,15 @@ and role.
 
 - `<body data-frame="profile">` wraps the page's `<main>` in the app frame, with that
   navigation item active.
+- `<body data-roles="admin">` limits the role switch to the roles that see the page; an
+  element with `data-role="admin"` shows only for that role.
 - `<body data-states="demo:Demo mode|google:Google only">` lists the page's states; the
-  first is the default. An element with `data-show-in="demo google"` shows only in those.
+  first is the default. In a state:
+  - an element with `data-show-in="demo google"` shows only in those states;
+  - a `<dialog data-open-in="add">` opens;
+  - an input with `data-state-values='{"duplicate": "Postgres"}'` holds that value.
+- A form or button with `data-goto-state="link"` shows that state, as the app would after
+  the action.
 
 The data is fictional and follows the demo seed (`src/db/seed.ts`). Pages show the
 Snowhound mark from `public/`, as the app will.

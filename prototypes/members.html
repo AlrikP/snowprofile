@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="et">
+  <head>
+    <title>Members · snowprofile prototype</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="build/prototype.css" />
+    <script src="build/icons.js"></script>
+    <script src="build/prototype.js"></script>
+  </head>
+  <body data-frame="members" data-roles="admin" data-states="list:Members|invite:Invite|link:Link created|last-admin:Only admin">
+    <main class="flex flex-col gap-6 p-4 md:p-8">
+      <div class="flex flex-wrap items-end justify-between gap-4">
+        <div class="flex flex-col gap-1">
+          <h1 class="text-3xl" data-t="members_title"></h1>
+          <p class="text-sm text-muted-foreground" data-t="members_count" data-t-params='{"count": "12"}'></p>
+        </div>
+        <button data-slot="button" commandfor="invite-dialog" command="show-modal"><i data-icon="PlusIcon"></i><span data-t="members_invite"></span></button>
+      </div>
+
+      <div data-slot="card" class="gap-0 py-0">
+        <div data-slot="table-container">
+          <table data-slot="table">
+            <thead data-slot="table-header">
+              <tr data-slot="table-row" class="hover:bg-transparent">
+                <th data-slot="table-head" class="px-4" data-t="members_col_name"></th>
+                <th data-slot="table-head" class="hidden md:table-cell" data-t="members_col_email"></th>
+                <th data-slot="table-head" class="hidden sm:table-cell" data-t="members_col_role"></th>
+                <th data-slot="table-head" class="hidden lg:table-cell" data-t="members_col_joined"></th>
+                <th data-slot="table-head" class="pr-4"><span class="sr-only" data-t="action_actions"></span></th>
+              </tr>
+            </thead>
+            <tbody data-slot="table-body">
+            <tr data-slot="table-row">
+              <td data-slot="table-cell" class="px-4">
+                <div class="font-medium">Anna Admin <span data-slot="badge" data-variant="outline" class="ml-1" data-t="members_you"></span></div>
+                <div class="break-all text-muted-foreground md:hidden">admin@demo.example.com</div>
+                <div class="text-muted-foreground sm:hidden"><span data-t="role_admin"></span></div>
+              </td>
+              <td data-slot="table-cell" class="hidden md:table-cell">admin@demo.example.com</td>
+              <td data-slot="table-cell" class="hidden sm:table-cell"><span data-t="role_admin"></span></td>
+              <td data-slot="table-cell" class="hidden lg:table-cell" data-date="2025-08-29"></td>
+              <td data-slot="table-cell" class="w-12 pr-4 text-right"><span data-show-in="list invite link"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="member-0"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Anna Admin"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="member-0" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <div data-slot="dropdown-menu-label" class="text-xs text-muted-foreground" data-t="members_change_role"></div><button type="button" data-slot="dropdown-menu-radio-item" role="menuitemradio" aria-checked="true" class="w-full">
+                <span class="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center"><i data-icon="CircleIcon" class="size-2 fill-current"></i></span>
+                <span data-t="role_admin"></span></button><button type="button" data-slot="dropdown-menu-radio-item" role="menuitemradio" aria-checked="false" class="w-full">
+                <span class="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center"></span>
+                <span data-t="role_employee"></span></button>
+            </div></span><span data-show-in="last-admin"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="member-0-b"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Anna Admin"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="member-0-b" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <div data-slot="dropdown-menu-label" class="text-xs text-muted-foreground" data-t="members_change_role"></div><button type="button" data-slot="dropdown-menu-radio-item" role="menuitemradio" aria-checked="true" aria-disabled="true" class="w-full opacity-50">
+                <span class="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center"><i data-icon="CircleIcon" class="size-2 fill-current"></i></span>
+                <span data-t="role_admin"></span></button><button type="button" data-slot="dropdown-menu-radio-item" role="menuitemradio" aria-checked="false" aria-disabled="true" class="w-full opacity-50">
+                <span class="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center"></span>
+                <span data-t="role_employee"></span></button><p class="px-2 py-1.5 text-xs text-muted-foreground" data-t="members_last_admin"></p>
+            </div></span></td>
+            </tr>
+            <tr data-slot="table-row">
+              <td data-slot="table-cell" class="px-4">
+                <div class="font-medium">Kalle Kask</div>
+                <div class="break-all text-muted-foreground md:hidden">kalle.kask@demo.example.com</div>
+                <div class="text-muted-foreground sm:hidden"><span data-show-in="list invite link" data-t="role_admin"></span><span data-show-in="last-admin" data-t="role_employee"></span></div>
+              </td>
+              <td data-slot="table-cell" class="hidden md:table-cell">kalle.kask@demo.example.com</td>
+              <td data-slot="table-cell" class="hidden sm:table-cell"><span data-show-in="list invite link" data-t="role_admin"></span><span data-show-in="last-admin" data-t="role_employee"></span></td>
+              <td data-slot="table-cell" class="hidden lg:table-cell" data-date="2025-08-29"></td>
+              <td data-slot="table-cell" class="w-12 pr-4 text-right"><span data-show-in="list invite link"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="member-1"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Kalle Kask"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="member-1" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <div data-slot="dropdown-menu-label" class="text-xs text-muted-foreground" data-t="members_change_role"></div><button type="button" data-slot="dropdown-menu-radio-item" role="menuitemradio" aria-checked="true" class="w-full">
+                <span class="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center"><i data-icon="CircleIcon" class="size-2 fill-current"></i></span>
+                <span data-t="role_admin"></span></button><button type="button" data-slot="dropdown-menu-radio-item" role="menuitemradio" aria-checked="false" class="w-full">
+                <span class="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center"></span>
+                <span data-t="role_employee"></span></button>
+            </div></span><span data-show-in="last-admin"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="member-1-b"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Kalle Kask"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="member-1-b" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <div data-slot="dropdown-menu-label" class="text-xs text-muted-foreground" data-t="members_change_role"></div><button type="button" data-slot="dropdown-menu-radio-item" role="menuitemradio" aria-checked="false" class="w-full">
+                <span class="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center"></span>
+                <span data-t="role_admin"></span></button><button type="button" data-slot="dropdown-menu-radio-item" role="menuitemradio" aria-checked="true" class="w-full">
+                <span class="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center"><i data-icon="CircleIcon" class="size-2 fill-current"></i></span>
+                <span data-t="role_employee"></span></button>
+            </div></span></td>
+            </tr>
+            <tr data-slot="table-row">
+              <td data-slot="table-cell" class="px-4">
+                <div class="font-medium">Erik Employee</div>
+                <div class="break-all text-muted-foreground md:hidden">employee@demo.example.com</div>
+                <div class="text-muted-foreground sm:hidden"><span data-t="role_employee"></span></div>
+              </td>
+              <td data-slot="table-cell" class="hidden md:table-cell">employee@demo.example.com</td>
+              <td data-slot="table-cell" class="hidden sm:table-cell"><span data-t="role_employee"></span></td>
+              <td data-slot="table-cell" class="hidden lg:table-cell" data-date="2025-09-15"></td>
+              <td data-slot="table-cell" class="w-12 pr-4 text-right"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="member-2"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Erik Employee"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="member-2" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <div data-slot="dropdown-menu-label" class="text-xs text-muted-foreground" data-t="members_change_role"></div><button type="button" data-slot="dropdown-menu-radio-item" role="menuitemradio" aria-checked="false" class="w-full">
+                <span class="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center"></span>
+                <span data-t="role_admin"></span></button><button type="button" data-slot="dropdown-menu-radio-item" role="menuitemradio" aria-checked="true" class="w-full">
+                <span class="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center"><i data-icon="CircleIcon" class="size-2 fill-current"></i></span>
+                <span data-t="role_employee"></span></button>
+            </div></td>
+            </tr>
+            <tr data-slot="table-row">
+              <td data-slot="table-cell" class="px-4">
+                <div class="font-medium">Liis Lepp</div>
+                <div class="break-all text-muted-foreground md:hidden">liis.lepp@demo.example.com</div>
+                <div class="text-muted-foreground sm:hidden"><span data-t="role_employee"></span></div>
+              </td>
+              <td data-slot="table-cell" class="hidden md:table-cell">liis.lepp@demo.example.com</td>
+              <td data-slot="table-cell" class="hidden sm:table-cell"><span data-t="role_employee"></span></td>
+              <td data-slot="table-cell" class="hidden lg:table-cell" data-date="2025-10-01"></td>
+              <td data-slot="table-cell" class="w-12 pr-4 text-right"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="member-3"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Liis Lepp"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="member-3" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <div data-slot="dropdown-menu-label" class="text-xs text-muted-foreground" data-t="members_change_role"></div><button type="button" data-slot="dropdown-menu-radio-item" role="menuitemradio" aria-checked="false" class="w-full">
+                <span class="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center"></span>
+                <span data-t="role_admin"></span></button><button type="button" data-slot="dropdown-menu-radio-item" role="menuitemradio" aria-checked="true" class="w-full">
+                <span class="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center"><i data-icon="CircleIcon" class="size-2 fill-current"></i></span>
+                <span data-t="role_employee"></span></button>
+            </div></td>
+            </tr>
+            <tr data-slot="table-row">
+              <td data-slot="table-cell" class="px-4">
+                <div class="font-medium">Peeter Puu</div>
+                <div class="break-all text-muted-foreground md:hidden">peeter.puu@demo.example.com</div>
+                <div class="text-muted-foreground sm:hidden"><span data-t="role_employee"></span></div>
+              </td>
+              <td data-slot="table-cell" class="hidden md:table-cell">peeter.puu@demo.example.com</td>
+              <td data-slot="table-cell" class="hidden sm:table-cell"><span data-t="role_employee"></span></td>
+              <td data-slot="table-cell" class="hidden lg:table-cell" data-date="2025-11-03"></td>
+              <td data-slot="table-cell" class="w-12 pr-4 text-right"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="member-4"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Peeter Puu"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="member-4" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <div data-slot="dropdown-menu-label" class="text-xs text-muted-foreground" data-t="members_change_role"></div><button type="button" data-slot="dropdown-menu-radio-item" role="menuitemradio" aria-checked="false" class="w-full">
+                <span class="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center"></span>
+                <span data-t="role_admin"></span></button><button type="button" data-slot="dropdown-menu-radio-item" role="menuitemradio" aria-checked="true" class="w-full">
+                <span class="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center"><i data-icon="CircleIcon" class="size-2 fill-current"></i></span>
+                <span data-t="role_employee"></span></button>
+            </div></td>
+            </tr>
+            <tr data-slot="table-row">
+              <td data-slot="table-cell" class="px-4">
+                <div class="font-medium">Kadri Kuusk</div>
+                <div class="break-all text-muted-foreground md:hidden">kadri.kuusk@demo.example.com</div>
+                <div class="text-muted-foreground sm:hidden"><span data-t="role_employee"></span></div>
+              </td>
+              <td data-slot="table-cell" class="hidden md:table-cell">kadri.kuusk@demo.example.com</td>
+              <td data-slot="table-cell" class="hidden sm:table-cell"><span data-t="role_employee"></span></td>
+              <td data-slot="table-cell" class="hidden lg:table-cell" data-date="2026-01-12"></td>
+              <td data-slot="table-cell" class="w-12 pr-4 text-right"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="member-5"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Kadri Kuusk"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="member-5" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <div data-slot="dropdown-menu-label" class="text-xs text-muted-foreground" data-t="members_change_role"></div><button type="button" data-slot="dropdown-menu-radio-item" role="menuitemradio" aria-checked="false" class="w-full">
+                <span class="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center"></span>
+                <span data-t="role_admin"></span></button><button type="button" data-slot="dropdown-menu-radio-item" role="menuitemradio" aria-checked="true" class="w-full">
+                <span class="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center"><i data-icon="CircleIcon" class="size-2 fill-current"></i></span>
+                <span data-t="role_employee"></span></button>
+            </div></td>
+            </tr>
+            <tr data-slot="table-row">
+              <td data-slot="table-cell" class="px-4">
+                <div class="font-medium">Tõnu Tamm</div>
+                <div class="break-all text-muted-foreground md:hidden">tonu.tamm@demo.example.com</div>
+                <div class="text-muted-foreground sm:hidden"><span data-t="role_employee"></span></div>
+              </td>
+              <td data-slot="table-cell" class="hidden md:table-cell">tonu.tamm@demo.example.com</td>
+              <td data-slot="table-cell" class="hidden sm:table-cell"><span data-t="role_employee"></span></td>
+              <td data-slot="table-cell" class="hidden lg:table-cell" data-date="2026-02-02"></td>
+              <td data-slot="table-cell" class="w-12 pr-4 text-right"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="member-6"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Tõnu Tamm"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="member-6" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <div data-slot="dropdown-menu-label" class="text-xs text-muted-foreground" data-t="members_change_role"></div><button type="button" data-slot="dropdown-menu-radio-item" role="menuitemradio" aria-checked="false" class="w-full">
+                <span class="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center"></span>
+                <span data-t="role_admin"></span></button><button type="button" data-slot="dropdown-menu-radio-item" role="menuitemradio" aria-checked="true" class="w-full">
+                <span class="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center"><i data-icon="CircleIcon" class="size-2 fill-current"></i></span>
+                <span data-t="role_employee"></span></button>
+            </div></td>
+            </tr>
+            <tr data-slot="table-row">
+              <td data-slot="table-cell" class="px-4">
+                <div class="font-medium">Jaanika Jõgi</div>
+                <div class="break-all text-muted-foreground md:hidden">jaanika.jogi@demo.example.com</div>
+                <div class="text-muted-foreground sm:hidden"><span data-t="role_employee"></span></div>
+              </td>
+              <td data-slot="table-cell" class="hidden md:table-cell">jaanika.jogi@demo.example.com</td>
+              <td data-slot="table-cell" class="hidden sm:table-cell"><span data-t="role_employee"></span></td>
+              <td data-slot="table-cell" class="hidden lg:table-cell" data-date="2026-03-16"></td>
+              <td data-slot="table-cell" class="w-12 pr-4 text-right"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="member-7"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Jaanika Jõgi"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="member-7" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <div data-slot="dropdown-menu-label" class="text-xs text-muted-foreground" data-t="members_change_role"></div><button type="button" data-slot="dropdown-menu-radio-item" role="menuitemradio" aria-checked="false" class="w-full">
+                <span class="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center"></span>
+                <span data-t="role_admin"></span></button><button type="button" data-slot="dropdown-menu-radio-item" role="menuitemradio" aria-checked="true" class="w-full">
+                <span class="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center"><i data-icon="CircleIcon" class="size-2 fill-current"></i></span>
+                <span data-t="role_employee"></span></button>
+            </div></td>
+            </tr>
+            <tr data-slot="table-row">
+              <td data-slot="table-cell" class="px-4">
+                <div class="font-medium">Mart Mänd</div>
+                <div class="break-all text-muted-foreground md:hidden">mart.mand@demo.example.com</div>
+                <div class="text-muted-foreground sm:hidden"><span data-t="role_employee"></span></div>
+              </td>
+              <td data-slot="table-cell" class="hidden md:table-cell">mart.mand@demo.example.com</td>
+              <td data-slot="table-cell" class="hidden sm:table-cell"><span data-t="role_employee"></span></td>
+              <td data-slot="table-cell" class="hidden lg:table-cell" data-date="2026-04-07"></td>
+              <td data-slot="table-cell" class="w-12 pr-4 text-right"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="member-8"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Mart Mänd"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="member-8" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <div data-slot="dropdown-menu-label" class="text-xs text-muted-foreground" data-t="members_change_role"></div><button type="button" data-slot="dropdown-menu-radio-item" role="menuitemradio" aria-checked="false" class="w-full">
+                <span class="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center"></span>
+                <span data-t="role_admin"></span></button><button type="button" data-slot="dropdown-menu-radio-item" role="menuitemradio" aria-checked="true" class="w-full">
+                <span class="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center"><i data-icon="CircleIcon" class="size-2 fill-current"></i></span>
+                <span data-t="role_employee"></span></button>
+            </div></td>
+            </tr>
+            <tr data-slot="table-row">
+              <td data-slot="table-cell" class="px-4">
+                <div class="font-medium">Riina Rebane</div>
+                <div class="break-all text-muted-foreground md:hidden">riina.rebane@demo.example.com</div>
+                <div class="text-muted-foreground sm:hidden"><span data-t="role_employee"></span></div>
+              </td>
+              <td data-slot="table-cell" class="hidden md:table-cell">riina.rebane@demo.example.com</td>
+              <td data-slot="table-cell" class="hidden sm:table-cell"><span data-t="role_employee"></span></td>
+              <td data-slot="table-cell" class="hidden lg:table-cell" data-date="2026-05-20"></td>
+              <td data-slot="table-cell" class="w-12 pr-4 text-right"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="member-9"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Riina Rebane"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="member-9" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <div data-slot="dropdown-menu-label" class="text-xs text-muted-foreground" data-t="members_change_role"></div><button type="button" data-slot="dropdown-menu-radio-item" role="menuitemradio" aria-checked="false" class="w-full">
+                <span class="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center"></span>
+                <span data-t="role_admin"></span></button><button type="button" data-slot="dropdown-menu-radio-item" role="menuitemradio" aria-checked="true" class="w-full">
+                <span class="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center"><i data-icon="CircleIcon" class="size-2 fill-current"></i></span>
+                <span data-t="role_employee"></span></button>
+            </div></td>
+            </tr>
+            <tr data-slot="table-row">
+              <td data-slot="table-cell" class="px-4">
+                <div class="font-medium">Andres Allik</div>
+                <div class="break-all text-muted-foreground md:hidden">andres.allik@demo.example.com</div>
+                <div class="text-muted-foreground sm:hidden"><span data-t="role_employee"></span></div>
+              </td>
+              <td data-slot="table-cell" class="hidden md:table-cell">andres.allik@demo.example.com</td>
+              <td data-slot="table-cell" class="hidden sm:table-cell"><span data-t="role_employee"></span></td>
+              <td data-slot="table-cell" class="hidden lg:table-cell" data-date="2026-06-08"></td>
+              <td data-slot="table-cell" class="w-12 pr-4 text-right"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="member-10"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Andres Allik"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="member-10" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <div data-slot="dropdown-menu-label" class="text-xs text-muted-foreground" data-t="members_change_role"></div><button type="button" data-slot="dropdown-menu-radio-item" role="menuitemradio" aria-checked="false" class="w-full">
+                <span class="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center"></span>
+                <span data-t="role_admin"></span></button><button type="button" data-slot="dropdown-menu-radio-item" role="menuitemradio" aria-checked="true" class="w-full">
+                <span class="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center"><i data-icon="CircleIcon" class="size-2 fill-current"></i></span>
+                <span data-t="role_employee"></span></button>
+            </div></td>
+            </tr>
+            <tr data-slot="table-row">
+              <td data-slot="table-cell" class="px-4">
+                <div class="font-medium">Šarlota Žukova</div>
+                <div class="break-all text-muted-foreground md:hidden">sarlota.zukova@demo.example.com</div>
+                <div class="text-muted-foreground sm:hidden"><span data-t="role_employee"></span></div>
+              </td>
+              <td data-slot="table-cell" class="hidden md:table-cell">sarlota.zukova@demo.example.com</td>
+              <td data-slot="table-cell" class="hidden sm:table-cell"><span data-t="role_employee"></span></td>
+              <td data-slot="table-cell" class="hidden lg:table-cell" data-date="2026-08-24"></td>
+              <td data-slot="table-cell" class="w-12 pr-4 text-right"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="member-11"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Šarlota Žukova"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="member-11" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <div data-slot="dropdown-menu-label" class="text-xs text-muted-foreground" data-t="members_change_role"></div><button type="button" data-slot="dropdown-menu-radio-item" role="menuitemradio" aria-checked="false" class="w-full">
+                <span class="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center"></span>
+                <span data-t="role_admin"></span></button><button type="button" data-slot="dropdown-menu-radio-item" role="menuitemradio" aria-checked="true" class="w-full">
+                <span class="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center"><i data-icon="CircleIcon" class="size-2 fill-current"></i></span>
+                <span data-t="role_employee"></span></button>
+            </div></td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <section class="flex flex-col gap-3" aria-labelledby="invitations-title">
+        <h2 id="invitations-title" class="text-2xl" data-t="invitations_title"></h2>
+        <div data-slot="card" class="gap-0 py-0">
+          <div data-slot="table-container">
+            <table data-slot="table">
+              <thead data-slot="table-header">
+                <tr data-slot="table-row" class="hover:bg-transparent">
+                  <th data-slot="table-head" class="px-4" data-t="invite_email"></th>
+                  <th data-slot="table-head" class="" data-t="invite_role"></th>
+                  <th data-slot="table-head" class="hidden sm:table-cell" data-t="invitations_col_expires"></th>
+                  <th data-slot="table-head" class="pr-4"><span class="sr-only" data-t="action_actions"></span></th>
+                </tr>
+              </thead>
+              <tbody data-slot="table-body">
+            <tr data-slot="table-row">
+              <td data-slot="table-cell" class="px-4 font-medium break-all">mari.maasikas@example.com</td>
+              <td data-slot="table-cell" data-t="role_employee"></td>
+              <td data-slot="table-cell" class="hidden sm:table-cell" data-date="2026-10-04"></td>
+              <td data-slot="table-cell" class="pr-4">
+                <div class="flex justify-end gap-1">
+                  <button data-slot="button" data-variant="ghost" data-size="icon-sm" data-t-label="invitations_copy_link"><i data-icon="CopyIcon"></i></button>
+                  <button data-slot="button" data-variant="ghost" data-size="icon-sm" class="text-destructive hover:text-destructive" data-t-label="invitations_cancel"><i data-icon="XIcon"></i></button>
+                </div>
+              </td>
+            </tr>
+            <tr data-slot="table-row">
+              <td data-slot="table-cell" class="px-4 font-medium break-all">jaan.org@example.com</td>
+              <td data-slot="table-cell" data-t="role_admin"></td>
+              <td data-slot="table-cell" class="hidden sm:table-cell" data-date="2026-10-05"></td>
+              <td data-slot="table-cell" class="pr-4">
+                <div class="flex justify-end gap-1">
+                  <button data-slot="button" data-variant="ghost" data-size="icon-sm" data-t-label="invitations_copy_link"><i data-icon="CopyIcon"></i></button>
+                  <button data-slot="button" data-variant="ghost" data-size="icon-sm" class="text-destructive hover:text-destructive" data-t-label="invitations_cancel"><i data-icon="XIcon"></i></button>
+                </div>
+              </td>
+            </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <dialog id="invite-dialog" data-slot="dialog-content" data-open-in="invite" aria-labelledby="invite-dialog-title">
+      <form data-goto-state="link" class="contents">
+        <div data-slot="dialog-header">
+          <h2 data-slot="dialog-title" id="invite-dialog-title" data-t="invite_title"></h2>
+          <p data-slot="dialog-description" data-t="invite_description"></p>
+        </div>
+        <div class="flex flex-col gap-2">
+          <label data-slot="label" for="invite-email" data-t="invite_email"></label>
+          <input data-slot="input" id="invite-email" type="email" required autocomplete="off" placeholder="nimi@example.com" />
+          
+        </div><div class="flex flex-col gap-2">
+          <label data-slot="label" for="invite-role" data-t="invite_role"></label>
+          <div data-slot="native-select-wrapper">
+            <select data-slot="native-select" id="invite-role"><option value="employee" selected data-t="role_employee"></option><option value="admin" data-t="role_admin"></option></select>
+            <i data-icon="ChevronDownIcon"></i>
+          </div>
+          
+        </div>
+        <div data-slot="dialog-footer">
+          <button type="button" data-slot="button" data-variant="outline" commandfor="invite-dialog" command="close" data-t="action_cancel"></button><button type="submit" data-slot="button"><i data-icon="LinkIcon"></i><span data-t="invite_submit"></span></button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="link-dialog" data-slot="dialog-content" data-open-in="link" aria-labelledby="link-dialog-title">
+      <div class="contents">
+        <div data-slot="dialog-header">
+          <h2 data-slot="dialog-title" id="link-dialog-title" data-t="invite_created_title"></h2>
+          <p data-slot="dialog-description" data-t="invite_created_description" data-t-params='{"email": "mari.maasikas@example.com"}'></p>
+        </div>
+        <div class="flex flex-col gap-2">
+          <label data-slot="label" for="invite-link" data-t="invite_link_label"></label>
+          <div class="flex gap-2">
+            <input data-slot="input" id="invite-link" readonly value="https://snowprofile.example.com/invite/0192f4c1-7a3e-7b10-9c2d-5e8f1a2b3c4d" />
+            <button type="button" data-slot="button" data-variant="outline"><i data-icon="CopyIcon"></i><span data-t="action_copy"></span></button>
+          </div>
+          <p class="text-sm text-muted-foreground"><span data-t="invitations_col_expires"></span>: <span data-date="2026-10-05"></span></p>
+        </div>
+        <div data-slot="dialog-footer">
+          <button type="button" data-slot="button" commandfor="link-dialog" command="close" data-t="invite_done"></button>
+        </div>
+      </div>
+    </dialog>
+  </body>
+</html>

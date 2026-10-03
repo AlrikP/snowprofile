@@ -1,7 +1,7 @@
 # 012: App foundation
 
 Status: todo
-Depends on: task 010 (UI strings), task 011.1 (the frame prototype)
+Depends on: task 010 (UI strings), task 011.6 (the reviewed frame prototype)
 
 Turn the frame prototype into the app's shell, so feature tasks only add pages.
 

@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="et">
+  <head>
+    <title>Tender criteria · snowprofile prototype</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="build/prototype.css" />
+    <script src="build/icons.js"></script>
+    <script src="build/prototype.js"></script>
+  </head>
+  <body data-frame="criteria" data-roles="admin" data-states="list:Checklist|add:Add|edit:Edit|remove:Remove|empty:Empty">
+    <main class="flex flex-col gap-6 p-4 md:p-8">
+      <div class="flex flex-wrap items-end justify-between gap-4">
+        <div class="flex flex-col gap-1">
+          <h1 class="text-3xl" data-t="criteria_title"></h1>
+          <p class="max-w-2xl text-sm text-muted-foreground" data-t="criteria_description"></p>
+        </div>
+        <button data-slot="button" commandfor="criterion-dialog" command="show-modal"><i data-icon="PlusIcon"></i><span data-t="criteria_add"></span></button>
+      </div>
+
+      <div data-slot="card" class="max-w-4xl gap-0 py-2" data-show-in="list add edit remove">
+        <ol class="flex flex-col divide-y">
+            <li class="flex items-center gap-3 px-4 py-2">
+              <span class="w-5 text-right text-sm text-muted-foreground tabular-nums">1.</span>
+              <div class="flex min-w-0 flex-1 flex-col gap-1 sm:flex-row sm:items-center sm:gap-3">
+                <span class="font-medium" data-et="Automaattestid" data-en="Automated tests"></span>
+                
+                <span class="text-sm text-muted-foreground sm:ml-auto" data-t="criteria_answers" data-t-params='{"count": "18"}'></span>
+              </div>
+              <div class="flex items-center"><button data-slot="button" data-variant="ghost" data-size="icon-sm" data-t-label="criteria_move_up" disabled><i data-icon="ChevronUpIcon"></i></button><button data-slot="button" data-variant="ghost" data-size="icon-sm" data-t-label="criteria_move_down"><i data-icon="ChevronDownIcon"></i></button><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="criterion-0"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Automaattestid"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="criterion-0" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="edit" class="w-full"><i data-icon="PencilIcon"></i><span data-t="technologies_edit"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" data-variant="destructive" data-goto-state="remove" class="w-full"><i data-icon="Trash2Icon"></i><span data-t="criteria_remove"></span></button>
+            </div></div>
+            </li>
+            <li class="flex items-center gap-3 px-4 py-2">
+              <span class="w-5 text-right text-sm text-muted-foreground tabular-nums">2.</span>
+              <div class="flex min-w-0 flex-1 flex-col gap-1 sm:flex-row sm:items-center sm:gap-3">
+                <span class="font-medium" data-et="REST- või SOAP-liidesed" data-en="REST or SOAP APIs"></span>
+                
+                <span class="text-sm text-muted-foreground sm:ml-auto" data-t="criteria_answers" data-t-params='{"count": "16"}'></span>
+              </div>
+              <div class="flex items-center"><button data-slot="button" data-variant="ghost" data-size="icon-sm" data-t-label="criteria_move_up"><i data-icon="ChevronUpIcon"></i></button><button data-slot="button" data-variant="ghost" data-size="icon-sm" data-t-label="criteria_move_down"><i data-icon="ChevronDownIcon"></i></button><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="criterion-1"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "REST- või SOAP-liidesed"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="criterion-1" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="edit" class="w-full"><i data-icon="PencilIcon"></i><span data-t="technologies_edit"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" data-variant="destructive" data-goto-state="remove" class="w-full"><i data-icon="Trash2Icon"></i><span data-t="criteria_remove"></span></button>
+            </div></div>
+            </li>
+            <li class="flex items-center gap-3 px-4 py-2">
+              <span class="w-5 text-right text-sm text-muted-foreground tabular-nums">3.</span>
+              <div class="flex min-w-0 flex-1 flex-col gap-1 sm:flex-row sm:items-center sm:gap-3">
+                <span class="font-medium" data-et="Relatsiooniline andmebaas" data-en="Relational database"></span>
+                
+                <span class="text-sm text-muted-foreground sm:ml-auto" data-t="criteria_answers" data-t-params='{"count": "17"}'></span>
+              </div>
+              <div class="flex items-center"><button data-slot="button" data-variant="ghost" data-size="icon-sm" data-t-label="criteria_move_up"><i data-icon="ChevronUpIcon"></i></button><button data-slot="button" data-variant="ghost" data-size="icon-sm" data-t-label="criteria_move_down"><i data-icon="ChevronDownIcon"></i></button><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="criterion-2"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Relatsiooniline andmebaas"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="criterion-2" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="edit" class="w-full"><i data-icon="PencilIcon"></i><span data-t="technologies_edit"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" data-variant="destructive" data-goto-state="remove" class="w-full"><i data-icon="Trash2Icon"></i><span data-t="criteria_remove"></span></button>
+            </div></div>
+            </li>
+            <li class="flex items-center gap-3 px-4 py-2">
+              <span class="w-5 text-right text-sm text-muted-foreground tabular-nums">4.</span>
+              <div class="flex min-w-0 flex-1 flex-col gap-1 sm:flex-row sm:items-center sm:gap-3">
+                <span class="font-medium" data-et="Andmebaasi migratsioonid" data-en="Database migrations"></span>
+                
+                <span class="text-sm text-muted-foreground sm:ml-auto" data-t="criteria_answers" data-t-params='{"count": "12"}'></span>
+              </div>
+              <div class="flex items-center"><button data-slot="button" data-variant="ghost" data-size="icon-sm" data-t-label="criteria_move_up"><i data-icon="ChevronUpIcon"></i></button><button data-slot="button" data-variant="ghost" data-size="icon-sm" data-t-label="criteria_move_down"><i data-icon="ChevronDownIcon"></i></button><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="criterion-3"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Andmebaasi migratsioonid"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="criterion-3" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="edit" class="w-full"><i data-icon="PencilIcon"></i><span data-t="technologies_edit"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" data-variant="destructive" data-goto-state="remove" class="w-full"><i data-icon="Trash2Icon"></i><span data-t="criteria_remove"></span></button>
+            </div></div>
+            </li>
+            <li class="flex items-center gap-3 px-4 py-2">
+              <span class="w-5 text-right text-sm text-muted-foreground tabular-nums">5.</span>
+              <div class="flex min-w-0 flex-1 flex-col gap-1 sm:flex-row sm:items-center sm:gap-3">
+                <span class="font-medium" data-et="Linux" data-en="Linux"></span>
+                
+                <span class="text-sm text-muted-foreground sm:ml-auto" data-t="criteria_answers" data-t-params='{"count": "15"}'></span>
+              </div>
+              <div class="flex items-center"><button data-slot="button" data-variant="ghost" data-size="icon-sm" data-t-label="criteria_move_up"><i data-icon="ChevronUpIcon"></i></button><button data-slot="button" data-variant="ghost" data-size="icon-sm" data-t-label="criteria_move_down"><i data-icon="ChevronDownIcon"></i></button><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="criterion-4"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Linux"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="criterion-4" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="edit" class="w-full"><i data-icon="PencilIcon"></i><span data-t="technologies_edit"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" data-variant="destructive" data-goto-state="remove" class="w-full"><i data-icon="Trash2Icon"></i><span data-t="criteria_remove"></span></button>
+            </div></div>
+            </li>
+            <li class="flex items-center gap-3 px-4 py-2">
+              <span class="w-5 text-right text-sm text-muted-foreground tabular-nums">6.</span>
+              <div class="flex min-w-0 flex-1 flex-col gap-1 sm:flex-row sm:items-center sm:gap-3">
+                <span class="font-medium" data-et="X-tee" data-en=""></span>
+                <span data-slot="badge" data-variant="outline" class="border-amber-500 text-amber-800" data-t="translation_missing_en"></span>
+                <span class="text-sm text-muted-foreground sm:ml-auto" data-t="criteria_answers" data-t-params='{"count": "9"}'></span>
+              </div>
+              <div class="flex items-center"><button data-slot="button" data-variant="ghost" data-size="icon-sm" data-t-label="criteria_move_up"><i data-icon="ChevronUpIcon"></i></button><button data-slot="button" data-variant="ghost" data-size="icon-sm" data-t-label="criteria_move_down"><i data-icon="ChevronDownIcon"></i></button><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="criterion-5"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "X-tee"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="criterion-5" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="edit" class="w-full"><i data-icon="PencilIcon"></i><span data-t="technologies_edit"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" data-variant="destructive" data-goto-state="remove" class="w-full"><i data-icon="Trash2Icon"></i><span data-t="criteria_remove"></span></button>
+            </div></div>
+            </li>
+            <li class="flex items-center gap-3 px-4 py-2">
+              <span class="w-5 text-right text-sm text-muted-foreground tabular-nums">7.</span>
+              <div class="flex min-w-0 flex-1 flex-col gap-1 sm:flex-row sm:items-center sm:gap-3">
+                <span class="font-medium" data-et="Konteinerid ja Kubernetes" data-en="Containers and Kubernetes"></span>
+                
+                <span class="text-sm text-muted-foreground sm:ml-auto" data-t="criteria_answers" data-t-params='{"count": "11"}'></span>
+              </div>
+              <div class="flex items-center"><button data-slot="button" data-variant="ghost" data-size="icon-sm" data-t-label="criteria_move_up"><i data-icon="ChevronUpIcon"></i></button><button data-slot="button" data-variant="ghost" data-size="icon-sm" data-t-label="criteria_move_down"><i data-icon="ChevronDownIcon"></i></button><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="criterion-6"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Konteinerid ja Kubernetes"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="criterion-6" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="edit" class="w-full"><i data-icon="PencilIcon"></i><span data-t="technologies_edit"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" data-variant="destructive" data-goto-state="remove" class="w-full"><i data-icon="Trash2Icon"></i><span data-t="criteria_remove"></span></button>
+            </div></div>
+            </li>
+            <li class="flex items-center gap-3 px-4 py-2">
+              <span class="w-5 text-right text-sm text-muted-foreground tabular-nums">8.</span>
+              <div class="flex min-w-0 flex-1 flex-col gap-1 sm:flex-row sm:items-center sm:gap-3">
+                <span class="font-medium" data-et="Monitooring" data-en="Monitoring"></span>
+                
+                <span class="text-sm text-muted-foreground sm:ml-auto" data-t="criteria_answers" data-t-params='{"count": "8"}'></span>
+              </div>
+              <div class="flex items-center"><button data-slot="button" data-variant="ghost" data-size="icon-sm" data-t-label="criteria_move_up"><i data-icon="ChevronUpIcon"></i></button><button data-slot="button" data-variant="ghost" data-size="icon-sm" data-t-label="criteria_move_down" disabled><i data-icon="ChevronDownIcon"></i></button><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="criterion-7"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Monitooring"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="criterion-7" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="edit" class="w-full"><i data-icon="PencilIcon"></i><span data-t="technologies_edit"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" data-variant="destructive" data-goto-state="remove" class="w-full"><i data-icon="Trash2Icon"></i><span data-t="criteria_remove"></span></button>
+            </div></div>
+            </li>
+        </ol>
+      </div>
+      <p class="max-w-4xl rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground" data-show-in="empty" data-t="criteria_empty"></p>
+    </main>
+
+    <dialog id="criterion-dialog" data-slot="dialog-content" data-open-in="add" aria-labelledby="criterion-dialog-title">
+      <form data-goto-state="list" class="contents">
+        <div data-slot="dialog-header">
+          <h2 data-slot="dialog-title" id="criterion-dialog-title" data-t="criteria_add"></h2>
+          
+        </div>
+        <div class="flex flex-col gap-2">
+          <label data-slot="label" for="criterion-et" data-t="field_name_et"></label>
+          <input data-slot="input" id="criterion-et" lang="et" autocomplete="off" aria-describedby="criterion-hint" />
+          
+        </div><div class="flex flex-col gap-2">
+          <label data-slot="label" for="criterion-en" data-t="field_name_en"></label>
+          <input data-slot="input" id="criterion-en" lang="en" autocomplete="off" aria-describedby="criterion-hint" />
+          
+        </div><p id="criterion-hint" class="text-sm text-muted-foreground" data-t="criteria_bilingual_hint"></p>
+        <div data-slot="dialog-footer">
+          <button type="button" data-slot="button" data-variant="outline" commandfor="criterion-dialog" command="close" data-t="action_cancel"></button><button type="submit" data-slot="button" data-t="action_save"></button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="criterion-edit-dialog" data-slot="dialog-content" data-open-in="edit" aria-labelledby="criterion-edit-dialog-title">
+      <form data-goto-state="list" class="contents">
+        <div data-slot="dialog-header">
+          <h2 data-slot="dialog-title" id="criterion-edit-dialog-title" data-t="criteria_edit_title"></h2>
+          
+        </div>
+        <div class="flex flex-col gap-2">
+          <label data-slot="label" for="criterion-edit-et" data-t="field_name_et"></label>
+          <input data-slot="input" id="criterion-edit-et" lang="et" value="X-tee" aria-describedby="criterion-edit-hint" />
+          
+        </div><div class="flex flex-col gap-2">
+          <label data-slot="label" for="criterion-edit-en" data-t="field_name_en"></label>
+          <input data-slot="input" id="criterion-edit-en" lang="en" aria-describedby="criterion-edit-hint" />
+          
+        </div><p id="criterion-edit-hint" class="text-sm text-muted-foreground" data-t="criteria_bilingual_hint"></p>
+        <div data-slot="dialog-footer">
+          <button type="button" data-slot="button" data-variant="outline" commandfor="criterion-edit-dialog" command="close" data-t="action_cancel"></button><button type="submit" data-slot="button" data-t="action_save"></button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="criterion-remove-dialog" data-slot="dialog-content" data-open-in="remove" aria-labelledby="criterion-remove-dialog-title">
+      <form data-goto-state="list" class="contents">
+        <div data-slot="dialog-header">
+          <h2 data-slot="dialog-title" id="criterion-remove-dialog-title" data-t="criteria_remove_title" data-t-params='{"name": "Monitooring"}'></h2>
+          
+        </div>
+        <p class="text-sm text-muted-foreground" data-t="criteria_remove_body" data-t-params='{"count": "8"}'></p>
+        <div data-slot="dialog-footer">
+          <button type="button" data-slot="button" data-variant="outline" commandfor="criterion-remove-dialog" command="close" data-t="action_cancel"></button><button type="submit" data-slot="button" data-variant="destructive"><i data-icon="Trash2Icon"></i><span data-t="criteria_remove"></span></button>
+        </div>
+      </form>
+    </dialog>
+  </body>
+</html>

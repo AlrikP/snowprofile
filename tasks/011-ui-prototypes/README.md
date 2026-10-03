@@ -14,6 +14,7 @@ built, and the feature tasks name them. Check each with `docs/skills/ui-review/S
 3. `03-projects.md`: project list and project editing.
 4. `04-profile.md`: profile, participations, own projects, update requests.
 5. `05-search-and-cv.md`: search, CV selection, CV view, import report.
+6. `06-review.md`: review all prototypes together and iterate until the go-ahead.
 
 ## Acceptance criteria
 

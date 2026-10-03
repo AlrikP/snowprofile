@@ -25,7 +25,12 @@ const users: Record<Role, { name: string; email: string; organizations: Organiza
 // Pages without an href aren't prototyped yet.
 const profile: NavItem = { id: 'profile', icon: 'UserIcon', label: 'nav_my_profile', href: 'frame.html' }
 const projects: NavItem = { id: 'projects', icon: 'FolderKanbanIcon', label: 'nav_projects' }
-const technologies: NavItem = { id: 'technologies', icon: 'CpuIcon', label: 'nav_technologies' }
+const technologies: NavItem = {
+  id: 'technologies',
+  icon: 'CpuIcon',
+  label: 'nav_technologies',
+  href: 'technologies.html',
+}
 
 const navigation: Record<Role, { label?: string; items: NavItem[] }[]> = {
   admin: [
@@ -42,9 +47,14 @@ const navigation: Record<Role, { label?: string; items: NavItem[] }[]> = {
     {
       label: 'nav_group_organization',
       items: [
-        { id: 'members', icon: 'UserCogIcon', label: 'nav_members' },
+        { id: 'members', icon: 'UserCogIcon', label: 'nav_members', href: 'members.html' },
         technologies,
-        { id: 'criteria', icon: 'ListChecksIcon', label: 'nav_tender_criteria' },
+        {
+          id: 'criteria',
+          icon: 'ListChecksIcon',
+          label: 'nav_tender_criteria',
+          href: 'criteria.html',
+        },
         { id: 'import', icon: 'UploadIcon', label: 'nav_import' },
       ],
     },
@@ -273,21 +283,63 @@ function startFrame(page: string, role: Role) {
 // <body data-states="demo:Demo mode|google:Google only"> adds a state switch; an element
 // with data-show-in="demo google" shows only in those states. The first state is the
 // default.
+// A form or button with data-goto-state="<state>" shows that state of the page, as the
+// app would after the action. An input with data-state-values='{"<state>": "…"}' holds that
+// value in that state.
+function connectStates() {
+  for (const form of document.querySelectorAll<HTMLFormElement>('form[data-goto-state]')) {
+    form.addEventListener('submit', (event) => {
+      event.preventDefault()
+      location.href = withState('', { state: form.dataset.gotoState ?? '' })
+    })
+  }
+  for (const button of document.querySelectorAll<HTMLElement>(':not(form)[data-goto-state]')) {
+    button.addEventListener('click', () => {
+      location.href = withState('', { state: button.dataset.gotoState ?? '' })
+    })
+  }
+}
+
+function showState(current: string) {
+  for (const element of document.querySelectorAll<HTMLElement>('[data-show-in]')) {
+    element.hidden = !element.dataset.showIn?.split(' ').includes(current)
+  }
+  for (const input of document.querySelectorAll<HTMLInputElement>('[data-state-values]')) {
+    const values = JSON.parse(input.dataset.stateValues ?? '{}') as Record<string, string>
+    if (values[current] !== undefined) input.value = values[current]
+  }
+  for (const dialog of document.querySelectorAll<HTMLDialogElement>('dialog[data-open-in]')) {
+    if (dialog.dataset.openIn?.split(' ').includes(current)) dialog.showModal()
+  }
+}
+
+// <body data-roles="admin"> limits the role switch to the roles that see the page, and an
+// element with data-role="admin" shows only for that role.
 export function startPrototype() {
-  const { frame, states } = document.body.dataset
+  const { frame, states, roles } = document.body.dataset
   connectPages()
+  connectStates()
   const controls = []
   if (frame !== undefined) {
-    startFrame(frame, pageRole())
-    controls.push({ param: 'role', label: 'Role', options: { admin: 'Admin', employee: 'Employee' } })
+    const role = pageRole()
+    startFrame(frame, role)
+    const allowed = roles?.split(' ') ?? ['admin', 'employee']
+    const names: Record<string, string> = { admin: 'Admin', employee: 'Employee' }
+    controls.push({
+      param: 'role',
+      label: 'Role',
+      options: Object.fromEntries(allowed.map((name) => [name, names[name] ?? name])),
+    })
+    for (const element of document.querySelectorAll<HTMLElement>('[data-role]')) {
+      element.hidden = element.dataset.role !== role
+    }
   }
   if (states) {
     const options = Object.fromEntries(states.split('|').map((state) => state.split(':')))
     const current = new URLSearchParams(location.search).get('state') ?? Object.keys(options)[0]
-    for (const element of document.querySelectorAll<HTMLElement>('[data-show-in]')) {
-      element.hidden = !element.dataset.showIn?.split(' ').includes(current ?? '')
-    }
     controls.push({ param: 'state', label: 'State', options })
+    // After the UI has its classes, so an opened dialog shows styled.
+    queueMicrotask(() => showState(current ?? ''))
   }
   prototypeBar(controls)
 }

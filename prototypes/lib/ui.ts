@@ -92,12 +92,41 @@ const slots: Record<string, Slot> = {
   },
   separator: { base: 'h-px w-full shrink-0 bg-border' },
   'dropdown-menu-content': {
-    base: 'z-50 min-w-[8rem] overflow-x-hidden overflow-y-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md',
+    base: 'z-50 min-w-[8rem] overflow-x-hidden overflow-y-auto rounded-md border bg-popover p-1 text-left text-popover-foreground shadow-md',
   },
-  'dropdown-menu-item': { base: menuItem },
+  'dropdown-menu-item': {
+    base: menuItem,
+    variant: {
+      default: '',
+      destructive:
+        'text-destructive hover:bg-destructive/10 hover:text-destructive focus:bg-destructive/10 focus:text-destructive [&_svg]:!text-destructive',
+    },
+  },
   'dropdown-menu-radio-item': { base: `${menuItem} pl-8` },
   'dropdown-menu-label': { base: 'px-2 py-1.5 text-sm font-medium' },
   'dropdown-menu-separator': { base: '-mx-1 my-1 h-px bg-border' },
+  'native-select': {
+    base: `h-9 w-full min-w-0 appearance-none rounded-md border border-input bg-transparent py-1 pr-9 pl-3 text-sm shadow-xs transition-[color,box-shadow] outline-none disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:bg-input/30 ${focusRing} ${invalid}`,
+  },
+  'native-select-wrapper': {
+    base: "relative w-full [&>svg]:pointer-events-none [&>svg]:absolute [&>svg]:top-1/2 [&>svg]:right-3 [&>svg]:size-4 [&>svg]:-translate-y-1/2 [&>svg]:text-muted-foreground",
+  },
+  'table-container': { base: 'relative w-full overflow-x-auto' },
+  table: { base: 'w-full caption-bottom text-sm' },
+  'table-header': { base: '[&_tr]:border-b' },
+  'table-body': { base: '[&_tr:last-child]:border-0' },
+  'table-row': { base: 'border-b transition-colors hover:bg-muted/50' },
+  'table-head': {
+    base: 'h-10 px-2 text-left align-middle font-medium whitespace-nowrap text-foreground',
+  },
+  'table-cell': { base: 'p-2 align-middle' },
+  'dialog-content': {
+    base: 'fixed top-1/2 left-1/2 z-50 m-0 hidden w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-lg border bg-background p-6 text-foreground shadow-lg backdrop:bg-black/50 open:grid sm:max-w-lg',
+  },
+  'dialog-header': { base: 'flex flex-col gap-2 text-left' },
+  'dialog-footer': { base: 'flex flex-col-reverse gap-2 sm:flex-row sm:justify-end' },
+  'dialog-title': { base: 'text-xl leading-none' },
+  'dialog-description': { base: 'text-sm text-muted-foreground' },
   'sheet-content': {
     base: 'fixed inset-y-0 left-0 m-0 hidden h-full max-h-none w-3/4 flex-col border-r bg-background p-0 shadow-lg backdrop:bg-black/50 open:flex sm:max-w-sm',
   },
@@ -146,7 +175,8 @@ function applyIcon(element: HTMLElement) {
 }
 
 // data-t="key" sets the text, with data-t-params='{"name": "…"}' for its parameters, where
-// [[key]] stands for another message; data-t-label="key" sets the aria-label.
+// [[key]] stands for another message; data-t-label="key" sets the aria-label, with the same
+// parameters, and data-t-placeholder="key" the placeholder.
 function applyText(element: HTMLElement) {
   const raw = JSON.parse(element.dataset.tParams ?? '{}') as Record<string, string>
   const params = Object.fromEntries(
@@ -156,12 +186,32 @@ function applyText(element: HTMLElement) {
     ]),
   )
   if (element.dataset.t) element.textContent = t(element.dataset.t, params)
-  if (element.dataset.tLabel) element.setAttribute('aria-label', t(element.dataset.tLabel))
+  if (element.dataset.tLabel) element.setAttribute('aria-label', t(element.dataset.tLabel, params))
+  if (element.dataset.tPlaceholder) {
+    element.setAttribute('placeholder', t(element.dataset.tPlaceholder, params))
+  }
+}
+
+// Content the server would send: data-date="2026-10-05" is formatted for the page's
+// language, and data-et/data-en hold a bilingual field, falling back to the other language
+// when one is missing.
+function applyContent(element: HTMLElement) {
+  const { date, et: estonian, en: english } = element.dataset
+  if (date) {
+    const format = new Intl.DateTimeFormat(pageLocale() === 'en' ? 'en-GB' : 'et-EE', {
+      dateStyle: 'medium',
+    })
+    element.textContent = format.format(new Date(date))
+  }
+  if (estonian !== undefined || english !== undefined) {
+    element.textContent = (pageLocale() === 'en' ? english || estonian : estonian || english) ?? ''
+  }
 }
 
 export function applyUi(root: ParentNode = document) {
   root.querySelectorAll<HTMLElement>('[data-icon]').forEach(applyIcon)
-  root.querySelectorAll<HTMLElement>('[data-t], [data-t-label]').forEach(applyText)
+  root.querySelectorAll<HTMLElement>('[data-t], [data-t-label], [data-t-placeholder]').forEach(applyText)
+  root.querySelectorAll<HTMLElement>('[data-date], [data-et], [data-en]').forEach(applyContent)
   root.querySelectorAll<HTMLElement>('[data-slot]').forEach(applySlot)
 }
 
