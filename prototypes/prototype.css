@@ -1,0 +1,2 @@
+/* The app's theme; Tailwind adds the classes the prototype pages and prototypes/lib use. */
+@import '../src/styles.css';

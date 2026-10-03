@@ -27,3 +27,6 @@ datamodel/*.chartdb.json
 
 # Paraglide output, compiled from messages/ (bun run i18n:compile)
 src/paraglide/
+
+# Built by `bun run prototypes:build`.
+prototypes/build/

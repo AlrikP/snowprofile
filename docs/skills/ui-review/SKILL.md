@@ -120,8 +120,11 @@ for five minutes has a log full of noise unrelated to the bug.
 - Empty, populated, long-content, validation, disabled, loading, and error states.
 - Dialogs, popovers, and dropdowns: open and closed, keyboard focus containment, Escape behavior,
   focus returning to the trigger.
-- Keyboard access and obvious accessibility problems; `agent-browser a11y --tags wcag2a,wcag2aa`
-  for an axe-core pass.
+- Keyboard access and obvious accessibility problems. agent-browser has no axe command; load
+  axe-core as an init script (`npm pack axe-core` into the scratch directory) and run it:
+  `agent-browser --session <name> --init-script <scratch>/package/axe.min.js open <url>`, then
+  `agent-browser eval "axe.run(document, {runOnly: ['wcag2a', 'wcag2aa']}).then(r => r.violations)"`.
+  axe logs "Couldn't load preload assets" warnings; they aren't the page's.
 - Light and dark mode, if the project has both.
 
 Inspect screenshots after transitions settle. A shot taken right after closing a dialog or

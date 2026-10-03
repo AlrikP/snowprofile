@@ -14,6 +14,7 @@
     "db:verify": "bun scripts/db-verify.ts",
     "db:drift": "bun scripts/db-drift.ts",
     "db:seed": "bun scripts/db-seed.ts",
+    "prototypes:build": "bun scripts/prototypes-build.ts",
     "datamodel": "bun run datamodel:build && docker compose -f datamodel/docker-compose.yml up -d && echo 'ChartDB: http://localhost:8080 (Import > .json > datamodel/snowprofile.chartdb.json)'",
     "datamodel:build": "bun datamodel/dbml-to-chartdb.mjs",
     "datamodel:stop": "docker compose -f datamodel/docker-compose.yml down",
@@ -57,6 +58,7 @@
   "devDependencies": {
     "@inlang/paraglide-js": "2.25.4",
     "@inlang/plugin-message-format": "4.4.0",
+    "@tailwindcss/cli": "4.3.3",
     "@tailwindcss/typography": "0.5.20",
     "@tanstack/devtools-vite": "0.8.5",
     "@testing-library/dom": "10.4.2",

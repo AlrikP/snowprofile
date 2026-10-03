@@ -44,6 +44,7 @@ the server.
 | `bun run db:drift`           | Fails if `src/db/schema.ts` no longer matches the migrations                 |
 | `bun run db:verify`          | Fails if an applied migration was edited or deleted                          |
 | `bun run db:seed`            | Adds missing demo organizations locally; `--reset <slug>` redoes one         |
+| `bun run prototypes:build`   | Builds the UI prototypes into `prototypes/build/`; `--watch` rebuilds        |
 | `bun run test`               | Compiles messages, then runs `test:server` and `test:components`             |
 | `bun run test:server`        | Server and database tests (`*.test.ts`), in random order; it prints `--seed` |
 | `bun run test:components`    | Component tests (`*.test.tsx`) with Vitest in jsdom                          |

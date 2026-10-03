@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="et">
+  <head>
+    <title>Sign-in · snowprofile prototype</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="build/prototype.css" />
+    <script src="build/icons.js"></script>
+    <script src="build/prototype.js"></script>
+  </head>
+  <body
+    data-states="demo:Demo mode|wrong:Wrong password|google:Google only|domain:Refused domain|none:No method"
+  >
+    <main class="flex min-h-svh flex-col items-center p-6 pt-12 md:justify-center md:p-10">
+      <div class="flex w-full max-w-sm flex-col gap-6">
+        <div class="flex items-center justify-between gap-4">
+          <span class="flex items-center gap-2 font-semibold">
+            <span class="flex size-6 items-center justify-center rounded-md bg-primary text-xs text-primary-foreground">sp</span>
+            <span data-t="app_name"></span>
+          </span>
+          <div role="group" class="flex gap-1" data-t-label="language_label">
+            <a data-locale="et" data-slot="button" data-size="sm" lang="et">Eesti</a>
+            <a data-locale="en" data-slot="button" data-size="sm" lang="en">English</a>
+          </div>
+        </div>
+
+        <div data-slot="card">
+          <div data-slot="card-header" class="text-center">
+            <h1 data-slot="card-title" class="text-xl" data-t="sign_in_title"></h1>
+          </div>
+          <div data-slot="card-content" class="flex flex-col gap-6">
+            <section data-slot="alert" data-show-in="demo wrong" data-t-label="sign_in_demo_label">
+              <i data-icon="TriangleAlertIcon"></i>
+              <h2 data-slot="alert-title" data-t="sign_in_demo_label"></h2>
+              <div data-slot="alert-description">
+                <p data-t="sign_in_demo_notice"></p>
+                <p>
+                  <span
+                    data-t="sign_in_demo_accounts"
+                    data-t-params='{"emails": "admin@demo.example.com [[sign_in_demo_accounts_or]] employee@demo.example.com"}'
+                  ></span>
+                  <code class="rounded bg-muted px-1 font-mono whitespace-nowrap text-foreground">snowprofile-demo</code>.
+                </p>
+              </div>
+            </section>
+
+            <div data-slot="alert" data-variant="destructive" role="alert" data-show-in="domain">
+              <i data-icon="TriangleAlertIcon"></i>
+              <div data-slot="alert-description" data-t="sign_in_error_domain"></div>
+            </div>
+
+            <a href="frame.html" data-slot="button" class="w-full" data-show-in="google domain" data-t="sign_in_google"></a>
+
+            <form action="frame.html" class="flex flex-col gap-4" data-show-in="demo wrong">
+              <div class="flex flex-col gap-2">
+                <label data-slot="label" for="email" data-t="sign_in_email"></label>
+                <input data-slot="input" id="email" type="email" autocomplete="username" required value="admin@demo.example.com" />
+              </div>
+              <div class="flex flex-col gap-2">
+                <label data-slot="label" for="password" data-t="sign_in_password"></label>
+                <input data-slot="input" id="password" type="password" autocomplete="current-password" required value="snowprofile-demo" />
+              </div>
+              <p role="alert" class="text-sm text-destructive" data-show-in="wrong" data-t="sign_in_wrong_password"></p>
+              <button data-slot="button" type="submit" class="w-full" data-t="sign_in_submit"></button>
+            </form>
+
+            <p class="text-center text-sm text-muted-foreground" data-show-in="none" data-t="sign_in_no_methods"></p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

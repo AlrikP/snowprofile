@@ -1,6 +1,6 @@
 # 011: UI prototypes
 
-Status: todo
+Status: in-progress
 Depends on: task cr-001 (fixes from the review of tasks 001–010)
 
 Static HTML prototypes of each MVP view, built with the classes of shadcn and Tailwind so
