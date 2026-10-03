@@ -255,8 +255,14 @@ What the import must handle (`Snowhound_CV_baas.xlsx`):
   hiding the form isn't the guard. Password sign-up is always off: password accounts
   exist only in seeded data. `src/server/auth/sign-in.server.ts` holds these rules, and
   both the auth instance and the sign-in page build from it.
-- The seeder (`bun run db:seed`) refuses a database that isn't a local file, and a
-  production stack unless `DEMO_MODE` is on. It adds only the demo organizations the
+- With `DEMO_MODE` on, Better Auth's self-service account endpoints return 404 (password,
+  email, and profile changes, account linking and deletion, and signing out other
+  sessions). The seeded accounts are shared and their password is published, so one
+  visitor must not lock the others out.
+- The seeder (`bun run db:seed`) refuses a database that isn't a local file, an
+  environment where `DEMO_MODE` is off by the rule above (so `.env.development` turns it
+  on, because Bun leaves `NODE_ENV` unset for scripts), and a database that holds any
+  organization that isn't a demo one. It adds only the demo organizations the
   database lacks, so it never overwrites data; `--reset <slug>` replaces one demo
   organization's data and leaves the others alone. Users are kept on reset, because users
   are never hard-deleted.

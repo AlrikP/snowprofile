@@ -17,6 +17,27 @@ export function passwordSignInEnabled(config: SignInConfig): boolean {
   return config.DEMO_MODE
 }
 
+// Demo accounts are shared, and the sign-in page publishes their password, so in demo mode
+// nobody may change, take over, or delete one, or sign the others out.
+const demoDisabledPaths = [
+  '/change-email',
+  '/change-password',
+  '/delete-user',
+  '/delete-user/callback',
+  '/link-social',
+  '/request-password-reset',
+  '/reset-password',
+  '/revoke-other-sessions',
+  '/revoke-sessions',
+  '/unlink-account',
+  '/update-user',
+]
+
+// Better Auth's disabledPaths option. It applies to HTTP requests only, not to auth.api.
+export function disabledPaths(config: SignInConfig): string[] {
+  return config.DEMO_MODE ? demoDisabledPaths : []
+}
+
 // Better Auth's socialProviders option. src/env.ts refuses a half-set client.
 export function socialProviders(config: SignInConfig) {
   if (config.DEMO_MODE || !config.GOOGLE_CLIENT_ID || !config.GOOGLE_CLIENT_SECRET) return {}

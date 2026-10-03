@@ -1,25 +1,34 @@
 // Seeds the database with demo data (src/db/seed.ts): adds the demo organizations it
 // doesn't have yet and leaves existing ones as they are. With --reset <slug>, it replaces
 // that one demo organization's data instead. Refuses anything but a local file database,
-// and a production stack unless DEMO_MODE is on (docs/architecture.md, "Sign-in modes").
+// an environment where DEMO_MODE is off, and a database that holds any organization that
+// isn't a demo one (docs/architecture.md, "Sign-in modes").
 //
 // Usage: bun run db:seed                 (after bun run db:migrate)
 //        bun run db:seed --reset demo
 
 import { drizzle } from 'drizzle-orm/libsql'
 import { parseArgs } from 'node:util'
+import type { Database } from '#/db'
 import { openClient } from '#/db/connection'
 import { relations } from '#/db/relations'
-import { SEED_PASSWORD, resetOrganization, seed, seedUsers } from '#/db/seed'
+import { SEED_PASSWORD, nonDemoOrganizations, resetOrganization, seed, seedUsers } from '#/db/seed'
+import { demoModeOn } from '#/lib/demo-mode'
 
 export function seedRefusal(source: Record<string, string | undefined>): string | null {
   if (!source.DATABASE_URL?.startsWith('file:')) {
     return `Refusing to seed ${source.DATABASE_URL ?? '(no DATABASE_URL)'}: local file databases only.`
   }
-  if (source.NODE_ENV === 'production' && source.DEMO_MODE !== 'true') {
-    return 'Refusing to seed a production stack without DEMO_MODE=true.'
+  if (!demoModeOn(source)) {
+    return 'Refusing to seed with DEMO_MODE off. Set DEMO_MODE=true, or NODE_ENV=development.'
   }
   return null
+}
+
+export async function databaseRefusal(db: Database): Promise<string | null> {
+  const others = await nonDemoOrganizations(db)
+  if (others.length === 0) return null
+  return `Refusing to seed a database with organizations that aren't demo ones: ${others.join(', ')}.`
 }
 
 if (import.meta.main) {
@@ -32,6 +41,11 @@ if (import.meta.main) {
   const { values } = parseArgs({ options: { reset: { type: 'string' } } })
   const url = process.env.DATABASE_URL ?? ''
   const db = drizzle({ client: openClient({ url }), relations })
+  const databaseRefused = await databaseRefusal(db)
+  if (databaseRefused) {
+    console.error(`[db-seed] ${databaseRefused}`)
+    process.exit(1)
+  }
 
   if (values.reset) {
     try {

@@ -221,6 +221,16 @@ async function addSeedUsers(db: Executor, passwordHash: string) {
   )
 }
 
+// The slugs of organizations that aren't demo ones. The seeder refuses a database that has
+// any, because it holds real data.
+export async function nonDemoOrganizations(db: Database): Promise<string[]> {
+  const demoIds = new Set(demoOrganizations.map((spec) => spec.id))
+  const rows = await db
+    .select({ id: schema.organization.id, slug: schema.organization.slug })
+    .from(schema.organization)
+  return rows.filter((row) => !demoIds.has(row.id)).map((row) => row.slug)
+}
+
 // Adds the dev users and the demo organizations the database doesn't have yet. An
 // organization that exists stays as it is, with whatever changes it has.
 export async function seed(db: Database, seedValue = DEMO_SEED) {

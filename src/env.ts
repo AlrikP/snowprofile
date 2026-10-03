@@ -1,4 +1,5 @@
 import * as v from 'valibot'
+import { demoModeOn } from './lib/demo-mode'
 import { parseLoginDomains } from './lib/login-domains'
 
 const nonEmpty = v.pipe(v.string(), v.minLength(1))
@@ -31,7 +32,7 @@ export function parseEnv(source: Record<string, string | undefined>) {
   const parsed = v.parse(EnvSchema, withoutEmpty(source))
   const env = {
     ...parsed,
-    DEMO_MODE: parsed.DEMO_MODE ? parsed.DEMO_MODE === 'true' : parsed.NODE_ENV !== 'production',
+    DEMO_MODE: demoModeOn(parsed),
     ALLOWED_LOGIN_DOMAINS: parsed.ALLOWED_LOGIN_DOMAINS ?? [],
   }
   if (Boolean(env.GOOGLE_CLIENT_ID) !== Boolean(env.GOOGLE_CLIENT_SECRET)) {

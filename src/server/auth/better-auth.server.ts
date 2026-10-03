@@ -8,7 +8,12 @@ import * as schema from '#/db/schema'
 import { env } from '#/env'
 import { ac, roles } from '#/lib/permissions'
 import { loginPolicyHooks } from './login-policy.server'
-import { passwordSignInEnabled, type SignInConfig, socialProviders } from './sign-in.server'
+import {
+  disabledPaths,
+  passwordSignInEnabled,
+  type SignInConfig,
+  socialProviders,
+} from './sign-in.server'
 
 // A factory, so tests run the same configuration against their own database and settings.
 export function createAuth(database: Database, config: SignInConfig = env) {
@@ -23,6 +28,7 @@ export function createAuth(database: Database, config: SignInConfig = env) {
       disableSignUp: true,
     },
     socialProviders: socialProviders(config),
+    disabledPaths: disabledPaths(config),
     databaseHooks: loginPolicyHooks(config.ALLOWED_LOGIN_DOMAINS),
     plugins: [
       organization({

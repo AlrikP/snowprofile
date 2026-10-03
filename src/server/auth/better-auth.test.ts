@@ -112,3 +112,31 @@ test('an admin cannot delete the organization', async () => {
     )
   expect(error).toBeInstanceOf(Error)
 })
+
+test('in demo mode, a visitor cannot change a shared account', async () => {
+  const { headers } = await signUp('demo-visitor')
+  headers.set('origin', 'http://localhost:3000')
+  headers.set('content-type', 'application/json')
+  async function post(path: string, body: object) {
+    const request = new Request(`http://localhost:3000/api/auth${path}`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(body),
+    })
+    return (await auth.handler(request)).status
+  }
+
+  expect(
+    await post('/change-password', {
+      currentPassword: 'correct-horse-battery',
+      newPassword: 'taken-over-password',
+    }),
+  ).toBe(404)
+  expect(await post('/update-user', { name: 'Renamed' })).toBe(404)
+
+  const signIn = await auth.api.signInEmail({
+    body: { email: 'demo-visitor@example.com', password: 'correct-horse-battery' },
+    asResponse: true,
+  })
+  expect(signIn.status).toBe(200)
+})
