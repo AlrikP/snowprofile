@@ -1,11 +1,11 @@
 // Builds prototypes/build/ (prototypes/README.md): the CSS from the app's src/styles.css
-// with the classes prototypes/ uses, the page script from prototypes/lib/, and the icons
-// that prototypes/lib/icons.ts names, rendered to SVG. With --watch, the CSS and the
+// with the classes prototypes/ uses and its font files, the page script from
+// prototypes/lib/, and the icons that prototypes/lib/icons.ts names, rendered to SVG. With --watch, the CSS and the
 // script rebuild on change; the icons only on start.
 //
 // Usage: bun run prototypes:build [--watch]
 
-import { mkdirSync, writeFileSync } from 'node:fs'
+import { copyFileSync, mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { parseArgs } from 'node:util'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
@@ -20,6 +20,18 @@ const svgs = Object.fromEntries(
   Object.entries(icons).map(([name, icon]) => [name, renderToStaticMarkup(createElement(icon))]),
 )
 writeFileSync(`${out}/icons.js`, `window.prototypeIcons = ${JSON.stringify(svgs)}\n`)
+
+// The CSS inlines @fontsource's font faces, whose URLs point at ./files/ beside it.
+rmSync(`${out}/files`, { recursive: true, force: true })
+mkdirSync(`${out}/files`, { recursive: true })
+for (const family of ['roboto', 'barlow-condensed']) {
+  const files = `node_modules/@fontsource/${family}/files`
+  for (const file of readdirSync(files).filter((name) =>
+    /-(400|500|600|700)-normal\.woff2$/.test(name),
+  )) {
+    copyFileSync(`${files}/${file}`, `${out}/files/${file}`)
+  }
+}
 
 // Tailwind scans the folder it runs in, so only the prototypes' classes reach the CSS.
 const css = Bun.spawn(

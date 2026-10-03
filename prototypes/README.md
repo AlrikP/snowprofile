@@ -23,12 +23,12 @@ desktop and phone widths.
 
 | Piece                                  | Role                                                                                                         |
 | -------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| [`prototype.css`](prototype.css)       | Imports the app's `src/styles.css`; the Tailwind CLI adds the classes used in `prototypes/`                  |
+| [`prototype.css`](prototype.css)       | Imports the app's `src/styles.css`, with Snowhound's colors and fonts; the Tailwind CLI adds the classes used in `prototypes/` |
 | [`lib/ui.ts`](lib/ui.ts)               | shadcn component classes by `data-slot`, merged with the app's `cn`; texts; menu placement                   |
 | [`lib/frame.ts`](lib/frame.ts)         | The app frame (navigation, organization switcher, user menu) and the prototype bar                           |
 | [`lib/messages.ts`](lib/messages.ts)   | Texts the app doesn't have yet, as proposed Paraglide messages; the rest come from `messages/`               |
 | [`lib/icons.ts`](lib/icons.ts)         | The Lucide icons pages use; the build renders them to SVG from `lucide-react`                                |
-| `scripts/prototypes-build.ts`          | Builds `build/prototype.css`, `build/prototype.js`, and `build/icons.js`                                     |
+| `scripts/prototypes-build.ts`          | Builds `build/prototype.css` with its font files, `build/prototype.js`, and `build/icons.js`                 |
 
 Every page loads the same three files in `<head>`:
 
@@ -77,4 +77,5 @@ and role.
 - `<body data-states="demo:Demo mode|google:Google only">` lists the page's states; the
   first is the default. An element with `data-show-in="demo google"` shows only in those.
 
-The data is fictional and follows the demo seed (`src/db/seed.ts`).
+The data is fictional and follows the demo seed (`src/db/seed.ts`). Pages show the
+Snowhound mark from `public/`, as the app will.

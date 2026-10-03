@@ -34,9 +34,14 @@ The inlang message-format plugin that compiles the messages is a pinned dev depe
 loaded from `node_modules` (`project.inlang/settings.json`), not from jsDelivr. Compiling
 messages then needs no network, and the lockfile checks the plugin like any package.
 
-The theme is shadcn's `zinc` tokens with the system font stack. The scaffold's own palette,
-background, and web fonts were removed on 2026-10-03: an admin tool for tabular data
-gains nothing from them, and pages then load no fonts from the network.
+The theme follows snowhound.eu, because the app can be opened from Snowhound's site and
+should look part of it: navy `#071535`, mint `#0ff4bd`, slate text `#506273`, pale blue
+`#eff7fb`, Roboto for text, and Barlow Condensed for headings. `src/styles.css` maps them
+onto shadcn's tokens. The sidebar is navy, as the site's header is, and mint fills
+buttons and marks the active item; mint never carries text or outlines on white, where its
+contrast is about 1.4:1. The fonts come from `@fontsource` packages served with the app,
+not from Google, so pages make no requests to Google. The Snowhound mark is
+`public/snowhound-mark.png`, copied from the site.
 
 ## Repository layout
 
@@ -58,6 +63,7 @@ gains nothing from them, and pages then load no fonts from the network.
 | `scripts/`             | Project scripts, such as `env-init.ts`                       |
 | `e2e/`                 | Playwright end-to-end tests (planned)                        |
 | `prototypes/`          | Static HTML prototypes (`prototypes/README.md`)              |
+| `public/`              | Files served as they are, such as the Snowhound mark         |
 | `deploy/compose/`      | Compose stack and Caddyfile for Hetzner (planned)            |
 | `docs/`                | Product scope, architecture, hosting, skills                 |
 | `tasks/`               | Task files (`tasks/README.md`)                               |

@@ -21,3 +21,4 @@ patterns rather than guesses.
 - [ ] A performance checks task is filed, following snowtime's `perf/` approach (bundle
       size, query plans, page weight, load, on seeded data at a fixed moment), to start
       once the first features exist.
+- [ ] Task 022 (dark mode) lists the feature tasks with views in its `Depends on`.

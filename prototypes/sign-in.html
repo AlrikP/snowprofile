@@ -11,27 +11,27 @@
   <body
     data-states="demo:Demo mode|wrong:Wrong password|google:Google only|domain:Refused domain|none:No method"
   >
-    <main class="flex min-h-svh flex-col items-center p-6 pt-12 md:justify-center md:p-10">
+    <main class="flex min-h-svh bg-sidebar flex-col items-center p-6 pt-12 md:justify-center md:p-10">
       <div class="flex w-full max-w-sm flex-col gap-6">
         <div class="flex items-center justify-between gap-4">
-          <span class="flex items-center gap-2 font-semibold">
-            <span class="flex size-6 items-center justify-center rounded-md bg-primary text-xs text-primary-foreground">sp</span>
-            <span data-t="app_name"></span>
+          <span class="flex items-center gap-2">
+            <img src="../public/snowhound-mark.png" alt="" class="size-9" />
+            <span class="font-heading text-3xl leading-none font-bold tracking-tight text-white" data-t="app_name"></span>
           </span>
           <div role="group" class="flex gap-1" data-t-label="language_label">
-            <a data-locale="et" data-slot="button" data-size="sm" lang="et">Eesti</a>
-            <a data-locale="en" data-slot="button" data-size="sm" lang="en">English</a>
+            <a data-locale="et" data-slot="button" data-size="sm" lang="et" class="text-white hover:bg-sidebar-accent hover:text-white aria-current:bg-sidebar-accent aria-current:text-sidebar-primary">Eesti</a>
+            <a data-locale="en" data-slot="button" data-size="sm" lang="en" class="text-white hover:bg-sidebar-accent hover:text-white aria-current:bg-sidebar-accent aria-current:text-sidebar-primary">English</a>
           </div>
         </div>
 
         <div data-slot="card">
           <div data-slot="card-header" class="text-center">
-            <h1 data-slot="card-title" class="text-xl" data-t="sign_in_title"></h1>
+            <h1 data-slot="card-title" class="text-2xl" data-t="sign_in_title"></h1>
           </div>
           <div data-slot="card-content" class="flex flex-col gap-6">
             <section data-slot="alert" data-show-in="demo wrong" data-t-label="sign_in_demo_label">
               <i data-icon="TriangleAlertIcon"></i>
-              <h2 data-slot="alert-title" data-t="sign_in_demo_label"></h2>
+              <div data-slot="alert-title" data-t="sign_in_demo_label"></div>
               <div data-slot="alert-description">
                 <p data-t="sign_in_demo_notice"></p>
                 <p>

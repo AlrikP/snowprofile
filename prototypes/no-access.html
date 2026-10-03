@@ -9,22 +9,22 @@
     <script src="build/prototype.js"></script>
   </head>
   <body>
-    <main class="flex min-h-svh flex-col items-center p-6 pt-12 md:justify-center md:p-10">
+    <main class="flex min-h-svh bg-sidebar flex-col items-center p-6 pt-12 md:justify-center md:p-10">
       <div class="flex w-full max-w-sm flex-col gap-6">
         <div class="flex items-center justify-between gap-4">
-          <span class="flex items-center gap-2 font-semibold">
-            <span class="flex size-6 items-center justify-center rounded-md bg-primary text-xs text-primary-foreground">sp</span>
-            <span data-t="app_name"></span>
+          <span class="flex items-center gap-2">
+            <img src="../public/snowhound-mark.png" alt="" class="size-9" />
+            <span class="font-heading text-3xl leading-none font-bold tracking-tight text-white" data-t="app_name"></span>
           </span>
           <div role="group" class="flex gap-1" data-t-label="language_label">
-            <a data-locale="et" data-slot="button" data-size="sm" lang="et">Eesti</a>
-            <a data-locale="en" data-slot="button" data-size="sm" lang="en">English</a>
+            <a data-locale="et" data-slot="button" data-size="sm" lang="et" class="text-white hover:bg-sidebar-accent hover:text-white aria-current:bg-sidebar-accent aria-current:text-sidebar-primary">Eesti</a>
+            <a data-locale="en" data-slot="button" data-size="sm" lang="en" class="text-white hover:bg-sidebar-accent hover:text-white aria-current:bg-sidebar-accent aria-current:text-sidebar-primary">English</a>
           </div>
         </div>
 
         <div data-slot="card">
           <div data-slot="card-header">
-            <h1 data-slot="card-title" class="text-xl" data-t="no_access_title"></h1>
+            <h1 data-slot="card-title" class="text-2xl" data-t="no_access_title"></h1>
             <p data-slot="card-description" data-t="no_access_body"></p>
           </div>
           <div data-slot="card-footer" class="flex-col items-start gap-4">

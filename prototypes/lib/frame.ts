@@ -106,7 +106,7 @@ function organizationMark(organization: Organization) {
 function organizationText(organization: Organization) {
   return `<span class="grid flex-1 text-left leading-tight">
     <span class="truncate font-medium">${organization.name}</span>
-    <span class="truncate text-xs text-muted-foreground" data-t="role_${organization.role}"></span>
+    <span class="truncate text-xs text-sidebar-foreground/70" data-t="role_${organization.role}"></span>
   </span>`
 }
 
@@ -159,7 +159,7 @@ function navigationGroups(prefix: string, page: string, role: Role) {
 
 function userMenu(prefix: string, role: Role) {
   const user = users[role]
-  const avatar = `<span data-slot="avatar" class="rounded-lg" aria-hidden="true"><span data-slot="avatar-fallback" class="rounded-lg">${initials(user.name)}</span></span>`
+  const avatar = `<span data-slot="avatar" class="rounded-lg" aria-hidden="true"><span data-slot="avatar-fallback" class="rounded-lg bg-sidebar-accent text-sidebar-accent-foreground">${initials(user.name)}</span></span>`
   const language = (locale: 'et' | 'en', name: string) => {
     const checked = pageLocale() === locale
     return `<a href="${withState('', { lang: locale })}" data-slot="dropdown-menu-radio-item"
@@ -175,7 +175,7 @@ function userMenu(prefix: string, role: Role) {
       <span class="sr-only" data-t="user_menu_label"></span>
       <span class="grid flex-1 text-left leading-tight">
         <span class="truncate font-medium">${user.name}</span>
-        <span class="truncate text-xs text-muted-foreground">${user.email}</span>
+        <span class="truncate text-xs text-sidebar-foreground/70">${user.email}</span>
       </span>
       <i data-icon="ChevronsUpDownIcon" class="ml-auto"></i>
     </button>
@@ -189,8 +189,17 @@ function userMenu(prefix: string, role: Role) {
     </div>`
 }
 
+// The product name in Snowhound's style, as on snowhound.eu's header.
+export function wordmark(size = 'text-2xl') {
+  return `<span class="flex items-center gap-2">
+    <img src="../public/snowhound-mark.png" alt="" class="size-8">
+    <span class="font-heading ${size} leading-none font-bold tracking-tight text-white" data-t="app_name"></span>
+  </span>`
+}
+
 function sidebar(prefix: string, page: string, role: Role) {
-  return `<div class="p-2">${organizationSwitcher(prefix, role)}</div>
+  return `<div class="px-4 pt-4 pb-2">${wordmark()}</div>
+    <div class="p-2">${organizationSwitcher(prefix, role)}</div>
     <div class="flex min-h-0 flex-1 flex-col overflow-y-auto">${navigationGroups(prefix, page, role)}</div>
     <div class="border-t border-sidebar-border p-2">${userMenu(prefix, role)}</div>`
 }
@@ -234,18 +243,21 @@ function startFrame(page: string, role: Role) {
       ${sidebar('d-', page, role)}
     </aside>
     <div class="flex min-w-0 flex-1 flex-col">
-      <header class="sticky top-(--prototype-bar) z-10 flex h-14 items-center gap-2 border-b bg-background px-4 md:hidden">
-        <button data-slot="button" data-variant="ghost" data-size="icon" class="-ml-2"
+      <header class="sticky top-(--prototype-bar) z-10 flex h-14 items-center gap-3 bg-sidebar px-4 text-sidebar-foreground md:hidden">
+        <button data-slot="button" data-variant="ghost" data-size="icon"
+          class="-ml-2 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
           commandfor="navigation-sheet" command="show-modal" data-t-label="nav_open_menu">
           <i data-icon="MenuIcon"></i>
         </button>
-        <span class="truncate font-semibold">${users[role].organizations[0]?.name}</span>
+        ${wordmark('text-xl')}
+        <span class="ml-auto truncate text-sm">${users[role].organizations[0]?.name}</span>
       </header>
     </div>
     <dialog id="navigation-sheet" data-slot="sheet-content" class="bg-sidebar text-sidebar-foreground"
       data-t-label="nav_menu">
       <div class="flex justify-end px-2 pt-2">
         <button data-slot="button" data-variant="ghost" data-size="icon-sm"
+          class="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
           commandfor="navigation-sheet" command="close" data-t-label="nav_close_menu">
           <i data-icon="XIcon"></i>
         </button>
