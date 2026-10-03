@@ -1,11 +1,9 @@
 // The app's database. Only repository modules import it; they apply the organization
 // scoping (docs/architecture.md, "Application rules"). Server code only.
-import { drizzle } from 'drizzle-orm/libsql'
 import { env } from '#/env'
-import { openClient } from './connection'
-import { relations } from './relations'
+import { openDatabase } from './connection'
 
-export const db = drizzle({ client: openClient({ url: env.DATABASE_URL }), relations })
+export const db = openDatabase(env.DATABASE_URL)
 
 export type Database = typeof db
 

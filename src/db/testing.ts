@@ -3,19 +3,13 @@
 // Throwaway file databases for tests, with every migration applied and, by default, the
 // demo seed loaded (src/db/seed.ts), as docs/architecture.md's "Environments and
 // deployment" table has it.
-import { drizzle } from 'drizzle-orm/libsql'
 import { migrate } from 'drizzle-orm/libsql/migrator'
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import type { Database } from '.'
-import { openClient } from './connection'
-import { relations } from './relations'
+import { openDatabase } from './connection'
 import { seed } from './seed'
-
-function openDatabase(path: string): Database {
-  return drizzle({ client: openClient({ url: `file:${path}` }), relations })
-}
 
 // Seeding hashes a password and inserts about 1,500 rows, so each test process seeds one
 // template, keeps its bytes, and writes them out for every seeded database.
@@ -26,7 +20,7 @@ function seededTemplate(): Promise<Buffer> {
     const dir = mkdtempSync(join(tmpdir(), 'snowprofile-template-'))
     try {
       const path = join(dir, 'template.db')
-      const db = openDatabase(path)
+      const db = openDatabase(`file:${path}`)
       await migrate(db, { migrationsFolder: 'drizzle' })
       await seed(db)
       db.$client.close()
@@ -47,7 +41,7 @@ export async function createTestDatabase({ seeded = true } = {}): Promise<{
   const dir = mkdtempSync(join(tmpdir(), 'snowprofile-test-'))
   const path = join(dir, 'test.db')
   if (seeded) writeFileSync(path, await seededTemplate())
-  const db = openDatabase(path)
+  const db = openDatabase(`file:${path}`)
   if (!seeded) await migrate(db, { migrationsFolder: 'drizzle' })
   return {
     db,

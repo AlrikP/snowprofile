@@ -4,7 +4,7 @@ import { createClient } from '@libsql/client'
 import { afterAll, beforeAll, expect, test } from 'bun:test'
 import { sql } from 'drizzle-orm'
 import type { Database } from '.'
-import { createTestDatabase } from './testing'
+import { createTestDatabase, failure } from './testing'
 
 let db: Database
 let url: string
@@ -96,4 +96,21 @@ test('a rolled-back transaction ends its turn', async () => {
 
   await db.run(sql`INSERT INTO rolled_back VALUES ('after rollback')`)
   expect(await committed('rolled_back')).toEqual(['after rollback'])
+})
+
+test('using the database inside its own transaction throws, and later statements run', async () => {
+  await db.run(sql`CREATE TABLE inside (v TEXT)`)
+  const errors = await db.transaction(async (tx) => {
+    await tx.run(sql`INSERT INTO inside VALUES ('through the handle')`)
+    const statement = await failure(() => db.run(sql`INSERT INTO inside VALUES ('client')`))
+    const nested = await failure(() => db.transaction(async () => {}))
+    return [statement, nested]
+  })
+  expect(errors).toEqual([
+    expect.stringContaining('transaction handle'),
+    expect.stringContaining('transaction handle'),
+  ])
+
+  await db.run(sql`INSERT INTO inside VALUES ('after it')`)
+  expect(await committed('inside')).toEqual(['through the handle', 'after it'])
 })

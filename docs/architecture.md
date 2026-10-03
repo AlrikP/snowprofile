@@ -225,7 +225,8 @@ What the import must handle (`Snowhound_CV_baas.xlsx`):
   form, keep it inside the repository or migration and note it in a comment there.
 - **One SQLite writer.** Statements queue while a transaction is open, so concurrent
   requests never fail on SQLite's write lock (`src/db/connection.ts`, after snowtime's
-  task 043). Code inside a transaction uses its handle, never the client.
+  task 043). Code inside a transaction uses its handle, never the client; the client
+  throws if it's used there, instead of waiting for the transaction forever.
 - **No stored files:** CVs are generated on request. Background work, if ever needed,
   runs in the app process.
 - **No hosting-platform SDKs or services in app code.**

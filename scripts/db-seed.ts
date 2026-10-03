@@ -7,11 +7,9 @@
 // Usage: bun run db:seed                 (after bun run db:migrate)
 //        bun run db:seed --reset demo
 
-import { drizzle } from 'drizzle-orm/libsql'
 import { parseArgs } from 'node:util'
 import type { Database } from '#/db'
-import { openClient } from '#/db/connection'
-import { relations } from '#/db/relations'
+import { openDatabase } from '#/db/connection'
 import { SEED_PASSWORD, nonDemoOrganizations, resetOrganization, seed, seedUsers } from '#/db/seed'
 import { demoModeOn } from '#/lib/demo-mode'
 
@@ -40,7 +38,7 @@ if (import.meta.main) {
 
   const { values } = parseArgs({ options: { reset: { type: 'string' } } })
   const url = process.env.DATABASE_URL ?? ''
-  const db = drizzle({ client: openClient({ url }), relations })
+  const db = openDatabase(url)
   const databaseRefused = await databaseRefusal(db)
   if (databaseRefused) {
     console.error(`[db-seed] ${databaseRefused}`)
