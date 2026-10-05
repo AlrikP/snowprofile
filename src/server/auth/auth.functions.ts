@@ -51,3 +51,4 @@ export const getFrame = createServerFn({ method: 'GET' })
   })
 
 export type Frame = NonNullable<Awaited<ReturnType<typeof getFrame>>>
+export type Membership = Frame['organizations'][number]

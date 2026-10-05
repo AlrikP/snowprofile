@@ -62,7 +62,7 @@ const navigation: Record<Role, { label?: string; items: NavItem[] }[]> = {
   employee: [{ items: [profile, projects, technologies] }],
 }
 
-export function pageRole(): Role {
+function pageRole(): Role {
   return new URLSearchParams(location.search).get('role') === 'employee' ? 'employee' : 'admin'
 }
 
@@ -171,7 +171,7 @@ function navigationGroups(prefix: string, page: string, role: Role) {
 function userMenu(prefix: string, role: Role) {
   const user = users[role]
   const avatar = `<span data-slot="avatar" class="rounded-lg" aria-hidden="true"><span data-slot="avatar-fallback" class="rounded-lg bg-sidebar-accent text-sidebar-accent-foreground">${initials(user.name)}</span></span>`
-  const language = (locale: 'et' | 'en', name: string) => {
+  function language(locale: 'et' | 'en', name: string) {
     const checked = pageLocale() === locale
     return `<a href="${withState('', { lang: locale })}" data-slot="dropdown-menu-radio-item"
         role="menuitemradio" aria-checked="${checked}" lang="${locale}">
@@ -201,7 +201,7 @@ function userMenu(prefix: string, role: Role) {
 }
 
 // The product name in Snowhound's style, as on snowhound.eu's header.
-export function wordmark(size = 'text-2xl') {
+function wordmark(size = 'text-2xl') {
   return `<span class="flex items-center gap-2">
     <img src="../public/snowhound-mark.png" alt="" class="size-8">
     <span class="font-heading ${size} leading-none font-bold tracking-tight text-white" data-t="app_name"></span>
@@ -216,7 +216,7 @@ function sidebar(prefix: string, page: string, role: Role) {
 }
 
 // Controls for the prototype's own state, kept visibly apart from the app.
-export function prototypeBar(controls: { param: string; label: string; options: Record<string, string> }[]) {
+function prototypeBar(controls: { param: string; label: string; options: Record<string, string> }[]) {
   const params = new URLSearchParams(location.search)
   const groups = [
     { param: 'lang', label: 'Language', options: { et: 'ET', en: 'EN' } },

@@ -105,12 +105,13 @@ describe('organization consistency', () => {
   test('links reach only rows of their own organization', async () => {
     const projectId = await addProject()
     // Awaited inside the actor's scope: a Drizzle query runs only when awaited.
-    const link = (insert: () => Promise<unknown>) =>
-      failure(() =>
+    function link(insert: () => Promise<unknown>) {
+      return failure(() =>
         asSystem(async () => {
           await insert()
         }),
       )
+    }
 
     expect(
       await link(() =>

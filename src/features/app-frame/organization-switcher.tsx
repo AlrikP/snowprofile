@@ -7,7 +7,7 @@ import {
   DropdownMenuTrigger,
 } from '#/components/ui/dropdown-menu'
 import { m } from '#/paraglide/messages.js'
-import type { Membership } from '#/server/organizations/organizations.server'
+import type { Membership } from '#/server/auth/auth.functions'
 import { sidebarButton } from './sidebar-button'
 
 export function initials(name: string) {

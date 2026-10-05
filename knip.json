@@ -1,0 +1,24 @@
+{
+  "$schema": "./node_modules/knip/schema.json",
+  "entry": [
+    "src/server-entry.ts",
+    "scripts/*.ts",
+    "e2e/**/*.{setup,e2e}.ts",
+    "prototypes/lib/main.ts",
+    "prototypes/lib/icons.ts",
+    "prototypes/prototype.css"
+  ],
+  "project": [
+    "src/**/*.{ts,tsx,css}",
+    "scripts/**/*.ts",
+    "e2e/**/*.ts",
+    "prototypes/lib/**/*.ts",
+    "prototypes/*.css"
+  ],
+  "ignore": ["src/components/ui/**"],
+  "ignoreDependencies": ["@inlang/plugin-message-format", "@tailwindcss/cli"],
+  "ignoreIssues": {
+    "src/db/schema.ts": ["exports"]
+  },
+  "drizzle": false
+}

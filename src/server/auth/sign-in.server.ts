@@ -46,7 +46,7 @@ export function socialProviders(config: SignInConfig) {
   }
 }
 
-export function signInMethods(config: SignInConfig): SignInMethod[] {
+function signInMethods(config: SignInConfig): SignInMethod[] {
   const methods: SignInMethod[] = []
   if (socialProviders(config).google) methods.push('google')
   if (passwordSignInEnabled(config)) methods.push('password')

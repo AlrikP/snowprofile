@@ -13,6 +13,20 @@ pre-commit:
       run: ./node_modules/.bin/oxfmt --no-error-on-unmatched-pattern {staged_files}
       stage_fixed: true
 
+    # Whole-repository checks: an import or a removed export in one staged file can break
+    # another file. Each takes about a second or less.
+    - name: imports
+      glob: '*.{ts,tsx}'
+      run: bun run imports:check
+
+    - name: icons
+      glob: '*.{ts,tsx}'
+      run: bun run icons:check
+
+    - name: knip
+      glob: '*.{js,mjs,ts,tsx,css,json}'
+      run: bun run knip
+
     # Installed with Homebrew (README), needed only by commits that change a workflow.
     - name: actionlint
       glob: '.github/workflows/*.{yml,yaml}'

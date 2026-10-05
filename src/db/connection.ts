@@ -22,7 +22,7 @@ export function openDatabase(url: string) {
   return db
 }
 
-export function openClient(config: Config): Client {
+function openClient(config: Config): Client {
   return oneAtATime(createClient({ ...config, timeout: BUSY_TIMEOUT_MS }))
 }
 

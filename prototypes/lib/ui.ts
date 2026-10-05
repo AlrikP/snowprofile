@@ -164,7 +164,7 @@ const texts: Record<string, string> = {
   ...prototypeMessages[pageLocale()],
 }
 
-export function t(key: string, params: Record<string, string> = {}): string {
+function t(key: string, params: Record<string, string> = {}): string {
   const text = texts[key] ?? `[${key}]`
   return text.replace(/\{(\w+)\}/g, (_, name: string) => params[name] ?? `{${name}}`)
 }
@@ -254,7 +254,7 @@ function applyContent(element: HTMLElement) {
   }
 }
 
-export function applyUi(root: ParentNode = document) {
+function applyUi(root: ParentNode = document) {
   root.querySelectorAll<HTMLElement>('[data-icon]').forEach(applyIcon)
   root.querySelectorAll<HTMLElement>('[data-t], [data-t-label], [data-t-placeholder]').forEach(applyText)
   root

@@ -92,14 +92,15 @@ const cases: Record<string, () => Promise<void>> = {
   },
   'profiles.insertUpdateRequest': async () => {
     const before = await bRequests()
-    const insert = () =>
-      withActor(scopeA.userId, () =>
+    function insert() {
+      return withActor(scopeA.userId, () =>
         profiles.insertUpdateRequest(db, scopeA, {
           id: uuidv7(),
           profileId: b.profileId,
           message: null,
         }),
       )
+    }
     expect(await failure(insert)).toContain('FOREIGN KEY')
     expect(await bRequests()).toBe(before)
   },

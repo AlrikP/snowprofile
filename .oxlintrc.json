@@ -10,7 +10,200 @@
   },
   "rules": {
     "react/rules-of-hooks": "error",
-    "react/exhaustive-deps": "error"
+    "react/exhaustive-deps": "error",
+    "func-style": ["error", "declaration"],
+    "no-restricted-imports": [
+      "error",
+      {
+        "patterns": [
+          {
+            "group": ["#/features/**"],
+            "message": "Features don't import from each other: only routes and src/router.tsx import a feature (AGENTS.md, \"Code conventions\")."
+          },
+          {
+            "group": ["**/*.server", "*.server"],
+            "message": "Server-only code: client code imports a domain's *.functions.ts and *.schemas.ts instead (AGENTS.md, \"Code conventions\")."
+          },
+          {
+            "group": ["#/server/middleware", "./middleware", "../middleware"],
+            "message": "Only *.functions.ts import the middleware (AGENTS.md, \"Code conventions\")."
+          },
+          {
+            "group": ["drizzle-orm/*"],
+            "message": "Only repositories (*.repository.server.ts) query the database (AGENTS.md, \"Code conventions\")."
+          }
+        ],
+        "paths": [
+          {
+            "name": "drizzle-orm",
+            "message": "Only repositories (*.repository.server.ts) query the database (AGENTS.md, \"Code conventions\")."
+          },
+          {
+            "name": "#/db/schema",
+            "message": "Only repositories (*.repository.server.ts) query the database (AGENTS.md, \"Code conventions\")."
+          }
+        ]
+      }
+    ]
   },
-  "ignorePatterns": ["src/routeTree.gen.ts", "src/paraglide/**"]
+  "ignorePatterns": ["src/routeTree.gen.ts", "src/paraglide/**"],
+  "overrides": [
+    {
+      "files": ["src/routes/**", "src/router.tsx"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["**/*.server", "*.server"],
+                "message": "Server-only code: client code imports a domain's *.functions.ts and *.schemas.ts instead (AGENTS.md, \"Code conventions\")."
+              },
+              {
+                "group": ["#/server/middleware", "./middleware", "../middleware"],
+                "message": "Only *.functions.ts import the middleware (AGENTS.md, \"Code conventions\")."
+              },
+              {
+                "group": ["drizzle-orm/*"],
+                "message": "Only repositories (*.repository.server.ts) query the database (AGENTS.md, \"Code conventions\")."
+              }
+            ],
+            "paths": [
+              {
+                "name": "drizzle-orm",
+                "message": "Only repositories (*.repository.server.ts) query the database (AGENTS.md, \"Code conventions\")."
+              },
+              {
+                "name": "#/db/schema",
+                "message": "Only repositories (*.repository.server.ts) query the database (AGENTS.md, \"Code conventions\")."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["src/routes/api/**", "src/server/**", "src/server-entry.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["#/features/**"],
+                "message": "Features don't import from each other: only routes and src/router.tsx import a feature (AGENTS.md, \"Code conventions\")."
+              },
+              {
+                "group": ["#/server/middleware", "./middleware", "../middleware"],
+                "message": "Only *.functions.ts import the middleware (AGENTS.md, \"Code conventions\")."
+              },
+              {
+                "group": ["drizzle-orm/*"],
+                "message": "Only repositories (*.repository.server.ts) query the database (AGENTS.md, \"Code conventions\")."
+              }
+            ],
+            "paths": [
+              {
+                "name": "drizzle-orm",
+                "message": "Only repositories (*.repository.server.ts) query the database (AGENTS.md, \"Code conventions\")."
+              },
+              {
+                "name": "#/db/schema",
+                "message": "Only repositories (*.repository.server.ts) query the database (AGENTS.md, \"Code conventions\")."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["src/server/**/*.functions.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["#/features/**"],
+                "message": "Features don't import from each other: only routes and src/router.tsx import a feature (AGENTS.md, \"Code conventions\")."
+              },
+              {
+                "group": ["drizzle-orm/*"],
+                "message": "Only repositories (*.repository.server.ts) query the database (AGENTS.md, \"Code conventions\")."
+              }
+            ],
+            "paths": [
+              {
+                "name": "drizzle-orm",
+                "message": "Only repositories (*.repository.server.ts) query the database (AGENTS.md, \"Code conventions\")."
+              },
+              {
+                "name": "#/db/schema",
+                "message": "Only repositories (*.repository.server.ts) query the database (AGENTS.md, \"Code conventions\")."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["src/server/**/*.repository.server.ts", "src/server/auth/better-auth.server.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["#/features/**"],
+                "message": "Features don't import from each other: only routes and src/router.tsx import a feature (AGENTS.md, \"Code conventions\")."
+              },
+              {
+                "group": ["#/server/middleware", "./middleware", "../middleware"],
+                "message": "Only *.functions.ts import the middleware (AGENTS.md, \"Code conventions\")."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["src/db/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["#/features/**"],
+                "message": "Features don't import from each other: only routes and src/router.tsx import a feature (AGENTS.md, \"Code conventions\")."
+              },
+              {
+                "group": ["#/server/middleware", "./middleware", "../middleware"],
+                "message": "Only *.functions.ts import the middleware (AGENTS.md, \"Code conventions\")."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "**/*.test.ts",
+        "**/*.test.tsx",
+        "scripts/**",
+        "e2e/**",
+        "prototypes/**",
+        "*.config.ts"
+      ],
+      "rules": {
+        "no-restricted-imports": "off"
+      }
+    },
+    {
+      "files": ["src/components/ui/**"],
+      "rules": {
+        "func-style": "off"
+      }
+    }
+  ]
 }

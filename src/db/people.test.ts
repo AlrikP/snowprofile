@@ -187,8 +187,8 @@ describe('periods and dates', () => {
   })
 
   test('education may have no dates, but an end needs a valid start', async () => {
-    const addEducation = (values: Partial<typeof education.$inferInsert>) =>
-      write(() =>
+    function addEducation(values: Partial<typeof education.$inferInsert>) {
+      return write(() =>
         db.insert(education).values({
           id: uuidv7(),
           organizationId: home,
@@ -197,6 +197,7 @@ describe('periods and dates', () => {
           ...values,
         }),
       )
+    }
     expect(await addEducation({})).toBeNull()
     expect(await addEducation({ startDate: '2010', endDate: '2014' })).toBeNull()
     expect(await addEducation({ startDate: '2014', endDate: '2010' })).toContain('education_period')
@@ -204,10 +205,11 @@ describe('periods and dates', () => {
   })
 
   test('profile dates are full ISO dates, and leaving comes after joining', async () => {
-    const setProfile = (values: Partial<typeof employeeProfile.$inferInsert>) =>
-      write(() =>
+    function setProfile(values: Partial<typeof employeeProfile.$inferInsert>) {
+      return write(() =>
         db.update(employeeProfile).set(values).where(eq(employeeProfile.id, ids.home.profile)),
       )
+    }
     expect(await setProfile({ birthDate: '1990-07' })).toContain('employee_profile_birth_date')
     expect(await setProfile({ leftDate: '2019-12-31' })).toContain('employee_profile_employment')
     expect(await setProfile({ leftDate: '2026-09-30', birthDate: '1990-07-14' })).toBeNull()
@@ -235,8 +237,8 @@ describe('approximate numbers', () => {
   })
 
   test('an own project checks all three of its numbers', async () => {
-    const addOwnProject = (values: Partial<typeof ownProject.$inferInsert>) =>
-      write(() =>
+    function addOwnProject(values: Partial<typeof ownProject.$inferInsert>) {
+      return write(() =>
         db.insert(ownProject).values({
           id: uuidv7(),
           organizationId: home,
@@ -246,6 +248,7 @@ describe('approximate numbers', () => {
           ...values,
         }),
       )
+    }
     expect(await addOwnProject({ totalHours: 10 })).toContain('own_project_total_hours_pair')
     expect(await addOwnProject({ cost: 10 })).toContain('own_project_cost_pair')
     expect(await addOwnProject({ hours: 10 })).toContain('own_project_hours_pair')

@@ -50,7 +50,7 @@ export const DEMO_NOW = new Date('2026-09-01T09:00:00Z')
 
 // A user from task 006.2's dev accounts who belongs to the organization. With a profile,
 // they also get participations, and an employee gets an open update request.
-export type DevMember = {
+type DevMember = {
   id: string
   name: string
   role: 'admin' | 'employee'

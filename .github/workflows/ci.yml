@@ -39,8 +39,18 @@ jobs:
       - name: Lint
         run: bun run lint
 
+      - name: Import areas
+        run: bun run imports:check
+
+      - name: Icon names
+        run: bun run icons:check
+
       - name: Type check
         run: bun run typecheck
+
+      # Unused files, exports, and dependencies.
+      - name: Knip
+        run: bun run knip
 
       - name: Test
         run: bun run test

@@ -13,7 +13,7 @@ import {
 import { type Permissions, roleHasPermission } from '#/lib/permissions'
 import { m } from '#/paraglide/messages.js'
 
-export type NavItem = {
+type NavItem = {
   to:
     | '/$organization/profile'
     | '/$organization/projects'

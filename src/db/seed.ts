@@ -16,7 +16,7 @@ import * as schema from './schema'
 import { SEED_PASSWORD, seedIds, seedUsers } from './seed-accounts'
 
 // The seed `bun run db:seed` uses; tests use it too, so they see the same data.
-export const DEMO_SEED = 1
+const DEMO_SEED = 1
 
 const [admin, employee] = seedUsers
 

@@ -1,7 +1,7 @@
 /// <reference types="bun" />
 
 import { expect, test } from 'bun:test'
-import { parseEnv } from './env'
+import { parseEnv } from '#/env'
 
 const base = {
   BETTER_AUTH_SECRET: 'x'.repeat(32),

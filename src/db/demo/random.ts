@@ -1,8 +1,5 @@
 import { v7 as uuidv7 } from 'uuid'
 
-// A seeded random stream (mulberry32): the same seed and key always give the same values.
-export type Random = ReturnType<typeof createRandom>
-
 // FNV-1a, to turn a seed and a key (an organization's slug) into a 32-bit state.
 function hash(text: string) {
   let state = 0x811c9dc5
@@ -13,6 +10,7 @@ function hash(text: string) {
   return state >>> 0
 }
 
+// A seeded random stream (mulberry32): the same seed and key always give the same values.
 export function createRandom(seed: number, key: string) {
   let state = hash(`${seed}:${key}`)
 
