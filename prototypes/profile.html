@@ -8,15 +8,15 @@
     <script src="build/icons.js"></script>
     <script src="build/prototype.js"></script>
   </head>
-  <body data-frame="profile" data-states="request:Open request|none:No request|confirmed:Confirmed|personal:Personal details|education:Education|participation:Participation|own-project:Own project|empty:New profile">
+  <body data-frame="profile" data-states="request:Open request|none:No request|confirmed:Confirmed|personal:Personal details|education:Education|participation:Participation|role-search:Role search|add-role:Add role|own-project:Own project|empty:New profile">
     <main class="flex flex-col gap-6 p-4 md:p-8">
       <div class="flex flex-wrap items-end justify-between gap-4">
         <div class="flex flex-col gap-1">
           <h1 class="text-3xl" data-t="nav_my_profile"></h1>
-          <p class="text-sm text-muted-foreground" data-show-in="request none confirmed personal education participation own-project"><span data-t="profile_confirmed_at"></span>: <span data-date="2026-03-15"></span></p>
+          <p class="text-sm text-muted-foreground" data-show-in="request none confirmed personal education participation role-search add-role own-project"><span data-t="profile_confirmed_at"></span>: <span data-date="2026-03-15"></span></p>
           <p class="text-sm text-muted-foreground" data-show-in="empty" data-t="profile_never_confirmed"></p>
         </div>
-        <button type="button" data-slot="button" data-variant="outline" data-goto-state="confirmed" data-show-in="none personal education participation own-project empty"><i data-icon="CircleCheckIcon"></i><span data-t="profile_confirm"></span></button>
+        <button type="button" data-slot="button" data-variant="outline" data-goto-state="confirmed" data-show-in="none personal education participation role-search add-role own-project empty"><i data-icon="CircleCheckIcon"></i><span data-t="profile_confirm"></span></button>
       </div>
 
       <div data-slot="alert" role="status" data-show-in="request" class="max-w-3xl border-primary bg-primary/10">
@@ -50,11 +50,11 @@
             </div>
             <div class="flex flex-col gap-0.5">
               <dt class="text-sm text-muted-foreground" data-t="profile_join_date"></dt>
-              <dd class="font-medium"><span data-date="2020-03-01" data-show-in="request none confirmed personal education participation own-project"></span><span class="font-normal text-muted-foreground" data-show-in="empty" data-t="profile_not_set"></span></dd>
+              <dd class="font-medium"><span data-date="2020-03-01" data-show-in="request none confirmed personal education participation role-search add-role own-project"></span><span class="font-normal text-muted-foreground" data-show-in="empty" data-t="profile_not_set"></span></dd>
             </div>
             <div class="flex flex-col gap-0.5">
               <dt class="text-sm text-muted-foreground" data-t="profile_birth_date"></dt>
-              <dd class="font-medium"><span data-date="1990-06-14" data-show-in="request none confirmed personal education participation own-project"></span><span class="font-normal text-muted-foreground" data-show-in="empty" data-t="profile_not_set"></span></dd>
+              <dd class="font-medium"><span data-date="1990-06-14" data-show-in="request none confirmed personal education participation role-search add-role own-project"></span><span class="font-normal text-muted-foreground" data-show-in="empty" data-t="profile_not_set"></span></dd>
             </div>
           </dl>
           <p class="flex gap-2 text-sm text-muted-foreground"><i data-icon="LockIcon" class="mt-0.5 size-4 shrink-0"></i><span data-t="profile_birth_date_hint"></span></p>
@@ -68,7 +68,7 @@
             
           </div>
           <div data-slot="card-content" class="flex flex-col gap-4">
-          <ul class="-mt-2 flex flex-col divide-y" data-show-in="request none confirmed personal education participation own-project">
+          <ul class="-mt-2 flex flex-col divide-y" data-show-in="request none confirmed personal education participation role-search add-role own-project">
             <li class="flex items-start gap-3 py-3">
               <i data-icon="GraduationCapIcon" class="mt-0.5 size-4 text-muted-foreground"></i>
               <div class="flex min-w-0 flex-1 flex-col gap-0.5">
@@ -101,7 +101,7 @@
             <p data-slot="card-description" data-t="profile_section_participations_hint"></p>
           </div>
           <div data-slot="card-content" class="flex flex-col gap-4">
-          <ul class="-mt-2 flex flex-col divide-y" data-show-in="request none confirmed personal education participation own-project">
+          <ul class="-mt-2 flex flex-col divide-y" data-show-in="request none confirmed personal education participation role-search add-role own-project">
             <li class="flex flex-col gap-2 py-4">
               <div class="flex items-start gap-2">
                 <div class="flex min-w-0 flex-1 flex-col gap-0.5">
@@ -150,7 +150,7 @@
             <p data-slot="card-description" data-t="profile_section_own_hint"></p>
           </div>
           <div data-slot="card-content" class="flex flex-col gap-4">
-          <ul class="-mt-2 flex flex-col divide-y" data-show-in="request none confirmed personal education participation own-project">
+          <ul class="-mt-2 flex flex-col divide-y" data-show-in="request none confirmed personal education participation role-search add-role own-project">
             <li class="flex flex-col gap-2 py-4">
               <div class="flex items-start gap-2">
                 <div class="flex min-w-0 flex-1 flex-col gap-0.5">
@@ -274,7 +274,7 @@
       </form>
     </dialog>
 
-    <dialog id="participation-dialog" data-slot="dialog-content" class="max-h-[90svh] overflow-y-auto sm:max-w-2xl" data-open-in="participation" aria-labelledby="participation-dialog-title">
+    <dialog id="participation-dialog" data-slot="dialog-content" class="max-h-[90svh] overflow-y-auto sm:max-w-2xl" data-open-in="participation role-search add-role" aria-labelledby="participation-dialog-title">
       <form data-goto-state="none" class="contents">
         <div data-slot="dialog-header">
           <h2 data-slot="dialog-title" id="participation-dialog-title" data-t="participation_title"></h2>
@@ -305,15 +305,18 @@
           </div>
           <p id="participation-period-hint" class="text-sm text-muted-foreground" data-t="project_period_hint"></p>
         </fieldset><fieldset class="flex flex-col gap-2">
-          <legend data-slot="label" class="mb-2" data-t="participation_role"></legend>
-          <div class="grid gap-3 sm:grid-cols-2">
-            <div class="flex flex-col gap-1.5">
-              <label for="participation-role-et" class="text-xs text-muted-foreground" data-t="field_in_et"></label>
-              <input data-slot="input" id="participation-role-et" lang="et" value="Arendaja" />
-            </div>
-            <div class="flex flex-col gap-1.5">
-              <label for="participation-role-en" class="text-xs text-muted-foreground" data-t="field_in_en"></label>
-              <input data-slot="input" id="participation-role-en" lang="en" value="Developer" />
+          <legend data-slot="label" class="mb-2" data-t="participation_roles"></legend>
+          <div class="flex flex-wrap gap-2"><span data-slot="badge" data-variant="secondary" class="h-7 gap-1 pr-1 pl-2.5 text-sm"><span data-et="Analüütik" data-en="Analyst"></span>
+            <button type="button" class="rounded-sm p-0.5 hover:bg-background" data-t-label="participation_remove_role" data-t-params='{"name": "Analüütik"}'><i data-icon="XIcon" class="size-3.5"></i></button></span><span data-slot="badge" data-variant="secondary" class="h-7 gap-1 pr-1 pl-2.5 text-sm"><span data-et="Arendaja" data-en="Developer"></span>
+            <button type="button" class="rounded-sm p-0.5 hover:bg-background" data-t-label="participation_remove_role" data-t-params='{"name": "Arendaja"}'><i data-icon="XIcon" class="size-3.5"></i></button></span></div>
+          <div class="relative max-w-sm">
+            <label for="participation-role-search" class="sr-only" data-t="participation_role_search"></label>
+            <i data-icon="SearchIcon" class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"></i>
+            <input data-slot="input" id="participation-role-search" class="pl-9" role="combobox" aria-autocomplete="list" aria-controls="participation-role-options" aria-expanded="false" data-expanded-in="role-search"
+              data-t-placeholder="participation_role_search" data-state-values='{"role-search": "test"}' />
+            <div id="participation-role-options" role="listbox" data-show-in="role-search" data-slot="dropdown-menu-content" class="absolute top-full left-0 mt-1 w-full">
+              <div role="option" aria-selected="true" data-slot="dropdown-menu-item" class="bg-accent"><span data-et="Testija" data-en="Tester"></span></div><div role="option" aria-selected="false" data-slot="dropdown-menu-item"><span data-et="Testiautomaatik" data-en="Test automation engineer"></span></div>
+              <div role="option" aria-selected="false" data-slot="dropdown-menu-item"><i data-icon="PlusIcon"></i><span data-t="participation_role_new" data-t-params='{"name": "test"}'></span></div>
             </div>
           </div>
         </fieldset><fieldset class="flex flex-col gap-2">
@@ -343,7 +346,8 @@
             <button type="button" class="rounded-sm p-0.5 hover:bg-background" data-t-label="project_remove_technology" data-t-params='{"name": "React"}'><i data-icon="XIcon" class="size-3.5"></i></button></span><span data-slot="badge" data-variant="secondary" class="h-7 gap-1 pr-1 pl-2.5 text-sm">TypeScript
             <button type="button" class="rounded-sm p-0.5 hover:bg-background" data-t-label="project_remove_technology" data-t-params='{"name": "TypeScript"}'><i data-icon="XIcon" class="size-3.5"></i></button></span><span data-slot="badge" data-variant="secondary" class="h-7 gap-1 pr-1 pl-2.5 text-sm">Java
             <button type="button" class="rounded-sm p-0.5 hover:bg-background" data-t-label="project_remove_technology" data-t-params='{"name": "Java"}'><i data-icon="XIcon" class="size-3.5"></i></button></span><span data-slot="badge" data-variant="secondary" class="h-7 gap-1 pr-1 pl-2.5 text-sm">Spring Boot
-            <button type="button" class="rounded-sm p-0.5 hover:bg-background" data-t-label="project_remove_technology" data-t-params='{"name": "Spring Boot"}'><i data-icon="XIcon" class="size-3.5"></i></button></span><button type="button" data-slot="badge" data-variant="outline" class="h-7 gap-1 border-dashed text-sm hover:bg-muted"><i data-icon="PlusIcon"></i>PostgreSQL</button><button type="button" data-slot="badge" data-variant="outline" class="h-7 gap-1 border-dashed text-sm hover:bg-muted"><i data-icon="PlusIcon"></i>Kubernetes</button></div>
+            <button type="button" class="rounded-sm p-0.5 hover:bg-background" data-t-label="project_remove_technology" data-t-params='{"name": "Spring Boot"}'><i data-icon="XIcon" class="size-3.5"></i></button></span></div>
+          <div class="flex flex-wrap items-center gap-2" role="group" aria-labelledby="participation-project-suggestions"><span class="text-sm text-muted-foreground" id="participation-project-suggestions" data-t="participation_project_suggestions"></span><button type="button" data-slot="badge" data-variant="outline" class="h-7 gap-1 border-dashed text-sm hover:bg-muted"><i data-icon="PlusIcon"></i>PostgreSQL</button><button type="button" data-slot="badge" data-variant="outline" class="h-7 gap-1 border-dashed text-sm hover:bg-muted"><i data-icon="PlusIcon"></i>Kubernetes</button></div>
           <div class="relative max-w-sm">
             <i data-icon="SearchIcon" class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"></i>
             <input data-slot="input" class="pl-9" data-t-label="project_technology_search" data-t-placeholder="project_technology_search" />
@@ -352,6 +356,25 @@
         </fieldset>
         <div data-slot="dialog-footer">
           <button type="button" data-slot="button" data-variant="outline" commandfor="participation-dialog" command="close" data-t="action_cancel"></button><button type="submit" data-slot="button" data-t="action_save"></button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="role-dialog" data-slot="dialog-content" data-open-in="add-role" aria-labelledby="role-dialog-title">
+      <form data-goto-state="participation" class="contents">
+        <div data-slot="dialog-header">
+          <h2 data-slot="dialog-title" id="role-dialog-title" data-t="role_add_title"></h2>
+          <p data-slot="dialog-description" data-t="role_add_description"></p>
+        </div>
+        <div class="flex flex-col gap-2">
+          <label data-slot="label" for="role-name-et" data-t="field_in_et"></label>
+          <input data-slot="input" id="role-name-et" lang="et" required autocomplete="off" value="Testija-analüütik" />
+        </div>
+        <div class="flex flex-col gap-2">
+          <label data-slot="label" for="role-name-en" data-t="field_in_en"></label>
+          <input data-slot="input" id="role-name-en" lang="en" required autocomplete="off" />
+        </div>
+        <div data-slot="dialog-footer">
+          <button type="button" data-slot="button" data-variant="outline" commandfor="role-dialog" command="close" data-t="action_cancel"></button><button type="submit" data-slot="button" data-t="action_save"></button>
         </div>
       </form>
     </dialog>

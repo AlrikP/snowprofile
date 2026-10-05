@@ -8,13 +8,13 @@
     <script src="build/icons.js"></script>
     <script src="build/prototype.js"></script>
   </head>
-  <body data-frame="projects" data-roles="admin" data-states="edit:Edit|new:New|similar:Similar name|invalid-period:Invalid period|technology:Add technology|contact:Contact dialog">
+  <body data-frame="projects" data-roles="admin" data-states="edit:Edit|new:New|similar:Similar name|invalid-period:Invalid period|year-only:Year only|technology:Add technology|contact:Contact dialog">
     <main class="flex flex-col gap-6 p-4 pb-0 md:p-8 md:pb-0">
       <div class="flex flex-col gap-2">
         <a href="projects.html" class="flex w-fit items-center gap-1 text-sm text-muted-foreground hover:text-foreground"><i data-icon="ArrowLeftIcon" class="size-4"></i><span data-t="action_back_to_projects"></span></a>
-        <h1 class="text-3xl" data-show-in="edit similar invalid-period technology contact">Kodanikuportaali uuendus</h1>
+        <h1 class="text-3xl" data-show-in="edit similar invalid-period year-only technology contact">Kodanikuportaali uuendus</h1>
         <h1 class="text-3xl" data-show-in="new" data-t="project_new_title"></h1>
-        <p class="text-sm text-muted-foreground" data-show-in="edit similar invalid-period technology contact"><span data-t="last_changed"></span>: <span data-date="2026-09-12"></span> · Anna Admin</p>
+        <p class="text-sm text-muted-foreground" data-show-in="edit similar invalid-period year-only technology contact"><span data-t="last_changed"></span>: <span data-date="2026-09-12"></span> · Anna Admin</p>
       </div>
 
       <form class="flex max-w-5xl flex-col gap-6" data-goto-state="edit">
@@ -38,24 +38,60 @@
           </div>
             <button type="button" data-slot="button" data-variant="outline" class="shrink-0" commandfor="customer-dialog" command="show-modal"><i data-icon="PlusIcon"></i><span data-t="project_customer_new"></span></button>
           </div>
-        </div><fieldset class="flex flex-col gap-2">
+        </div><fieldset class="flex flex-col gap-3">
           <legend class="sr-only" data-t="projects_col_period"></legend>
-          <div class="grid gap-4 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
-            <div class="flex flex-col gap-2">
-              <label data-slot="label" for="project-start" data-t="project_start"></label>
-              <input data-slot="input" id="project-start" inputmode="numeric" placeholder="MM-YYYY" value="03-2024" aria-describedby="project-period-hint" data-state-values='{"new": "", "invalid-period": "2024"}' />
-            </div>
-            <div class="flex flex-col gap-2">
-              <label data-slot="label" for="project-end" data-t="project_end"></label>
-              <input data-slot="input" id="project-end" inputmode="numeric" placeholder="MM-YYYY" aria-describedby="project-period-hint project-period-error" data-invalid-in="invalid-period" data-state-values='{"invalid-period": "12-2023"}' />
-            </div>
-            <label class="flex h-9 items-center gap-2 text-sm">
-              <input type="checkbox" data-slot="checkbox" checked data-show-in="edit similar contact technology new" />
-              <input type="checkbox" data-slot="checkbox" data-show-in="invalid-period" />
+          <div class="grid gap-4 lg:grid-cols-2">
+            <fieldset class="flex flex-col gap-2">
+              <legend data-slot="label" class="mb-2" data-t="project_start"></legend>
+              <div class="grid grid-cols-[4rem_minmax(0,1fr)_5.5rem] gap-2">
+                <div class="flex flex-col gap-1">
+                  <label class="text-xs text-muted-foreground" for="project-start-day" data-t="period_day"></label>
+                  <input data-slot="input" id="project-start-day" inputmode="numeric" maxlength="2" value="" aria-describedby="project-period-hint project-year-only" data-state-values='{"new": "", "invalid-period": "", "year-only": ""}' />
+                </div>
+                <div class="flex flex-col gap-1">
+                  <label class="text-xs text-muted-foreground" for="project-start-month" data-t="period_month"></label>
+                  <div data-slot="native-select-wrapper">
+                    <select data-slot="native-select" id="project-start-month" aria-describedby="project-period-hint project-year-only" data-state-values='{"new": "", "invalid-period": "", "year-only": ""}'><option value="" data-t="period_month_none"></option><option value="1" data-month="1"></option><option value="2" data-month="2"></option><option value="3" selected data-month="3"></option><option value="4" data-month="4"></option><option value="5" data-month="5"></option><option value="6" data-month="6"></option><option value="7" data-month="7"></option><option value="8" data-month="8"></option><option value="9" data-month="9"></option><option value="10" data-month="10"></option><option value="11" data-month="11"></option><option value="12" data-month="12"></option></select>
+                    <i data-icon="ChevronDownIcon"></i>
+                  </div>
+                </div>
+                <div class="flex flex-col gap-1">
+                  <label class="text-xs text-muted-foreground" for="project-start-year" data-t="period_year"></label>
+                  <input data-slot="input" id="project-start-year" inputmode="numeric" maxlength="4" value="2024" aria-describedby="project-period-hint project-year-only" data-state-values='{"new": "", "invalid-period": "2024", "year-only": "2019"}' />
+                </div>
+              </div>
+              <p id="project-year-only" class="text-sm text-muted-foreground" data-show-in="year-only" data-t="project_period_year_only"></p>
+            </fieldset>
+            <div class="flex flex-col gap-3">
+            <fieldset id="project-end" class="flex flex-col gap-2 disabled:[&_:is(legend,label)]:opacity-50">
+              <legend data-slot="label" class="mb-2" data-t="project_end"></legend>
+              <div class="grid grid-cols-[4rem_minmax(0,1fr)_5.5rem] gap-2">
+                <div class="flex flex-col gap-1">
+                  <label class="text-xs text-muted-foreground" for="project-end-day" data-t="period_day"></label>
+                  <input data-slot="input" id="project-end-day" inputmode="numeric" maxlength="2" value="" aria-describedby="project-period-hint project-period-error" data-state-values='{"invalid-period": ""}' />
+                </div>
+                <div class="flex flex-col gap-1">
+                  <label class="text-xs text-muted-foreground" for="project-end-month" data-t="period_month"></label>
+                  <div data-slot="native-select-wrapper">
+                    <select data-slot="native-select" id="project-end-month" aria-describedby="project-period-hint project-period-error" data-invalid-in="invalid-period" data-state-values='{"invalid-period": "12"}'><option value="" data-t="period_month_none"></option><option value="1" data-month="1"></option><option value="2" data-month="2"></option><option value="3" data-month="3"></option><option value="4" data-month="4"></option><option value="5" data-month="5"></option><option value="6" data-month="6"></option><option value="7" data-month="7"></option><option value="8" data-month="8"></option><option value="9" data-month="9"></option><option value="10" data-month="10"></option><option value="11" data-month="11"></option><option value="12" data-month="12"></option></select>
+                    <i data-icon="ChevronDownIcon"></i>
+                  </div>
+                </div>
+                <div class="flex flex-col gap-1">
+                  <label class="text-xs text-muted-foreground" for="project-end-year" data-t="period_year"></label>
+                  <input data-slot="input" id="project-end-year" inputmode="numeric" maxlength="4" value="" aria-describedby="project-period-hint project-period-error" data-invalid-in="invalid-period" data-state-values='{"invalid-period": "2023"}' />
+                </div>
+              </div>
+            </fieldset>
+            <!-- Ticking Ongoing only disables the end fields and keeps their values, so unticking
+                 brings them back. Saving with Ongoing ticked clears the end date. -->
+            <label class="flex items-center gap-2 text-sm">
+              <input type="checkbox" data-slot="checkbox" data-state-checked="edit similar contact technology new year-only" data-disables="project-end" />
               <span data-t="project_ongoing"></span>
             </label>
+            </div>
           </div>
-          <p id="project-period-hint" class="text-sm text-muted-foreground" data-t="project_period_hint"></p>
+          <p id="project-period-hint" class="text-sm text-muted-foreground" data-t="project_period_parts_hint"></p>
           <p id="project-period-error" class="text-sm text-destructive" data-show-in="invalid-period" data-t="project_period_invalid"></p>
         </fieldset>
         </div>
@@ -123,7 +159,7 @@
           <p data-slot="card-description" data-t="project_section_contacts_hint"></p>
         </div>
         <div data-slot="card-content" class="flex flex-col gap-4">
-        <ul class="flex flex-col divide-y" data-show-in="edit similar invalid-period contact technology">
+        <ul class="flex flex-col divide-y" data-show-in="edit similar invalid-period year-only contact technology">
           <li class="flex items-start gap-3 py-3">
             <input type="checkbox" data-slot="checkbox" id="contact-0" class="mt-1" checked />
             <div class="flex min-w-0 flex-1 flex-col gap-0.5">
@@ -166,7 +202,7 @@
           
         </div>
         <div data-slot="card-content" class="flex flex-col gap-4">
-        <div class="flex flex-wrap gap-2" data-show-in="edit similar invalid-period contact technology"><span data-slot="badge" data-variant="secondary" class="h-7 gap-1 pr-1 pl-2.5 text-sm">React
+        <div class="flex flex-wrap gap-2" data-show-in="edit similar invalid-period year-only contact technology"><span data-slot="badge" data-variant="secondary" class="h-7 gap-1 pr-1 pl-2.5 text-sm">React
             <button type="button" class="rounded-sm p-0.5 hover:bg-background" data-t-label="project_remove_technology" data-t-params='{"name": "React"}'><i data-icon="XIcon" class="size-3.5"></i></button></span><span data-slot="badge" data-variant="secondary" class="h-7 gap-1 pr-1 pl-2.5 text-sm">TypeScript
             <button type="button" class="rounded-sm p-0.5 hover:bg-background" data-t-label="project_remove_technology" data-t-params='{"name": "TypeScript"}'><i data-icon="XIcon" class="size-3.5"></i></button></span><span data-slot="badge" data-variant="secondary" class="h-7 gap-1 pr-1 pl-2.5 text-sm">Java
             <button type="button" class="rounded-sm p-0.5 hover:bg-background" data-t-label="project_remove_technology" data-t-params='{"name": "Java"}'><i data-icon="XIcon" class="size-3.5"></i></button></span><span data-slot="badge" data-variant="secondary" class="h-7 gap-1 pr-1 pl-2.5 text-sm">Spring Boot
@@ -182,6 +218,11 @@
             <div role="option" aria-selected="true" data-slot="dropdown-menu-item" class="bg-accent">Kotlin <span class="ml-auto text-xs text-muted-foreground">Backend</span></div>
             <div role="option" aria-selected="false" data-slot="dropdown-menu-item"><i data-icon="PlusIcon"></i><span data-t="project_technology_new" data-t-params='{"name": "Ko"}'></span></div>
           </div>
+        </div>
+        <div class="flex flex-col gap-2" data-show-in="edit similar invalid-period year-only contact technology">
+          <p class="text-sm font-medium" id="participant-technologies" data-t="project_participant_technologies"></p>
+          <div class="flex flex-wrap gap-2" role="group" aria-labelledby="participant-technologies"><button type="button" data-slot="badge" data-variant="outline" class="h-7 gap-1 border-dashed text-sm hover:bg-muted" data-t-label="project_add_participant_technology" data-t-params='{"name": "Kafka", "count": "2"}'><i data-icon="PlusIcon"></i>Kafka<span class="text-muted-foreground">· 2</span></button><button type="button" data-slot="badge" data-variant="outline" class="h-7 gap-1 border-dashed text-sm hover:bg-muted" data-t-label="project_add_participant_technology" data-t-params='{"name": "Redis", "count": "1"}'><i data-icon="PlusIcon"></i>Redis<span class="text-muted-foreground">· 1</span></button></div>
+          <p class="text-sm text-muted-foreground" data-t="project_participant_technologies_hint"></p>
         </div>
         </div>
       </section>
@@ -261,7 +302,7 @@
           <p data-slot="card-description" data-t="project_section_people_hint"></p>
         </div>
         <div data-slot="card-content" class="flex flex-col gap-4">
-        <ul class="flex flex-col divide-y" data-show-in="edit similar invalid-period contact technology">
+        <ul class="flex flex-col divide-y" data-show-in="edit similar invalid-period year-only contact technology">
           <li class="flex flex-wrap items-baseline justify-between gap-x-4 py-2">
             <span class="font-medium">Anna Admin</span>
             <span class="text-sm text-muted-foreground"><span data-et="Tarkvaraarhitekt" data-en="Software architect"></span> · <span data-period="2024-03/"></span></span>

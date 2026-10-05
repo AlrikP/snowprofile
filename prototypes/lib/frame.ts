@@ -49,6 +49,7 @@ const navigation: Record<Role, { label?: string; items: NavItem[] }[]> = {
       items: [
         { id: 'members', icon: 'UserCogIcon', label: 'nav_members', href: 'members.html' },
         technologies,
+        { id: 'roles', icon: 'BriefcaseIcon', label: 'nav_roles', href: 'roles.html' },
         {
           id: 'criteria',
           icon: 'ListChecksIcon',
@@ -288,6 +289,7 @@ function startFrame(page: string, role: Role) {
 // value in that state, and a checkbox with data-state-checked="<state>" is ticked in it.
 // An element with data-invalid-in="<state>" is marked invalid in it,
 // and a combobox with data-expanded-in="<state>" is expanded in it.
+// A checkbox with data-disables="<id>" disables that element while ticked.
 function connectStates() {
   for (const form of document.querySelectorAll<HTMLFormElement>('form[data-goto-state]')) {
     form.addEventListener('submit', (event) => {
@@ -303,6 +305,14 @@ function connectStates() {
       location.href = withState('', { state: off ? first : (button.dataset.gotoState ?? '') })
     })
   }
+  for (const box of document.querySelectorAll<HTMLInputElement>('[data-disables]')) {
+    box.addEventListener('change', () => applyDisables(box))
+  }
+}
+
+function applyDisables(box: HTMLInputElement) {
+  const target = document.getElementById(box.dataset.disables ?? '')
+  if (target instanceof HTMLFieldSetElement) target.disabled = box.checked
 }
 
 function showState(current: string) {
@@ -333,6 +343,7 @@ function showState(current: string) {
   for (const dialog of document.querySelectorAll<HTMLDialogElement>('dialog[data-open-in]')) {
     if (dialog.dataset.openIn?.split(' ').includes(current)) dialog.showModal()
   }
+  document.querySelectorAll<HTMLInputElement>('[data-disables]').forEach(applyDisables)
 }
 
 // <body data-roles="admin"> limits the role switch to the roles that see the page, and an

@@ -215,17 +215,23 @@ function periodDate(value: string) {
 
 // Content the server would send, formatted for the page's language:
 // - data-date="2026-10-05": a date;
+// - data-month="3": a month's name;
 // - data-number="4200" and data-euros="250000": numbers;
 // - data-period="2024-03/", "2019/2021-06", or "2019": a period, open-ended while ongoing,
 //   and a single date when it starts and ends in the same unit;
 // - data-et/data-en: a bilingual field, falling back to the other language when one is
 //   missing.
 function applyContent(element: HTMLElement) {
-  const { date, number, euros, period, et: estonian, en: english } = element.dataset
+  const { date, month, number, euros, period, et: estonian, en: english } = element.dataset
   const locale = pageLocale() === 'en' ? 'en-GB' : 'et-EE'
   if (date) {
     element.textContent = new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(
       new Date(date),
+    )
+  }
+  if (month) {
+    element.textContent = new Intl.DateTimeFormat(locale, { month: 'long' }).format(
+      new Date(2000, Number(month) - 1),
     )
   }
   if (number) element.textContent = new Intl.NumberFormat(locale).format(Number(number))
@@ -253,7 +259,7 @@ export function applyUi(root: ParentNode = document) {
   root.querySelectorAll<HTMLElement>('[data-t], [data-t-label], [data-t-placeholder]').forEach(applyText)
   root
     .querySelectorAll<HTMLElement>(
-      '[data-date], [data-number], [data-euros], [data-period], [data-et], [data-en]',
+      '[data-date], [data-month], [data-number], [data-euros], [data-period], [data-et], [data-en]',
     )
     .forEach(applyContent)
   root.querySelectorAll<HTMLElement>('[data-slot]').forEach(applySlot)

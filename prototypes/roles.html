@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="et">
+  <head>
+    <title>Roles · snowprofile prototype</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="build/prototype.css" />
+    <script src="build/icons.js"></script>
+    <script src="build/prototype.js"></script>
+  </head>
+  <body data-frame="roles" data-roles="admin" data-states="list:List|add:Add|edit:Edit|merge:Merge">
+    <main class="flex flex-col gap-6 p-4 md:p-8">
+      <div class="flex flex-wrap items-end justify-between gap-4">
+        <div class="flex flex-col gap-1">
+          <h1 class="text-3xl" data-t="roles_title"></h1>
+          <p class="max-w-2xl text-sm text-muted-foreground" data-t="roles_description"></p>
+        </div>
+        <button data-slot="button" commandfor="add-dialog" command="show-modal"><i data-icon="PlusIcon"></i><span data-t="roles_add"></span></button>
+      </div>
+
+      <section data-slot="alert" class="max-w-3xl" aria-labelledby="duplicates-title">
+        <i data-icon="InfoIcon"></i>
+        <div data-slot="alert-title" id="duplicates-title" data-t="technologies_duplicates_title"></div>
+        <div data-slot="alert-description" class="w-full">
+          <p data-t="roles_duplicates_body"></p>
+          <ul class="flex w-full flex-col divide-y text-foreground">
+            <li class="flex flex-wrap items-center gap-x-3 gap-y-1 py-2">
+              <span class="font-medium">Tarkvaraarendaja</span>
+              <span class="text-sm text-muted-foreground" data-t="technologies_uses" data-t-params='{"count": "3"}'></span>
+              <i data-icon="ArrowRightIcon" class="size-4 text-muted-foreground"></i>
+              <span class="font-medium">Arendaja</span>
+              <span class="text-sm text-muted-foreground" data-t="technologies_uses" data-t-params='{"count": "64"}'></span>
+              <button type="button" data-slot="button" data-variant="outline" data-size="sm" class="ml-auto" data-goto-state="merge"><i data-icon="GitMergeIcon"></i><span data-t="merge_submit"></span></button>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <div data-slot="card" class="max-w-3xl gap-0 py-0">
+        <div data-slot="table-container">
+          <table data-slot="table">
+            <thead data-slot="table-header">
+              <tr data-slot="table-row" class="hover:bg-transparent">
+                <th data-slot="table-head" class="px-4" data-t="field_in_et"></th>
+                <th data-slot="table-head" class="hidden sm:table-cell" data-t="field_in_en"></th>
+                <th data-slot="table-head" class="text-right" data-t="roles_col_uses"></th>
+                <th data-slot="table-head" class="pr-4"><span class="sr-only" data-t="action_actions"></span></th>
+              </tr>
+            </thead>
+            <tbody data-slot="table-body">
+            <tr data-slot="table-row">
+              <td data-slot="table-cell" class="px-4 font-medium">Analüütik<div class="font-normal text-muted-foreground sm:hidden">Analyst</div></td>
+              <td data-slot="table-cell" class="hidden sm:table-cell">Analyst</td>
+              <td data-slot="table-cell" class="text-right text-muted-foreground"><span data-number="18"></span></td>
+              <td data-slot="table-cell" class="pr-4 text-right"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="role-1"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Analüütik"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="role-1" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="edit" class="w-full"><i data-icon="PencilIcon"></i><span data-t="technologies_edit"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="merge" class="w-full"><i data-icon="GitMergeIcon"></i><span data-t="technologies_merge"></span></button>
+            </div></td>
+            </tr>
+            <tr data-slot="table-row">
+              <td data-slot="table-cell" class="px-4 font-medium">Arendaja<div class="font-normal text-muted-foreground sm:hidden">Developer</div></td>
+              <td data-slot="table-cell" class="hidden sm:table-cell">Developer</td>
+              <td data-slot="table-cell" class="text-right text-muted-foreground"><span data-number="64"></span></td>
+              <td data-slot="table-cell" class="pr-4 text-right"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="role-2"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Arendaja"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="role-2" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="edit" class="w-full"><i data-icon="PencilIcon"></i><span data-t="technologies_edit"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="merge" class="w-full"><i data-icon="GitMergeIcon"></i><span data-t="technologies_merge"></span></button>
+            </div></td>
+            </tr>
+            <tr data-slot="table-row">
+              <td data-slot="table-cell" class="px-4 font-medium">Arhitekt<div class="font-normal text-muted-foreground sm:hidden">Architect</div></td>
+              <td data-slot="table-cell" class="hidden sm:table-cell">Architect</td>
+              <td data-slot="table-cell" class="text-right text-muted-foreground"><span data-number="9"></span></td>
+              <td data-slot="table-cell" class="pr-4 text-right"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="role-3"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Arhitekt"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="role-3" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="edit" class="w-full"><i data-icon="PencilIcon"></i><span data-t="technologies_edit"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="merge" class="w-full"><i data-icon="GitMergeIcon"></i><span data-t="technologies_merge"></span></button>
+            </div></td>
+            </tr>
+            <tr data-slot="table-row">
+              <td data-slot="table-cell" class="px-4 font-medium">Juhtarendaja<div class="font-normal text-muted-foreground sm:hidden">Lead developer</div></td>
+              <td data-slot="table-cell" class="hidden sm:table-cell">Lead developer</td>
+              <td data-slot="table-cell" class="text-right text-muted-foreground"><span data-number="7"></span></td>
+              <td data-slot="table-cell" class="pr-4 text-right"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="role-4"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Juhtarendaja"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="role-4" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="edit" class="w-full"><i data-icon="PencilIcon"></i><span data-t="technologies_edit"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="merge" class="w-full"><i data-icon="GitMergeIcon"></i><span data-t="technologies_merge"></span></button>
+            </div></td>
+            </tr>
+            <tr data-slot="table-row">
+              <td data-slot="table-cell" class="px-4 font-medium">Projektijuht<div class="font-normal text-muted-foreground sm:hidden">Project manager</div></td>
+              <td data-slot="table-cell" class="hidden sm:table-cell">Project manager</td>
+              <td data-slot="table-cell" class="text-right text-muted-foreground"><span data-number="12"></span></td>
+              <td data-slot="table-cell" class="pr-4 text-right"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="role-5"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Projektijuht"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="role-5" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="edit" class="w-full"><i data-icon="PencilIcon"></i><span data-t="technologies_edit"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="merge" class="w-full"><i data-icon="GitMergeIcon"></i><span data-t="technologies_merge"></span></button>
+            </div></td>
+            </tr>
+            <tr data-slot="table-row">
+              <td data-slot="table-cell" class="px-4 font-medium">Süsteemianalüütik<div class="font-normal text-muted-foreground sm:hidden"><span data-slot="badge" data-variant="outline" class="ml-1 border-amber-500 text-amber-800" data-t="translation_missing_en"></span></div></td>
+              <td data-slot="table-cell" class="hidden sm:table-cell"><span data-slot="badge" data-variant="outline" class="ml-1 border-amber-500 text-amber-800" data-t="translation_missing_en"></span></td>
+              <td data-slot="table-cell" class="text-right text-muted-foreground"><span data-number="2"></span></td>
+              <td data-slot="table-cell" class="pr-4 text-right"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="role-6"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Süsteemianalüütik"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="role-6" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="edit" class="w-full"><i data-icon="PencilIcon"></i><span data-t="technologies_edit"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="merge" class="w-full"><i data-icon="GitMergeIcon"></i><span data-t="technologies_merge"></span></button>
+            </div></td>
+            </tr>
+            <tr data-slot="table-row">
+              <td data-slot="table-cell" class="px-4 font-medium">Tarkvaraarendaja<div class="font-normal text-muted-foreground sm:hidden">Software developer</div></td>
+              <td data-slot="table-cell" class="hidden sm:table-cell">Software developer</td>
+              <td data-slot="table-cell" class="text-right text-muted-foreground"><span data-number="3"></span></td>
+              <td data-slot="table-cell" class="pr-4 text-right"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="role-7"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Tarkvaraarendaja"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="role-7" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="edit" class="w-full"><i data-icon="PencilIcon"></i><span data-t="technologies_edit"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="merge" class="w-full"><i data-icon="GitMergeIcon"></i><span data-t="technologies_merge"></span></button>
+            </div></td>
+            </tr>
+            <tr data-slot="table-row">
+              <td data-slot="table-cell" class="px-4 font-medium">Testiautomaatik<div class="font-normal text-muted-foreground sm:hidden">Test automation engineer</div></td>
+              <td data-slot="table-cell" class="hidden sm:table-cell">Test automation engineer</td>
+              <td data-slot="table-cell" class="text-right text-muted-foreground"><span data-number="4"></span></td>
+              <td data-slot="table-cell" class="pr-4 text-right"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="role-8"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Testiautomaatik"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="role-8" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="edit" class="w-full"><i data-icon="PencilIcon"></i><span data-t="technologies_edit"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="merge" class="w-full"><i data-icon="GitMergeIcon"></i><span data-t="technologies_merge"></span></button>
+            </div></td>
+            </tr>
+            <tr data-slot="table-row">
+              <td data-slot="table-cell" class="px-4 font-medium">Testija<div class="font-normal text-muted-foreground sm:hidden">Tester</div></td>
+              <td data-slot="table-cell" class="hidden sm:table-cell">Tester</td>
+              <td data-slot="table-cell" class="text-right text-muted-foreground"><span data-number="15"></span></td>
+              <td data-slot="table-cell" class="pr-4 text-right"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="role-9"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Testija"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="role-9" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="edit" class="w-full"><i data-icon="PencilIcon"></i><span data-t="technologies_edit"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="merge" class="w-full"><i data-icon="GitMergeIcon"></i><span data-t="technologies_merge"></span></button>
+            </div></td>
+            </tr>
+            <tr data-slot="table-row">
+              <td data-slot="table-cell" class="px-4 font-medium">UX-disainer<div class="font-normal text-muted-foreground sm:hidden">UX designer</div></td>
+              <td data-slot="table-cell" class="hidden sm:table-cell">UX designer</td>
+              <td data-slot="table-cell" class="text-right text-muted-foreground"><span data-number="6"></span></td>
+              <td data-slot="table-cell" class="pr-4 text-right"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="role-10"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "UX-disainer"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="role-10" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="edit" class="w-full"><i data-icon="PencilIcon"></i><span data-t="technologies_edit"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="merge" class="w-full"><i data-icon="GitMergeIcon"></i><span data-t="technologies_merge"></span></button>
+            </div></td>
+            </tr>
+            <tr data-slot="table-row">
+              <td data-slot="table-cell" class="px-4 font-medium">Ärianalüütik<div class="font-normal text-muted-foreground sm:hidden">Business analyst</div></td>
+              <td data-slot="table-cell" class="hidden sm:table-cell">Business analyst</td>
+              <td data-slot="table-cell" class="text-right text-muted-foreground"><span data-number="5"></span></td>
+              <td data-slot="table-cell" class="pr-4 text-right"><button data-slot="button" data-variant="ghost" data-size="icon-sm" popovertarget="role-11"
+              aria-haspopup="menu" data-t-label="action_actions_for" data-t-params='{"name": "Ärianalüütik"}'><i data-icon="EllipsisIcon"></i></button>
+            <div popover id="role-11" role="menu" data-slot="dropdown-menu-content" data-align="end" class="w-56">
+              <button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="edit" class="w-full"><i data-icon="PencilIcon"></i><span data-t="technologies_edit"></span></button><button type="button" data-slot="dropdown-menu-item" role="menuitem" data-goto-state="merge" class="w-full"><i data-icon="GitMergeIcon"></i><span data-t="technologies_merge"></span></button>
+            </div></td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+
+    <dialog id="add-dialog" data-slot="dialog-content" data-open-in="add" aria-labelledby="add-dialog-title">
+      <form data-goto-state="list" class="contents">
+        <div data-slot="dialog-header">
+          <h2 data-slot="dialog-title" id="add-dialog-title" data-t="roles_add"></h2>
+        </div>
+        <div class="flex flex-col gap-2">
+          <label data-slot="label" for="add-name-et" data-t="field_in_et"></label>
+          <input data-slot="input" id="add-name-et" lang="et" required autocomplete="off" value="" />
+        </div>
+        <div class="flex flex-col gap-2">
+          <label data-slot="label" for="add-name-en" data-t="field_in_en"></label>
+          <input data-slot="input" id="add-name-en" lang="en" required autocomplete="off" value="" />
+        </div>
+        <div data-slot="dialog-footer">
+          <button type="button" data-slot="button" data-variant="outline" commandfor="add-dialog" command="close" data-t="action_cancel"></button><button type="submit" data-slot="button" data-t="action_save"></button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="edit-dialog" data-slot="dialog-content" data-open-in="edit" aria-labelledby="edit-dialog-title">
+      <form data-goto-state="list" class="contents">
+        <div data-slot="dialog-header">
+          <h2 data-slot="dialog-title" id="edit-dialog-title" data-t="role_edit_title"></h2>
+        </div>
+        <div class="flex flex-col gap-2">
+          <label data-slot="label" for="edit-name-et" data-t="field_in_et"></label>
+          <input data-slot="input" id="edit-name-et" lang="et" required autocomplete="off" value="Süsteemianalüütik" />
+        </div>
+        <div class="flex flex-col gap-2">
+          <label data-slot="label" for="edit-name-en" data-t="field_in_en"></label>
+          <input data-slot="input" id="edit-name-en" lang="en" required autocomplete="off" value="" />
+        </div>
+        <div data-slot="dialog-footer">
+          <button type="button" data-slot="button" data-variant="outline" commandfor="edit-dialog" command="close" data-t="action_cancel"></button><button type="submit" data-slot="button" data-t="action_save"></button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="merge-dialog" data-slot="dialog-content" data-open-in="merge" aria-labelledby="merge-dialog-title">
+      <form data-goto-state="list" class="contents">
+        <div data-slot="dialog-header">
+          <h2 data-slot="dialog-title" id="merge-dialog-title" data-t="merge_title" data-t-params='{"name": "Tarkvaraarendaja"}'></h2>
+        </div>
+        <div class="flex flex-col gap-2">
+          <label data-slot="label" for="merge-target" data-t="merge_target"></label>
+          <div data-slot="native-select-wrapper">
+            <select data-slot="native-select" id="merge-target"><option value="Arendaja" selected>Arendaja</option><option value="Juhtarendaja">Juhtarendaja</option><option value="Testiautomaatik">Testiautomaatik</option></select>
+            <i data-icon="ChevronDownIcon"></i>
+          </div>
+        </div>
+        <p class="text-sm text-muted-foreground" data-t="role_merge_explanation" data-t-params='{"count": "3", "name": "Tarkvaraarendaja"}'></p>
+        <div data-slot="dialog-footer">
+          <button type="button" data-slot="button" data-variant="outline" commandfor="merge-dialog" command="close" data-t="action_cancel"></button><button type="submit" data-slot="button"><i data-icon="GitMergeIcon"></i><span data-t="merge_submit"></span></button>
+        </div>
+      </form>
+    </dialog>
+  </body>
+</html>

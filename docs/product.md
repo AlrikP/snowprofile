@@ -37,9 +37,10 @@ More roles come later; the role model must allow adding them.
 | Members and roles         | Roles `admin` and `employee` per organization; admins invite members and change roles                                                                                                                                                                                                                                                                       |
 | Projects                  | Admins create and edit org projects: name, description (ET/EN), customer, start and end month or "ongoing", tender reference number, customer contact persons, total hours, cost, technologies, solution characteristics                                                                                                                                    |
 | Technology catalogue      | Shared list per organization, grouped by category (Frontend, Backend, Data, Infra, Testing, Other). Anyone can add an entry; admins rename, recategorize, and merge duplicates (Postgres → PostgreSQL)                                                                                                                                                      |
+| Role catalogue            | Shared list of project roles per organization (arendaja / developer, analüütik / analyst…), each with an Estonian and an English name. Anyone can add an entry and must fill both names; admins rename and merge duplicates. Entries from the sheet migration can lack the English name, which the list flags                                               |
 | Technical characteristics | Admins manage a checklist of yes/no questions that tenders ask about a project's solution (automated tests, REST/SOAP, relational DB, DB migrations, Linux, X-Road, containers/K8s, monitoring…); each project answers yes or no, with an optional note. A project shows its answers as solution characteristics. The data model calls them tender criteria |
 | Employee profile          | Name, join date, optional birth date, education (institution, field, period, degree; several entries)                                                                                                                                                                                                                                                       |
-| Project participation     | Employee on a project: start and end month (or ongoing), role (ET/EN), approximate hours, tasks (ET/EN), technologies they used (a subset of or addition to the project's)                                                                                                                                                                                  |
+| Project participation     | Employee on a project: start and end month (or ongoing), one or more roles from the role catalogue, approximate hours, tasks (ET/EN), technologies they used (a subset of or addition to the project's)                                                                                                                                                     |
 | Own projects              | An employee adds a project that appears only on their own CV (from an earlier employer, or several engagements merged into one); same fields as an org project                                                                                                                                                                                              |
 | Profile update requests   | An admin requests an update from an employee; the employee sees it on sign-in and confirms the profile is current. Admins see each profile's last confirmation and open requests                                                                                                                                                                            |
 | Search                    | Filter people by technology and optionally a time period; results show the matching projects and participations                                                                                                                                                                                                                                             |
@@ -61,6 +62,9 @@ More roles come later; the role model must allow adding them.
   wants a slightly different format; whether a common representation is worth building
   is decided after the MVP, from real use.
 - Per-CV text overrides and saved, named CV versions.
+- A notice on sign-in about technologies added to a project since the person's
+  participation ("Project X now lists Kafka. Did you use it?"). It would need to store
+  each person's "didn't use it" answers so it doesn't come back.
 - Import and export in the app. A later design could export to a fixed template and import
   from the same template, so another organization can fit its existing data to it.
 - Advanced matching: scoring people against a tender's requirements.
@@ -97,6 +101,25 @@ More roles come later; the role model must allow adding them.
 - **Platform operator:** someone creates organizations and their first admin. In the MVP
   that can be a seeded configuration or a script rather than a UI.
 
+## Technologies on projects and participations
+
+A participation's technologies appear in that person's CV, so only the person changes
+them. An admin's edit to the project never changes them.
+
+- **New participation:** the form starts with the project's technologies. The person
+  removes the ones they didn't use and adds the ones only they used. The saved list is the
+  person's own copy, not a link to the project's list.
+- **A person adds a technology:** it stays on their participation. The project page shows
+  admins the technologies participants used that the project doesn't list, with how many
+  participants used each one. An admin can add one to the project; nothing changes
+  otherwise.
+- **An admin adds a technology to the project:** existing participations don't get it.
+  The participation form suggests the project's technologies that the person's list
+  lacks, so the person sees it the next time they edit.
+- **An admin removes a technology from the project:** participations keep it.
+
+Both suggestion lists are computed when shown, so nothing records them.
+
 ## Data and privacy
 
 ### Data kept
@@ -105,7 +128,7 @@ More roles come later; the role model must allow adding them.
 - Customers (ordering organizations) and customer contact persons.
 - Projects, with technologies and solution characteristics.
 - Employees' profiles, education, project participations, and own projects.
-- The technology catalogue and the technical characteristics list.
+- The technology and role catalogues, and the technical characteristics list.
 - Profile update requests and confirmations.
 
 ### Personal data and GDPR

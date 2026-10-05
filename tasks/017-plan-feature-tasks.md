@@ -17,6 +17,10 @@ patterns rather than guesses.
       features can run in parallel.
 - [ ] Feature tasks that add or change tables depend on task 019, so their migrations
       regenerate the diagram instead of editing it by hand.
+- [ ] The participation feature task starts with the role catalogue migration
+      (`docs/product.md`, "Role catalogue"): a role table and a participation-to-role
+      link table, filled from the existing `role_et` and `role_en` values, then those
+      columns dropped, for participations and own projects.
 - [ ] Product open questions that block a feature are resolved with the user or listed in
       that feature's task.
 - [ ] Each task or subtask fits one reviewable commit (`tasks/README.md`).
