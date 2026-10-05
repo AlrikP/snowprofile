@@ -48,9 +48,10 @@ the server.
 | `bun run test`               | Compiles messages, then runs `test:server` and `test:components`             |
 | `bun run test:server`        | Server and database tests (`*.test.ts`), in random order; it prints `--seed` |
 | `bun run test:components`    | Component tests (`*.test.tsx`) with Vitest in jsdom                          |
+| `bun run test:e2e`           | Playwright end-to-end tests against the production build on port 3100        |
 
-The migration workflow is in [`docs/migrations.md`](docs/migrations.md). End-to-end
-tests arrive with their task in `tasks/`.
+The migration workflow is in [`docs/migrations.md`](docs/migrations.md). Before the first
+`test:e2e`, install the browser with `bunx playwright install chromium`.
 
 ## Google sign-in
 

@@ -30,3 +30,8 @@ src/paraglide/
 
 # Built by `bun run prototypes:build`.
 prototypes/build/
+
+# Playwright: saved sessions, results, and the HTML report (bun run test:e2e).
+e2e/.auth/
+test-results/
+playwright-report/

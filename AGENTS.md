@@ -43,8 +43,10 @@ commits after reviewing.
 | `bun run test`               | Compiles messages, then runs `test:server` and `test:components`                          |
 | `bun run test:server`        | Server and database tests (`*.test.ts`), in random order; it prints `--seed`              |
 | `bun run test:components`    | Component tests (`*.test.tsx`) with Vitest in jsdom                                       |
+| `bun run test:e2e`           | Playwright against the production build on port 3100, with a fresh seeded database        |
 
-End-to-end tests arrive with their task; add the command here then, and to `test`.
+`test:e2e` stays out of `test`, so `test` needs no browser; CI runs it as its own step.
+Install the browser once with `bunx playwright install chromium`.
 
 The dev server is the user's. Check whether it is running before starting one, and never
 kill a process you didn't start.
@@ -111,9 +113,9 @@ reviews enforce the convention.
   lint rule inline only with a reason.
 - CI is one `check` job in `.github/workflows/ci.yml`, on pull requests and pushes to
   `main`. Its steps: install, compile messages, format check, lint, type check, test,
-  schema drift, and build. A task that adds a check adds it as a step there and to the
-  table above; knip and the data model check (task 019) join this way when their tasks
-  add them.
+  schema drift, build, and end-to-end tests. A task that adds a check adds it as a step
+  there and to the table above; knip and the data model check (task 019) join this way
+  when their tasks add them.
 
 ## Deployment
 
