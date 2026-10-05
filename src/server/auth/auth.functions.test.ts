@@ -2,12 +2,12 @@
 
 import { afterAll, beforeAll, expect, test } from 'bun:test'
 import type { Database } from '#/db'
-import { seedUsers } from '#/db/seed-accounts'
+import { seedIds, seedUsers } from '#/db/seed-accounts'
 import { createTestDatabase } from '#/db/testing'
 import { cookieName } from '#/paraglide/runtime.js'
 import { saveLocale } from '../account/account.server'
 import { callServerFn, signedIn, useTestServer } from '../testing'
-import { getAccess } from './auth.functions'
+import { type Frame, getAccess, getFrame } from './auth.functions'
 import { createAuth } from './better-auth.server'
 
 let db: Database
@@ -57,6 +57,36 @@ test('without a saved locale, the request’s stays', async () => {
 
 test('a signed-out visitor gets no access and no cookie', async () => {
   const { result, response } = await callServerFn(getAccess)
-  expect(result).toEqual({ signedIn: false, hasOrganization: false, locale: null })
+  expect(result).toEqual({ signedIn: false, organization: null, locale: null })
   expect(response.headers.get('set-cookie')).toBeNull()
+})
+
+test('a member opens in the session’s active organization', async () => {
+  const headers = await signedIn(auth, admin.email)
+  const first = await callServerFn(getAccess, { headers })
+  expect(first.result).toMatchObject({ signedIn: true, organization: 'demo' })
+
+  await auth.api.setActiveOrganization({
+    headers,
+    body: { organizationId: seedIds.orgs.rabasaare },
+  })
+  const switched = await callServerFn(getAccess, { headers })
+  expect(switched.result).toMatchObject({ signedIn: true, organization: 'rabasaare' })
+})
+
+test('the frame lists the user’s own memberships with their roles', async () => {
+  const headers = await signedIn(auth, admin.email)
+  const { result, error } = await callServerFn(getFrame, { headers })
+  if (error) throw error
+  const frame = result as Frame
+  expect(frame.user).toEqual({ name: admin.name, email: admin.email })
+  expect(frame.organizations.map(({ slug, role }) => ({ slug, role }))).toEqual([
+    { slug: 'demo', role: 'admin' },
+    { slug: 'rabasaare', role: 'admin' },
+  ])
+})
+
+test('a signed-out visitor gets no frame', async () => {
+  const { result } = await callServerFn(getFrame)
+  expect(result).toBeNull()
 })

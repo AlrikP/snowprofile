@@ -12,6 +12,8 @@ const statements = {
   customer: ['create', 'update', 'delete'],
   // Anyone may add a technology; renaming, recategorizing, and merging are curation.
   technology: ['create', 'curate'],
+  // The role catalogue works the same way.
+  projectRole: ['create', 'curate'],
   tenderCriterion: ['manage'],
   // Everyone edits their own profile; these cover other people's.
   profile: ['readAll', 'updateAll', 'requestUpdate'],
@@ -28,11 +30,29 @@ export const roles = {
     project: ['create', 'update', 'delete'],
     customer: ['create', 'update', 'delete'],
     technology: ['create', 'curate'],
+    projectRole: ['create', 'curate'],
     tenderCriterion: ['manage'],
     profile: ['readAll', 'updateAll', 'requestUpdate'],
     cv: ['generate'],
   }),
   employee: ac.newRole({
     technology: ['create'],
+    projectRole: ['create'],
   }),
+}
+
+type RoleName = keyof typeof roles
+export type Permissions = Parameters<(typeof roles)[RoleName]['authorize']>[0]
+
+function isRoleName(name: string): name is RoleName {
+  return Object.hasOwn(roles, name)
+}
+
+// Whether member.role as stored grants the permissions. Better Auth stores several roles
+// as a comma-separated list and grants what any of them grants; an unknown role grants
+// nothing.
+export function roleHasPermission(role: string, permissions: Permissions): boolean {
+  return role
+    .split(',')
+    .some((name) => isRoleName(name) && roles[name].authorize(permissions).success)
 }

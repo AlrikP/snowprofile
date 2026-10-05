@@ -10,13 +10,29 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as OrganizationRouteRouteImport } from './routes/$organization/route'
 import { Route as NoAccessRouteImport } from './routes/no-access'
 import { Route as SignInRouteImport } from './routes/sign-in'
+import { Route as OrganizationIndexRouteImport } from './routes/$organization/index'
+import { Route as OrganizationCriteriaRouteImport } from './routes/$organization/criteria'
+import { Route as OrganizationCvsRouteImport } from './routes/$organization/cvs'
+import { Route as OrganizationMembersRouteImport } from './routes/$organization/members'
+import { Route as OrganizationPeopleRouteImport } from './routes/$organization/people'
+import { Route as OrganizationProfileRouteImport } from './routes/$organization/profile'
+import { Route as OrganizationProjectsRouteImport } from './routes/$organization/projects'
+import { Route as OrganizationRolesRouteImport } from './routes/$organization/roles'
+import { Route as OrganizationSearchRouteImport } from './routes/$organization/search'
+import { Route as OrganizationTechnologiesRouteImport } from './routes/$organization/technologies'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrganizationRouteRoute = OrganizationRouteRouteImport.update({
+  id: '/$organization',
+  path: '/$organization',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NoAccessRoute = NoAccessRouteImport.update({
@@ -29,6 +45,57 @@ const SignInRoute = SignInRouteImport.update({
   path: '/sign-in',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OrganizationIndexRoute = OrganizationIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => OrganizationRouteRoute,
+} as any)
+const OrganizationCriteriaRoute = OrganizationCriteriaRouteImport.update({
+  id: '/criteria',
+  path: '/criteria',
+  getParentRoute: () => OrganizationRouteRoute,
+} as any)
+const OrganizationCvsRoute = OrganizationCvsRouteImport.update({
+  id: '/cvs',
+  path: '/cvs',
+  getParentRoute: () => OrganizationRouteRoute,
+} as any)
+const OrganizationMembersRoute = OrganizationMembersRouteImport.update({
+  id: '/members',
+  path: '/members',
+  getParentRoute: () => OrganizationRouteRoute,
+} as any)
+const OrganizationPeopleRoute = OrganizationPeopleRouteImport.update({
+  id: '/people',
+  path: '/people',
+  getParentRoute: () => OrganizationRouteRoute,
+} as any)
+const OrganizationProfileRoute = OrganizationProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => OrganizationRouteRoute,
+} as any)
+const OrganizationProjectsRoute = OrganizationProjectsRouteImport.update({
+  id: '/projects',
+  path: '/projects',
+  getParentRoute: () => OrganizationRouteRoute,
+} as any)
+const OrganizationRolesRoute = OrganizationRolesRouteImport.update({
+  id: '/roles',
+  path: '/roles',
+  getParentRoute: () => OrganizationRouteRoute,
+} as any)
+const OrganizationSearchRoute = OrganizationSearchRouteImport.update({
+  id: '/search',
+  path: '/search',
+  getParentRoute: () => OrganizationRouteRoute,
+} as any)
+const OrganizationTechnologiesRoute =
+  OrganizationTechnologiesRouteImport.update({
+    id: '/technologies',
+    path: '/technologies',
+    getParentRoute: () => OrganizationRouteRoute,
+  } as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -37,33 +104,111 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/$organization': typeof OrganizationRouteRouteWithChildren
   '/no-access': typeof NoAccessRoute
   '/sign-in': typeof SignInRoute
+  '/$organization/criteria': typeof OrganizationCriteriaRoute
+  '/$organization/cvs': typeof OrganizationCvsRoute
+  '/$organization/members': typeof OrganizationMembersRoute
+  '/$organization/people': typeof OrganizationPeopleRoute
+  '/$organization/profile': typeof OrganizationProfileRoute
+  '/$organization/projects': typeof OrganizationProjectsRoute
+  '/$organization/roles': typeof OrganizationRolesRoute
+  '/$organization/search': typeof OrganizationSearchRoute
+  '/$organization/technologies': typeof OrganizationTechnologiesRoute
+  '/$organization/': typeof OrganizationIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/no-access': typeof NoAccessRoute
   '/sign-in': typeof SignInRoute
+  '/$organization/criteria': typeof OrganizationCriteriaRoute
+  '/$organization/cvs': typeof OrganizationCvsRoute
+  '/$organization/members': typeof OrganizationMembersRoute
+  '/$organization/people': typeof OrganizationPeopleRoute
+  '/$organization/profile': typeof OrganizationProfileRoute
+  '/$organization/projects': typeof OrganizationProjectsRoute
+  '/$organization/roles': typeof OrganizationRolesRoute
+  '/$organization/search': typeof OrganizationSearchRoute
+  '/$organization/technologies': typeof OrganizationTechnologiesRoute
+  '/$organization': typeof OrganizationIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/$organization': typeof OrganizationRouteRouteWithChildren
   '/no-access': typeof NoAccessRoute
   '/sign-in': typeof SignInRoute
+  '/$organization/criteria': typeof OrganizationCriteriaRoute
+  '/$organization/cvs': typeof OrganizationCvsRoute
+  '/$organization/members': typeof OrganizationMembersRoute
+  '/$organization/people': typeof OrganizationPeopleRoute
+  '/$organization/profile': typeof OrganizationProfileRoute
+  '/$organization/projects': typeof OrganizationProjectsRoute
+  '/$organization/roles': typeof OrganizationRolesRoute
+  '/$organization/search': typeof OrganizationSearchRoute
+  '/$organization/technologies': typeof OrganizationTechnologiesRoute
+  '/$organization/': typeof OrganizationIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/no-access' | '/sign-in' | '/api/auth/$'
+  fullPaths:
+    | '/'
+    | '/$organization'
+    | '/no-access'
+    | '/sign-in'
+    | '/$organization/criteria'
+    | '/$organization/cvs'
+    | '/$organization/members'
+    | '/$organization/people'
+    | '/$organization/profile'
+    | '/$organization/projects'
+    | '/$organization/roles'
+    | '/$organization/search'
+    | '/$organization/technologies'
+    | '/$organization/'
+    | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/no-access' | '/sign-in' | '/api/auth/$'
-  id: '__root__' | '/' | '/no-access' | '/sign-in' | '/api/auth/$'
+  to:
+    | '/'
+    | '/no-access'
+    | '/sign-in'
+    | '/$organization/criteria'
+    | '/$organization/cvs'
+    | '/$organization/members'
+    | '/$organization/people'
+    | '/$organization/profile'
+    | '/$organization/projects'
+    | '/$organization/roles'
+    | '/$organization/search'
+    | '/$organization/technologies'
+    | '/$organization'
+    | '/api/auth/$'
+  id:
+    | '__root__'
+    | '/'
+    | '/$organization'
+    | '/no-access'
+    | '/sign-in'
+    | '/$organization/criteria'
+    | '/$organization/cvs'
+    | '/$organization/members'
+    | '/$organization/people'
+    | '/$organization/profile'
+    | '/$organization/projects'
+    | '/$organization/roles'
+    | '/$organization/search'
+    | '/$organization/technologies'
+    | '/$organization/'
+    | '/api/auth/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  OrganizationRouteRoute: typeof OrganizationRouteRouteWithChildren
   NoAccessRoute: typeof NoAccessRoute
   SignInRoute: typeof SignInRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
@@ -76,6 +221,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/$organization': {
+      id: '/$organization'
+      path: '/$organization'
+      fullPath: '/$organization'
+      preLoaderRoute: typeof OrganizationRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/no-access': {
@@ -92,6 +244,76 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignInRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/$organization/': {
+      id: '/$organization/'
+      path: '/'
+      fullPath: '/$organization/'
+      preLoaderRoute: typeof OrganizationIndexRouteImport
+      parentRoute: typeof OrganizationRouteRoute
+    }
+    '/$organization/criteria': {
+      id: '/$organization/criteria'
+      path: '/criteria'
+      fullPath: '/$organization/criteria'
+      preLoaderRoute: typeof OrganizationCriteriaRouteImport
+      parentRoute: typeof OrganizationRouteRoute
+    }
+    '/$organization/cvs': {
+      id: '/$organization/cvs'
+      path: '/cvs'
+      fullPath: '/$organization/cvs'
+      preLoaderRoute: typeof OrganizationCvsRouteImport
+      parentRoute: typeof OrganizationRouteRoute
+    }
+    '/$organization/members': {
+      id: '/$organization/members'
+      path: '/members'
+      fullPath: '/$organization/members'
+      preLoaderRoute: typeof OrganizationMembersRouteImport
+      parentRoute: typeof OrganizationRouteRoute
+    }
+    '/$organization/people': {
+      id: '/$organization/people'
+      path: '/people'
+      fullPath: '/$organization/people'
+      preLoaderRoute: typeof OrganizationPeopleRouteImport
+      parentRoute: typeof OrganizationRouteRoute
+    }
+    '/$organization/profile': {
+      id: '/$organization/profile'
+      path: '/profile'
+      fullPath: '/$organization/profile'
+      preLoaderRoute: typeof OrganizationProfileRouteImport
+      parentRoute: typeof OrganizationRouteRoute
+    }
+    '/$organization/projects': {
+      id: '/$organization/projects'
+      path: '/projects'
+      fullPath: '/$organization/projects'
+      preLoaderRoute: typeof OrganizationProjectsRouteImport
+      parentRoute: typeof OrganizationRouteRoute
+    }
+    '/$organization/roles': {
+      id: '/$organization/roles'
+      path: '/roles'
+      fullPath: '/$organization/roles'
+      preLoaderRoute: typeof OrganizationRolesRouteImport
+      parentRoute: typeof OrganizationRouteRoute
+    }
+    '/$organization/search': {
+      id: '/$organization/search'
+      path: '/search'
+      fullPath: '/$organization/search'
+      preLoaderRoute: typeof OrganizationSearchRouteImport
+      parentRoute: typeof OrganizationRouteRoute
+    }
+    '/$organization/technologies': {
+      id: '/$organization/technologies'
+      path: '/technologies'
+      fullPath: '/$organization/technologies'
+      preLoaderRoute: typeof OrganizationTechnologiesRouteImport
+      parentRoute: typeof OrganizationRouteRoute
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -102,8 +324,38 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface OrganizationRouteRouteChildren {
+  OrganizationCriteriaRoute: typeof OrganizationCriteriaRoute
+  OrganizationCvsRoute: typeof OrganizationCvsRoute
+  OrganizationMembersRoute: typeof OrganizationMembersRoute
+  OrganizationPeopleRoute: typeof OrganizationPeopleRoute
+  OrganizationProfileRoute: typeof OrganizationProfileRoute
+  OrganizationProjectsRoute: typeof OrganizationProjectsRoute
+  OrganizationRolesRoute: typeof OrganizationRolesRoute
+  OrganizationSearchRoute: typeof OrganizationSearchRoute
+  OrganizationTechnologiesRoute: typeof OrganizationTechnologiesRoute
+  OrganizationIndexRoute: typeof OrganizationIndexRoute
+}
+
+const OrganizationRouteRouteChildren: OrganizationRouteRouteChildren = {
+  OrganizationCriteriaRoute: OrganizationCriteriaRoute,
+  OrganizationCvsRoute: OrganizationCvsRoute,
+  OrganizationMembersRoute: OrganizationMembersRoute,
+  OrganizationPeopleRoute: OrganizationPeopleRoute,
+  OrganizationProfileRoute: OrganizationProfileRoute,
+  OrganizationProjectsRoute: OrganizationProjectsRoute,
+  OrganizationRolesRoute: OrganizationRolesRoute,
+  OrganizationSearchRoute: OrganizationSearchRoute,
+  OrganizationTechnologiesRoute: OrganizationTechnologiesRoute,
+  OrganizationIndexRoute: OrganizationIndexRoute,
+}
+
+const OrganizationRouteRouteWithChildren =
+  OrganizationRouteRoute._addFileChildren(OrganizationRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  OrganizationRouteRoute: OrganizationRouteRouteWithChildren,
   NoAccessRoute: NoAccessRoute,
   SignInRoute: SignInRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,

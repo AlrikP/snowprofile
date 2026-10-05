@@ -13,7 +13,7 @@ import { employeeProfile, updateRequest } from '#/db/schema'
 import { seedIds } from '#/db/seed-accounts'
 import { createTestDatabase, failure } from '#/db/testing'
 import * as account from './account/account.repository.server'
-import { findMemberRole } from './organizations/organizations.repository.server'
+import { findMemberRole, listMemberships } from './organizations/organizations.repository.server'
 import * as profiles from './profiles/profiles.repository.server'
 import { resolveScope, type Scope } from './scope.server'
 
@@ -77,6 +77,12 @@ const cases: Record<string, () => Promise<void>> = {
   'organizations.findMemberRole': async () => {
     // The lookup that builds a scope: a member of A has no role in B.
     expect(await findMemberRole(db, seedIds.users.employee, b.organizationId)).toBeUndefined()
+  },
+  'organizations.listMemberships': async () => {
+    // The user's own memberships only: B, where the employee isn't a member, is missing.
+    const ids = (await listMemberships(db, seedIds.users.employee)).map((row) => row.id)
+    expect(ids).toContain(seedIds.orgs.demo)
+    expect(ids).not.toContain(b.organizationId)
   },
   'profiles.findProfile': async () => {
     expect(await profiles.findProfile(db, scopeA, b.profileId)).toBeUndefined()

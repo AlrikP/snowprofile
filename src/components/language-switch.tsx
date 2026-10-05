@@ -5,15 +5,15 @@ import { getLocale, type Locale, setLocale } from '#/paraglide/runtime.js'
 import { Button } from './ui/button'
 
 // Each language under its own name, so a reader finds theirs whatever the page is in.
-const LANGUAGES: { locale: Locale; name: string }[] = [
+export const LANGUAGES: { locale: Locale; name: string }[] = [
   { locale: 'et', name: 'Eesti' },
   { locale: 'en', name: 'English' },
 ]
 
-// Switches the UI language. save keeps the choice on the signed-in user; Paraglide's
-// setLocale then writes the cookie and reloads the page in the new language. A failed save
-// keeps the current language and says why.
-export function LanguageSwitch({ save }: { save?: (locale: Locale) => Promise<unknown> }) {
+// Switches the UI language. save keeps the choice on the signed-in user; setLocale then
+// writes the cookie, and the page reloads in the new language. A failed save keeps the
+// current language and sets error.
+export function useLocaleChoice(save?: (locale: Locale) => Promise<unknown>) {
   const current = getLocale()
   const [error, setError] = useState<string | null>(null)
 
@@ -25,8 +25,17 @@ export function LanguageSwitch({ save }: { save?: (locale: Locale) => Promise<un
       setError(errorMessage(reason))
       return
     }
-    await setLocale(locale)
+    // The reload is explicit: save's response already set the cookie, so setLocale finds
+    // the locale unchanged and wouldn't reload by itself.
+    await setLocale(locale, { reload: false })
+    window.location.reload()
   }
+
+  return { current, choose, error }
+}
+
+export function LanguageSwitch({ save }: { save?: (locale: Locale) => Promise<unknown> }) {
+  const { current, choose, error } = useLocaleChoice(save)
 
   return (
     <div className="flex flex-col gap-1">
