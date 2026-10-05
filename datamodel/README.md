@@ -5,9 +5,10 @@
 periods, audit columns, deletion) are in [`docs/architecture.md`](../docs/architecture.md),
 "Data conventions".
 
-The SQL migrations in `drizzle/` are the source of truth for the schema. Until
-`src/db/schema.ts` maps every table (task 007), the DBML is written by hand and is the
-blueprint for those migrations; task 019 then generates it from `schema.ts`.
+The SQL migrations in `drizzle/` are the source of truth for the schema.
+`src/db/schema.ts` maps them, `bun run db:drift` keeps the two in line, and
+[`generate-dbml.ts`](generate-dbml.ts) writes the DBML from `schema.ts`. Don't edit the
+DBML by hand.
 
 ## Viewing the model
 
@@ -27,9 +28,20 @@ dbdiagram.io also reads `snowprofile.dbml` directly, groups and colors included.
 
 ## Changing the model
 
-1. Edit `snowprofile.dbml`. Put a new table in a `TableGroup`, and give it a note.
-2. `bun run datamodel:build` rebuilds the ChartDB JSON. git ignores the JSON, so only the
-   DBML is committed.
+The diagram follows a migration (`docs/migrations.md`):
+
+1. Change the schema with a migration and update `src/db/schema.ts`.
+2. In [`notes.ts`](notes.ts), put a new table in a group and give it a note; add notes for
+   columns and indexes that need explaining. Columns, types, keys, indexes, and
+   references come from `schema.ts`, and so do ON DELETE rules, partial index conditions,
+   and composite foreign keys, so the notes leave those out. The audit columns of
+   app-owned tables get their notes from `auditNotes` unless a table gives its own.
+3. `bun run datamodel:generate` writes `snowprofile.dbml` and rebuilds the ChartDB JSON.
+   git ignores the JSON, so only the DBML is committed.
+
+`bun run datamodel:check` fails when the committed DBML isn't what the generator writes;
+CI and the pre-commit hook (when `schema.ts` or the generator changes) run it. The
+generator warns about a table in no group, and a note naming a missing column or index.
 
 The converter ([`dbml-to-chartdb.mjs`](dbml-to-chartdb.mjs), from snowtime) reads a subset
 of DBML: single-line columns, inline `ref: >` references, `indexes` blocks, `TableGroup`,

@@ -59,6 +59,10 @@ jobs:
       - name: Schema drift
         run: bun run db:drift
 
+      # Fails when datamodel/snowprofile.dbml isn't what schema.ts and notes.ts generate.
+      - name: Data model diagram
+        run: bun run datamodel:check
+
       # The production build, from the clean checkout CI has: it fails when a file the build
       # needs exists only in someone's working copy.
       - name: Build

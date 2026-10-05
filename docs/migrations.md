@@ -10,6 +10,7 @@ bun run db:generate <name>   # new empty drizzle/<timestamp>_<name>/migration.sq
 bun run db:migrate           # check applied migrations, then apply pending ones
 bun run db:drift             # fail if src/db/schema.ts no longer matches the migrations
 bun run db:verify            # only check that applied migrations are unchanged
+bun run datamodel:generate   # regenerate datamodel/snowprofile.dbml from schema.ts
 ```
 
 1. `bun run db:generate <name>`, with a snake_case name such as `add_project_color`. Never
@@ -19,7 +20,9 @@ bun run db:verify            # only check that applied migrations are unchanged
    `.env.development`).
 4. Update `src/db/schema.ts` by hand to match.
 5. `bun run db:drift` must report that `schema.ts` matches.
-6. Update `datamodel/snowprofile.dbml` (`datamodel/README.md`).
+6. Give a new table its group and notes in `datamodel/notes.ts`, then
+   `bun run datamodel:generate`. Commit the regenerated `snowprofile.dbml`; CI's
+   `datamodel:check` fails when it's stale (`datamodel/README.md`).
 
 The scripts target the database in `DATABASE_URL`. To target another file, set it in the
 gitignored `.env.local` or on the command line.

@@ -1,5 +1,5 @@
-// The MVP data model, written by hand for review before the first migration exists
-// (datamodel/README.md). Conventions: docs/architecture.md, "Data conventions".
+// Generated from src/db/schema.ts and datamodel/notes.ts by datamodel/generate-dbml.ts.
+// Do not edit: run `bun run datamodel:generate`.
 
 Project snowprofile {
   database_type: 'SQLite'
@@ -142,7 +142,7 @@ Table technology [note: 'A catalogue entry, such as PostgreSQL. Anyone adds entr
   category_id text [not null, ref: > technology_category.id, note: 'Composite FK (category_id, organization_id) to technology_category (id, organization_id).']
   name text [not null, note: 'Proper name, the same in both languages.']
   normalized_name text [not null, note: 'name lowercased with spaces and punctuation removed, set by the app. Catches Postgres SQL against PostgreSQL, and matches import values.']
-  merged_into_id text [ref: > technology.id, note: 'Set when an admin merges this entry into another: links move to the survivor and this row is soft-deleted. The import maps the old name to the survivor. Composite FK (merged_into_id, organization_id).']
+  merged_into_id text [ref: > technology.id, note: 'Set when an admin merges this entry into another: links move to the survivor and this row is soft-deleted. The import maps the old name to the survivor. Composite FK (merged_into_id, organization_id) to technology (id, organization_id).']
   created_at integer [not null, default: `CAST(ROUND(unixepoch('subsec') * 1000) AS INTEGER)`, note: 'Audit. Epoch ms, set by the database.']
   created_by text [not null, ref: > user.id, note: 'Audit. Acting user, set by the app per request.']
   updated_at integer [not null, default: `CAST(ROUND(unixepoch('subsec') * 1000) AS INTEGER)`, note: 'Audit. Set by the app on update; trigger fallback.']
@@ -252,8 +252,8 @@ Table project_contact [note: 'A contact person given as a reference for a projec
   created_by text [not null, ref: > user.id, note: 'Audit. Acting user, set by the app per request.']
 
   indexes {
-    organization_id
     (project_id, contact_person_id) [pk]
+    organization_id
     contact_person_id
   }
 }
@@ -266,8 +266,8 @@ Table project_technology [note: 'A technology used on a project. Rows are insert
   created_by text [not null, ref: > user.id, note: 'Audit. Acting user, set by the app per request.']
 
   indexes {
-    organization_id
     (project_id, technology_id) [pk]
+    organization_id
     technology_id
   }
 }
@@ -284,8 +284,8 @@ Table project_criterion_answer [note: 'A project answer to a tender criterion. N
   updated_by text [not null, ref: > user.id, note: 'Audit. Acting user of the last change, set by the app.']
 
   indexes {
-    organization_id
     (project_id, criterion_id) [pk]
+    organization_id
     criterion_id
   }
 }
@@ -372,8 +372,8 @@ Table participation_technology [note: 'A technology the person used in a partici
   created_by text [not null, ref: > user.id, note: 'Audit. Acting user, set by the app per request.']
 
   indexes {
-    organization_id
     (participation_id, technology_id) [pk]
+    organization_id
     technology_id
   }
 }
@@ -421,8 +421,8 @@ Table own_project_technology [note: 'A catalogue technology used on an own proje
   created_by text [not null, ref: > user.id, note: 'Audit. Acting user, set by the app per request.']
 
   indexes {
-    organization_id
     (own_project_id, technology_id) [pk]
+    organization_id
     technology_id
   }
 }

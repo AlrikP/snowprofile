@@ -193,7 +193,8 @@
         "scripts/**",
         "e2e/**",
         "prototypes/**",
-        "*.config.ts"
+        "*.config.ts",
+        "datamodel/**"
       ],
       "rules": {
         "no-restricted-imports": "off"

@@ -23,33 +23,34 @@ commits after reviewing.
 
 ## Running things
 
-| Command                      | Does                                                                                      |
-| ---------------------------- | ----------------------------------------------------------------------------------------- |
-| `bun install`                | Installs dependencies; no install script may be relied on (`ignore-scripts`)              |
-| `bunx lefthook install`      | Installs the pre-commit hook; `prepare` does it only when scripts run                     |
-| `bun run env:init`           | Creates `.env.local` with a generated `BETTER_AUTH_SECRET`; keeps existing values         |
-| `bun run i18n:compile`       | Compiles `messages/` into `src/paraglide/`; `check` and `test` run it first               |
-| `bun --bun run dev`          | Starts the dev server on port 3000. `--bun` runs Vite under Bun, which loads `.env.local` |
-| `bun run check`              | Compiles messages, then format check, lint, the import and icon checks, type check, knip  |
-| `bun run lint`               | oxlint, type-aware; warnings fail                                                         |
-| `bun run imports:check`      | Fails on a relative import across areas, or a `#/` import inside one                      |
-| `bun run icons:check`        | Fails on an icon name without the `Icon` suffix; `--fix` renames Lucide imports           |
-| `bun run format`             | Formats with oxfmt (`format:check` only checks)                                           |
-| `bun run typecheck`          | `tsc --noEmit`                                                                            |
-| `bun run knip`               | Fails on unused files, exports, and dependencies (`knip.json`)                            |
-| `bun run build`              | Production build into `.output/`; also regenerates `src/routeTree.gen.ts`                 |
-| `bun run build:scripts`      | Bundles the start script and seeder into `.output/server/scripts/` for the image          |
-| `bun run start`              | Runs the build; with `MIGRATE_ON_START=true`, migrates first and fails before listening   |
-| `bun run db:generate <name>` | Creates an empty migration in `drizzle/`                                                  |
-| `bun run db:migrate`         | Checks applied migrations, then applies pending ones to `DATABASE_URL`                    |
-| `bun run db:drift`           | Fails if `src/db/schema.ts` no longer matches the migrations                              |
-| `bun run db:verify`          | Fails if an applied migration was edited or deleted                                       |
-| `bun run db:seed`            | Adds missing demo organizations locally; `--reset <slug>` redoes one                      |
-| `bun run prototypes:build`   | Builds the UI prototypes into `prototypes/build/`; `--watch` rebuilds                     |
-| `bun run test`               | Compiles messages, then runs `test:server` and `test:components`                          |
-| `bun run test:server`        | Server and database tests (`*.test.ts`), in random order; it prints `--seed`              |
-| `bun run test:components`    | Component tests (`*.test.tsx`) with Vitest in jsdom                                       |
-| `bun run test:e2e`           | Playwright against the production build on port 3100, with a fresh seeded database        |
+| Command                      | Does                                                                                           |
+| ---------------------------- | ---------------------------------------------------------------------------------------------- |
+| `bun install`                | Installs dependencies; no install script may be relied on (`ignore-scripts`)                   |
+| `bunx lefthook install`      | Installs the pre-commit hook; `prepare` does it only when scripts run                          |
+| `bun run env:init`           | Creates `.env.local` with a generated `BETTER_AUTH_SECRET`; keeps existing values              |
+| `bun run i18n:compile`       | Compiles `messages/` into `src/paraglide/`; `check` and `test` run it first                    |
+| `bun --bun run dev`          | Starts the dev server on port 3000. `--bun` runs Vite under Bun, which loads `.env.local`      |
+| `bun run check`              | Compiles messages, then format check, lint, the import and icon checks, type check, knip       |
+| `bun run lint`               | oxlint, type-aware; warnings fail                                                              |
+| `bun run imports:check`      | Fails on a relative import across areas, or a `#/` import inside one                           |
+| `bun run icons:check`        | Fails on an icon name without the `Icon` suffix; `--fix` renames Lucide imports                |
+| `bun run format`             | Formats with oxfmt (`format:check` only checks)                                                |
+| `bun run typecheck`          | `tsc --noEmit`                                                                                 |
+| `bun run knip`               | Fails on unused files, exports, and dependencies (`knip.json`)                                 |
+| `bun run build`              | Production build into `.output/`; also regenerates `src/routeTree.gen.ts`                      |
+| `bun run build:scripts`      | Bundles the start script and seeder into `.output/server/scripts/` for the image               |
+| `bun run start`              | Runs the build; with `MIGRATE_ON_START=true`, migrates first and fails before listening        |
+| `bun run db:generate <name>` | Creates an empty migration in `drizzle/`                                                       |
+| `bun run db:migrate`         | Checks applied migrations, then applies pending ones to `DATABASE_URL`                         |
+| `bun run db:drift`           | Fails if `src/db/schema.ts` no longer matches the migrations                                   |
+| `bun run db:verify`          | Fails if an applied migration was edited or deleted                                            |
+| `bun run db:seed`            | Adds missing demo organizations locally; `--reset <slug>` redoes one                           |
+| `bun run datamodel:generate` | Writes `datamodel/snowprofile.dbml` from `schema.ts`; `datamodel:check` fails when it is stale |
+| `bun run prototypes:build`   | Builds the UI prototypes into `prototypes/build/`; `--watch` rebuilds                          |
+| `bun run test`               | Compiles messages, then runs `test:server` and `test:components`                               |
+| `bun run test:server`        | Server and database tests (`*.test.ts`), in random order; it prints `--seed`                   |
+| `bun run test:components`    | Component tests (`*.test.tsx`) with Vitest in jsdom                                            |
+| `bun run test:e2e`           | Playwright against the production build on port 3100, with a fresh seeded database             |
 
 `test:e2e` stays out of `test`, so `test` needs no browser; CI runs it as its own step.
 Install the browser once with `bunx playwright install chromium`.
@@ -121,9 +122,8 @@ convention names its check; the ones under "Checked in review" have none.
   lint rule inline only with a reason.
 - CI is one `check` job in `.github/workflows/ci.yml`, on pull requests and pushes to
   `main`. Its steps: install, compile messages, format check, lint, import areas, icon
-  names, type check, knip, test, schema drift, build, and end-to-end tests. A task that
-  adds a check adds it as a step there and to the table above; the data model check
-  (task 019) joins this way.
+  names, type check, knip, test, schema drift, data model diagram, build, and end-to-end
+  tests. A task that adds a check adds it as a step there and to the table above.
 - Unused code fails knip. A file only a later task uses goes in `knip.json`'s `ignore`
   with that task named, rather than staying unchecked by accident; shadcn copies in
   `src/components/ui/` are ignored because unused parts of them are normal.
