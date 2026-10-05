@@ -30,9 +30,19 @@ Short description of what and why.
 
 - [ ] Concrete, verifiable outcome
 - [ ] ...
+
+## Outcome
+
+- What a later reader acts on, added when the task is done
 ```
 
 Update the status line as work progresses; tick criteria as they are met.
+
+The **Outcome** section records what the criteria and the commit message don't: findings
+that surprised, alternatives tried and dropped, how the work was verified beyond the
+automated checks, and what was left open and where it went. Keep it to about 5–10
+bullets. A decision recorded in `docs/` gets a link there, not a second copy. Write what a
+later reader needs, not the order the work happened in.
 
 `Depends on` lists only blocking dependencies: tasks that must be done before this one
 can start, each with the reason in a few words. Leave the line out when nothing blocks
@@ -53,7 +63,7 @@ instead.
 One task, one reviewed commit. When the acceptance criteria are met:
 
 1. Run the checks (lint, format, type check, tests) and fix what fails.
-2. Set the status to `done` and tick the criteria.
+2. Set the status to `done`, tick the criteria, and write the Outcome section.
 3. Stop and summarize for review: what changed, which docs were updated, anything left
    open and the task it went to. Suggest a commit message in the `AGENTS.md` convention
    (`task-NNN: ...`, or `task-NNN.M: ...` for a subtask).

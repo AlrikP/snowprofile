@@ -33,3 +33,23 @@ feature tasks apply them everywhere:
   own-project form.
 - Saving with Ongoing ticked clears the end date; ticking it alone doesn't
   (`project-edit.html`, comment at the checkbox).
+
+## Outcome
+
+- Renamed "tender criteria" to Technical characteristics (the admin list) and Solution
+  characteristics (a project's answers); code names stay `tender_criterion`
+  (`docs/product.md`). "Technology stack" was dropped because it read as a duplicate of
+  the Technologies section.
+- Replaced the import page with a one-off migration script for the sheet; a template-based
+  import and export is listed after the MVP (`docs/product.md`, `docs/architecture.md`).
+- Periods: a day, month, and year input, so a known day can be entered without inventing
+  one. Defaulting to the 1st was rejected because the stored precision drives CV output
+  and period filters (`docs/architecture.md`, "Data conventions").
+- Participation technologies are the person's own copy; admins see participants' extra
+  technologies on the project, and nothing syncs automatically (`docs/product.md`).
+- Roles became a catalogue with several roles per participation; the migration is in the
+  participation feature task (task 017).
+- axe (WCAG A and AA) was clean on every prototype page, state, and role, after
+  confirming it caught a planted violation.
+- The CV table pasted into Excel with its structure kept and is accepted for the MVP; its
+  columns stay an open question (`docs/product.md`).

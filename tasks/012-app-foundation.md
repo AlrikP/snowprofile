@@ -15,3 +15,19 @@ Turn the frame prototype into the app's shell, so feature tasks only add pages.
 - [x] Strings come from Paraglide messages in both locales.
 - [x] A component test covers the frame.
 - [x] Checked with the `ui-review` skill against the prototype.
+
+## Outcome
+
+- Signed-in URLs start with the organization's slug, so each tab keeps its organization
+  (`docs/architecture.md`, "Tenancy"). `/` opens the session's active organization.
+- Menu items follow permissions through one shared check (`roleHasPermission`), with a
+  new `projectRole` permission for the Roles page. A group with one visible item loses its
+  heading, which gives employees the short list from the prototype.
+- Fixed: the language switch didn't reload after saving the choice, because the save's
+  response already set the cookie and Paraglide saw no change. The reload is explicit.
+- Fixed: axe flagged the open menus; Radix menus are modal by default and hid a page with
+  focusable links. The frame's menus are non-modal.
+- Verified in the browser at desktop and phone width, as admin and employee: switching
+  organization, switching language, signing out, the phone menu closing on navigation,
+  and axe clean in each state.
+- The local database had only the demo organization; `db:seed` added the other two.
