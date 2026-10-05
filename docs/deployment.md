@@ -44,11 +44,14 @@ You need Docker with Compose. In `deploy/compose/`:
    docker compose up -d --build
    ```
 
-3. Seed the demo data with a temporary container from the app image. It adds the demo
+3. Seed the demo data with a temporary container from the app image, with the app
+   stopped: one process writes to the database at a time. The seeder adds the demo
    organizations the database lacks, and prints how to sign in:
 
    ```bash
+   docker compose stop app
    docker compose run --rm --no-deps app bun --no-env-file .output/server/scripts/db-seed.js
+   docker compose up -d --wait
    ```
 
 4. Open `https://localhost` (or `https://localhost:8443`). Caddy signs localhost with its
@@ -57,8 +60,8 @@ You need Docker with Compose. In `deploy/compose/`:
 Useful while it runs:
 
 - `docker compose logs -f app` shows the app's log; `caddy` shows the access log.
-- `docker compose run --rm --no-deps app bun --no-env-file .output/server/scripts/db-seed.js --reset demo`
-  starts one demo organization over.
+- The seed command with `--reset demo` starts one demo organization over; stop the app
+  first, as for seeding.
 - `docker compose down` stops the stack and keeps the database volume.
 
 Never run `docker compose down -v`: it deletes the database volume. To start a local
