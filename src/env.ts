@@ -21,6 +21,10 @@ const EnvSchema = v.object({
   GOOGLE_CLIENT_ID: v.optional(nonEmpty),
   GOOGLE_CLIENT_SECRET: v.optional(nonEmpty),
   ALLOWED_LOGIN_DOMAINS: v.optional(v.pipe(nonEmpty, v.transform(parseLoginDomains))),
+  // The request header that carries the client's address behind a proxy. Caddy sets it from
+  // the address it trusts (deploy/compose/Caddyfile); Better Auth's sign-in rate limit
+  // counts per address from it. Unset, it counts all clients in one bucket.
+  CLIENT_IP_HEADER: v.optional(v.pipe(v.string(), v.regex(/^[a-z0-9-]+$/, 'lowercase'))),
   // Deployed stacks apply pending migrations before the server listens (scripts/start.ts).
   MIGRATE_ON_START: v.pipe(
     v.optional(v.picklist(['true', 'false']), 'false'),

@@ -63,3 +63,10 @@ test('the app refuses DEMO_MODE together with ALLOWED_LOGIN_DOMAINS', () => {
     parseEnv({ ...base, NODE_ENV: 'development', ALLOWED_LOGIN_DOMAINS: 'snowhound.eu' }),
   ).toThrow('DEMO_MODE')
 })
+
+test('CLIENT_IP_HEADER is a lowercase header name', () => {
+  expect(parseEnv({ ...base, CLIENT_IP_HEADER: 'cf-connecting-ip' }).CLIENT_IP_HEADER).toBe(
+    'cf-connecting-ip',
+  )
+  expect(() => parseEnv({ ...base, CLIENT_IP_HEADER: 'CF-Connecting-IP' })).toThrow()
+})

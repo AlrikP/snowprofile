@@ -64,7 +64,7 @@ not from Google, so pages make no requests to Google. The Snowhound mark is
 | `e2e/`                 | Playwright end-to-end tests and their server (`server.ts`)   |
 | `prototypes/`          | Static HTML prototypes (`prototypes/README.md`)              |
 | `public/`              | Files served as they are, such as the Snowhound mark         |
-| `deploy/compose/`      | Compose stack and Caddyfile for Hetzner (planned)            |
+| `deploy/compose/`      | Compose stack and Caddyfile (`docs/deployment.md`)           |
 | `docs/`                | Product scope, architecture, hosting, skills                 |
 | `tasks/`               | Task files (`tasks/README.md`)                               |
 
@@ -317,7 +317,7 @@ MVP"). What the script must handle:
 | ------------- | ------------------------------ | ---------------------------------- | ------------------------------- | -------------------------------------------------- |
 | Local dev     | `bun --bun run dev`, port 3000 | `file:local.db`                    | `DEMO_MODE`, seeded users       | Generated demo data only                           |
 | Test          | `bun test`, Vitest, Playwright | A fresh, seeded file per test file | `DEMO_MODE`                     | Same seed as dev                                   |
-| Local Compose | `deploy/compose/` on a laptop  | A file on a Docker volume          | `DEMO_MODE`                     | Rehearses a deployment (planned)                   |
+| Local Compose | `deploy/compose/` on a laptop  | A file on a Docker volume          | `DEMO_MODE`                     | Rehearses a deployment (`docs/deployment.md`)      |
 | Demo stack    | Hetzner, later                 | Its own volume                     | `DEMO_MODE`                     | Fictional data only (planned)                      |
 | Company stack | Hetzner, later                 | Its own volume, Litestream backups | Google, `ALLOWED_LOGIN_DOMAINS` | Real data; can't go live without backups (planned) |
 

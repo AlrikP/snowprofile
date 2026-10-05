@@ -5,6 +5,7 @@
 - Product scope: `docs/product.md`
 - Architecture decisions: `docs/architecture.md`
 - Hosting constraints: `docs/hosting.md`
+- Deployment and the local Compose rehearsal: `docs/deployment.md`
 - Database migrations: `docs/migrations.md`
 - Task tracking: `tasks/` (see `tasks/README.md`)
 - Writing docs: `.claude/skills/google-style/SKILL.md`

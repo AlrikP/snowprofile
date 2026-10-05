@@ -26,3 +26,4 @@ CMD ["bun", "--no-env-file", ".output/server/scripts/start.js"]
 
 FROM caddy:2.11.4 AS caddy
 COPY --from=build /app/.output/public/ /srv/snowprofile/
+COPY deploy/compose/Caddyfile /etc/caddy/Caddyfile

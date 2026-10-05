@@ -2,7 +2,7 @@
 
 Goal: run on one Hetzner server in an EU data center, as a Docker Compose stack, at a
 flat low cost, with all data in the EU. Until the first deployment, everything runs
-locally. Setup steps go into `docs/deployment.md` once the deployment task writes it.
+locally. Setup steps, starting with the local rehearsal, are in `docs/deployment.md`.
 
 snowtime's Compose deployment, which runs `snowtime-internal.snowhound.eu` on Hetzner, is
 the reference: `../snowtime/docs/deployment/compose.md`, `../snowtime/deploy/compose/`,

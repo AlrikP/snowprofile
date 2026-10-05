@@ -1,6 +1,6 @@
 # 015: Container image and local Compose
 
-Status: in-progress
+Status: done
 Depends on: task 005 (migrations), task 006 (`DEMO_MODE`)
 
 Prove the deployable image early, and rehearse the Hetzner stack locally
@@ -16,4 +16,4 @@ workflow, Litestream, and operator duties become tasks when deployment starts.
 
 ## Acceptance criteria
 
-- [ ] All subtasks are done.
+- [x] All subtasks are done.

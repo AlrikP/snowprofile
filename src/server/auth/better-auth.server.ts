@@ -21,7 +21,10 @@ export function createAuth(database: Database, config: SignInConfig = env) {
     secret: env.BETTER_AUTH_SECRET,
     baseURL: env.BETTER_AUTH_URL,
     database: drizzleAdapter(database, { provider: 'sqlite', schema }),
-    advanced: { database: { generateId: () => uuidv7() } },
+    advanced: {
+      database: { generateId: () => uuidv7() },
+      ...(env.CLIENT_IP_HEADER && { ipAddress: { ipAddressHeaders: [env.CLIENT_IP_HEADER] } }),
+    },
     // Password accounts exist only in seeded data, so sign-up is always off.
     emailAndPassword: {
       enabled: passwordSignInEnabled(config),
