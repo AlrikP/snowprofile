@@ -1,6 +1,6 @@
 # 015: Container image and local Compose
 
-Status: todo
+Status: in-progress
 Depends on: task 005 (migrations), task 006 (`DEMO_MODE`)
 
 Prove the deployable image early, and rehearse the Hetzner stack locally

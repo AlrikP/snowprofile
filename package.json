@@ -19,6 +19,7 @@
     "datamodel:build": "bun datamodel/dbml-to-chartdb.mjs",
     "datamodel:stop": "docker compose -f datamodel/docker-compose.yml down",
     "build": "vite build",
+    "start": "bun scripts/start.ts",
     "preview": "vite preview",
     "lint": "oxlint",
     "format": "oxfmt",

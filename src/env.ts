@@ -21,6 +21,11 @@ const EnvSchema = v.object({
   GOOGLE_CLIENT_ID: v.optional(nonEmpty),
   GOOGLE_CLIENT_SECRET: v.optional(nonEmpty),
   ALLOWED_LOGIN_DOMAINS: v.optional(v.pipe(nonEmpty, v.transform(parseLoginDomains))),
+  // Deployed stacks apply pending migrations before the server listens (scripts/start.ts).
+  MIGRATE_ON_START: v.pipe(
+    v.optional(v.picklist(['true', 'false']), 'false'),
+    v.transform((value) => value === 'true'),
+  ),
 })
 
 // Empty values count as unset, so a blank line copied from .env.example changes nothing.

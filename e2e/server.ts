@@ -14,6 +14,8 @@ const env = {
   // A fixed secret: the database and its sessions are thrown away after each run.
   BETTER_AUTH_SECRET: 'e2e-only-secret-not-used-anywhere-else',
   DEMO_MODE: 'true',
+  // Already migrated for the seed; the server still verifies on start, as deployed.
+  MIGRATE_ON_START: 'true',
 }
 
 function run(...args: string[]) {
@@ -30,5 +32,5 @@ if (import.meta.main) {
   mkdirSync('e2e/.data')
   run('scripts/db-migrate.ts')
   run('scripts/db-seed.ts')
-  run('.output/server/index.mjs')
+  run('scripts/start.ts')
 }

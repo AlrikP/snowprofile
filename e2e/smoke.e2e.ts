@@ -1,6 +1,13 @@
 import { expect, test } from '@playwright/test'
 import { inEnglish, session } from './sessions'
 
+test('the health endpoint reports the app and its database up', async ({ request }) => {
+  const response = await request.get('/api/health')
+
+  expect(response.status()).toBe(200)
+  expect(await response.json()).toEqual({ status: 'ok' })
+})
+
 test('a signed-out visitor gets the sign-in page with the demo accounts', async ({
   page,
   context,

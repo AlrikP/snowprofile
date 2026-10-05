@@ -23,6 +23,7 @@ import { Route as OrganizationProjectsRouteImport } from './routes/$organization
 import { Route as OrganizationRolesRouteImport } from './routes/$organization/roles'
 import { Route as OrganizationSearchRouteImport } from './routes/$organization/search'
 import { Route as OrganizationTechnologiesRouteImport } from './routes/$organization/technologies'
+import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
 const IndexRoute = IndexRouteImport.update({
@@ -96,6 +97,11 @@ const OrganizationTechnologiesRoute =
     path: '/technologies',
     getParentRoute: () => OrganizationRouteRoute,
   } as any)
+const ApiHealthRoute = ApiHealthRouteImport.update({
+  id: '/api/health',
+  path: '/api/health',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -116,6 +122,7 @@ export interface FileRoutesByFullPath {
   '/$organization/roles': typeof OrganizationRolesRoute
   '/$organization/search': typeof OrganizationSearchRoute
   '/$organization/technologies': typeof OrganizationTechnologiesRoute
+  '/api/health': typeof ApiHealthRoute
   '/$organization/': typeof OrganizationIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
@@ -132,6 +139,7 @@ export interface FileRoutesByTo {
   '/$organization/roles': typeof OrganizationRolesRoute
   '/$organization/search': typeof OrganizationSearchRoute
   '/$organization/technologies': typeof OrganizationTechnologiesRoute
+  '/api/health': typeof ApiHealthRoute
   '/$organization': typeof OrganizationIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
@@ -150,6 +158,7 @@ export interface FileRoutesById {
   '/$organization/roles': typeof OrganizationRolesRoute
   '/$organization/search': typeof OrganizationSearchRoute
   '/$organization/technologies': typeof OrganizationTechnologiesRoute
+  '/api/health': typeof ApiHealthRoute
   '/$organization/': typeof OrganizationIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
@@ -169,6 +178,7 @@ export interface FileRouteTypes {
     | '/$organization/roles'
     | '/$organization/search'
     | '/$organization/technologies'
+    | '/api/health'
     | '/$organization/'
     | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
@@ -185,6 +195,7 @@ export interface FileRouteTypes {
     | '/$organization/roles'
     | '/$organization/search'
     | '/$organization/technologies'
+    | '/api/health'
     | '/$organization'
     | '/api/auth/$'
   id:
@@ -202,6 +213,7 @@ export interface FileRouteTypes {
     | '/$organization/roles'
     | '/$organization/search'
     | '/$organization/technologies'
+    | '/api/health'
     | '/$organization/'
     | '/api/auth/$'
   fileRoutesById: FileRoutesById
@@ -211,6 +223,7 @@ export interface RootRouteChildren {
   OrganizationRouteRoute: typeof OrganizationRouteRouteWithChildren
   NoAccessRoute: typeof NoAccessRoute
   SignInRoute: typeof SignInRoute
+  ApiHealthRoute: typeof ApiHealthRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
@@ -314,6 +327,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrganizationTechnologiesRouteImport
       parentRoute: typeof OrganizationRouteRoute
     }
+    '/api/health': {
+      id: '/api/health'
+      path: '/api/health'
+      fullPath: '/api/health'
+      preLoaderRoute: typeof ApiHealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -358,6 +378,7 @@ const rootRouteChildren: RootRouteChildren = {
   OrganizationRouteRoute: OrganizationRouteRouteWithChildren,
   NoAccessRoute: NoAccessRoute,
   SignInRoute: SignInRoute,
+  ApiHealthRoute: ApiHealthRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport
