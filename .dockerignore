@@ -1,0 +1,30 @@
+# Secrets, local databases, and build output stay out of the build context; the image
+# builds from a clean copy of the source.
+.git
+node_modules
+.output
+.nitro
+.tanstack
+dist
+.env*
+!.env.example
+**/.env
+**/.env.*
+*.db
+*.db-*
+src/paraglide
+e2e/.auth
+e2e/.data
+test-results
+playwright-report
+prototypes/build
+.claude
+.codex
+.agents
+# Not needed to build, so editing them doesn't invalidate the build cache.
+docs
+tasks
+prototypes
+datamodel
+e2e
+*.md

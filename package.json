@@ -19,6 +19,7 @@
     "datamodel:build": "bun datamodel/dbml-to-chartdb.mjs",
     "datamodel:stop": "docker compose -f datamodel/docker-compose.yml down",
     "build": "vite build",
+    "build:scripts": "bun build scripts/start.ts scripts/db-seed.ts --target=bun --external libsql --outdir .output/server/scripts",
     "start": "bun scripts/start.ts",
     "preview": "vite preview",
     "lint": "oxlint",

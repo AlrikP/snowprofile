@@ -37,6 +37,7 @@ commits after reviewing.
 | `bun run typecheck`          | `tsc --noEmit`                                                                            |
 | `bun run knip`               | Fails on unused files, exports, and dependencies (`knip.json`)                            |
 | `bun run build`              | Production build into `.output/`; also regenerates `src/routeTree.gen.ts`                 |
+| `bun run build:scripts`      | Bundles the start script and seeder into `.output/server/scripts/` for the image          |
 | `bun run start`              | Runs the build; with `MIGRATE_ON_START=true`, migrates first and fails before listening   |
 | `bun run db:generate <name>` | Creates an empty migration in `drizzle/`                                                  |
 | `bun run db:migrate`         | Checks applied migrations, then applies pending ones to `DATABASE_URL`                    |

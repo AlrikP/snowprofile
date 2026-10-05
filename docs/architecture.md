@@ -322,7 +322,15 @@ MVP"). What the script must handle:
 | Company stack | Hetzner, later                 | Its own volume, Litestream backups | Google, `ALLOWED_LOGIN_DOMAINS` | Real data; can't go live without backups (planned) |
 
 - **One container image,** configured only through environment variables, logging to
-  standard output, with a health endpoint.
+  standard output, with a health endpoint (`/api/health`).
+- **The app image is the Bun runtime image** (`oven/bun` slim) running the production
+  build as the non-root `bun` user, with the database on `/data`. `build:scripts` bundles
+  the start script and the seeder into `.output/server/scripts/`, where they find the
+  libSQL addon Nitro traced, so the image carries no other `node_modules`: 216 MB, built
+  in about 35 seconds with a warm cache. A compiled Bun binary (snowtime's layout) would
+  be about 10% smaller, but needs a plugin that patches libSQL's addon loading and a
+  build per CPU architecture; snowtime needs it to run without Bun, which a container
+  doesn't. A second image, `caddy`, serves `.output/public` (`Dockerfile`).
 - **Images** are built by a manual "Compose deploy" GitHub Actions workflow, pushed to
   GitHub Container Registry, and tagged with the commit's short ID (`RELEASE`). Rolling
   back means picking an earlier tag.
@@ -335,8 +343,6 @@ MVP"). What the script must handle:
 
 ## Open questions
 
-- **Image layout:** a compiled Bun binary (snowtime) or the Bun runtime image. The
-  deployment task decides from image size and build time.
 - **Litestream storage:** which S3-compatible storage holds backups (for example Hetzner
   Object Storage in another location, or another provider). Decide before the company
   stack holds real data.
