@@ -55,7 +55,6 @@ const navigation: Record<Role, { label?: string; items: NavItem[] }[]> = {
           label: 'nav_tender_criteria',
           href: 'criteria.html',
         },
-        { id: 'import', icon: 'UploadIcon', label: 'nav_import', href: 'import.html' },
       ],
     },
   ],

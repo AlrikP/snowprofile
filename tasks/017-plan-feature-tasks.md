@@ -1,7 +1,7 @@
 # 017: Plan feature tasks
 
 Status: todo
-Depends on: task 007 (tables), task 009 (server foundation), task 011 (prototypes), task 012 (app frame)
+Depends on: task 007 (tables), task 009 (server foundation), task 011 (prototypes), task 012 (app frame), task 023 (spec format)
 
 Write the feature tasks once the foundation exists, so they build on real tables and
 patterns rather than guesses.
@@ -11,6 +11,8 @@ patterns rather than guesses.
 - [ ] One feature task per MVP scope row in `docs/product.md`, split where a row is large
       (for example Import and CV document); each names the docs, prototype, and tables it
       builds on.
+- [ ] Each feature task has a "Spec changes" section for its capability spec
+      (`docs/specs/README.md`).
 - [ ] Dependencies between features only where one truly blocks another, so independent
       features can run in parallel.
 - [ ] Feature tasks that add or change tables depend on task 019, so their migrations

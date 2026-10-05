@@ -30,26 +30,26 @@ More roles come later; the role model must allow adding them.
 
 ## MVP scope
 
-| Area                    | Included                                                                                                                                                                                                                 |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Sign-in                 | Google sign-in; access by organization membership (see [Users and access](#users-and-access))                                                                                                                            |
-| Organizations           | Several organizations in one deployment, with data fully isolated per organization. A demo stack holds several fictional organizations; the company stack holds Snowhound and possibly other companies later             |
-| Members and roles       | Roles `admin` and `employee` per organization; admins invite members and change roles                                                                                                                                    |
-| Projects                | Admins create and edit org projects: name, description (ET/EN), customer, start and end month or "ongoing", tender reference number, customer contact persons, total hours, cost, technologies, tender criteria answers  |
-| Technology catalogue    | Shared list per organization, grouped by category (Frontend, Backend, Data, Infra, Testing, Other). Anyone can add an entry; admins rename, recategorize, and merge duplicates (Postgres → PostgreSQL)                   |
-| Tender criteria         | Admins manage a checklist of yes/no criteria (automated tests, REST/SOAP, relational DB, DB migrations, Linux, X-Road, containers/K8s, monitoring…); each project answers yes or no, with an optional note               |
-| Employee profile        | Name, join date, optional birth date, education (institution, field, period, degree; several entries)                                                                                                                    |
-| Project participation   | Employee on a project: start and end month (or ongoing), role (ET/EN), approximate hours, tasks (ET/EN), technologies they used (a subset of or addition to the project's)                                               |
-| Own projects            | An employee adds a project that appears only on their own CV (from an earlier employer, or several engagements merged into one); same fields as an org project                                                           |
-| Profile update requests | An admin requests an update from an employee; the employee sees it on sign-in and confirms the profile is current. Admins see each profile's last confirmation and open requests                                         |
-| Search                  | Filter people by technology and optionally a time period; results show the matching projects and participations                                                                                                          |
-| CV selection            | Pick one person (personal CV) or several (team CV), pick the language (ET/EN), and choose which projects to include (all by default, or filtered by technology or period)                                                |
-| CV view                 | The selection shown on screen as a project and technology table, built so it pastes cleanly into Word or Google Docs with its table structure kept                                                                       |
-| CV document             | DOCX from one minimal built-in template per language: people, their projects, roles, periods, and technologies. A team CV is one document, with shared projects listed once. No per-organization or per-tender templates |
-| Bilingual content       | Text fields hold an Estonian and an English version; the CV uses the chosen language and flags missing translations before generating                                                                                    |
-| Import                  | Repeatable import from the xlsx format: re-running updates matched records instead of duplicating them. Values that can't be parsed go into a report for an admin to fix                                                 |
-| Demo data               | A generator of fictional organizations, customers, projects, employees, and participations, for demos, automated tests, and performance checks, so no real personal data is needed outside the company stack             |
-| UI languages            | Estonian and English, switchable per user                                                                                                                                                                                |
+| Area                      | Included                                                                                                                                                                                                                                                                                                                                                    |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Sign-in                   | Google sign-in; access by organization membership (see [Users and access](#users-and-access))                                                                                                                                                                                                                                                               |
+| Organizations             | Several organizations in one deployment, with data fully isolated per organization. A demo stack holds several fictional organizations; the company stack holds Snowhound and possibly other companies later                                                                                                                                                |
+| Members and roles         | Roles `admin` and `employee` per organization; admins invite members and change roles                                                                                                                                                                                                                                                                       |
+| Projects                  | Admins create and edit org projects: name, description (ET/EN), customer, start and end month or "ongoing", tender reference number, customer contact persons, total hours, cost, technologies, solution characteristics                                                                                                                                    |
+| Technology catalogue      | Shared list per organization, grouped by category (Frontend, Backend, Data, Infra, Testing, Other). Anyone can add an entry; admins rename, recategorize, and merge duplicates (Postgres → PostgreSQL)                                                                                                                                                      |
+| Technical characteristics | Admins manage a checklist of yes/no questions that tenders ask about a project's solution (automated tests, REST/SOAP, relational DB, DB migrations, Linux, X-Road, containers/K8s, monitoring…); each project answers yes or no, with an optional note. A project shows its answers as solution characteristics. The data model calls them tender criteria |
+| Employee profile          | Name, join date, optional birth date, education (institution, field, period, degree; several entries)                                                                                                                                                                                                                                                       |
+| Project participation     | Employee on a project: start and end month (or ongoing), role (ET/EN), approximate hours, tasks (ET/EN), technologies they used (a subset of or addition to the project's)                                                                                                                                                                                  |
+| Own projects              | An employee adds a project that appears only on their own CV (from an earlier employer, or several engagements merged into one); same fields as an org project                                                                                                                                                                                              |
+| Profile update requests   | An admin requests an update from an employee; the employee sees it on sign-in and confirms the profile is current. Admins see each profile's last confirmation and open requests                                                                                                                                                                            |
+| Search                    | Filter people by technology and optionally a time period; results show the matching projects and participations                                                                                                                                                                                                                                             |
+| CV selection              | Pick one person (personal CV) or several (team CV), pick the language (ET/EN), and choose which projects to include (all by default, or filtered by technology or period)                                                                                                                                                                                   |
+| CV view                   | The selection shown on screen as a project and technology table, built so it pastes cleanly into Word or Google Docs with its table structure kept                                                                                                                                                                                                          |
+| CV document               | DOCX from one minimal built-in template per language: people, their projects, roles, periods, and technologies. A team CV is one document, with shared projects listed once. No per-organization or per-tender templates                                                                                                                                    |
+| Bilingual content         | Text fields hold an Estonian and an English version; the CV uses the chosen language and flags missing translations before generating                                                                                                                                                                                                                       |
+| Sheet migration           | A one-off script, with no UI, loads `Snowhound_CV_baas.xlsx` into Snowhound's organization on the company stack. Re-running it updates matched records instead of duplicating them, so it can be rehearsed. It lists the values it can't parse for an admin to fix in the app                                                                               |
+| Demo data                 | A generator of fictional organizations, customers, projects, employees, and participations, for demos, automated tests, and performance checks, so no real personal data is needed outside the company stack                                                                                                                                                |
+| UI languages              | Estonian and English, switchable per user                                                                                                                                                                                                                                                                                                                   |
 
 ## Not in MVP
 
@@ -61,6 +61,8 @@ More roles come later; the role model must allow adding them.
   wants a slightly different format; whether a common representation is worth building
   is decided after the MVP, from real use.
 - Per-CV text overrides and saved, named CV versions.
+- Import and export in the app. A later design could export to a fixed template and import
+  from the same template, so another organization can fit its existing data to it.
 - Advanced matching: scoring people against a tender's requirements.
 - Skill levels or self-assessed proficiency per technology.
 - Roles beyond `admin` and `employee` (for example sales or read-only).
@@ -101,9 +103,9 @@ More roles come later; the role model must allow adding them.
 
 - Organizations, members, roles, invitations.
 - Customers (ordering organizations) and customer contact persons.
-- Projects, with technologies and tender criteria answers.
+- Projects, with technologies and solution characteristics.
 - Employees' profiles, education, project participations, and own projects.
-- The technology catalogue and the tender criteria list.
+- The technology catalogue and the technical characteristics list.
 - Profile update requests and confirmations.
 
 ### Personal data and GDPR
@@ -130,7 +132,7 @@ More roles come later; the role model must allow adding them.
 - **Content:** text fields hold both Estonian and English; either may be missing.
 - **CV output:** generated in Estonian or English; missing translations are flagged
   before generating.
-- **Import:** the existing sheet is in Estonian and fills the Estonian versions.
+- **Sheet migration:** the existing sheet is in Estonian and fills the Estonian versions.
 
 ## Open questions
 

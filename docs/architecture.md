@@ -137,7 +137,7 @@ conventions apply to every app-owned table; Better Auth's tables keep the plugin
   `YYYY`. A null end means ongoing. A `CHECK` keeps the end at or after the start,
   compared on the end's precision (`end_date >= substr(start_date, 1, length(end_date))`).
   A period filter reads a partial start as its first day and a partial end as its last.
-  The sheet's other forms ("juuni-okt 2024") go into the import report.
+  The sheet's other forms ("juuni-okt 2024") go into the migration script's report.
 - **Approximate numbers** (hours, cost): an `integer` value plus a `*_qualifier` column,
   `exact`, `approximately`, or `more_than`, so `~3500h` and `> 10 000h` keep their meaning
   and still sort and sum. A `CHECK` makes the qualifier null exactly when the value is.
@@ -199,7 +199,10 @@ a move to PostgreSQL ([deferred](#deferred--out-of-scope)) replaces:
 
 ### From the sheet
 
-What the import must handle (`Snowhound_CV_baas.xlsx`):
+A one-off script loads `Snowhound_CV_baas.xlsx`, not an import page in the app. The sheet
+is an informal document, so an in-app import would be built around a single file;
+a template-based import and export is a later product question (`product.md`, "Not in
+MVP"). What the script must handle:
 
 - **Periods** have month precision (`05.2020`) and are often open-ended ("jätkuv", "...",
   "-"). The sheet also has years only (`2018`), `6.2015`, and text such as
