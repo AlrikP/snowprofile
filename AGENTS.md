@@ -3,6 +3,7 @@
 ## Project context
 
 - Product scope: `docs/product.md`
+- Behavior specs, one per capability: `docs/specs/` (format in `docs/specs/README.md`)
 - Architecture decisions: `docs/architecture.md`
 - Hosting constraints: `docs/hosting.md`
 - Deployment and the local Compose rehearsal: `docs/deployment.md`
@@ -34,6 +35,7 @@ commits after reviewing.
 | `bun run lint`               | oxlint, type-aware; warnings fail                                                              |
 | `bun run imports:check`      | Fails on a relative import across areas, or a `#/` import inside one                           |
 | `bun run icons:check`        | Fails on an icon name without the `Icon` suffix; `--fix` renames Lucide imports                |
+| `bun run specs:check`        | Fails on a spec scenario no test cites, or a test citing an unknown ID                         |
 | `bun run format`             | Formats with oxfmt (`format:check` only checks)                                                |
 | `bun run typecheck`          | `tsc --noEmit`                                                                                 |
 | `bun run knip`               | Fails on unused files, exports, and dependencies (`knip.json`)                                 |
@@ -109,6 +111,9 @@ convention names its check; the ones under "Checked in review" have none.
 - The server returns error codes, keys, dates, and numbers; the client translates and
   formats them.
 - Read environment variables only through `src/env.ts`, from server code.
+- A test that checks a behavior spec scenario starts its title with the scenario's ID:
+  `test('sign-in.demo-password: ...')`. Check: `specs:check` fails on a scenario no test
+  cites, or a cited ID no spec defines.
 - Comment only where the code is hard to follow without it, and say only what a reader of
   that code needs: why, a constraint, or a contract the code can't show. Don't restate the
   next line, and don't describe earlier versions or the task that added the code; history
@@ -122,7 +127,8 @@ convention names its check; the ones under "Checked in review" have none.
   lint rule inline only with a reason.
 - CI is one `check` job in `.github/workflows/ci.yml`, on pull requests and pushes to
   `main`. Its steps: install, compile messages, format check, lint, import areas, icon
-  names, type check, knip, test, schema drift, data model diagram, build, and end-to-end
+  names, spec scenarios, type check, knip, test, schema drift, data model diagram, build,
+  and end-to-end
   tests. A task that adds a check adds it as a step there and to the table above.
 - Unused code fails knip. A file only a later task uses goes in `knip.json`'s `ignore`
   with that task named, rather than staying unchecked by accident; shadcn copies in

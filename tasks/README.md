@@ -31,12 +31,24 @@ Short description of what and why.
 - [ ] Concrete, verifiable outcome
 - [ ] ...
 
+## Spec changes
+
+- Added: Requirement and scenarios, in docs/specs/<capability>.md
+- Modified: ...
+- Removed: ...
+
 ## Outcome
 
 - What a later reader acts on, added when the task is done
 ```
 
 Update the status line as work progresses; tick criteria as they are met.
+
+A task that changes behavior has a **Spec changes** section: the requirements and
+scenarios it adds, modifies, or removes in `docs/specs/` (`docs/specs/README.md`), with
+the scenario IDs. It is reviewed with the task, before the work starts. The commit that
+implements the task applies it to the spec, with the tests that cite the scenarios. Leave
+the section out of tasks that change no behavior, such as tooling or infrastructure.
 
 The **Outcome** section records what the criteria and the commit message don't: findings
 that surprised, alternatives tried and dropped, how the work was verified beyond the

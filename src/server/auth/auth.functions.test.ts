@@ -61,7 +61,7 @@ test('a signed-out visitor gets no access and no cookie', async () => {
   expect(response.headers.get('set-cookie')).toBeNull()
 })
 
-test('a member opens in the session’s active organization', async () => {
+test('sign-in.opens-active-organization: a member opens in the session’s active organization', async () => {
   const headers = await signedIn(auth, admin.email)
   const first = await callServerFn(getAccess, { headers })
   expect(first.result).toMatchObject({ signedIn: true, organization: 'demo' })

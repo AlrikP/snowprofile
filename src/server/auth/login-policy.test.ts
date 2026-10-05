@@ -31,21 +31,21 @@ function signInAdmin(auth: ReturnType<typeof createAuth>) {
   })
 }
 
-test('without ALLOWED_LOGIN_DOMAINS any domain signs in', async () => {
+test('sign-in.any-domain: without ALLOWED_LOGIN_DOMAINS any domain signs in', async () => {
   expect((await signInAdmin(authWith([]))).status).toBe(200)
 })
 
-test('a session for an address outside the allowed domains is refused', async () => {
+test('sign-in.domain-refused: a session for an address outside the allowed domains is refused', async () => {
   const response = await signInAdmin(authWith(['snowhound.eu']))
   expect(response.status).toBe(403)
   expect(await response.text()).toContain('LOGIN_DOMAIN_NOT_ALLOWED')
 })
 
-test('a session for an allowed domain is created', async () => {
+test('sign-in.allowed-domain: a session for an allowed domain is created', async () => {
   expect((await signInAdmin(authWith(['demo.example.com']))).status).toBe(200)
 })
 
-test('a new user outside the allowed domains is refused', async () => {
+test('sign-in.new-user-domain-refused: a new user outside the allowed domains is refused', async () => {
   const context = await authWith(['snowhound.eu']).$context
   const outside = context.internalAdapter.createUser(
     {
@@ -72,7 +72,7 @@ test('a new user outside the allowed domains is refused', async () => {
   expect(inside.email).toBe('someone@snowhound.eu')
 })
 
-test('with an allowlist, an unverified address is refused', async () => {
+test('sign-in.unverified-refused: with an allowlist, an unverified address is refused', async () => {
   const auth = authWith(['demo.example.com'])
   const id = uuidv7()
   const email = 'unverified@demo.example.com'
@@ -96,7 +96,7 @@ test('with an allowlist, an unverified address is refused', async () => {
   expect(error).toHaveProperty('body.code', 'LOGIN_DOMAIN_NOT_ALLOWED')
 })
 
-test('a new session starts in the user’s organization', async () => {
+test('sign-in.first-organization: a new session starts in the user’s organization', async () => {
   const auth = authWith([])
   const response = await signInAdmin(auth)
   const headers = new Headers({ cookie: response.headers.get('set-cookie') ?? '' })

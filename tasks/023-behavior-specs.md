@@ -1,6 +1,6 @@
 # 023: Behavior specs
 
-Status: todo
+Status: done
 
 Record what each feature does in a living spec, one per capability, after OpenSpec's
 capability specs. Today a feature's behavior is spread over a scope row in
@@ -10,30 +10,48 @@ behavior to cite. Task 017 writes the feature tasks against this format.
 
 ## Acceptance criteria
 
-- [ ] `docs/specs/README.md` defines the format: one file per capability, named after its
+- [x] `docs/specs/README.md` defines the format: one file per capability, named after its
       row in the MVP scope table; requirements stated with must, should, or can; one or
       more scenarios per requirement (given, when, then), each with a stable ID that tests
       cite. Specs describe behavior a user or client can observe, never tables,
       components, or libraries.
-- [ ] `tasks/README.md` describes a "Spec changes" section (added, modified, and removed
+- [x] `tasks/README.md` describes a "Spec changes" section (added, modified, and removed
       requirements) for tasks that change behavior. The section is reviewed with the
       task, and the commit that implements it applies it to the spec.
-- [ ] `docs/specs/sign-in.md` specifies the implemented sign-in behavior as the worked
+- [x] `docs/specs/sign-in.md` specifies the implemented sign-in behavior as the worked
       example, and its scenarios cite the existing tests. `docs/architecture.md`
       ("Sign-in modes") keeps the reasons and the implementation and links to the spec
       instead of repeating the behavior.
-- [ ] A script check fails when a scenario has no test citing its ID or a test cites an
+- [x] A script check fails when a scenario has no test citing its ID or a test cites an
       unknown ID. It runs in the pre-commit hook and as a CI step, and `AGENTS.md` lists
       it in the commands table.
-- [ ] Decided with the user and recorded in `docs/architecture.md` (the Tests row):
+- [x] Decided with the user and recorded in `docs/architecture.md` (the Tests row):
       whether scenarios run through a Gherkin runner (for example `playwright-bdd`) or as
       plain `bun test`, Vitest, and Playwright tests that cite scenario IDs. The
       recommendation is plain tests, because most scenarios are server rules best checked
       in `bun test`, and a Gherkin runner adds step definitions and a second copy of each
       scenario.
-- [ ] `docs/architecture.md` records the decision to keep specs in `docs/specs/` rather
+- [x] `docs/architecture.md` records the decision to keep specs in `docs/specs/` rather
       than adopt the OpenSpec tool: the tool has no task dependencies, doesn't fit
       infrastructure work, and its generated agent instructions would compete with
       `AGENTS.md`.
-- [ ] `AGENTS.md` indexes `docs/specs/`, and the google-style skill's "Where things go"
+- [x] `AGENTS.md` indexes `docs/specs/`, and the google-style skill's "Where things go"
       names it.
+
+## Outcome
+
+- Plain tests citing scenario IDs, the user's choice after comparing them with a Gherkin
+  runner: in this stack Gherkin means `playwright-bdd`, so every scenario would run
+  through the browser, while most are server rules. Gherkin can still come later for a
+  few key journeys.
+- IDs are `<capability>.<slug>` under `#### Scenario:` headings, and a test cites one by
+  starting its title with `<id>: `. The check parses titles the formatter wrapped onto
+  the next line.
+- `docs/specs/sign-in.md` has 21 scenarios. Each was mapped to an existing test, so no new
+  tests were needed; several are cited at two levels (server and component, or server
+  and e2e). Configuration-only rules (the `DEMO_MODE` default, Google needing both
+  settings) stay in `docs/architecture.md`, because a user can't observe them.
+- The check's own test file is excluded from the scan, because its samples cite IDs no
+  spec defines. Removing one citation made the check fail, as it should.
+- While checking that, a `git checkout` of a test file reverted uncommitted citations; they
+  were restored from a backup before anything else ran.

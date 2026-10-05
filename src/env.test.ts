@@ -58,7 +58,7 @@ test('ALLOWED_LOGIN_DOMAINS is a list of lowercased domains', () => {
   ).toThrow()
 })
 
-test('the app refuses DEMO_MODE together with ALLOWED_LOGIN_DOMAINS', () => {
+test('sign-in.demo-with-allowlist-refused: the app refuses DEMO_MODE together with ALLOWED_LOGIN_DOMAINS', () => {
   expect(() =>
     parseEnv({ ...base, NODE_ENV: 'development', ALLOWED_LOGIN_DOMAINS: 'snowhound.eu' }),
   ).toThrow('DEMO_MODE')

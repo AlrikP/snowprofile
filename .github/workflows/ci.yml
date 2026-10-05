@@ -45,6 +45,10 @@ jobs:
       - name: Icon names
         run: bun run icons:check
 
+      # Every scenario in docs/specs/ is cited by a test, and every cited ID exists.
+      - name: Spec scenarios
+        run: bun run specs:check
+
       - name: Type check
         run: bun run typecheck
 

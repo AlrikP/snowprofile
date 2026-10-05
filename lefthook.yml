@@ -23,6 +23,10 @@ pre-commit:
       glob: '*.{ts,tsx}'
       run: bun run icons:check
 
+    - name: specs
+      glob: '{docs/specs/*.md,*.test.ts,*.test.tsx,e2e/*.ts}'
+      run: bun run specs:check
+
     - name: knip
       glob: '*.{js,mjs,ts,tsx,css,json}'
       run: bun run knip

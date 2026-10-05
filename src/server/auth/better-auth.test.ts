@@ -113,7 +113,7 @@ test('an admin cannot delete the organization', async () => {
   expect(error).toBeInstanceOf(Error)
 })
 
-test('in demo mode, a visitor cannot change a shared account', async () => {
+test('sign-in.demo-accounts-locked: in demo mode, a visitor cannot change a shared account', async () => {
   const { headers } = await signUp('demo-visitor')
   headers.set('origin', 'http://localhost:3000')
   headers.set('content-type', 'application/json')

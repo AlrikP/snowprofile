@@ -124,9 +124,10 @@ page. Check for these, and rewrite only when the pattern adds nothing:
 
 ## Repository conventions
 
-- **Where things go.** `docs/product.md`: scope. `docs/architecture.md`: decisions and
-  their reasons. `docs/hosting.md`: platform limits. `tasks/`: work items, in the format
-  in `tasks/README.md`. `AGENTS.md` files: rules for agents, and an index of the docs.
+- **Where things go.** `docs/product.md`: scope. `docs/specs/`: what each capability
+  does, as requirements and scenarios (`docs/specs/README.md`). `docs/architecture.md`:
+  decisions and their reasons. `docs/hosting.md`: platform limits. `tasks/`: work items,
+  in the format in `tasks/README.md`. `AGENTS.md` files: rules for agents, and an index of the docs.
   Other docs (a migrations guide, a deployment runbook) are listed in the root
   `AGENTS.md`. Put each fact in one place and link to it from the others.
 - **Decisions come with reasons.** A decision in `architecture.md` states what was chosen

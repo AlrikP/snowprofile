@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { SignInPage } from './sign-in-page'
 
 describe('SignInPage', () => {
-  it('shows the demo notice with the seeded accounts in demo mode', () => {
+  it('sign-in.demo-accounts-listed: shows the demo notice with the seeded accounts in demo mode', () => {
     render(
       <SignInPage
         options={{
@@ -20,20 +20,20 @@ describe('SignInPage', () => {
     expect(screen.getByLabelText('Password')).toBeInTheDocument()
   })
 
-  it('shows no demo notice and no password form outside demo mode', () => {
+  it('sign-in.no-demo-form-outside-demo: shows no demo notice and no password form outside demo mode', () => {
     render(<SignInPage options={{ methods: [], demo: null }} onSignedIn={() => {}} />)
 
     expect(screen.queryByRole('region', { name: 'Demo version' })).not.toBeInTheDocument()
     expect(screen.queryByLabelText('Password')).not.toBeInTheDocument()
   })
 
-  it('offers Google sign-in when it is configured', () => {
+  it('sign-in.google-offered: offers Google sign-in when it is configured', () => {
     render(<SignInPage options={{ methods: ['google'], demo: null }} onSignedIn={() => {}} />)
 
     expect(screen.getByRole('button', { name: 'Sign in with Google' })).toBeInTheDocument()
   })
 
-  it('explains a refused login domain', () => {
+  it('sign-in.domain-error-explained: explains a refused login domain', () => {
     render(
       <SignInPage
         options={{ methods: ['google'], demo: null }}

@@ -26,17 +26,17 @@ function signIn(auth: ReturnType<typeof createAuth>, password = SEED_PASSWORD) {
 describe('with DEMO_MODE on', () => {
   const config = { DEMO_MODE: true, ALLOWED_LOGIN_DOMAINS: [] }
 
-  test('a seeded user signs in with the seed password', async () => {
+  test('sign-in.demo-password: a seeded user signs in with the seed password', async () => {
     const response = await signIn(createAuth(db, config))
     expect(response.status).toBe(200)
   })
 
-  test('a wrong password is rejected', async () => {
+  test('sign-in.wrong-password: a wrong password is rejected', async () => {
     const response = await signIn(createAuth(db, config), 'not-the-password')
     expect(response.status).toBe(401)
   })
 
-  test('password sign-up is refused', async () => {
+  test('sign-in.no-sign-up: password sign-up is refused', async () => {
     const response = await createAuth(db, config).api.signUpEmail({
       body: { name: 'New', email: 'new@example.com', password: 'correct-horse-battery' },
       asResponse: true,
@@ -44,7 +44,7 @@ describe('with DEMO_MODE on', () => {
     expect(response.ok).toBe(false)
   })
 
-  test('the sign-in page offers passwords and lists the seeded accounts', () => {
+  test('sign-in.demo-accounts-listed: the sign-in page offers passwords and lists the seeded accounts', () => {
     expect(signInOptions(config)).toEqual({
       methods: ['password'],
       demo: {
@@ -58,12 +58,12 @@ describe('with DEMO_MODE on', () => {
 describe('with DEMO_MODE off', () => {
   const config = { DEMO_MODE: false, ALLOWED_LOGIN_DOMAINS: [] }
 
-  test('the server rejects password sign-in, even with the right password', async () => {
+  test('sign-in.no-password-outside-demo: the server rejects password sign-in, even with the right password', async () => {
     const response = await signIn(createAuth(db, config))
     expect(response.ok).toBe(false)
   })
 
-  test('the sign-in page offers no password form and no demo accounts', () => {
+  test('sign-in.no-demo-form-outside-demo: the sign-in page offers no password form and no demo accounts', () => {
     expect(signInOptions(config)).toEqual({ methods: [], demo: null })
   })
 })
@@ -75,15 +75,15 @@ describe('Google', () => {
     ALLOWED_LOGIN_DOMAINS: [],
   }
 
-  test('is offered when its client is configured and demo mode is off', () => {
+  test('sign-in.google-offered: Google is offered when its client is configured and demo mode is off', () => {
     expect(signInOptions({ ...google, DEMO_MODE: false }).methods).toEqual(['google'])
   })
 
-  test('is off in demo mode, even when configured', () => {
+  test('sign-in.google-off-in-demo: Google is off in demo mode, even when configured', () => {
     expect(signInOptions({ ...google, DEMO_MODE: true }).methods).toEqual(['password'])
   })
 
-  test('is off without a configured client', () => {
+  test('sign-in.google-off-unconfigured: Google is off without a configured client', () => {
     expect(signInOptions({ DEMO_MODE: false, ALLOWED_LOGIN_DOMAINS: [] }).methods).toEqual([])
   })
 })

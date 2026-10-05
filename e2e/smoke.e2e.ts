@@ -8,7 +8,7 @@ test('the health endpoint reports the app and its database up', async ({ request
   expect(await response.json()).toEqual({ status: 'ok' })
 })
 
-test('a signed-out visitor gets the sign-in page with the demo accounts', async ({
+test('sign-in.signed-out-redirected: a signed-out visitor gets the sign-in page with the demo accounts', async ({
   page,
   context,
 }) => {

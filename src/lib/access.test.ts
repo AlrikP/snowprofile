@@ -3,11 +3,11 @@
 import { expect, test } from 'bun:test'
 import { landing } from './access'
 
-test('a signed-out visitor goes to sign-in', () => {
+test('sign-in.signed-out-redirected: a signed-out visitor goes to sign-in', () => {
   expect(landing({ signedIn: false, organization: null })).toBe('/sign-in')
 })
 
-test('a signed-in user without a membership goes to the no-access page', () => {
+test('sign-in.no-membership: a signed-in user without a membership goes to the no-access page', () => {
   expect(landing({ signedIn: true, organization: null })).toBe('/no-access')
 })
 
