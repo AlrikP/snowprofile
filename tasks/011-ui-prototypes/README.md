@@ -1,6 +1,6 @@
 # 011: UI prototypes
 
-Status: in-progress
+Status: done
 Depends on: task cr-001 (fixes from the review of tasks 001–010)
 
 Static HTML prototypes of each MVP view, built with the classes of shadcn and Tailwind so
@@ -18,4 +18,4 @@ built, and the feature tasks name them. Check each with `docs/skills/ui-review/S
 
 ## Acceptance criteria
 
-- [ ] All subtasks are done.
+- [x] All subtasks are done.

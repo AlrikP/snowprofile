@@ -161,7 +161,9 @@ Both suggestion lists are computed when shown, so nothing records them.
 
 - **CV table columns:** which columns the copy-and-paste table needs (project, customer,
   period, role, hours, technologies…), and whether a team CV gets one table or one per
-  person. Settle it from one or two past tender submissions.
+  person. The MVP uses the prototype's table (`prototypes/cv.html`), which pastes into a
+  spreadsheet with its structure kept. Review the output format once the app is in use,
+  against one or two past tender submissions.
 - **Common CV format:** after the MVP, is there a meaningful common format across
   tenders, or is copy and paste enough? Decide from how the MVP outputs are used.
 - **Update requests without email:** is an in-app notice on sign-in enough, or are update

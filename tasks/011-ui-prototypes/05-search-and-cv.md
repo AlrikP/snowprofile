@@ -1,6 +1,6 @@
 # 011.5: Search and CV prototypes
 
-Status: in-progress
+Status: done
 Depends on: task 011.1 (the frame)
 
 ## Acceptance criteria
@@ -9,8 +9,9 @@ Depends on: task 011.1 (the frame)
       participations.
 - [x] CV selection: one or several people, language, project filter, missing-translation
       flags.
-- [ ] CV view: the copy-and-paste table; pasting it into Word or Google Docs keeps the
+- [x] CV view: the copy-and-paste table; pasting it into Word or Google Docs keeps the
       table structure. The open question on its columns stays open unless the user
-      decides it.
+      decides it. The user pasted it into Excel with the structure kept, and accepted
+      it for the MVP.
 - [x] Import report: values that couldn't be parsed, for an admin to fix.
 - [x] Each checked with the `ui-review` skill.
