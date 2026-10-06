@@ -469,5 +469,7 @@
   "cv_col_role": "Roll",
   "cv_col_people": "Inimesed ja rollid",
   "cv_col_hours": "Maht",
-  "cv_col_technologies": "Tehnoloogiad"
+  "cv_col_technologies": "Tehnoloogiad",
+  "cv_document_team": "Meeskonna CV",
+  "cv_download": "Laadi alla DOCX"
 }

@@ -513,5 +513,7 @@
   "cv_col_role": "Role",
   "cv_col_people": "People and roles",
   "cv_col_hours": "Size",
-  "cv_col_technologies": "Technologies"
+  "cv_col_technologies": "Technologies",
+  "cv_document_team": "Team CV",
+  "cv_download": "Download DOCX"
 }

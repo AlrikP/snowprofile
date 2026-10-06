@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { readFile } from 'node:fs/promises'
 import { SEED_PASSWORD } from '#/db/seed-accounts'
 import { inEnglish, session } from './sessions'
 
@@ -59,6 +60,20 @@ test.describe('the admin', () => {
     await expect(page).toHaveURL(/\/demo\/cvs\?.*people=/)
     const view = page.getByRole('region', { name: 'Preview' })
     await expect(view.getByRole('columnheader', { name: 'Projekt' }).first()).toBeVisible()
+  })
+
+  test('cv-document.personal: downloads a CV of one person as DOCX', async ({ page }) => {
+    await page.goto('/demo/cvs')
+    await page.getByRole('combobox', { name: 'Add person' }).fill('Anna')
+    await page.getByRole('option', { name: 'Anna Admin' }).click()
+
+    const download = page.waitForEvent('download')
+    await page.getByRole('link', { name: 'Download DOCX' }).click()
+    const file = await download
+    expect(file.suggestedFilename()).toMatch(/^CV Anna Admin \d{4}-\d{2}-\d{2}\.docx$/)
+    const bytes = await readFile((await file.path()) ?? '')
+    // A DOCX is a zip archive.
+    expect(bytes.subarray(0, 2).toString()).toBe('PK')
   })
 
   test('technical-characteristics.admin-reorders: a move survives a reload', async ({ page }) => {

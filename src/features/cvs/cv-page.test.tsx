@@ -299,4 +299,19 @@ describe('CvPage', () => {
     expect(screen.getByRole('status')).toHaveTextContent('Copied.')
     vi.unstubAllGlobals()
   })
+
+  it('cv-document.language: downloads the DOCX of the same CV', async () => {
+    await show({ people: ['erik'], lang: 'en', birth: true, t: ['react'] })
+
+    const link = screen.getByRole('link', { name: 'Download DOCX' })
+    const url = new URL(link.getAttribute('href') ?? '', 'http://localhost')
+    expect(url.pathname).toBe('/api/cv-document')
+    expect(Object.fromEntries(url.searchParams)).toEqual({
+      organizationId: 'org',
+      language: 'en',
+      people: 'erik',
+      t: 'react',
+      birth: 'true',
+    })
+  })
 })

@@ -9,6 +9,7 @@ import { errorMessage } from '#/lib/errors'
 import { peopleQuery } from '#/lib/people'
 import { technologyCatalogueQuery } from '#/lib/technology-catalogue'
 import { m } from '#/paraglide/messages.js'
+import { cvDocumentHref } from '#/server/cvs/cvs.schemas'
 import { cvQuery } from './cv-query'
 import { type CvSelection, cvInput, isFiltered } from './cv-selection'
 import { CvView } from './cv-view'
@@ -175,7 +176,11 @@ function Result({
       {cv.data.missing.length > 0 && (
         <MissingTranslations organization={organization} missing={cv.data.missing} />
       )}
-      <CvView cv={cv.data} layout={selection.layout ?? 'each'} />
+      <CvView
+        cv={cv.data}
+        layout={selection.layout ?? 'each'}
+        documentHref={cvDocumentHref(organizationId, cvInput(selection))}
+      />
     </>
   )
 }

@@ -1,12 +1,13 @@
-// The CV as the page shows and copies it (docs/product.md, "CV view"): each person's
-// heading and details, and the projects as tables. One model feeds the screen, the HTML
-// copy, and the plain-text copy, so the three can't drift apart. The columns follow
-// prototypes/cv.html and stay an open question ("CV table columns").
-import { formatApproximateNumber } from '#/lib/approximate-number'
-import { formatDate } from '#/lib/date-time'
-import { firstDay, formatPeriod, lastDay } from '#/lib/period'
 import { m } from '#/paraglide/messages.js'
 import type { Cv, CvProject } from '#/server/cvs/cvs.functions'
+// The CV as the page shows it, copies it, and downloads it (docs/product.md, "CV view" and
+// "CV document"): each person's heading and details, and the projects as tables. One model
+// feeds the screen, the HTML and plain-text copies, and the DOCX document, so they can't
+// drift apart. The columns follow prototypes/cv.html and stay an open question ("CV table
+// columns").
+import { formatApproximateNumber } from './approximate-number'
+import { formatDate } from './date-time'
+import { firstDay, formatPeriod, lastDay } from './period'
 
 type Language = Cv['language']
 type Text = NonNullable<CvProject['description']>

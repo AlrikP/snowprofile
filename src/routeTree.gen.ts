@@ -22,6 +22,7 @@ import { Route as OrganizationProfileRouteImport } from './routes/$organization/
 import { Route as OrganizationRolesRouteImport } from './routes/$organization/roles'
 import { Route as OrganizationSearchRouteImport } from './routes/$organization/search'
 import { Route as OrganizationTechnologiesRouteImport } from './routes/$organization/technologies'
+import { Route as ApiCvDocumentRouteImport } from './routes/api/cv-document'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as InviteInvitationIdRouteImport } from './routes/invite.$invitationId'
 import { Route as OrganizationProjectsIndexRouteImport } from './routes/$organization/projects.index'
@@ -96,6 +97,11 @@ const OrganizationTechnologiesRoute =
     path: '/technologies',
     getParentRoute: () => OrganizationRouteRoute,
   } as any)
+const ApiCvDocumentRoute = ApiCvDocumentRouteImport.update({
+  id: '/api/cv-document',
+  path: '/api/cv-document',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiHealthRoute = ApiHealthRouteImport.update({
   id: '/api/health',
   path: '/api/health',
@@ -148,6 +154,7 @@ export interface FileRoutesByFullPath {
   '/$organization/roles': typeof OrganizationRolesRoute
   '/$organization/search': typeof OrganizationSearchRoute
   '/$organization/technologies': typeof OrganizationTechnologiesRoute
+  '/api/cv-document': typeof ApiCvDocumentRoute
   '/api/health': typeof ApiHealthRoute
   '/invite/$invitationId': typeof InviteInvitationIdRoute
   '/$organization/': typeof OrganizationIndexRoute
@@ -169,6 +176,7 @@ export interface FileRoutesByTo {
   '/$organization/roles': typeof OrganizationRolesRoute
   '/$organization/search': typeof OrganizationSearchRoute
   '/$organization/technologies': typeof OrganizationTechnologiesRoute
+  '/api/cv-document': typeof ApiCvDocumentRoute
   '/api/health': typeof ApiHealthRoute
   '/invite/$invitationId': typeof InviteInvitationIdRoute
   '/$organization': typeof OrganizationIndexRoute
@@ -192,6 +200,7 @@ export interface FileRoutesById {
   '/$organization/roles': typeof OrganizationRolesRoute
   '/$organization/search': typeof OrganizationSearchRoute
   '/$organization/technologies': typeof OrganizationTechnologiesRoute
+  '/api/cv-document': typeof ApiCvDocumentRoute
   '/api/health': typeof ApiHealthRoute
   '/invite/$invitationId': typeof InviteInvitationIdRoute
   '/$organization/': typeof OrganizationIndexRoute
@@ -216,6 +225,7 @@ export interface FileRouteTypes {
     | '/$organization/roles'
     | '/$organization/search'
     | '/$organization/technologies'
+    | '/api/cv-document'
     | '/api/health'
     | '/invite/$invitationId'
     | '/$organization/'
@@ -237,6 +247,7 @@ export interface FileRouteTypes {
     | '/$organization/roles'
     | '/$organization/search'
     | '/$organization/technologies'
+    | '/api/cv-document'
     | '/api/health'
     | '/invite/$invitationId'
     | '/$organization'
@@ -259,6 +270,7 @@ export interface FileRouteTypes {
     | '/$organization/roles'
     | '/$organization/search'
     | '/$organization/technologies'
+    | '/api/cv-document'
     | '/api/health'
     | '/invite/$invitationId'
     | '/$organization/'
@@ -274,6 +286,7 @@ export interface RootRouteChildren {
   OrganizationRouteRoute: typeof OrganizationRouteRouteWithChildren
   NoAccessRoute: typeof NoAccessRoute
   SignInRoute: typeof SignInRoute
+  ApiCvDocumentRoute: typeof ApiCvDocumentRoute
   ApiHealthRoute: typeof ApiHealthRoute
   InviteInvitationIdRoute: typeof InviteInvitationIdRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
@@ -372,6 +385,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrganizationTechnologiesRouteImport
       parentRoute: typeof OrganizationRouteRoute
     }
+    '/api/cv-document': {
+      id: '/api/cv-document'
+      path: '/api/cv-document'
+      fullPath: '/api/cv-document'
+      preLoaderRoute: typeof ApiCvDocumentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/health': {
       id: '/api/health'
       path: '/api/health'
@@ -465,6 +485,7 @@ const rootRouteChildren: RootRouteChildren = {
   OrganizationRouteRoute: OrganizationRouteRouteWithChildren,
   NoAccessRoute: NoAccessRoute,
   SignInRoute: SignInRoute,
+  ApiCvDocumentRoute: ApiCvDocumentRoute,
   ApiHealthRoute: ApiHealthRoute,
   InviteInvitationIdRoute: InviteInvitationIdRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,

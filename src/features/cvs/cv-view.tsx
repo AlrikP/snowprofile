@@ -1,10 +1,10 @@
-import { ClipboardCopyIcon } from 'lucide-react'
+import { ClipboardCopyIcon, DownloadIcon } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '#/components/ui/button'
 import { Card, CardContent, CardHeader } from '#/components/ui/card'
+import { type Cell, type CvLayout, type Line, cvBlocks, cvHtml, cvText } from '#/lib/cv-table'
 import { m } from '#/paraglide/messages.js'
 import type { Cv } from '#/server/cvs/cvs.functions'
-import { type Cell, type CvLayout, type Line, cvBlocks, cvHtml, cvText } from './cv-table'
 
 const BORDER = 'border-foreground/30 border px-2 py-1.5 text-left align-top'
 
@@ -41,8 +41,18 @@ function TableCell({ cell }: { cell: Cell }) {
 }
 
 // The CV as headings and tables, in its language, with a button that copies it so it
-// pastes into Word, Google Docs, or a spreadsheet with its structure kept.
-export function CvView({ cv, layout }: { cv: Cv; layout: CvLayout }) {
+// pastes into Word, Google Docs, or a spreadsheet with its structure kept, and a DOCX
+// download.
+export function CvView({
+  cv,
+  layout,
+  documentHref,
+}: {
+  cv: Cv
+  layout: CvLayout
+  // The DOCX download of the same CV.
+  documentHref: string
+}) {
   const blocks = cvBlocks(cv, layout)
   const [status, setStatus] = useState('')
 
@@ -73,6 +83,12 @@ export function CvView({ cv, layout }: { cv: Cv; layout: CvLayout }) {
           <Button variant="outline" onClick={() => void copy()}>
             <ClipboardCopyIcon />
             {m.cv_copy()}
+          </Button>
+          <Button asChild>
+            <a href={documentHref} download>
+              <DownloadIcon />
+              {m.cv_download()}
+            </a>
           </Button>
         </div>
       </CardHeader>
