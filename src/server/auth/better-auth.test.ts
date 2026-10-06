@@ -178,16 +178,22 @@ test('outside demo mode, a user lists and ends their own sessions', async () => 
   expect(await request(company, first.headers, '/sign-out')).toBe(200)
 })
 
-test('the plugin’s own role endpoint is closed, even to admins', async () => {
+test('the plugin’s role and invitation endpoints are closed, even to admins', async () => {
   const admin = await signUp('role-admin')
   const organizationId = await createOrganization('role-org', admin.userId)
   const company = createAuth(db, { DEMO_MODE: false, ALLOWED_LOGIN_DOMAINS: [] })
 
-  expect(
-    await request(company, admin.headers, '/organization/update-member-role', {
+  const paths = disabledPaths({ DEMO_MODE: false, ALLOWED_LOGIN_DOMAINS: [] })
+  expect(paths).toContain('/organization/update-member-role')
+  expect(paths).toContain('/organization/invite-member')
+  for (const path of paths) {
+    const status = await request(company, admin.headers, path, {
       organizationId,
       memberId: 'any',
       role: 'employee',
-    }),
-  ).toBe(404)
+      email: 'someone@example.com',
+      invitationId: 'any',
+    })
+    expect({ path, status }).toEqual({ path, status: 404 })
+  }
 })

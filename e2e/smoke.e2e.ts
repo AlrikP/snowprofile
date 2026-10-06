@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { SEED_PASSWORD } from '#/db/seed-accounts'
 import { inEnglish, session } from './sessions'
 
 test('the health endpoint reports the app and its database up', async ({ request }) => {
@@ -195,4 +196,33 @@ test('members-and-roles.role-change-applied: a demoted member loses the admin pa
   await expect(employee.getByRole('link', { name: 'Technical characteristics' })).toHaveCount(0)
   await adminContext.close()
   await employeeContext.close()
+})
+
+test('members-and-roles.invitation-accepted: an invited person opens the link signed out, signs in, and joins', async ({
+  browser,
+}) => {
+  const adminContext = await browser.newContext({ storageState: session.admin })
+  const admin = await adminContext.newPage()
+  await admin.goto('/rabasaare/members')
+  await admin.getByRole('button', { name: 'Invite member' }).click()
+  await admin.getByLabel('Email').fill('employee@demo.example.com')
+  await admin.getByRole('button', { name: 'Create invitation link' }).click()
+  const link = await admin.getByRole('textbox', { name: 'Invitation link' }).inputValue()
+  expect(link).toMatch(/\/invite\/[0-9a-f-]+$/)
+
+  const visitorContext = await browser.newContext()
+  await inEnglish(visitorContext)
+  const visitor = await visitorContext.newPage()
+  await visitor.goto(link)
+  await expect(visitor).toHaveURL(/\/sign-in\?redirect=/)
+  await visitor.getByLabel('Email').fill('employee@demo.example.com')
+  await visitor.getByLabel('Password').fill(SEED_PASSWORD)
+  await visitor.getByRole('button', { name: 'Sign in', exact: true }).click()
+
+  await expect(visitor).toHaveURL(/\/rabasaare\/profile$/)
+  await expect(visitor.getByRole('heading', { name: 'My profile' })).toBeVisible()
+  await admin.reload()
+  await expect(admin.getByRole('row', { name: /Erik Employee/ })).toContainText('Employee')
+  await adminContext.close()
+  await visitorContext.close()
 })

@@ -64,3 +64,66 @@ and page guards without reloading the page.
 - **Given** a signed-in member with the admin pages in their navigation
 - **When** an admin makes them an employee, and they open an admin page
 - **Then** they land on their start page, and the admin pages leave their navigation
+
+### Requirement: Admins invite by email
+
+Membership must be by invitation only. An admin must be able to invite an email address
+with a role and get a link to send themselves; the app sends no email. The members page
+must list the pending invitations with their expiry, and an admin must be able to cancel
+one. Inviting a current member, or an address with a pending invitation, must be refused.
+
+#### Scenario: members-and-roles.invite-link
+
+- **Given** an admin on the members page
+- **When** they invite an email address as an admin
+- **Then** they get a link to copy, valid for seven days, and the invitation lists as
+  pending with its role and expiry
+
+#### Scenario: members-and-roles.invite-member-refused
+
+- **Given** a member's address, and an address with a pending invitation
+- **When** an admin invites either
+- **Then** the server refuses, and the page says why
+
+#### Scenario: members-and-roles.invitation-canceled
+
+- **Given** a pending invitation
+- **When** an admin cancels it
+- **Then** it leaves the list, and its link no longer works
+
+### Requirement: Signing in accepts an invitation
+
+Opening an invitation link signed in with the invited address, verified, must accept it:
+the user becomes a member with the invited role, and gets a profile named after their
+account unless they already have one in that organization. Opening the link signed out
+must lead through sign-in and back. An expired, canceled, or used invitation, or another
+address, must not be accepted, and the page must say why.
+
+#### Scenario: members-and-roles.invitation-accepted
+
+- **Given** an invitation to a person who isn't a member
+- **When** they open the link signed out and sign in with the invited address
+- **Then** they land in the organization as a member with the invited role
+
+#### Scenario: members-and-roles.profile-created
+
+- **Given** an invited person, with no profile in the organization, or with one there
+- **When** they accept the invitation
+- **Then** they get a profile with their account's name, or keep the one they had
+
+#### Scenario: members-and-roles.expired-refused
+
+- **Given** an invitation whose seven days have passed
+- **When** the invited person opens the link
+- **Then** they don't become a member, and the page says the invitation has expired
+
+### Requirement: Invitation only
+
+A user who signs in without accepting an invitation must belong to no organization and
+land on the "no access" page.
+
+#### Scenario: members-and-roles.uninvited-no-access
+
+- **Given** a user with no accepted invitation
+- **When** they sign in
+- **Then** they belong to no organization

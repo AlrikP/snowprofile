@@ -37,9 +37,19 @@ const demoDisabledPaths = [
 ]
 
 // Organization plugin endpoints the app replaces with its own server functions, whose rules
-// they would skip: a role change goes through the members page, which keeps an admin
-// (docs/architecture.md, "Roles").
-const replacedPaths = ['/organization/update-member-role']
+// they would skip: a role change goes through the members page, which keeps an admin, and
+// invitations through the app's, which create the member's profile (docs/architecture.md,
+// "Roles").
+const replacedPaths = [
+  '/organization/update-member-role',
+  '/organization/invite-member',
+  '/organization/cancel-invitation',
+  '/organization/accept-invitation',
+  '/organization/reject-invitation',
+  '/organization/get-invitation',
+  '/organization/list-invitations',
+  '/organization/list-user-invitations',
+]
 
 // Better Auth's disabledPaths option. It applies to HTTP requests only, not to auth.api.
 export function disabledPaths(config: SignInConfig): string[] {

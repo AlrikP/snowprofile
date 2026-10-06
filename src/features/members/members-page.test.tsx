@@ -2,12 +2,21 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import type { PendingInvitation } from '#/server/invitations/invitations.functions'
 import type { Member } from '#/server/members/members.functions'
 import { MembersPage } from './members-page'
-import { membersQuery } from './members-query'
+import { invitationsQuery, membersQuery } from './members-query'
 
-const server = vi.hoisted(() => ({ getMembers: vi.fn(), changeMemberRole: vi.fn() }))
+const server = vi.hoisted(() => ({
+  getMembers: vi.fn(),
+  changeMemberRole: vi.fn(),
+  getPendingInvitations: vi.fn(),
+  createInvitation: vi.fn(),
+  cancelInvitation: vi.fn(),
+  acceptInvitation: vi.fn(),
+}))
 vi.mock('#/server/members/members.functions', () => server)
+vi.mock('#/server/invitations/invitations.functions', () => server)
 
 function member(overrides: Partial<Member>): Member {
   return {
@@ -31,18 +40,33 @@ const members = [
   }),
 ]
 
+const invitations: PendingInvitation[] = [
+  {
+    id: '0192f4c1-7a3e-7b10-9c2d-5e8f1a2b3c4d',
+    email: 'mari.maasikas@example.com',
+    role: 'employee',
+    expiresAt: new Date('2026-10-13T12:00:00Z'),
+  },
+]
+
 beforeEach(() => {
   vi.clearAllMocks()
+  server.getPendingInvitations.mockResolvedValue(invitations)
+  server.cancelInvitation.mockResolvedValue(undefined)
+  server.createInvitation.mockImplementation(({ data }: { data: { id: string } }) =>
+    Promise.resolve({ id: data.id, expiresAt: new Date('2026-10-13T12:00:00Z') }),
+  )
   server.getMembers.mockResolvedValue(members)
   server.changeMemberRole.mockResolvedValue(undefined)
 })
 
-function show(list = members) {
+function show(list = members, { canInvite = true } = {}) {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   queryClient.setQueryData(membersQuery('org').queryKey, list)
+  queryClient.setQueryData(invitationsQuery('org').queryKey, invitations)
   render(
     <QueryClientProvider client={queryClient}>
-      <MembersPage organizationId="org" />
+      <MembersPage organizationId="org" canInvite={canInvite} />
     </QueryClientProvider>,
   )
 }
@@ -91,6 +115,77 @@ describe('MembersPage', () => {
 
     expect(server.changeMemberRole).toHaveBeenCalledWith({
       data: { organizationId: 'org', memberId: 'anna', role: 'employee' },
+    })
+  })
+
+  describe('invitations', () => {
+    it('members-and-roles.invite-link: invites an address with a role and shows the link to copy', async () => {
+      show()
+
+      await userEvent.click(screen.getByRole('button', { name: 'Invite member' }))
+      const dialog = within(screen.getByRole('dialog'))
+      await userEvent.type(dialog.getByLabelText('Email'), 'Jaan.Org@Example.com')
+      await userEvent.selectOptions(dialog.getByLabelText('Role'), 'admin')
+      await userEvent.click(dialog.getByRole('button', { name: 'Create invitation link' }))
+
+      const sent = server.createInvitation.mock.calls[0]?.[0]?.data
+      expect(sent).toMatchObject({
+        organizationId: 'org',
+        email: 'Jaan.Org@Example.com',
+        role: 'admin',
+      })
+      const link = within(screen.getByRole('dialog')).getByLabelText('Invitation link')
+      expect(link).toHaveValue(`${window.location.origin}/invite/${sent.id}`)
+      expect(screen.getByRole('dialog')).toHaveTextContent(
+        'Send this link to jaan.org@example.com.',
+      )
+      expect(screen.getByRole('dialog')).toHaveTextContent('Expires: 13 Oct 2026')
+    })
+
+    it('asks for an email address', async () => {
+      show()
+
+      await userEvent.click(screen.getByRole('button', { name: 'Invite member' }))
+      const dialog = within(screen.getByRole('dialog'))
+      await userEvent.type(dialog.getByLabelText('Email'), 'not an address')
+      await userEvent.click(dialog.getByRole('button', { name: 'Create invitation link' }))
+
+      expect(dialog.getByText('Enter an email address.')).toBeInTheDocument()
+      expect(server.createInvitation).not.toHaveBeenCalled()
+    })
+
+    it('members-and-roles.invite-member-refused: shows the server’s refusal', async () => {
+      const { AppError } = await import('#/server/errors')
+      server.createInvitation.mockRejectedValue(new AppError('CONFLICT', 'invitation_member'))
+      show()
+
+      await userEvent.click(screen.getByRole('button', { name: 'Invite member' }))
+      const dialog = within(screen.getByRole('dialog'))
+      await userEvent.type(dialog.getByLabelText('Email'), 'employee@demo.example.com')
+      await userEvent.click(dialog.getByRole('button', { name: 'Create invitation link' }))
+
+      expect(await dialog.findByRole('alert')).toHaveTextContent('This person is already a member.')
+    })
+
+    it('members-and-roles.invitation-canceled: lists pending invitations with expiry, and cancels one', async () => {
+      show()
+
+      const section = within(screen.getByRole('region', { name: 'Pending invitations' }))
+      const row = section.getByRole('row', { name: /mari.maasikas/ })
+      expect(row).toHaveTextContent('Employee')
+      expect(row).toHaveTextContent('13 Oct 2026')
+      await userEvent.click(within(row).getByRole('button', { name: 'Cancel invitation' }))
+
+      expect(server.cancelInvitation).toHaveBeenCalledWith({
+        data: { organizationId: 'org', invitationId: invitations[0]?.id },
+      })
+    })
+
+    it('offers no invitations without the permission', () => {
+      show(members, { canInvite: false })
+
+      expect(screen.queryByRole('button', { name: 'Invite member' })).not.toBeInTheDocument()
+      expect(screen.queryByRole('region', { name: 'Pending invitations' })).not.toBeInTheDocument()
     })
   })
 })

@@ -289,8 +289,18 @@ MVP"). What the script must handle:
   functions (`src/server/members/`), which keep at least one member who can manage the
   members. The organization plugin's `update-member-role` endpoint would skip that rule,
   so `disabledPaths` closes it over HTTP in every mode (`sign-in.server.ts`). The other
-  plugin endpoints the app calls are `set-active` (the organization switcher); invitations
-  are task 028.2, and the demo guards task 021.
+  plugin endpoint the app calls is `set-active` (the organization switcher); the demo
+  guards are task 021.
+- **Invitations** are the app's too (`src/server/invitations/`), and the plugin's
+  invitation endpoints are closed the same way. An admin invites an address with a role
+  and sends the link, `/invite/<id>`, themselves; the app sends no email. The invitation
+  is accepted **on the link**, not on every sign-in: opening it signed in with the
+  invited, verified address makes the user a member with the invited role, and creates
+  their profile in the same transaction unless the sheet migration made one. Signed out,
+  the link goes through sign-in and back (`/sign-in?redirect=`). An expired (seven days),
+  canceled, or used invitation, or another address, leaves the user outside, and the link
+  page says why. Signing in without the link joins nothing, so an uninvited user lands on
+  "no access".
 - The frame, with the member's role, loads once per organization. When a server call
   answers `FORBIDDEN`, the router reloads its loaders (`src/lib/forbidden-reload.ts`), so
   a member whose role changed gets the new navigation and page guards without a full

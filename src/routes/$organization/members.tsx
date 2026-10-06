@@ -1,6 +1,6 @@
 import { createFileRoute, getRouteApi, redirect } from '@tanstack/react-router'
 import { MembersPage, MembersPending } from '#/features/members/members-page'
-import { membersQuery } from '#/features/members/members-query'
+import { invitationsQuery, membersQuery } from '#/features/members/members-query'
 import { roleHasPermission } from '#/lib/permissions'
 
 const organizationRoute = getRouteApi('/$organization')
@@ -14,7 +14,11 @@ export const Route = createFileRoute('/$organization/members')({
     if (!roleHasPermission(organization.role, { member: ['update'] })) {
       throw redirect({ to: '/$organization', params })
     }
-    await context.queryClient.ensureQueryData(membersQuery(organization.id))
+    await Promise.all([
+      context.queryClient.ensureQueryData(membersQuery(organization.id)),
+      roleHasPermission(organization.role, { member: ['create'] }) &&
+        context.queryClient.ensureQueryData(invitationsQuery(organization.id)),
+    ])
   },
   pendingComponent: MembersPending,
   component: MembersRoute,
@@ -22,5 +26,10 @@ export const Route = createFileRoute('/$organization/members')({
 
 function MembersRoute() {
   const { organization } = organizationRoute.useLoaderData()
-  return <MembersPage organizationId={organization.id} />
+  return (
+    <MembersPage
+      organizationId={organization.id}
+      canInvite={roleHasPermission(organization.role, { member: ['create'] })}
+    />
+  )
 }

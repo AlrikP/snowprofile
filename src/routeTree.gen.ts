@@ -23,6 +23,7 @@ import { Route as OrganizationRolesRouteImport } from './routes/$organization/ro
 import { Route as OrganizationSearchRouteImport } from './routes/$organization/search'
 import { Route as OrganizationTechnologiesRouteImport } from './routes/$organization/technologies'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
+import { Route as InviteInvitationIdRouteImport } from './routes/invite.$invitationId'
 import { Route as OrganizationProjectsIndexRouteImport } from './routes/$organization/projects.index'
 import { Route as OrganizationProjectsProjectIdRouteImport } from './routes/$organization/projects.$projectId'
 import { Route as OrganizationProjectsNewRouteImport } from './routes/$organization/projects.new'
@@ -100,6 +101,11 @@ const ApiHealthRoute = ApiHealthRouteImport.update({
   path: '/api/health',
   getParentRoute: () => rootRouteImport,
 } as any)
+const InviteInvitationIdRoute = InviteInvitationIdRouteImport.update({
+  id: '/invite/$invitationId',
+  path: '/invite/$invitationId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OrganizationProjectsIndexRoute =
   OrganizationProjectsIndexRouteImport.update({
     id: '/projects/',
@@ -143,6 +149,7 @@ export interface FileRoutesByFullPath {
   '/$organization/search': typeof OrganizationSearchRoute
   '/$organization/technologies': typeof OrganizationTechnologiesRoute
   '/api/health': typeof ApiHealthRoute
+  '/invite/$invitationId': typeof InviteInvitationIdRoute
   '/$organization/': typeof OrganizationIndexRoute
   '/$organization/projects/$projectId': typeof OrganizationProjectsProjectIdRoute
   '/$organization/projects/new': typeof OrganizationProjectsNewRoute
@@ -163,6 +170,7 @@ export interface FileRoutesByTo {
   '/$organization/search': typeof OrganizationSearchRoute
   '/$organization/technologies': typeof OrganizationTechnologiesRoute
   '/api/health': typeof ApiHealthRoute
+  '/invite/$invitationId': typeof InviteInvitationIdRoute
   '/$organization': typeof OrganizationIndexRoute
   '/$organization/projects/$projectId': typeof OrganizationProjectsProjectIdRoute
   '/$organization/projects/new': typeof OrganizationProjectsNewRoute
@@ -185,6 +193,7 @@ export interface FileRoutesById {
   '/$organization/search': typeof OrganizationSearchRoute
   '/$organization/technologies': typeof OrganizationTechnologiesRoute
   '/api/health': typeof ApiHealthRoute
+  '/invite/$invitationId': typeof InviteInvitationIdRoute
   '/$organization/': typeof OrganizationIndexRoute
   '/$organization/projects/$projectId': typeof OrganizationProjectsProjectIdRoute
   '/$organization/projects/new': typeof OrganizationProjectsNewRoute
@@ -208,6 +217,7 @@ export interface FileRouteTypes {
     | '/$organization/search'
     | '/$organization/technologies'
     | '/api/health'
+    | '/invite/$invitationId'
     | '/$organization/'
     | '/$organization/projects/$projectId'
     | '/$organization/projects/new'
@@ -228,6 +238,7 @@ export interface FileRouteTypes {
     | '/$organization/search'
     | '/$organization/technologies'
     | '/api/health'
+    | '/invite/$invitationId'
     | '/$organization'
     | '/$organization/projects/$projectId'
     | '/$organization/projects/new'
@@ -249,6 +260,7 @@ export interface FileRouteTypes {
     | '/$organization/search'
     | '/$organization/technologies'
     | '/api/health'
+    | '/invite/$invitationId'
     | '/$organization/'
     | '/$organization/projects/$projectId'
     | '/$organization/projects/new'
@@ -263,6 +275,7 @@ export interface RootRouteChildren {
   NoAccessRoute: typeof NoAccessRoute
   SignInRoute: typeof SignInRoute
   ApiHealthRoute: typeof ApiHealthRoute
+  InviteInvitationIdRoute: typeof InviteInvitationIdRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
@@ -366,6 +379,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiHealthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/invite/$invitationId': {
+      id: '/invite/$invitationId'
+      path: '/invite/$invitationId'
+      fullPath: '/invite/$invitationId'
+      preLoaderRoute: typeof InviteInvitationIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/$organization/projects/': {
       id: '/$organization/projects/'
       path: '/projects'
@@ -446,6 +466,7 @@ const rootRouteChildren: RootRouteChildren = {
   NoAccessRoute: NoAccessRoute,
   SignInRoute: SignInRoute,
   ApiHealthRoute: ApiHealthRoute,
+  InviteInvitationIdRoute: InviteInvitationIdRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport

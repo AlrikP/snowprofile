@@ -3,6 +3,9 @@
 Status: todo
 Depends on: task 028.1 (`members-and-roles.md`, which the leaver requirement extends)
 
+Open from task 028.2: a leaver who accepts a new invitation keeps their profile with
+`left_date` still set. Decide whether rejoining clears it, or ask.
+
 ## Acceptance criteria
 
 - [ ] Admins see the people with their participation count, last confirmation (marked

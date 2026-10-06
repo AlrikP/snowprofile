@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
-import { EllipsisIcon } from 'lucide-react'
+import { CopyIcon, EllipsisIcon, PlusIcon, XIcon } from 'lucide-react'
+import { useState } from 'react'
 import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
 import { Card } from '#/components/ui/card'
@@ -16,8 +17,13 @@ import { errorMessage } from '#/lib/errors'
 import { memberRole, memberRoleLabel, roleNameLabel } from '#/lib/member-role'
 import { ROLE_NAMES, roleHasPermission } from '#/lib/permissions'
 import { m } from '#/paraglide/messages.js'
+import {
+  cancelInvitation,
+  type PendingInvitation,
+} from '#/server/invitations/invitations.functions'
 import { changeMemberRole, type Member } from '#/server/members/members.functions'
-import { membersQuery } from './members-query'
+import { InviteDialog, invitationLink } from './invite-dialog'
+import { invitationsQuery, membersQuery } from './members-query'
 
 const MANAGES_MEMBERS = { member: ['update'] } as const
 
@@ -68,10 +74,99 @@ function RoleMenu({
   )
 }
 
+function Invitations({
+  organizationId,
+  invitations,
+}: {
+  organizationId: string
+  invitations: PendingInvitation[]
+}) {
+  const queryClient = useQueryClient()
+  const cancel = useMutation({
+    mutationFn: (invitationId: string) =>
+      cancelInvitation({ data: { organizationId, invitationId } }),
+    onSettled: () => queryClient.invalidateQueries(invitationsQuery(organizationId)),
+  })
+  return (
+    <section className="flex flex-col gap-3" aria-labelledby="invitations-title">
+      <h2 id="invitations-title" className="text-xl">
+        {m.invitations_title()}
+      </h2>
+      {cancel.error && (
+        <p role="alert" className="text-destructive text-sm">
+          {errorMessage(cancel.error)}
+        </p>
+      )}
+      {invitations.length === 0 ? (
+        <p className="text-muted-foreground text-sm">{m.invitations_empty()}</p>
+      ) : (
+        <Card className="gap-0 overflow-hidden py-0">
+          <table className="w-full text-sm">
+            <thead className="bg-muted/50 text-left">
+              <tr className="border-b">
+                <th className="px-4 py-3 font-medium">{m.invite_email()}</th>
+                <th className="px-4 py-3 font-medium">{m.invite_role()}</th>
+                <th className="hidden px-4 py-3 font-medium sm:table-cell">
+                  {m.invitations_col_expires()}
+                </th>
+                <th className="px-4 py-3">
+                  <span className="sr-only">{m.action_actions()}</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {invitations.map((invitation) => (
+                <tr key={invitation.id} className="border-b last:border-0">
+                  <td className="px-4 py-3 font-medium break-all">{invitation.email}</td>
+                  <td className="px-4 py-3">{memberRoleLabel(invitation.role ?? 'employee')}</td>
+                  <td className="hidden px-4 py-3 sm:table-cell">
+                    {formatDate(invitation.expiresAt.toISOString().slice(0, 10))}
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex justify-end gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        aria-label={m.invitations_copy_link()}
+                        onClick={() =>
+                          void navigator.clipboard.writeText(invitationLink(invitation.id))
+                        }
+                      >
+                        <CopyIcon />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        className="text-destructive hover:text-destructive"
+                        aria-label={m.invitations_cancel()}
+                        disabled={cancel.isPending}
+                        onClick={() => cancel.mutate(invitation.id)}
+                      >
+                        <XIcon />
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Card>
+      )}
+    </section>
+  )
+}
+
 // The organization's members and their roles, for admins (prototypes/members.html).
-export function MembersPage({ organizationId }: { organizationId: string }) {
+export function MembersPage({
+  organizationId,
+  canInvite,
+}: {
+  organizationId: string
+  canInvite: boolean
+}) {
   const queryClient = useQueryClient()
   const { data: members } = useSuspenseQuery(membersQuery(organizationId))
+  const [inviting, setInviting] = useState(false)
   const managers = members.filter((each) => roleHasPermission(each.role, MANAGES_MEMBERS))
   const change = useMutation({
     mutationFn: (input: { memberId: string; role: (typeof ROLE_NAMES)[number] }) =>
@@ -81,11 +176,19 @@ export function MembersPage({ organizationId }: { organizationId: string }) {
 
   return (
     <main className="flex flex-col gap-6 p-4 md:p-8">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-3xl">{m.members_title()}</h1>
-        <p className="text-muted-foreground text-sm">
-          {m.members_count({ count: members.length })}
-        </p>
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-3xl">{m.members_title()}</h1>
+          <p className="text-muted-foreground text-sm">
+            {m.members_count({ count: members.length })}
+          </p>
+        </div>
+        {canInvite && (
+          <Button onClick={() => setInviting(true)}>
+            <PlusIcon />
+            {m.members_invite()}
+          </Button>
+        )}
       </div>
       {change.error && (
         <p role="alert" className="text-destructive text-sm">
@@ -142,8 +245,19 @@ export function MembersPage({ organizationId }: { organizationId: string }) {
           </tbody>
         </table>
       </Card>
+      {canInvite && <PendingInvitations organizationId={organizationId} />}
+      <InviteDialog
+        organizationId={organizationId}
+        open={inviting}
+        onClose={() => setInviting(false)}
+      />
     </main>
   )
+}
+
+function PendingInvitations({ organizationId }: { organizationId: string }) {
+  const { data: invitations } = useSuspenseQuery(invitationsQuery(organizationId))
+  return <Invitations organizationId={organizationId} invitations={invitations} />
 }
 
 export function MembersPending() {

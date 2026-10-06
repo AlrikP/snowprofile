@@ -14,6 +14,7 @@ import {
   customer,
   education,
   employeeProfile,
+  invitation,
   member,
   participation,
   participationRole,
@@ -30,6 +31,7 @@ import { seedIds } from '#/db/seed-accounts'
 import { createTestDatabase, failure } from '#/db/testing'
 import * as account from './account/account.repository.server'
 import * as criteria from './criteria/criteria.repository.server'
+import * as invitations from './invitations/invitations.repository.server'
 import * as members from './members/members.repository.server'
 import { findMemberRole, listMemberships } from './organizations/organizations.repository.server'
 import * as ownProjects from './profiles/own-projects.repository.server'
@@ -63,6 +65,8 @@ const b = {
   // An own project in B with roles and technologies, on its profile.
   ownProjectId: '',
   ownProjectProfileId: '',
+  // A pending invitation in B, created in beforeAll; the seed has none.
+  invitationId: '',
   // A participation in B, on its profile.
   participationId: '',
   participationProfileId: '',
@@ -210,7 +214,27 @@ beforeAll(async () => {
   }
   b.ownProjectId = ownProjectId
   b.ownProjectProfileId = ownProjectProfileId
+  b.invitationId = uuidv7()
+  const [bAdmin] = await db
+    .select({ userId: member.userId })
+    .from(member)
+    .where(eq(member.organizationId, b.organizationId))
+  await db.insert(invitation).values({
+    id: b.invitationId,
+    organizationId: b.organizationId,
+    email: 'b.invited@example.com',
+    role: 'employee',
+    status: 'pending',
+    expiresAt: new Date(Date.now() + 86_400_000),
+    inviterId: bAdmin?.userId ?? '',
+    createdAt: new Date(),
+  })
 })
+
+async function bInvitation() {
+  const [row] = await db.select().from(invitation).where(eq(invitation.id, b.invitationId))
+  return row
+}
 
 async function bOwnProject() {
   const rows = await db.$client.execute(
@@ -498,6 +522,95 @@ const cases: Record<string, () => Promise<void>> = {
   },
   'projects.listProjectContacts': async () => {
     expect(await projects.listProjectContacts(db, scopeA, b.projectId)).toEqual([])
+  },
+  'invitations.listPendingInvitations': async () => {
+    const ids = (await invitations.listPendingInvitations(db, scopeA, new Date())).map(
+      (row) => row.id,
+    )
+    expect(ids).not.toContain(b.invitationId)
+  },
+  'invitations.hasMemberWithEmail': async () => {
+    // A member of B only, by email.
+    const rows = await db.$client.execute(
+      `SELECT u.email FROM member m JOIN user u ON u.id = m.user_id
+        WHERE m.organization_id = '${b.organizationId}'
+          AND m.user_id NOT IN (SELECT user_id FROM member WHERE organization_id = '${scopeA.organizationId}')
+        LIMIT 1`,
+    )
+    const email = rows.rows[0]?.[0]
+    if (typeof email !== 'string') throw new Error('expected a member only B has')
+    expect(await invitations.hasMemberWithEmail(db, scopeA, email.toLowerCase())).toBe(false)
+  },
+  'invitations.insertInvitation': async () => {
+    // The organization comes from the scope: the row lands in A.
+    const id = uuidv7()
+    await invitations.insertInvitation(db, scopeA, {
+      id,
+      email: 'crossing@example.com',
+      role: 'employee',
+      expiresAt: new Date(Date.now() + 86_400_000),
+      createdAt: new Date(),
+    })
+    const [row] = await db.select().from(invitation).where(eq(invitation.id, id))
+    expect(row?.organizationId).toBe(scopeA.organizationId)
+  },
+  'invitations.cancelInvitation': async () => {
+    expect(await invitations.cancelInvitation(db, scopeA, b.invitationId)).toBe(false)
+    expect((await bInvitation())?.status).toBe('pending')
+  },
+  // Acceptance runs before the invitee is a member, so these take no scope. The link's
+  // invitation ID and the session's user decide what they reach; the rule checks that the
+  // user has the invited address (invitations.test.ts).
+  'invitations.findInvitation': async () => {
+    expect(await invitations.findInvitation(db, b.invitationId)).toMatchObject({
+      organizationId: b.organizationId,
+    })
+    expect(await invitations.findInvitation(db, uuidv7())).toBeUndefined()
+  },
+  'invitations.findInvitee': async () => {
+    expect((await invitations.findInvitee(db, scopeA.userId))?.email).toBe('admin@demo.example.com')
+  },
+  'invitations.isMember': async () => {
+    expect(await invitations.isMember(db, scopeA.organizationId, scopeA.userId)).toBe(true)
+    expect(await invitations.isMember(db, b.organizationId, scopeA.userId)).toBe(
+      (
+        await db
+          .select()
+          .from(member)
+          .where(and(eq(member.organizationId, b.organizationId), eq(member.userId, scopeA.userId)))
+      ).length > 0,
+    )
+  },
+  'invitations.insertMembership': async () => {
+    // It writes only the organization and user it is given; a second membership for the
+    // same pair fails on the unique index instead of changing the first.
+    function insert() {
+      return withActor(scopeA.userId, () =>
+        invitations.insertMembership(db, {
+          memberId: uuidv7(),
+          profileId: uuidv7(),
+          organizationId: scopeA.organizationId,
+          userId: scopeA.userId,
+          role: 'employee',
+          fullName: 'Kordus',
+        }),
+      )
+    }
+    expect(await failure(insert)).toContain('UNIQUE')
+  },
+  'invitations.markAccepted': async () => {
+    const id = uuidv7()
+    await invitations.insertInvitation(db, scopeA, {
+      id,
+      email: 'accepted@example.com',
+      role: 'employee',
+      expiresAt: new Date(Date.now() + 86_400_000),
+      createdAt: new Date(),
+    })
+    await invitations.markAccepted(db, id)
+    expect((await bInvitation())?.status).toBe('pending')
+    const [row] = await db.select().from(invitation).where(eq(invitation.id, id))
+    expect(row?.status).toBe('accepted')
   },
   'members.listMembers': async () => {
     const ids = (await members.listMembers(db, scopeA)).map((row) => row.id)

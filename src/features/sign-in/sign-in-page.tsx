@@ -18,10 +18,13 @@ function signInErrorMessage(code: string) {
 export function SignInPage({
   options,
   initialError,
+  callbackURL = '/',
   onSignedIn,
 }: {
   options: SignInOptions
   initialError?: string
+  // Where Google sign-in returns to.
+  callbackURL?: string
   onSignedIn: () => void
 }) {
   const [failed, setFailed] = useState(false)
@@ -58,7 +61,7 @@ export function SignInPage({
           onClick={() =>
             void authClient.signIn.social({
               provider: 'google',
-              callbackURL: '/',
+              callbackURL,
               errorCallbackURL: '/sign-in',
             })
           }
