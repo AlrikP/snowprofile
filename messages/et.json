@@ -446,7 +446,6 @@
   "cv_preview": "Eelvaade",
   "cv_no_projects": "Ükski projekt ei sobi. Proovi pikemat perioodi või teisi tehnoloogiaid.",
   "cv_born": "Sündinud {date}",
-  "cv_education": "Haridus",
   "cv_missing_title": "Puuduvad tõlked: {count}",
   "cv_missing_body": "Need tekstid pole veel CV keeles. CV näitab neid teises keeles, esiletõstetuna, kuni need on tõlgitud.",
   "cv_missing_project_description": "Projekti kirjeldus",
@@ -456,5 +455,19 @@
   "cv_missing_education": "Haridus",
   "cv_fix_project": "Muuda projekti",
   "cv_fix_roles": "Ava rollid",
-  "cv_fix_people": "Palu uuendada"
+  "cv_fix_people": "Palu uuendada",
+  "cv_team_layout": "Meeskonna-CV",
+  "cv_layout_per_person": "Tabel inimese kohta",
+  "cv_layout_combined": "Üks ühine tabel",
+  "cv_copy": "Kopeeri tabel",
+  "cv_copied": "Kopeeritud. Kleebi see Wordi, Google Docsi või tabelarvutusse.",
+  "cv_copy_failed": "Kopeerimine ei õnnestunud. Vali tabel ja kopeeri see käsitsi.",
+  "cv_columns_provisional": "Veerud on ajutised: milliseid hanked vajavad, on veel lahtine küsimus.",
+  "cv_col_project": "Projekt",
+  "cv_col_customer": "Klient",
+  "cv_col_period": "Periood",
+  "cv_col_role": "Roll",
+  "cv_col_people": "Inimesed ja rollid",
+  "cv_col_hours": "Maht",
+  "cv_col_technologies": "Tehnoloogiad"
 }

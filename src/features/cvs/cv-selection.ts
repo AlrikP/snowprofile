@@ -9,6 +9,7 @@ const Extra = v.object({
   people: v.optional(v.array(v.string())),
   lang: v.optional(v.picklist(['et', 'en'])),
   birth: v.optional(v.boolean()),
+  layout: v.optional(v.picklist(['each', 'combined'])),
 })
 
 export type CvSelection = SearchFilters & v.InferOutput<typeof Extra>
@@ -17,7 +18,7 @@ export type CvSelection = SearchFilters & v.InferOutput<typeof Extra>
 // opens the page.
 export function readCvSelection(search: Record<string, unknown>): CvSelection {
   const selection: CvSelection = readSearchFilters(search)
-  for (const key of ['people', 'lang', 'birth'] as const) {
+  for (const key of ['people', 'lang', 'birth', 'layout'] as const) {
     const one = v.safeParse(Extra.entries[key], search[key])
     if (one.success && one.output !== undefined) Object.assign(selection, { [key]: one.output })
   }

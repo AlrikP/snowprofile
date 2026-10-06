@@ -490,7 +490,6 @@
   "cv_preview": "Preview",
   "cv_no_projects": "No projects match. Try a wider period or other technologies.",
   "cv_born": "Born {date}",
-  "cv_education": "Education",
   "cv_missing_title": "Missing translations: {count}",
   "cv_missing_body": "These texts aren’t in the CV’s language yet. The CV shows them in the other language, highlighted, until they are translated.",
   "cv_missing_project_description": "Project description",
@@ -500,5 +499,19 @@
   "cv_missing_education": "Education",
   "cv_fix_project": "Edit the project",
   "cv_fix_roles": "Open roles",
-  "cv_fix_people": "Ask to update"
+  "cv_fix_people": "Ask to update",
+  "cv_team_layout": "Team CV",
+  "cv_layout_per_person": "A table per person",
+  "cv_layout_combined": "One shared table",
+  "cv_copy": "Copy table",
+  "cv_copied": "Copied. Paste it into Word, Google Docs, or a spreadsheet.",
+  "cv_copy_failed": "Couldn’t copy. Select the table and copy it instead.",
+  "cv_columns_provisional": "The columns are provisional: which ones tenders need is still open.",
+  "cv_col_project": "Project",
+  "cv_col_customer": "Customer",
+  "cv_col_period": "Period",
+  "cv_col_role": "Role",
+  "cv_col_people": "People and roles",
+  "cv_col_hours": "Size",
+  "cv_col_technologies": "Technologies"
 }

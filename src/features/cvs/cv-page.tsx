@@ -4,14 +4,14 @@ import { LANGUAGES } from '#/components/language-switch'
 import { PeriodFilter } from '#/components/period-filter'
 import { RadioToggle } from '#/components/radio-toggle'
 import { TechnologyPicker } from '#/components/technology-picker'
-import { Card, CardContent, CardHeader } from '#/components/ui/card'
+import { Card, CardContent } from '#/components/ui/card'
 import { errorMessage } from '#/lib/errors'
 import { peopleQuery } from '#/lib/people'
 import { technologyCatalogueQuery } from '#/lib/technology-catalogue'
 import { m } from '#/paraglide/messages.js'
-import { CvPreview } from './cv-preview'
 import { cvQuery } from './cv-query'
 import { type CvSelection, cvInput, isFiltered } from './cv-selection'
+import { CvView } from './cv-view'
 import { MissingTranslations } from './missing-translations'
 import { PersonPicker } from './person-picker'
 
@@ -109,6 +109,23 @@ function Selection({
             </div>
           )}
         </fieldset>
+        {(selection.people ?? []).length > 1 && (
+          <div className="flex flex-col gap-2">
+            <span id="cv-layout" className="text-sm font-medium">
+              {m.cv_team_layout()}
+            </span>
+            <RadioToggle
+              name="cv-layout"
+              labelledBy="cv-layout"
+              options={[
+                { value: 'each', label: m.cv_layout_per_person() },
+                { value: 'combined', label: m.cv_layout_combined() },
+              ]}
+              value={selection.layout ?? 'each'}
+              onChange={(layout) => set({ layout: layout === 'each' ? undefined : layout })}
+            />
+          </div>
+        )}
         <div className="flex items-start gap-2">
           <input
             type="checkbox"
@@ -158,16 +175,7 @@ function Result({
       {cv.data.missing.length > 0 && (
         <MissingTranslations organization={organization} missing={cv.data.missing} />
       )}
-      <Card className="gap-4 py-5" role="region" aria-labelledby="cv-preview-title">
-        <CardHeader className="px-5">
-          <h2 id="cv-preview-title" className="text-xl">
-            {m.cv_preview()}
-          </h2>
-        </CardHeader>
-        <CardContent className="px-5">
-          <CvPreview cv={cv.data} />
-        </CardContent>
-      </Card>
+      <CvView cv={cv.data} layout={selection.layout ?? 'each'} />
     </>
   )
 }

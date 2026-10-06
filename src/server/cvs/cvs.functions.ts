@@ -11,4 +11,3 @@ export const getCv = createServerFn({ method: 'GET' })
 
 export type Cv = Awaited<ReturnType<typeof getCv>>
 export type CvProject = Cv['projects'][number]
-export type CvPerson = Cv['people'][number]

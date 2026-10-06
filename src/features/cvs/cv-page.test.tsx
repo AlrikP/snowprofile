@@ -240,4 +240,63 @@ describe('CvPage', () => {
     expect(screen.queryByRole('region', { name: /Missing translations/ })).not.toBeInTheDocument()
     expect(screen.getByRole('region', { name: 'Preview' })).toBeInTheDocument()
   })
+
+  it('cv-view.table-per-person: a team CV can switch to one shared table', async () => {
+    await show({ people: ['erik', 'kalle'] })
+
+    expect(screen.getByRole('radio', { name: 'A table per person' })).toBeChecked()
+    await userEvent.click(screen.getByRole('radio', { name: 'One shared table' }))
+    expect(onSelectionChange).toHaveBeenCalledWith({
+      people: ['erik', 'kalle'],
+      layout: 'combined',
+    })
+  })
+
+  it('cv-view.combined-table: a personal CV offers no team layout', async () => {
+    await show({ people: ['erik'] })
+
+    expect(screen.queryByRole('radio', { name: 'One shared table' })).not.toBeInTheDocument()
+  })
+
+  it('cv-view.provisional-columns: shows the table and says the columns are provisional', async () => {
+    await show({ people: ['erik'], lang: 'en' })
+
+    const view = within(screen.getByRole('region', { name: 'Preview' }))
+    expect(view.getByText(/The columns are provisional/)).toBeInTheDocument()
+    expect(view.getAllByRole('columnheader').map((each) => each.textContent)).toEqual([
+      'Project',
+      'Customer',
+      'Period',
+      'Role',
+      'Size',
+      'Technologies',
+    ])
+  })
+
+  it('cv-view.copy-html-and-text: copies the table as HTML and as plain text', async () => {
+    const write = vi.fn().mockResolvedValue(undefined)
+    vi.stubGlobal(
+      'ClipboardItem',
+      class {
+        items: Record<string, Blob>
+        constructor(items: Record<string, Blob>) {
+          this.items = items
+        }
+      },
+    )
+    Object.defineProperty(navigator, 'clipboard', { value: { write }, configurable: true })
+    await show({ people: ['erik'], lang: 'en' })
+
+    await userEvent.click(screen.getByRole('button', { name: 'Copy table' }))
+
+    // write([item]): the first call's one argument is the list of items.
+    const item = write.mock.calls[0]?.[0]?.[0] as { items: Record<string, Blob> }
+    expect(Object.keys(item.items)).toEqual(['text/html', 'text/plain'])
+    expect(await item.items['text/html']?.text()).toContain(
+      '<table style="border-collapse: collapse">',
+    )
+    expect(await item.items['text/plain']?.text()).toContain('Project\tCustomer\t')
+    expect(screen.getByRole('status')).toHaveTextContent('Copied.')
+    vi.unstubAllGlobals()
+  })
 })

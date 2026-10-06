@@ -57,7 +57,8 @@ test.describe('the admin', () => {
     await expect(page.getByRole('status')).toContainText(/\d+ (person|people)/)
     await page.getByRole('link', { name: /Make CV \(\d+\)/ }).click()
     await expect(page).toHaveURL(/\/demo\/cvs\?.*people=/)
-    await expect(page.getByRole('region', { name: 'Preview' })).toBeVisible()
+    const view = page.getByRole('region', { name: 'Preview' })
+    await expect(view.getByRole('columnheader', { name: 'Projekt' }).first()).toBeVisible()
   })
 
   test('technical-characteristics.admin-reorders: a move survives a reload', async ({ page }) => {
