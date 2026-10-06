@@ -320,5 +320,22 @@
   "participation_technologies": "Technologies used",
   "participation_technologies_hint": "Remove the ones you didn’t use, and add the ones only you used. Changes to the project don’t change your list.",
   "participation_project_suggestions": "Also on the project:",
-  "participation_add_project_technology": "Add {name}, which the project lists"
+  "participation_add_project_technology": "Add {name}, which the project lists",
+  "error_own_project_not_found": "Own project not found.",
+  "profile_section_own": "Own projects",
+  "profile_section_own_hint": "Only on your CV: projects from an earlier employer, or several engagements merged into one. They stay out of the organization’s project list and search.",
+  "own_add": "Add own project",
+  "own_title": "Own project",
+  "own_name": "Project name",
+  "own_name_required": "Enter the project’s name.",
+  "own_employer": "Employer",
+  "own_employer_hint": "When the work was done for another company.",
+  "own_customer": "Customer",
+  "own_project_details": "Project details",
+  "own_project_details_hint": "Optional: the whole project’s size and tender details.",
+  "own_empty": "No own projects.",
+  "own_employer_badge": "Employer: {name}",
+  "own_edit_for": "Edit {name}",
+  "own_delete": "Delete",
+  "own_delete_confirm": "Delete the own project {name}? It leaves your profile and your CVs."
 }

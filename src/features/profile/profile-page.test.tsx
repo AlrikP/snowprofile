@@ -4,13 +4,13 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { projectsQuery } from '#/lib/project-list'
 import { roleCatalogueQuery } from '#/lib/role-catalogue'
 import { technologyCatalogueQuery } from '#/lib/technology-catalogue'
-import type { MyProfile, Participation } from '#/server/profiles/profiles.functions'
+import type { MyProfile, OwnProject, Participation } from '#/server/profiles/profiles.functions'
 import type { ProjectListItem } from '#/server/projects/projects.functions'
 import { testRoles } from '#/test/role-catalogue'
 import { renderPage } from '#/test/router'
 import { testCatalogue } from '#/test/technology-catalogue'
 import { ProfilePage } from './profile-page'
-import { myParticipationsQuery, myProfileQuery } from './profile-query'
+import { myOwnProjectsQuery, myParticipationsQuery, myProfileQuery } from './profile-query'
 
 const server = vi.hoisted(() => ({
   getMyProfile: vi.fn(),
@@ -22,6 +22,10 @@ const server = vi.hoisted(() => ({
   addParticipation: vi.fn(),
   updateParticipation: vi.fn(),
   deleteParticipation: vi.fn(),
+  getMyOwnProjects: vi.fn(),
+  addOwnProject: vi.fn(),
+  updateOwnProject: vi.fn(),
+  deleteOwnProject: vi.fn(),
 }))
 vi.mock('#/server/profiles/profiles.functions', () => server)
 vi.mock('#/server/projects/projects.functions', () => ({ getProjects: vi.fn() }))
@@ -113,7 +117,30 @@ beforeEach(() => {
   server.addParticipation.mockResolvedValue({ id: 'new' })
   server.updateParticipation.mockResolvedValue(undefined)
   server.deleteParticipation.mockResolvedValue(undefined)
+  server.getMyOwnProjects.mockResolvedValue(ownProjects)
+  server.addOwnProject.mockResolvedValue({ id: 'new' })
+  server.updateOwnProject.mockResolvedValue(undefined)
+  server.deleteOwnProject.mockResolvedValue(undefined)
 })
+
+const ownProjects: OwnProject[] = [
+  {
+    id: 'own1',
+    name: 'Kliendiportaal',
+    employer: 'Nortal',
+    customerName: 'Elisa Eesti',
+    description: { et: 'Tellimuste vaated.', en: 'Order views.' },
+    startDate: '2016',
+    endDate: '2019',
+    hours: null,
+    tasks: { et: null, en: null },
+    totalHours: null,
+    cost: { value: 90000, qualifier: 'approximately' },
+    tenderReference: null,
+    roles: [{ id: 'developer', name: { et: 'Arendaja', en: 'Developer' } }],
+    technologies: [{ id: 'angular', name: 'Angular' }],
+  },
+]
 
 const closed = vi.fn()
 
@@ -128,6 +155,7 @@ function show(data = profile, { initialParticipation = undefined as string | und
     [
       [myProfileQuery('org').queryKey, data],
       [myParticipationsQuery('org').queryKey, participations],
+      [myOwnProjectsQuery('org').queryKey, ownProjects],
       [projectsQuery('org').queryKey, projects],
       [roleCatalogueQuery('org').queryKey, testRoles],
       [technologyCatalogueQuery('org').queryKey, testCatalogue],
@@ -478,6 +506,102 @@ describe('ProfilePage', () => {
       expect(dialog.getByRole('list', { name: 'Technologies used' })).not.toHaveTextContent(
         'Angular',
       )
+    })
+  })
+
+  describe('own projects', () => {
+    function ownSection() {
+      return section('Own projects')
+    }
+
+    it('lists each own project with employer, customer, roles, period, and technologies', async () => {
+      await show()
+
+      expect(ownSection().getAllByRole('listitem')[0]).toHaveTextContent(
+        'KliendiportaalEmployer: NortalElisa EestiDeveloper · 2016 – 2019Order views.Angular',
+      )
+    })
+
+    it('own-projects.added: adds an own project with its fields and the optional details', async () => {
+      await show()
+
+      await userEvent.click(ownSection().getByRole('button', { name: 'Add own project' }))
+      const dialog = within(screen.getByRole('dialog'))
+      await userEvent.type(dialog.getByLabelText('Project name'), 'Väikesed veebilahendused')
+      await userEvent.type(dialog.getByLabelText('Employer'), 'Oma firma OÜ')
+      await userEvent.type(dialog.getByLabelText('Customer'), 'Erinevad kliendid')
+      await userEvent.type(
+        within(dialog.getByRole('group', { name: 'Start' })).getByLabelText('Year'),
+        '2019',
+      )
+      await userEvent.type(dialog.getByRole('combobox', { name: 'Add a role' }), 'arend')
+      await userEvent.click(dialog.getByRole('option', { name: /^Developer/ }))
+      await userEvent.type(
+        dialog.getByRole('combobox', { name: 'Add a technology from the catalogue' }),
+        'react',
+      )
+      await userEvent.click(dialog.getByRole('option', { name: /React/ }))
+      await userEvent.click(dialog.getByText('Project details'))
+      await userEvent.type(dialog.getByLabelText('Tender reference number'), 'RHR-1')
+      await userEvent.type(dialog.getByRole('textbox', { name: 'Cost' }), '12000')
+      await userEvent.click(dialog.getByRole('button', { name: 'Save' }))
+
+      expect(sent(server.addOwnProject)).toMatchObject({
+        organizationId: 'org',
+        name: 'Väikesed veebilahendused',
+        employer: 'Oma firma OÜ',
+        customerName: 'Erinevad kliendid',
+        period: { startDate: '2019', endDate: null },
+        roleIds: ['developer'],
+        technologyIds: ['react'],
+        tenderReference: 'RHR-1',
+        cost: { value: 12000, qualifier: 'approximately' },
+        totalHours: null,
+      })
+    })
+
+    it('own-projects.roles-from-catalogue: needs a role from the catalogue and a name', async () => {
+      await show()
+
+      await userEvent.click(ownSection().getByRole('button', { name: 'Add own project' }))
+      const dialog = within(screen.getByRole('dialog'))
+      await userEvent.click(dialog.getByRole('button', { name: 'Save' }))
+
+      expect(dialog.getByText('Enter the project’s name.')).toBeInTheDocument()
+      expect(dialog.getByText('Add at least one role.')).toBeInTheDocument()
+      expect(dialog.getByRole('combobox', { name: 'Add a role' })).toBeInTheDocument()
+      expect(server.addOwnProject).not.toHaveBeenCalled()
+    })
+
+    it('own-projects.ongoing-clears-end: saving with Ongoing ticked clears the end', async () => {
+      await show()
+
+      await userEvent.click(ownSection().getByRole('button', { name: 'Edit Kliendiportaal' }))
+      const dialog = within(screen.getByRole('dialog'))
+      await userEvent.click(dialog.getByRole('checkbox', { name: 'Ongoing' }))
+      await userEvent.click(dialog.getByRole('button', { name: 'Save' }))
+
+      expect(sent(server.updateOwnProject)).toMatchObject({
+        ownProjectId: 'own1',
+        period: { startDate: '2016', endDate: null },
+        cost: { value: 90000, qualifier: 'approximately' },
+      })
+    })
+
+    it('deletes an own project after confirming', async () => {
+      await show()
+
+      await userEvent.click(ownSection().getByRole('button', { name: 'Edit Kliendiportaal' }))
+      await userEvent.click(
+        within(screen.getByRole('dialog')).getByRole('button', { name: 'Delete' }),
+      )
+      await userEvent.click(
+        within(screen.getByRole('dialog')).getByRole('button', { name: 'Delete' }),
+      )
+
+      expect(server.deleteOwnProject).toHaveBeenCalledWith({
+        data: { organizationId: 'org', ownProjectId: 'own1' },
+      })
     })
   })
 })

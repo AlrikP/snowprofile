@@ -1,9 +1,13 @@
 // Profile server functions. Thin wrappers: the rules live in profiles.server.ts.
 import { createServerFn } from '@tanstack/react-start'
 import { scopeMiddleware } from '../middleware'
+import * as ownProjects from './own-projects.server'
 import * as participations from './participations.server'
 import {
   AddEducationInput,
+  AddOwnProjectInput,
+  DeleteOwnProjectInput,
+  UpdateOwnProjectInput,
   AddParticipationInput,
   DeleteParticipationInput,
   UpdateParticipationInput,
@@ -66,6 +70,26 @@ export const deleteParticipation = createServerFn({ method: 'POST' })
     participations.deleteParticipation(context.db, context.scope, data),
   )
 
+export const getMyOwnProjects = createServerFn({ method: 'GET' })
+  .middleware([scopeMiddleware])
+  .handler(({ context }) => ownProjects.myOwnProjects(context.db, context.scope))
+
+export const addOwnProject = createServerFn({ method: 'POST' })
+  .middleware([scopeMiddleware])
+  .validator(AddOwnProjectInput)
+  .handler(({ data, context }) => ownProjects.addOwnProject(context.db, context.scope, data))
+
+export const updateOwnProject = createServerFn({ method: 'POST' })
+  .middleware([scopeMiddleware])
+  .validator(UpdateOwnProjectInput)
+  .handler(({ data, context }) => ownProjects.updateOwnProject(context.db, context.scope, data))
+
+export const deleteOwnProject = createServerFn({ method: 'POST' })
+  .middleware([scopeMiddleware])
+  .validator(DeleteOwnProjectInput)
+  .handler(({ data, context }) => ownProjects.deleteOwnProject(context.db, context.scope, data))
+
+export type OwnProject = Awaited<ReturnType<typeof getMyOwnProjects>>[number]
 export type Participation = Awaited<ReturnType<typeof getMyParticipations>>[number]
 export type MyProfile = Awaited<ReturnType<typeof getMyProfile>>
 export type Education = MyProfile['education'][number]

@@ -1,6 +1,10 @@
 import { createFileRoute, getRouteApi } from '@tanstack/react-router'
 import { ProfilePage, ProfilePending } from '#/features/profile/profile-page'
-import { myParticipationsQuery, myProfileQuery } from '#/features/profile/profile-query'
+import {
+  myOwnProjectsQuery,
+  myParticipationsQuery,
+  myProfileQuery,
+} from '#/features/profile/profile-query'
 import { projectsQuery } from '#/lib/project-list'
 import { roleCatalogueQuery } from '#/lib/role-catalogue'
 import { technologyCatalogueQuery } from '#/lib/technology-catalogue'
@@ -17,6 +21,7 @@ export const Route = createFileRoute('/$organization/profile')({
     await Promise.all([
       context.queryClient.ensureQueryData(myProfileQuery(organization.id)),
       context.queryClient.ensureQueryData(myParticipationsQuery(organization.id)),
+      context.queryClient.ensureQueryData(myOwnProjectsQuery(organization.id)),
       context.queryClient.ensureQueryData(projectsQuery(organization.id)),
       context.queryClient.ensureQueryData(roleCatalogueQuery(organization.id)),
       context.queryClient.ensureQueryData(technologyCatalogueQuery(organization.id)),

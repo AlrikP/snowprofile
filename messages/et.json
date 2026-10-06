@@ -276,5 +276,22 @@
   "participation_technologies": "Kasutatud tehnoloogiad",
   "participation_technologies_hint": "Eemalda need, mida sa ei kasutanud, ja lisa need, mida kasutasid ainult sina. Projekti muudatused sinu valikut ei muuda.",
   "participation_project_suggestions": "Projektis veel:",
-  "participation_add_project_technology": "Lisa {name}, mis on projektis"
+  "participation_add_project_technology": "Lisa {name}, mis on projektis",
+  "error_own_project_not_found": "Omaprojekti ei leitud.",
+  "profile_section_own": "Omaprojektid",
+  "profile_section_own_hint": "Ainult sinu CV-s: varasema tööandja projektid või mitu tööd koondatuna. Need ei lähe organisatsiooni projektinimekirja ega otsingusse.",
+  "own_add": "Lisa omaprojekt",
+  "own_title": "Omaprojekt",
+  "own_name": "Projekti nimi",
+  "own_name_required": "Sisesta projekti nimi.",
+  "own_employer": "Tööandja",
+  "own_employer_hint": "Kui töö tehti mõnele teisele ettevõttele.",
+  "own_customer": "Klient",
+  "own_project_details": "Projekti andmed",
+  "own_project_details_hint": "Valikulised: kogu projekti maht ja hanke andmed.",
+  "own_empty": "Omaprojekte pole.",
+  "own_employer_badge": "Tööandja: {name}",
+  "own_edit_for": "Muuda: {name}",
+  "own_delete": "Kustuta",
+  "own_delete_confirm": "Kustutada omaprojekt {name}? See kaob sinu profiililt ja CV-dest."
 }

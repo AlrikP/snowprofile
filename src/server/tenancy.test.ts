@@ -30,6 +30,7 @@ import { createTestDatabase, failure } from '#/db/testing'
 import * as account from './account/account.repository.server'
 import * as criteria from './criteria/criteria.repository.server'
 import { findMemberRole, listMemberships } from './organizations/organizations.repository.server'
+import * as ownProjects from './profiles/own-projects.repository.server'
 import * as participations from './profiles/participations.repository.server'
 import * as profiles from './profiles/profiles.repository.server'
 import * as projects from './projects/projects.repository.server'
@@ -57,6 +58,9 @@ const b = {
   // A customer whose name A has no customer of.
   customerId: '',
   customerName: '',
+  // An own project in B with roles and technologies, on its profile.
+  ownProjectId: '',
+  ownProjectProfileId: '',
   // A participation in B, on its profile.
   participationId: '',
   participationProfileId: '',
@@ -189,7 +193,56 @@ beforeAll(async () => {
   if (!taken) throw new Error('expected a participation with roles in B')
   b.participationId = taken.id
   b.participationProfileId = taken.profileId
+  const own = (
+    await db.$client.execute(
+      `SELECT op.id, op.profile_id FROM own_project op
+        WHERE op.organization_id = '${b.organizationId}'
+          AND EXISTS (SELECT 1 FROM own_project_role r WHERE r.own_project_id = op.id)
+          AND EXISTS (SELECT 1 FROM own_project_technology t WHERE t.own_project_id = op.id)
+        LIMIT 1`,
+    )
+  ).rows[0]
+  const [ownProjectId, ownProjectProfileId] = [own?.[0], own?.[1]]
+  if (typeof ownProjectId !== 'string' || typeof ownProjectProfileId !== 'string') {
+    throw new Error('expected an own project with roles and technologies in B')
+  }
+  b.ownProjectId = ownProjectId
+  b.ownProjectProfileId = ownProjectProfileId
 })
+
+async function bOwnProject() {
+  const rows = await db.$client.execute(
+    `SELECT name, sys_deleted FROM own_project WHERE id = '${b.ownProjectId}'`,
+  )
+  return rows.rows[0]
+}
+
+async function bOwnProjectLinks(table: string, column: string) {
+  const rows = await db.$client.execute(
+    `SELECT ${column} || '|' || created_by FROM ${table}
+      WHERE own_project_id = '${b.ownProjectId}' ORDER BY 1`,
+  )
+  return rows.rows.map((row) => row[0])
+}
+
+const ownProjectValues = {
+  name: 'A-st',
+  employer: null,
+  customerName: null,
+  descriptionEt: null,
+  descriptionEn: null,
+  startDate: '2020',
+  endDate: null,
+  hours: null,
+  hoursQualifier: null,
+  tasksEt: null,
+  tasksEn: null,
+  totalHours: null,
+  totalHoursQualifier: null,
+  cost: null,
+  costQualifier: null,
+  tenderReference: null,
+}
 
 async function bParticipation() {
   const [row] = await db.select().from(participation).where(eq(participation.id, b.participationId))
@@ -443,6 +496,77 @@ const cases: Record<string, () => Promise<void>> = {
   },
   'projects.listProjectContacts': async () => {
     expect(await projects.listProjectContacts(db, scopeA, b.projectId)).toEqual([])
+  },
+  'own-projects.listOwnProjects': async () => {
+    expect(await ownProjects.listOwnProjects(db, scopeA, b.ownProjectProfileId)).toEqual([])
+  },
+  'own-projects.listOwnProjectRoles': async () => {
+    expect(await ownProjects.listOwnProjectRoles(db, scopeA, b.ownProjectProfileId)).toEqual([])
+  },
+  'own-projects.listOwnProjectTechnologies': async () => {
+    expect(await ownProjects.listOwnProjectTechnologies(db, scopeA, b.ownProjectProfileId)).toEqual(
+      [],
+    )
+  },
+  'own-projects.findOwnProject': async () => {
+    expect(
+      await ownProjects.findOwnProject(db, scopeA, b.ownProjectProfileId, b.ownProjectId),
+    ).toBeUndefined()
+  },
+  'own-projects.insertOwnProject': async () => {
+    // The organization comes from the scope, so B's profile can't be used from A.
+    function insert() {
+      return withActor(scopeA.userId, () =>
+        ownProjects.insertOwnProject(db, scopeA, {
+          ...ownProjectValues,
+          id: uuidv7(),
+          profileId: b.ownProjectProfileId,
+        }),
+      )
+    }
+    expect(await failure(insert)).toContain('FOREIGN KEY')
+  },
+  'own-projects.updateOwnProject': async () => {
+    const before = await bOwnProject()
+    await withActor(scopeA.userId, () =>
+      ownProjects.updateOwnProject(
+        db,
+        scopeA,
+        b.ownProjectProfileId,
+        b.ownProjectId,
+        ownProjectValues,
+      ),
+    )
+    expect(await bOwnProject()).toEqual(before)
+  },
+  'own-projects.removeOwnProject': async () => {
+    const before = await bOwnProject()
+    await withActor(scopeA.userId, () =>
+      ownProjects.removeOwnProject(db, scopeA, b.ownProjectProfileId, b.ownProjectId),
+    )
+    expect(await bOwnProject()).toEqual(before)
+  },
+  'own-projects.setOwnProjectRoles': async () => {
+    const before = await bOwnProjectLinks('own_project_role', 'role_id')
+    expect(
+      await failure(() =>
+        withActor(scopeA.userId, () =>
+          ownProjects.setOwnProjectRoles(db, scopeA, b.ownProjectId, [uuidv7()]),
+        ),
+      ),
+    ).toContain('FOREIGN KEY')
+    expect(await bOwnProjectLinks('own_project_role', 'role_id')).toEqual(before)
+  },
+  'own-projects.setOwnProjectTechnologies': async () => {
+    const before = await bOwnProjectLinks('own_project_technology', 'technology_id')
+    expect(
+      await failure(() =>
+        withActor(scopeA.userId, () =>
+          ownProjects.setOwnProjectTechnologies(db, scopeA, b.ownProjectId, [uuidv7()]),
+        ),
+      ),
+    ).toContain('FOREIGN KEY')
+    expect(await bOwnProjectLinks('own_project_technology', 'technology_id')).toEqual(before)
   },
   'participations.listParticipations': async () => {
     expect(await participations.listParticipations(db, scopeA, b.participationProfileId)).toEqual(

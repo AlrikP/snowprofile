@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
-import { GraduationCapIcon, LockIcon, PencilIcon, PlusIcon } from 'lucide-react'
+import { BriefcaseIcon, GraduationCapIcon, LockIcon, PencilIcon, PlusIcon } from 'lucide-react'
 import { type ReactNode, useState } from 'react'
 import { BilingualText } from '#/components/bilingual-text'
 import { Badge } from '#/components/ui/badge'
@@ -10,27 +10,30 @@ import { formatApproximateNumber } from '#/lib/approximate-number'
 import { formatDate } from '#/lib/date-time'
 import { formatPeriod } from '#/lib/period'
 import { m } from '#/paraglide/messages.js'
-import type { Education, Participation } from '#/server/profiles/profiles.functions'
+import type { Education, OwnProject, Participation } from '#/server/profiles/profiles.functions'
 import { EducationDialog, educationName } from './education-dialog'
+import { OwnProjectDialog } from './own-project-dialog'
 import { ParticipationDialog } from './participation-dialog'
 import { PersonalDialog } from './personal-dialog'
-import { myParticipationsQuery, myProfileQuery } from './profile-query'
+import { myOwnProjectsQuery, myParticipationsQuery, myProfileQuery } from './profile-query'
 
 function Section({
   id,
   title,
   hint,
   action,
+  className,
   children,
 }: {
   id: string
   title: string
   hint?: string
   action: ReactNode
+  className?: string
   children: ReactNode
 }) {
   return (
-    <Card role="region" aria-labelledby={id}>
+    <Card role="region" aria-labelledby={id} className={className}>
       <CardHeader>
         <h2 id={id} className="text-xl">
           {title}
@@ -119,37 +122,90 @@ function ParticipationEntry({
           <PencilIcon />
         </Button>
       </div>
-      <p className="text-sm">
-        {participation.roles.map((role, index) => (
-          <span key={role.id} className="font-medium">
-            {index > 0 && ', '}
-            <BilingualText value={role.name} />
-          </span>
-        ))}
-        {' · '}
-        {formatPeriod(participation.startDate, participation.endDate)}
-        {participation.hours && ` · ${formatApproximateNumber(participation.hours, 'hours')}`}
-      </p>
+      <Line {...participation} />
       {(participation.tasks.et || participation.tasks.en) && (
         <p className="text-muted-foreground text-sm whitespace-pre-line">
           <BilingualText value={participation.tasks} />
         </p>
       )}
-      {participation.technologies.length > 0 && (
-        <ul className="flex flex-wrap gap-1" aria-label={m.participation_technologies()}>
-          {participation.technologies.map((technology) => (
-            <li key={technology.id}>
-              <Badge variant="secondary">{technology.name}</Badge>
-            </li>
-          ))}
-        </ul>
-      )}
+      <Technologies technologies={participation.technologies} />
     </li>
   )
 }
 
-// The signed-in member's own profile (prototypes/profile.html). Own projects get their
-// section in task 033.
+function Line({
+  roles,
+  startDate,
+  endDate,
+  hours,
+}: Pick<Participation, 'roles' | 'startDate' | 'endDate' | 'hours'>) {
+  return (
+    <p className="text-sm">
+      {roles.map((role, index) => (
+        <span key={role.id} className="font-medium">
+          {index > 0 && ', '}
+          <BilingualText value={role.name} />
+        </span>
+      ))}
+      {' · '}
+      {formatPeriod(startDate, endDate)}
+      {hours && ` · ${formatApproximateNumber(hours, 'hours')}`}
+    </p>
+  )
+}
+
+function Technologies({ technologies }: { technologies: { id: string; name: string }[] }) {
+  if (technologies.length === 0) return null
+  return (
+    <ul className="flex flex-wrap gap-1" aria-label={m.participation_technologies()}>
+      {technologies.map((technology) => (
+        <li key={technology.id}>
+          <Badge variant="secondary">{technology.name}</Badge>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+function OwnProjectEntry({ ownProject, onEdit }: { ownProject: OwnProject; onEdit: () => void }) {
+  const text =
+    ownProject.tasks.et || ownProject.tasks.en ? ownProject.tasks : ownProject.description
+  return (
+    <li className="flex flex-col gap-2 py-4">
+      <div className="flex items-start gap-2">
+        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+          <span className="flex flex-wrap items-center gap-2">
+            <span className="font-medium">{ownProject.name}</span>
+            {ownProject.employer && (
+              <Badge variant="outline">{m.own_employer_badge({ name: ownProject.employer })}</Badge>
+            )}
+          </span>
+          {ownProject.customerName && (
+            <span className="text-muted-foreground text-sm">{ownProject.customerName}</span>
+          )}
+        </div>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          aria-label={m.own_edit_for({ name: ownProject.name })}
+          onClick={onEdit}
+        >
+          <PencilIcon />
+        </Button>
+      </div>
+      <Line {...ownProject} />
+      {(text.et || text.en) && (
+        <p className="text-muted-foreground text-sm whitespace-pre-line">
+          <BilingualText value={text} />
+        </p>
+      )}
+      <Technologies technologies={ownProject.technologies} />
+    </li>
+  )
+}
+
+// The signed-in member's own profile (prototypes/profile.html).
 export function ProfilePage({
   organizationId,
   organization,
@@ -165,6 +221,9 @@ export function ProfilePage({
 }) {
   const { data: profile } = useSuspenseQuery(myProfileQuery(organizationId))
   const { data: participations } = useSuspenseQuery(myParticipationsQuery(organizationId))
+  const { data: ownProjects } = useSuspenseQuery(myOwnProjectsQuery(organizationId))
+  // The own project being edited, null to add one, or undefined while the dialog is closed.
+  const [ownProject, setOwnProject] = useState<OwnProject | null | undefined>(undefined)
   const [personalOpen, setPersonalOpen] = useState(false)
   // The participation being edited, null to add one, or undefined while the dialog is closed.
   const [participation, setParticipation] = useState<Participation | null | undefined>(() =>
@@ -259,8 +318,40 @@ export function ProfilePage({
               </ul>
             )}
           </Section>
+          <Section
+            id="section-own"
+            title={m.profile_section_own()}
+            hint={m.profile_section_own_hint()}
+            className="bg-muted/40 border-dashed"
+            action={
+              <Button variant="outline" size="sm" onClick={() => setOwnProject(null)}>
+                <BriefcaseIcon />
+                {m.own_add()}
+              </Button>
+            }
+          >
+            {ownProjects.length === 0 ? (
+              <p className="text-muted-foreground text-sm">{m.own_empty()}</p>
+            ) : (
+              <ul className="-mt-2 flex flex-col divide-y">
+                {ownProjects.map((each) => (
+                  <OwnProjectEntry
+                    key={each.id}
+                    ownProject={each}
+                    onEdit={() => setOwnProject(each)}
+                  />
+                ))}
+              </ul>
+            )}
+          </Section>
         </div>
       </div>
+      <OwnProjectDialog
+        open={ownProject !== undefined}
+        onClose={() => setOwnProject(undefined)}
+        organizationId={organizationId}
+        ownProject={ownProject ?? null}
+      />
       <ParticipationDialog
         open={participation !== undefined}
         onClose={() => {

@@ -76,3 +76,40 @@ export type UpdateParticipationInput = v.InferOutput<typeof UpdateParticipationI
 
 export const DeleteParticipationInput = v.object({ participationId: Uuidv7 })
 export type DeleteParticipationInput = v.InferOutput<typeof DeleteParticipationInput>
+
+const OptionalText = v.nullable(
+  v.pipe(
+    v.string(),
+    v.trim(),
+    v.transform((text) => text || null),
+  ),
+)
+
+const OwnProjectFields = {
+  name: v.pipe(v.string(), v.trim(), v.nonEmpty()),
+  employer: OptionalText,
+  customerName: OptionalText,
+  description: Bilingual,
+  period: Period,
+  roleIds: v.pipe(v.array(Uuidv7), v.minLength(1, 'At least one role.')),
+  hours: ApproximateNumber,
+  tasks: Bilingual,
+  technologyIds: v.array(Uuidv7),
+  // The whole project's size and tender details, all optional.
+  totalHours: ApproximateNumber,
+  cost: ApproximateNumber,
+  tenderReference: OptionalText,
+}
+
+export const AddOwnProjectInput = v.object({
+  // The new own project's ID, from the client.
+  id: Uuidv7,
+  ...OwnProjectFields,
+})
+export type AddOwnProjectInput = v.InferOutput<typeof AddOwnProjectInput>
+
+export const UpdateOwnProjectInput = v.object({ ownProjectId: Uuidv7, ...OwnProjectFields })
+export type UpdateOwnProjectInput = v.InferOutput<typeof UpdateOwnProjectInput>
+
+export const DeleteOwnProjectInput = v.object({ ownProjectId: Uuidv7 })
+export type DeleteOwnProjectInput = v.InferOutput<typeof DeleteOwnProjectInput>
