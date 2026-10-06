@@ -1,6 +1,6 @@
 # 039: Sheet migration
 
-Status: todo
+Status: in-progress
 
 A one-off script, with no UI, that creates Snowhound's organization and loads
 `Snowhound_CV_baas.xlsx` into it on the company stack. Re-running it updates matched

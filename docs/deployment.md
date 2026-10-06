@@ -70,3 +70,21 @@ rehearsal over from an empty database, stop the stack and remove that one volume
 
 A demo stack and the company stack never share a database volume, and `DEMO_MODE` and
 `ALLOWED_LOGIN_DOMAINS` are never on together; the app refuses to start with both.
+
+## Create an organization
+
+The company stack holds no demo data: the platform operator creates each organization
+with a script, which also invites its first admin (`docs/product.md`, "Users and access").
+Run it in a temporary container from the app image, with the app stopped, as for seeding:
+
+```bash
+docker compose stop app
+docker compose run --rm --no-deps app bun --no-env-file .output/server/scripts/org-create.js \
+  snowhound "Snowhound OÜ" admin@snowhound.eu
+docker compose up -d --wait
+```
+
+It prints an invitation link on `APP_HOST`, valid for 7 days. Send it to the admin, who
+opens it signed in with that address and then invites the employees from the members
+page. Running it again for the same slug changes nothing. Locally,
+`bun run org:create <slug> <name> <email>` does the same against `DATABASE_URL`.

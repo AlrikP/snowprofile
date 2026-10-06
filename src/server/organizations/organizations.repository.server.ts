@@ -2,6 +2,7 @@
 import { and, asc, eq, sql } from 'drizzle-orm'
 import type { Executor } from '#/db'
 import { member, organization } from '#/db/schema'
+import type { Scope } from '../scope.server'
 
 // The user's role in the organization, or undefined for a non-member. The one lookup
 // without a scope: resolveScope builds the scope from it.
@@ -35,4 +36,24 @@ export function listMemberships(db: Executor, userId: string) {
     .innerJoin(organization, eq(organization.id, member.organizationId))
     .where(eq(member.userId, userId))
     .orderBy(asc(organization.name))
+}
+
+// The organization with this slug, for the operator's script that creates organizations.
+// Unscoped: the operator belongs to none of them, and a slug is unique across all.
+export async function findOrganizationBySlug(db: Executor, slug: string) {
+  const [row] = await db
+    .select({ id: organization.id, name: organization.name })
+    .from(organization)
+    .where(eq(organization.slug, slug))
+  return row
+}
+
+// Creates the scope's organization: its ID comes from the scope, as every insert's
+// organization does. The operator's script builds that scope for the new ID.
+export async function insertOrganization(
+  db: Executor,
+  scope: Scope,
+  values: { name: string; slug: string; createdAt: Date },
+) {
+  await db.insert(organization).values({ ...values, id: scope.organizationId })
 }

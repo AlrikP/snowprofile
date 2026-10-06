@@ -28,6 +28,16 @@ export async function listCategories(db: Executor, scope: Scope) {
     .orderBy(asc(technologyCategory.position))
 }
 
+export async function insertCategories(
+  db: Executor,
+  scope: Scope,
+  rows: { id: string; nameEt: string; nameEn: string; position: number }[],
+) {
+  await db
+    .insert(technologyCategory)
+    .values(rows.map((row) => ({ ...row, organizationId: scope.organizationId })))
+}
+
 export async function findCategory(db: Executor, scope: Scope, categoryId: string) {
   const [row] = await db
     .select({ id: technologyCategory.id })

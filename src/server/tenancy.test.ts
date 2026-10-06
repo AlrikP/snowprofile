@@ -34,7 +34,7 @@ import * as criteria from './criteria/criteria.repository.server'
 import * as cvs from './cvs/cvs.repository.server'
 import * as invitations from './invitations/invitations.repository.server'
 import * as members from './members/members.repository.server'
-import { findMemberRole, listMemberships } from './organizations/organizations.repository.server'
+import * as organizations from './organizations/organizations.repository.server'
 import * as ownProjects from './profiles/own-projects.repository.server'
 import * as participations from './profiles/participations.repository.server'
 import * as profiles from './profiles/profiles.repository.server'
@@ -470,13 +470,34 @@ const cases: Record<string, () => Promise<void>> = {
   },
   'organizations.findMemberRole': async () => {
     // The lookup that builds a scope: a member of A has no role in B.
-    expect(await findMemberRole(db, seedIds.users.employee, b.organizationId)).toBeUndefined()
+    expect(
+      await organizations.findMemberRole(db, seedIds.users.employee, b.organizationId),
+    ).toBeUndefined()
   },
   'organizations.listMemberships': async () => {
     // The user's own memberships only: B, where the employee isn't a member, is missing.
-    const ids = (await listMemberships(db, seedIds.users.employee)).map((row) => row.id)
+    const ids = (await organizations.listMemberships(db, seedIds.users.employee)).map(
+      (row) => row.id,
+    )
     expect(ids).toContain(seedIds.orgs.demo)
     expect(ids).not.toContain(b.organizationId)
+  },
+  // The operator's script creates organizations; it belongs to none, so the slug lookup
+  // takes no scope, and the insert takes its ID from the scope built for the new one.
+  'organizations.findOrganizationBySlug': async () => {
+    expect((await organizations.findOrganizationBySlug(db, 'tormilind'))?.id).toBe(b.organizationId)
+    expect(await organizations.findOrganizationBySlug(db, 'nobody')).toBeUndefined()
+  },
+  'organizations.insertOrganization': async () => {
+    const scope = { ...scopeA, organizationId: uuidv7() }
+    await organizations.insertOrganization(db, scope, {
+      name: 'Crossing',
+      slug: 'crossing',
+      createdAt: new Date(),
+    })
+    expect((await organizations.findOrganizationBySlug(db, 'crossing'))?.id).toBe(
+      scope.organizationId,
+    )
   },
   'profiles.findProfile': async () => {
     expect(await profiles.findProfile(db, scopeA, b.profileId)).toBeUndefined()
@@ -1179,6 +1200,17 @@ const cases: Record<string, () => Promise<void>> = {
   'technologies.listCategories': async () => {
     const ids = (await technologies.listCategories(db, scopeA)).map((row) => row.id)
     expect(ids).not.toContain(b.categoryId)
+  },
+  'technologies.insertCategories': async () => {
+    // The organization comes from the scope: the rows land in A.
+    const id = uuidv7()
+    await withActor(scopeA.userId, () =>
+      technologies.insertCategories(db, scopeA, [
+        { id, nameEt: 'Ristuv', nameEn: 'Crossing', position: 99 },
+      ]),
+    )
+    const [row] = await db.select().from(technologyCategory).where(eq(technologyCategory.id, id))
+    expect(row?.organizationId).toBe(scopeA.organizationId)
   },
   'technologies.findCategory': async () => {
     expect(await technologies.findCategory(db, scopeA, b.categoryId)).toBeUndefined()
