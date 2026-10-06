@@ -24,8 +24,40 @@ export function endsBeforeStart(startDate: string, endDate: string): boolean {
   return endDate < startDate.slice(0, endDate.length)
 }
 
+// The first day a period date can mean: 2024 is 2024-01-01, 2024-03 is 2024-03-01.
+export function firstDay(value: string): string {
+  if (value.length === 4) return `${value}-01-01`
+  if (value.length === 7) return `${value}-01`
+  return value
+}
+
+// The last day a period date can mean: 2024 is 2024-12-31, 2024-02 is 2024-02-29.
+export function lastDay(value: string): string {
+  if (value.length === 4) return `${value}-12-31`
+  if (value.length === 7) {
+    const [year, month] = value.split('-').map(Number)
+    const last = new Date(Date.UTC(year ?? 0, month ?? 0, 0)).getUTCDate()
+    return `${value}-${String(last).padStart(2, '0')}`
+  }
+  return value
+}
+
+// Whether a period overlaps a filter (docs/architecture.md, "Data conventions"): partial
+// starts read as their first day, partial ends as their last, and an ongoing period runs
+// to today. Either end of the filter may be open.
+export function overlaps(
+  period: { startDate: string; endDate: string | null },
+  filter: { from: string | null; to: string | null },
+  today: string,
+): boolean {
+  const end = period.endDate === null ? today : lastDay(period.endDate)
+  if (filter.from !== null && end < firstDay(filter.from)) return false
+  if (filter.to !== null && firstDay(period.startDate) > lastDay(filter.to)) return false
+  return true
+}
+
 // DD-MM-YYYY, MM-YYYY, or YYYY.
-function formatPeriodDate(value: string): string {
+export function formatPeriodDate(value: string): string {
   return value.split('-').reverse().join('-')
 }
 
@@ -134,4 +166,17 @@ export function periodErrorMessage(error: PeriodError): string {
     case 'end_before_start':
       return m.period_end_before_start()
   }
+}
+
+// A period date as typed: DD-MM-YYYY, MM-YYYY, or YYYY (dots or slashes work too), or null
+// when it isn't one.
+export function readPeriodDate(text: string): string | null {
+  const parts = text.trim().split(/[-./]/).filter(Boolean)
+  if (parts.length === 0 || parts.length > 3) return null
+  const [year, month, day] = [...parts].reverse()
+  if (!year || !/^\d{4}$/.test(year)) return null
+  const value = [year, month?.padStart(2, '0'), day?.padStart(2, '0')]
+    .filter((part) => part !== undefined)
+    .join('-')
+  return isPeriodDate(value) ? value : null
 }

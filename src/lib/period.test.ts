@@ -3,12 +3,16 @@
 import { describe, expect, test } from 'bun:test'
 import {
   endsBeforeStart,
+  firstDay,
   formatPeriod,
   isPeriodDate,
   isYearOnly,
+  lastDay,
+  overlaps,
   type PeriodInputValue,
   parsePeriodInput,
   periodInputValue,
+  readPeriodDate,
 } from './period'
 
 function input(start: string, end = '', ongoing = false): PeriodInputValue {
@@ -101,5 +105,42 @@ describe('the period input', () => {
     expect(isYearOnly(input('..2019').start)).toBe(true)
     expect(isYearOnly(input('.3.2019').start)).toBe(false)
     expect(isYearOnly(input('').start)).toBe(false)
+  })
+})
+
+describe('period filters', () => {
+  test('search.partial-dates: a partial date reads as its first or last day', () => {
+    expect(firstDay('2024')).toBe('2024-01-01')
+    expect(firstDay('2024-03')).toBe('2024-03-01')
+    expect(firstDay('2024-03-15')).toBe('2024-03-15')
+    expect(lastDay('2024')).toBe('2024-12-31')
+    expect(lastDay('2024-02')).toBe('2024-02-29')
+    expect(lastDay('2023-02')).toBe('2023-02-28')
+    expect(lastDay('2024-11')).toBe('2024-11-30')
+  })
+
+  test('search.period-overlap: a period matches a filter it overlaps, ongoing up to today', () => {
+    const today = '2026-10-06'
+    const filter = { from: '2019', to: '2020-06' }
+    expect(overlaps({ startDate: '2020-05', endDate: '2021' }, filter, today)).toBe(true)
+    expect(overlaps({ startDate: '2018', endDate: '2019' }, filter, today)).toBe(true)
+    expect(overlaps({ startDate: '2018', endDate: '2018-12' }, filter, today)).toBe(false)
+    expect(overlaps({ startDate: '2020-07', endDate: null }, filter, today)).toBe(false)
+    expect(overlaps({ startDate: '2015', endDate: null }, filter, today)).toBe(true)
+    expect(overlaps({ startDate: '2015', endDate: null }, { from: '2027', to: null }, today)).toBe(
+      false,
+    )
+    expect(overlaps({ startDate: '2015', endDate: '2016' }, { from: null, to: null }, today)).toBe(
+      true,
+    )
+  })
+
+  test('reads a typed date in day, month, and year order', () => {
+    expect(readPeriodDate('2019')).toBe('2019')
+    expect(readPeriodDate('3-2024')).toBe('2024-03')
+    expect(readPeriodDate('15.03.2024')).toBe('2024-03-15')
+    expect(readPeriodDate('31-02-2024')).toBeNull()
+    expect(readPeriodDate('march')).toBeNull()
+    expect(readPeriodDate('')).toBeNull()
   })
 })

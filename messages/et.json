@@ -392,5 +392,42 @@
   "profile_never_confirmed": "Pole veel kinnitatud",
   "profile_confirm": "Profiil on ajakohane",
   "profile_confirmed_title": "Aitäh! Profiil on kinnitatud.",
-  "profile_confirmed_body": "Administraatorid näevad, et su andmed on ajakohased."
+  "profile_confirmed_body": "Administraatorid näevad, et su andmed on ajakohased.",
+  "search_title": "Otsing",
+  "search_description": "Leia inimesed tehnoloogia ja soovi korral perioodi järgi.",
+  "search_technologies": "Tehnoloogiad",
+  "search_period": "Periood (valikuline)",
+  "search_from": "Alates",
+  "search_to": "Kuni",
+  "search_period_hint": "Aasta, kuu ja aasta (03-2024) või täpne kuupäev.",
+  "search_period_invalid": "Sisesta aasta, kuu ja aasta või kuupäev.",
+  "search_match_all": "Kõik valitud tehnoloogiad",
+  "search_match_any": "Vähemalt üks",
+  "search_match_label": "Sobivus",
+  "search_results": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} inimene",
+        "countPlural=*": "{count} inimest"
+      }
+    }
+  ],
+  "search_prompt": "Vali vähemalt üks tehnoloogia.",
+  "search_no_match": "Keegi ei vasta valikule. Proovi laiemat perioodi või vähem tehnoloogiaid.",
+  "search_searching": "Otsin…",
+  "search_matches": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} sobiv projekt",
+        "countPlural=*": "{count} sobivat projekti"
+      }
+    }
+  ],
+  "search_make_cv": "Koosta CV ({count})",
+  "search_select_person": "Vali {name}",
+  "own_badge": "Omaprojekt"
 }

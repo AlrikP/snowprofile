@@ -45,6 +45,20 @@ test.describe('the admin', () => {
     await expect(page).toHaveURL(/\/rabasaare\/profile$/)
   })
 
+  test('search.make-cv: finds people by a technology and opens a CV of them', async ({ page }) => {
+    await page.goto('/demo/search')
+    await page.getByRole('combobox', { name: 'Add a technology from the catalogue' }).fill('java')
+    await page
+      .getByRole('option', { name: /^Java\b/ })
+      .first()
+      .click()
+
+    await expect(page).toHaveURL(/[?&]t=/)
+    await expect(page.getByRole('status')).toContainText(/\d+ (person|people)/)
+    await page.getByRole('link', { name: /Make CV \(\d+\)/ }).click()
+    await expect(page).toHaveURL(/\/demo\/cvs\?.*people=/)
+  })
+
   test('technical-characteristics.admin-reorders: a move survives a reload', async ({ page }) => {
     await page.goto('/demo/criteria')
     const names = page.getByRole('listitem').locator('span.font-medium')

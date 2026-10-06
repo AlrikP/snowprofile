@@ -436,5 +436,42 @@
   "profile_never_confirmed": "Not confirmed yet",
   "profile_confirm": "Profile is up to date",
   "profile_confirmed_title": "Thanks! Your profile is confirmed.",
-  "profile_confirmed_body": "Admins can see that your details are current."
+  "profile_confirmed_body": "Admins can see that your details are current.",
+  "search_title": "Search",
+  "search_description": "Find people by technology, and by period if you like.",
+  "search_technologies": "Technologies",
+  "search_period": "Period (optional)",
+  "search_from": "From",
+  "search_to": "To",
+  "search_period_hint": "Year, month and year (03-2024), or a full date.",
+  "search_period_invalid": "Enter a year, a month and year, or a date.",
+  "search_match_all": "All chosen technologies",
+  "search_match_any": "At least one",
+  "search_match_label": "Match",
+  "search_results": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} person",
+        "countPlural=*": "{count} people"
+      }
+    }
+  ],
+  "search_prompt": "Choose at least one technology.",
+  "search_no_match": "Nobody matches. Try a wider period or fewer technologies.",
+  "search_searching": "Searching…",
+  "search_matches": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} matching project",
+        "countPlural=*": "{count} matching projects"
+      }
+    }
+  ],
+  "search_make_cv": "Make CV ({count})",
+  "search_select_person": "Select {name}",
+  "own_badge": "Own project"
 }

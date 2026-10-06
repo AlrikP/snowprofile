@@ -40,6 +40,7 @@ import * as profiles from './profiles/profiles.repository.server'
 import * as projects from './projects/projects.repository.server'
 import * as roles from './roles/roles.repository.server'
 import { resolveScope, type Scope } from './scope.server'
+import * as search from './search/search.repository.server'
 import * as technologies from './technologies/technologies.repository.server'
 
 let db: Database
@@ -1138,6 +1139,29 @@ const cases: Record<string, () => Promise<void>> = {
   'roles.markRoleMerged': async () => {
     await withActor(scopeA.userId, () => roles.markRoleMerged(db, scopeA, b.roleId, b.otherRoleId))
     expect(await bRole(b.roleId)).toMatchObject({ sysDeleted: false, mergedIntoId: null })
+  },
+  'search.matchingParticipations': async () => {
+    const rows = await search.matchingParticipations(db, scopeA, [b.technologyId])
+    expect(rows).toEqual([])
+  },
+  'search.matchingOwnProjects': async () => {
+    const rows = await search.matchingOwnProjects(db, scopeA, [b.technologyId])
+    expect(rows).toEqual([])
+  },
+  'search.participationTechnologies': async () => {
+    expect(await search.participationTechnologies(db, scopeA, [b.participationId])).toEqual([])
+  },
+  'search.ownProjectTechnologies': async () => {
+    expect(await search.ownProjectTechnologies(db, scopeA, [b.ownProjectId])).toEqual([])
+  },
+  'search.participationRoles': async () => {
+    expect(await search.participationRoles(db, scopeA, [b.participationId])).toEqual([])
+  },
+  'search.ownProjectRoles': async () => {
+    expect(await search.ownProjectRoles(db, scopeA, [b.ownProjectId])).toEqual([])
+  },
+  'search.profilesByIds': async () => {
+    expect(await search.profilesByIds(db, scopeA, [b.profileId])).toEqual([])
   },
   'technologies.listCategories': async () => {
     const ids = (await technologies.listCategories(db, scopeA)).map((row) => row.id)
