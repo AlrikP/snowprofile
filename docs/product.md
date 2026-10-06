@@ -71,7 +71,17 @@ More roles come later; the role model must allow adding them.
 - Skill levels or self-assessed proficiency per technology.
 - Roles beyond `admin` and `employee` (for example sales or read-only).
 - Personal ID codes (isikukood): never stored.
-- Public self-signup for organizations; platform admins create organizations.
+- Public self-signup for organizations; platform admins create organizations. Two later
+  ideas: a personal space for someone who signs in without an invitation, where they
+  manage a profile of their own, much like a demo organization; and registering a new
+  company, approved by a platform super-admin who verifies the company and its domain
+  with the new party.
+- Joining an organization automatically by email domain: every organization is
+  invite-only (decided 2026-10-06).
+- Certificates and trainings on profiles and CVs, which tenders often ask for and the
+  sheet doesn't record (decided 2026-10-06).
+- Computed experience totals per person (years with a technology, total hours) in search
+  and CVs (decided 2026-10-06).
 - A one-click demo login without a Google account.
 - Passkey sign-in, as a second method beside Google (task 020).
 - A dark mode, once the feature views have settled (task 022).
@@ -89,17 +99,18 @@ More roles come later; the role model must allow adding them.
   (for example `snowhound.eu`).
 - **Tenancy:** multi-tenant from day one. Every record belongs to one organization, and a
   user only ever sees data from the organization they are working in.
-- **Membership:**
-  - Snowhound: users with a company Google Workspace account (company domain) join the
-    Snowhound organization automatically as `employee`.
-  - Other organizations, including demo ones: any Google account can sign in, but access
-    needs an invitation from an organization admin.
-  - A user can belong to several organizations (for example a Snowhound admin who also
-    runs the demo organization) and switches between them.
+- **Membership:** by invitation only, in every organization, Snowhound included. An
+  admin invites an email address; whoever signs in with that address accepts the
+  invitation. Someone who signs in without one lands on a "no access" page. Admins
+  decide who joins, because later company-specific features make what a member sees an
+  admin's choice. A user can belong to several organizations (for example a Snowhound
+  admin who also runs the demo organization) and switches between them.
 - **Roles per organization:** `admin` and `employee`, designed so more roles can be added
   later without reworking access checks.
-- **Platform operator:** someone creates organizations and their first admin. In the MVP
-  that can be a seeded configuration or a script rather than a UI.
+- **Platform operator:** someone creates organizations and their first admin. In the MVP,
+  the demo seed creates the demo organizations and their admins, and a script creates
+  Snowhound's organization and invites its first admin; the sheet migration then fills in
+  Snowhound's data. Admins invite the employees.
 
 ## Technologies on projects and participations
 
@@ -168,13 +179,8 @@ Both suggestion lists are computed when shown, so nothing records them.
   tenders, or is copy and paste enough? Decide from how the MVP outputs are used.
 - **Update requests without email:** is an in-app notice on sign-in enough, or are update
   emails needed soon after the MVP? Decide after a first round of use.
-- **Snowhound domain auto-join:** should everyone with a company Google account join
-  automatically, or only those an admin invites? Snowhound's management decides.
 - **Leavers:** a leaver's profile is kept with a leaving date, left out of search and new
   CVs by default, and their participations stay visible on projects as references
-  (`architecture.md`, "Audit and deletion"). Open: whether, and after how long, the
-  profile is anonymized or deleted. Needs a GDPR retention decision.
-- **Certificates and trainings:** tenders often ask for them, and the sheet doesn't record
-  them. In the MVP or later?
-- **Computed experience totals:** per-person totals derived from participations (years
-  with a technology, total hours) in search and CVs: in the MVP or later?
+  (`architecture.md`, "Audit and deletion"). Marking a person as left also ends their
+  membership. Open: whether, and after how long, the profile is anonymized or deleted.
+  Needs a GDPR retention decision.

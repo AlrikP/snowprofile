@@ -185,10 +185,11 @@ conventions apply to every app-owned table; Better Auth's tables keep the plugin
   `no_longer_valid`, a merged technology's `merged_into_id`.
 - **Users are never hard-deleted,** so audit references to `user` stay valid. GDPR
   erasure anonymizes the row.
-- **Leavers** are a domain state, not deletion: removing the membership ends access, and
-  `employee_profile.left_date` marks the profile. Search and CV selection leave leavers
-  out by default, and their participations stay on projects as references. Whether and
-  when a leaver's profile is anonymized is open (`product.md`, "Leavers").
+- **Leavers** are a domain state, not deletion. An admin marks a person as left in one
+  action, which sets `employee_profile.left_date` and removes the membership, so access
+  ends with it. Search and CV selection leave leavers out by default, and their
+  participations stay on projects as references. Whether and when a leaver's profile is
+  anonymized is open (`product.md`, "Leavers").
 
 ### PostgreSQL portability
 
@@ -224,6 +225,14 @@ MVP"). What the script must handle:
   merged names.
 - **Tender criteria answers** go beyond yes/no ("REST", "Both", "Liquibase for
   translations"); the answer's note keeps them.
+- **People** are matched by company email. Before the migration, a column with each
+  employee's company email is added to the sheet in Excel; every employee's address is
+  known, because the data is internal (decided 2026-10-06). The script finds or creates
+  a `user` row for each address, with no linked account, and attaches the profile and
+  work history to it, and a re-run matches the same people by email. When the employee
+  first signs in with Google at that address, the session belongs to that user, and
+  accepting their invitation keeps the imported profile. A row without an email goes to
+  the report.
 
 ## Application rules
 
@@ -346,8 +355,9 @@ This section holds the reasons and where the code lives.
 - **Litestream storage:** which S3-compatible storage holds backups (for example Hetzner
   Object Storage in another location, or another provider). Decide before the company
   stack holds real data.
-- **Platform operator:** who creates organizations and their first admin, and how. A
-  script is the MVP candidate.
+- **Platform operator:** who creates organizations after the MVP, and how. In the MVP the
+  seed creates the demo organizations and a script creates any other organization with
+  an invitation for its first admin (`product.md`, "Users and access").
 - **First deployment:** when, and whether a deployed demo stack is needed before the
   company stack goes live.
 

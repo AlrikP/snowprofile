@@ -1,6 +1,7 @@
 # 021: Demo organization guards
 
 Status: todo
+Depends on: task 028 (the organization endpoints the members page uses), task 034.1 (marking leavers removes members)
 
 After the MVP, and before a demo stack is deployed (`docs/architecture.md`, "Environments
 and deployment"). In demo mode, the seeded accounts are shared and their password is
