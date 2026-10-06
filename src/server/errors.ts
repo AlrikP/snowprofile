@@ -20,6 +20,12 @@ export const errorMessages = {
   profile_left: 'This person has left the organization.',
   update_request_forbidden: 'Only admins can request profile updates.',
   update_request_open: 'This profile already has an open update request.',
+  technology_forbidden: 'Only admins can change catalogue entries.',
+  technology_name_invalid: 'The name needs at least one letter or digit.',
+  technology_category_not_found: 'That category doesn’t exist.',
+  technology_exists: 'That technology is already in the catalogue.',
+  technology_not_found: 'Technology not found.',
+  technology_merge_self: 'Choose another technology to merge into.',
 } as const
 
 export type AppErrorKey = keyof typeof errorMessages

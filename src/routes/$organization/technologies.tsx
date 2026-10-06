@@ -1,7 +1,27 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { PagePlaceholder } from '#/components/page-placeholder'
-import { m } from '#/paraglide/messages.js'
+import { createFileRoute, getRouteApi } from '@tanstack/react-router'
+import { TechnologiesPage, TechnologiesPending } from '#/features/technologies/technologies-page'
+import { roleHasPermission } from '#/lib/permissions'
+import { technologyCatalogueQuery } from '#/lib/technology-catalogue'
+
+const organizationRoute = getRouteApi('/$organization')
 
 export const Route = createFileRoute('/$organization/technologies')({
-  component: () => <PagePlaceholder title={m.nav_technologies()} />,
+  loader: async ({ context, parentMatchPromise }) => {
+    const { organization } = (await parentMatchPromise).loaderData ?? {}
+    if (organization) {
+      await context.queryClient.ensureQueryData(technologyCatalogueQuery(organization.id))
+    }
+  },
+  pendingComponent: TechnologiesPending,
+  component: TechnologiesRoute,
 })
+
+function TechnologiesRoute() {
+  const { organization } = organizationRoute.useLoaderData()
+  return (
+    <TechnologiesPage
+      organizationId={organization.id}
+      canCurate={roleHasPermission(organization.role, { technology: ['curate'] })}
+    />
+  )
+}

@@ -203,20 +203,20 @@
         </div>
         <div data-slot="card-content" class="flex flex-col gap-4">
         <div class="flex flex-wrap gap-2" data-show-in="edit similar invalid-period year-only contact technology"><span data-slot="badge" data-variant="secondary" class="h-7 gap-1 pr-1 pl-2.5 text-sm">React
-            <button type="button" class="rounded-sm p-0.5 hover:bg-background" data-t-label="project_remove_technology" data-t-params='{"name": "React"}'><i data-icon="XIcon" class="size-3.5"></i></button></span><span data-slot="badge" data-variant="secondary" class="h-7 gap-1 pr-1 pl-2.5 text-sm">TypeScript
-            <button type="button" class="rounded-sm p-0.5 hover:bg-background" data-t-label="project_remove_technology" data-t-params='{"name": "TypeScript"}'><i data-icon="XIcon" class="size-3.5"></i></button></span><span data-slot="badge" data-variant="secondary" class="h-7 gap-1 pr-1 pl-2.5 text-sm">Java
-            <button type="button" class="rounded-sm p-0.5 hover:bg-background" data-t-label="project_remove_technology" data-t-params='{"name": "Java"}'><i data-icon="XIcon" class="size-3.5"></i></button></span><span data-slot="badge" data-variant="secondary" class="h-7 gap-1 pr-1 pl-2.5 text-sm">Spring Boot
-            <button type="button" class="rounded-sm p-0.5 hover:bg-background" data-t-label="project_remove_technology" data-t-params='{"name": "Spring Boot"}'><i data-icon="XIcon" class="size-3.5"></i></button></span><span data-slot="badge" data-variant="secondary" class="h-7 gap-1 pr-1 pl-2.5 text-sm">PostgreSQL
-            <button type="button" class="rounded-sm p-0.5 hover:bg-background" data-t-label="project_remove_technology" data-t-params='{"name": "PostgreSQL"}'><i data-icon="XIcon" class="size-3.5"></i></button></span><span data-slot="badge" data-variant="secondary" class="h-7 gap-1 pr-1 pl-2.5 text-sm">Kubernetes
-            <button type="button" class="rounded-sm p-0.5 hover:bg-background" data-t-label="project_remove_technology" data-t-params='{"name": "Kubernetes"}'><i data-icon="XIcon" class="size-3.5"></i></button></span></div>
+            <button type="button" class="rounded-sm p-0.5 hover:bg-background" data-t-label="technology_remove" data-t-params='{"name": "React"}'><i data-icon="XIcon" class="size-3.5"></i></button></span><span data-slot="badge" data-variant="secondary" class="h-7 gap-1 pr-1 pl-2.5 text-sm">TypeScript
+            <button type="button" class="rounded-sm p-0.5 hover:bg-background" data-t-label="technology_remove" data-t-params='{"name": "TypeScript"}'><i data-icon="XIcon" class="size-3.5"></i></button></span><span data-slot="badge" data-variant="secondary" class="h-7 gap-1 pr-1 pl-2.5 text-sm">Java
+            <button type="button" class="rounded-sm p-0.5 hover:bg-background" data-t-label="technology_remove" data-t-params='{"name": "Java"}'><i data-icon="XIcon" class="size-3.5"></i></button></span><span data-slot="badge" data-variant="secondary" class="h-7 gap-1 pr-1 pl-2.5 text-sm">Spring Boot
+            <button type="button" class="rounded-sm p-0.5 hover:bg-background" data-t-label="technology_remove" data-t-params='{"name": "Spring Boot"}'><i data-icon="XIcon" class="size-3.5"></i></button></span><span data-slot="badge" data-variant="secondary" class="h-7 gap-1 pr-1 pl-2.5 text-sm">PostgreSQL
+            <button type="button" class="rounded-sm p-0.5 hover:bg-background" data-t-label="technology_remove" data-t-params='{"name": "PostgreSQL"}'><i data-icon="XIcon" class="size-3.5"></i></button></span><span data-slot="badge" data-variant="secondary" class="h-7 gap-1 pr-1 pl-2.5 text-sm">Kubernetes
+            <button type="button" class="rounded-sm p-0.5 hover:bg-background" data-t-label="technology_remove" data-t-params='{"name": "Kubernetes"}'><i data-icon="XIcon" class="size-3.5"></i></button></span></div>
         <div class="relative max-w-sm">
-          <label data-slot="label" for="technology-search" class="sr-only" data-t="project_technology_search"></label>
+          <label data-slot="label" for="technology-search" class="sr-only" data-t="technology_picker_search"></label>
           <i data-icon="SearchIcon" class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"></i>
           <input data-slot="input" id="technology-search" class="pl-9" role="combobox" aria-autocomplete="list" aria-controls="technology-options" aria-expanded="false" data-expanded-in="technology"
-            data-t-placeholder="project_technology_search" data-state-values='{"technology": "Ko"}' />
+            data-t-placeholder="technology_picker_search" data-state-values='{"technology": "Ko"}' />
           <div id="technology-options" role="listbox" data-show-in="technology" data-slot="dropdown-menu-content" class="absolute top-full left-0 mt-1 w-full">
             <div role="option" aria-selected="true" data-slot="dropdown-menu-item" class="bg-accent">Kotlin <span class="ml-auto text-xs text-muted-foreground">Backend</span></div>
-            <div role="option" aria-selected="false" data-slot="dropdown-menu-item"><i data-icon="PlusIcon"></i><span data-t="project_technology_new" data-t-params='{"name": "Ko"}'></span></div>
+            <div role="option" aria-selected="false" data-slot="dropdown-menu-item"><i data-icon="PlusIcon"></i><span data-t="technology_picker_add" data-t-params='{"name": "Ko"}'></span></div>
           </div>
         </div>
         <div class="flex flex-col gap-2" data-show-in="edit similar invalid-period year-only contact technology">

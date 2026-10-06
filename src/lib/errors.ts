@@ -10,6 +10,12 @@ const errorText: Record<AppErrorKey, () => string> = {
   profile_left: m.error_profile_left,
   update_request_forbidden: m.error_update_request_forbidden,
   update_request_open: m.error_update_request_open,
+  technology_forbidden: m.error_technology_forbidden,
+  technology_name_invalid: m.error_technology_name_invalid,
+  technology_category_not_found: m.error_technology_category_not_found,
+  technology_exists: m.error_technology_exists,
+  technology_not_found: m.error_technology_not_found,
+  technology_merge_self: m.error_technology_merge_self,
 }
 
 // The text to show for an error from a server function. Server functions send codes and

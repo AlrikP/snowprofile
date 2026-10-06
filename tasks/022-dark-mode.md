@@ -1,7 +1,7 @@
 # 022: Dark mode
 
 Status: todo
-Depends on: tasks 026, 027, 028, 029, 030, 031, 032, 033, 034, 035, 036, and 037 (the feature views)
+Depends on: tasks 026, 027, 028, 029, 030, 031, 032, 033, 034, 035, 036, 037, and 042 (the feature views)
 
 After the MVP's feature views are built and stable, let a user pick light, dark, or the
 system's setting (`docs/product.md`, "Not in MVP"). `src/styles.css` already has `.dark`

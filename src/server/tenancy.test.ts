@@ -4,25 +4,41 @@
 // read or change organization B's data through any repository function. Every function a
 // *.repository.server.ts exports needs a case here, so a new one can't skip the check.
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
-import { and, count, eq, isNotNull, isNull } from 'drizzle-orm'
+import { and, count, desc, eq, isNotNull, isNull } from 'drizzle-orm'
 import { basename } from 'node:path'
 import { v7 as uuidv7 } from 'uuid'
 import type { Database } from '#/db'
 import { withActor } from '#/db/actor'
-import { employeeProfile, updateRequest } from '#/db/schema'
+import {
+  employeeProfile,
+  projectTechnology,
+  technology,
+  technologyCategory,
+  updateRequest,
+} from '#/db/schema'
 import { seedIds } from '#/db/seed-accounts'
 import { createTestDatabase, failure } from '#/db/testing'
 import * as account from './account/account.repository.server'
 import { findMemberRole, listMemberships } from './organizations/organizations.repository.server'
 import * as profiles from './profiles/profiles.repository.server'
 import { resolveScope, type Scope } from './scope.server'
+import * as technologies from './technologies/technologies.repository.server'
 
 let db: Database
 let cleanup: () => void
 // Acting in A, the demo organization.
 let scopeA: Scope
 // Rows in B, another demo organization.
-const b = { organizationId: seedIds.orgs.tormilind, profileId: '', openProfileId: '' }
+const b = {
+  organizationId: seedIds.orgs.tormilind,
+  profileId: '',
+  openProfileId: '',
+  categoryId: '',
+  technologyId: '',
+  otherTechnologyId: '',
+}
+// A category in A, for writes that would otherwise fail on the category alone.
+let aCategoryId = ''
 
 async function bProfile(open: boolean) {
   const [row] = await db
@@ -55,7 +71,41 @@ beforeAll(async () => {
   scopeA = await resolveScope(db, seedIds.users.admin, seedIds.orgs.demo)
   b.profileId = await bProfile(false)
   b.openProfileId = await bProfile(true)
+  const [category] = await db
+    .select({ id: technologyCategory.id })
+    .from(technologyCategory)
+    .where(eq(technologyCategory.organizationId, b.organizationId))
+  const [aCategory] = await db
+    .select({ id: technologyCategory.id })
+    .from(technologyCategory)
+    .where(eq(technologyCategory.organizationId, seedIds.orgs.demo))
+  // B's two most used technologies, so moving links between them would show.
+  const used = await db
+    .select({ id: projectTechnology.technologyId, n: count() })
+    .from(projectTechnology)
+    .where(eq(projectTechnology.organizationId, b.organizationId))
+    .groupBy(projectTechnology.technologyId)
+    .orderBy(desc(count()))
+    .limit(2)
+  if (!category || !aCategory || used.length < 2) throw new Error('expected seeded catalogues')
+  b.categoryId = category.id
+  aCategoryId = aCategory.id
+  b.technologyId = used[0]?.id ?? ''
+  b.otherTechnologyId = used[1]?.id ?? ''
 })
+
+async function bTechnology(id: string) {
+  const [row] = await db.select().from(technology).where(eq(technology.id, id))
+  return row
+}
+
+async function bLinks(technologyId: string) {
+  const [row] = await db
+    .select({ n: count() })
+    .from(projectTechnology)
+    .where(eq(projectTechnology.technologyId, technologyId))
+  return row?.n
+}
 
 afterAll(() => cleanup())
 
@@ -103,6 +153,75 @@ const cases: Record<string, () => Promise<void>> = {
     }
     expect(await failure(insert)).toContain('FOREIGN KEY')
     expect(await bRequests()).toBe(before)
+  },
+  'technologies.listCategories': async () => {
+    const ids = (await technologies.listCategories(db, scopeA)).map((row) => row.id)
+    expect(ids).not.toContain(b.categoryId)
+  },
+  'technologies.findCategory': async () => {
+    expect(await technologies.findCategory(db, scopeA, b.categoryId)).toBeUndefined()
+  },
+  'technologies.listTechnologies': async () => {
+    const ids = (await technologies.listTechnologies(db, scopeA)).map((row) => row.id)
+    expect(ids).not.toContain(b.technologyId)
+  },
+  'technologies.findTechnology': async () => {
+    expect(await technologies.findTechnology(db, scopeA, b.technologyId)).toBeUndefined()
+  },
+  'technologies.findTechnologyByName': async () => {
+    // A name only B's catalogue has.
+    async function names(organizationId: string) {
+      const rows = await db
+        .select({ name: technology.normalizedName })
+        .from(technology)
+        .where(eq(technology.organizationId, organizationId))
+      return rows.map((row) => row.name)
+    }
+    const inA = new Set(await names(seedIds.orgs.demo))
+    const onlyInB = (await names(b.organizationId)).find((name) => !inA.has(name))
+    if (!onlyInB) throw new Error('expected a technology only B has')
+    expect(await technologies.findTechnologyByName(db, scopeA, onlyInB)).toBeUndefined()
+  },
+  'technologies.insertTechnology': async () => {
+    // The organization comes from the scope, so B's category can't be used from A.
+    function insert() {
+      return withActor(scopeA.userId, () =>
+        technologies.insertTechnology(db, scopeA, {
+          id: uuidv7(),
+          name: 'Crossing',
+          normalizedName: 'crossing',
+          categoryId: b.categoryId,
+        }),
+      )
+    }
+    expect(await failure(insert)).toContain('FOREIGN KEY')
+  },
+  'technologies.updateTechnology': async () => {
+    const before = await bTechnology(b.technologyId)
+    await withActor(scopeA.userId, () =>
+      technologies.updateTechnology(db, scopeA, b.technologyId, {
+        name: 'Renamed from A',
+        normalizedName: 'renamedfroma',
+        categoryId: aCategoryId,
+      }),
+    )
+    expect((await bTechnology(b.technologyId))?.name).toBe(before?.name)
+  },
+  'technologies.moveTechnologyLinks': async () => {
+    const before = [await bLinks(b.technologyId), await bLinks(b.otherTechnologyId)]
+    await withActor(scopeA.userId, () =>
+      technologies.moveTechnologyLinks(db, scopeA, b.technologyId, b.otherTechnologyId),
+    )
+    expect([await bLinks(b.technologyId), await bLinks(b.otherTechnologyId)]).toEqual(before)
+  },
+  'technologies.markTechnologyMerged': async () => {
+    await withActor(scopeA.userId, () =>
+      technologies.markTechnologyMerged(db, scopeA, b.technologyId, b.otherTechnologyId),
+    )
+    expect(await bTechnology(b.technologyId)).toMatchObject({
+      sysDeleted: false,
+      mergedIntoId: null,
+    })
   },
 }
 

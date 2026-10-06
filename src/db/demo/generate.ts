@@ -1,3 +1,4 @@
+import { normalizeName } from '#/lib/normalize-name'
 // Generates one fictional organization's rows from a seed. A pure function: the same seed
 // and spec give the same rows on any day, because every date derives from DEMO_NOW and the
 // seed, never from the clock. src/db/seed.ts lists the organizations and loads the rows.
@@ -99,15 +100,6 @@ function daysBefore(days: number) {
   return new Date(DEMO_NOW.getTime() - days * DAY_MS)
 }
 
-// Lowercase, without accents, spaces, or punctuation other than # and +, so "Vue.js" and
-// "VueJS" meet.
-function normalizeName(name: string) {
-  return name
-    .normalize('NFKD')
-    .toLowerCase()
-    .replace(/[^\p{L}\p{N}#+]/gu, '')
-}
-
 // ASCII for email addresses and domains: "Põhjaranniku Vesi" becomes "pohjaranniku-vesi".
 function slugify(text: string) {
   return text
@@ -207,6 +199,7 @@ export function generateOrganization(seed: number, spec: OrganizationSpec) {
           name: MERGED_TECHNOLOGY[0],
           normalizedName: normalizeName(MERGED_TECHNOLOGY[0]),
           mergedIntoId: technologyId,
+          sysDeleted: true,
           ...audit,
         })
       }

@@ -1,0 +1,128 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { render, screen, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { technologyCatalogueQuery } from '#/lib/technology-catalogue'
+import { testCatalogue } from '#/test/technology-catalogue'
+import { TechnologiesPage } from './technologies-page'
+
+const server = vi.hoisted(() => ({
+  getTechnologyCatalogue: vi.fn(),
+  addTechnology: vi.fn(),
+  updateTechnology: vi.fn(),
+  mergeTechnology: vi.fn(),
+}))
+vi.mock('#/server/technologies/technologies.functions', () => server)
+
+beforeEach(() => {
+  vi.clearAllMocks()
+  server.getTechnologyCatalogue.mockResolvedValue(testCatalogue)
+})
+
+function renderPage(canCurate: boolean) {
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+  queryClient.setQueryData(technologyCatalogueQuery('org').queryKey, testCatalogue)
+  render(
+    <QueryClientProvider client={queryClient}>
+      <TechnologiesPage organizationId="org" canCurate={canCurate} />
+    </QueryClientProvider>,
+  )
+}
+
+describe('TechnologiesPage', () => {
+  it('technology-catalogue.grouped-by-category: lists each category’s technologies with their uses', () => {
+    renderPage(false)
+
+    const data = within(screen.getByRole('region', { name: 'Data' }))
+    expect(data.getByText('PostgreSQL')).toBeInTheDocument()
+    expect(data.getByText('Projects: 20 · People: 41')).toBeInTheDocument()
+    expect(data.queryByText('React')).not.toBeInTheDocument()
+    const headings = screen.getAllByRole('heading', { level: 2 }).map((each) => each.textContent)
+    expect(headings).toEqual(['Frontend', 'Data'])
+  })
+
+  it('filters by name', async () => {
+    renderPage(false)
+
+    await userEvent.type(screen.getByRole('searchbox'), 'postgre')
+
+    expect(screen.queryByRole('region', { name: 'Frontend' })).not.toBeInTheDocument()
+    expect(screen.getByText('Postgres')).toBeInTheDocument()
+  })
+
+  it('technology-catalogue.employee-cannot-curate: offers an employee no curation', () => {
+    renderPage(false)
+
+    expect(screen.queryByRole('button', { name: /Actions for/ })).not.toBeInTheDocument()
+    expect(screen.getByText(/Admins tidy names and categories/)).toBeInTheDocument()
+  })
+
+  it('technology-catalogue.duplicate-refused: the add dialog names the existing entry', async () => {
+    renderPage(false)
+
+    await userEvent.click(screen.getByRole('button', { name: 'Add technology' }))
+    await userEvent.type(screen.getByLabelText('Name'), 'postgre-sql')
+
+    expect(screen.getByRole('status')).toHaveTextContent('PostgreSQL is already in the catalogue.')
+    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled()
+  })
+
+  it('technology-catalogue.employee-adds: adds an entry under the chosen category', async () => {
+    server.addTechnology.mockImplementation(({ data }: { data: { id: string } }) =>
+      Promise.resolve({ id: data.id }),
+    )
+    renderPage(false)
+
+    await userEvent.click(screen.getByRole('button', { name: 'Add technology' }))
+    await userEvent.type(screen.getByLabelText('Name'), 'Svelte')
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }))
+
+    expect(server.addTechnology).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        organizationId: 'org',
+        name: 'Svelte',
+        categoryId: 'frontend',
+      }),
+    })
+    expect(await screen.findByRole('button', { name: 'Add technology' })).toBeInTheDocument()
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  })
+
+  it('technology-catalogue.merge-moves-links: an admin merges a duplicate into the entry that stays', async () => {
+    server.mergeTechnology.mockResolvedValue(undefined)
+    renderPage(true)
+
+    await userEvent.click(screen.getByRole('button', { name: 'Actions for Postgres' }))
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Merge into another' }))
+    const dialog = within(screen.getByRole('dialog'))
+    expect(dialog.getByText(/Its uses on 2 projects and by 3 people/)).toBeInTheDocument()
+    await userEvent.selectOptions(dialog.getByLabelText('Merge into'), 'PostgreSQL')
+    await userEvent.click(dialog.getByRole('button', { name: 'Merge' }))
+
+    expect(server.mergeTechnology).toHaveBeenCalledWith({
+      data: { organizationId: 'org', technologyId: 'postgres', intoId: 'postgresql' },
+    })
+  })
+
+  it('technology-catalogue.admin-renames: an admin renames an entry', async () => {
+    server.updateTechnology.mockResolvedValue(undefined)
+    renderPage(true)
+
+    await userEvent.click(screen.getByRole('button', { name: 'Actions for Angular' }))
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Edit' }))
+    const name = screen.getByLabelText('Name')
+    await userEvent.clear(name)
+    await userEvent.type(name, 'AngularJS')
+    await userEvent.selectOptions(screen.getByLabelText('Category'), 'Data')
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }))
+
+    expect(server.updateTechnology).toHaveBeenCalledWith({
+      data: {
+        organizationId: 'org',
+        technologyId: 'angular',
+        name: 'AngularJS',
+        categoryId: 'data',
+      },
+    })
+  })
+})
