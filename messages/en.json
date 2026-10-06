@@ -64,7 +64,6 @@
   "translation_missing_et": "No Estonian",
   "translation_missing_en": "No English",
   "value_not_set": "Not added",
-  "bilingual_one_required": "Fill in at least one language.",
   "qualifier_label": "Precision",
   "qualifier_exact": "exactly",
   "qualifier_approximately": "approximately",
@@ -76,6 +75,7 @@
   "error_technology_exists": "That technology is already in the catalogue.",
   "error_technology_not_found": "Technology not found.",
   "error_technology_merge_self": "Choose another technology to merge into.",
+  "action_close": "Close",
   "action_cancel": "Cancel",
   "action_save": "Save",
   "action_actions_for": "Actions for {name}",
@@ -98,7 +98,24 @@
   "technology_picker_add": "Add to the catalogue: {name}",
   "technology_remove": "Remove {name}",
   "technologies_use_counts": "Projects: {projects} · People: {people}",
-  "technology_merge_explanation": "Its uses on {projects} projects and by {people} people move to the chosen technology, and “{name}” leaves the catalogue.",
+  "technology_merge_explanation": [
+    {
+      "declarations": [
+        "input projects",
+        "input people",
+        "input name",
+        "local projectsPlural = projects: plural",
+        "local peoplePlural = people: plural"
+      ],
+      "selectors": ["projectsPlural", "peoplePlural"],
+      "match": {
+        "projectsPlural=one, peoplePlural=one": "Its uses on {projects} project and by {people} person move to the chosen technology, and “{name}” leaves the catalogue.",
+        "projectsPlural=one, peoplePlural=*": "Its uses on {projects} project and by {people} people move to the chosen technology, and “{name}” leaves the catalogue.",
+        "projectsPlural=*, peoplePlural=one": "Its uses on {projects} projects and by {people} person move to the chosen technology, and “{name}” leaves the catalogue.",
+        "projectsPlural=*, peoplePlural=*": "Its uses on {projects} projects and by {people} people move to the chosen technology, and “{name}” leaves the catalogue."
+      }
+    }
+  ],
   "technology_merge_choose": "Choose a technology",
   "technology_picker_none": "No technologies chosen."
 }

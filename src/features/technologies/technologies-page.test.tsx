@@ -64,7 +64,25 @@ describe('TechnologiesPage', () => {
     await userEvent.type(screen.getByLabelText('Name'), 'postgre-sql')
 
     expect(screen.getByRole('status')).toHaveTextContent('PostgreSQL is already in the catalogue.')
+    expect(screen.getByLabelText('Name')).toHaveAccessibleDescription(
+      expect.stringContaining('PostgreSQL is already in the catalogue.'),
+    )
     expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled()
+  })
+
+  it('the edit dialog ties the duplicate warning to the name field', async () => {
+    renderPage(true)
+
+    await userEvent.click(screen.getByRole('button', { name: 'Actions for Angular' }))
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Edit' }))
+    const name = screen.getByLabelText('Name')
+    expect(name).not.toHaveAccessibleDescription(expect.stringContaining('already'))
+    await userEvent.clear(name)
+    await userEvent.type(name, 'react')
+
+    expect(name).toHaveAccessibleDescription(
+      expect.stringContaining('React is already in the catalogue.'),
+    )
   })
 
   it('technology-catalogue.employee-adds: adds an entry under the chosen category', async () => {

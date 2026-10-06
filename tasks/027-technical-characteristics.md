@@ -15,7 +15,9 @@ table `tender_criterion` (bilingual name, `position`); permission
 
 - [ ] Admins see the checklist in `position` order, and add, rename, reorder, and remove
       characteristics. Employees can't open the page.
-- [ ] A characteristic needs at least one of its two names.
+- [ ] A characteristic needs at least one of its two names. The form says so with a new
+      message, such as "Fill in at least one language.", which task cr-002.4 removed
+      while nothing used it.
 - [ ] Removing a characteristic soft-deletes it; projects' answers stay but no longer show.
       The dialog says how many projects answered it.
 - [ ] A repository with tenancy cases for every function.

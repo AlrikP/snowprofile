@@ -159,8 +159,17 @@ export function pageLocale(): 'et' | 'en' {
   return new URLSearchParams(location.search).get('lang') === 'en' ? 'en' : 'et'
 }
 
+// Messages with variants, such as plural forms, are arrays; the prototypes use none of them.
+function plainMessages(messages: Record<string, unknown>): Record<string, string> {
+  return Object.fromEntries(
+    Object.entries(messages).filter(
+      (entry): entry is [string, string] => typeof entry[1] === 'string',
+    ),
+  )
+}
+
 const texts: Record<string, string> = {
-  ...(pageLocale() === 'en' ? en : et),
+  ...plainMessages(pageLocale() === 'en' ? en : et),
   ...prototypeMessages[pageLocale()],
 }
 

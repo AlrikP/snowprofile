@@ -73,7 +73,11 @@ function AddTechnologyForm({
           value={name}
           required
           maxLength={100}
-          aria-describedby="add-technology-name-hint"
+          aria-describedby={
+            duplicate
+              ? 'add-technology-name-hint add-technology-name-duplicate'
+              : 'add-technology-name-hint'
+          }
           aria-invalid={duplicate ? true : undefined}
           onChange={(event) => setName(event.target.value)}
         />
@@ -96,7 +100,7 @@ function AddTechnologyForm({
         </NativeSelect>
       </div>
       {duplicate && (
-        <Alert role="status">
+        <Alert id="add-technology-name-duplicate" role="status">
           <TriangleAlertIcon />
           <AlertDescription className="text-foreground">
             {m.technology_exists({ name: duplicate.name })}

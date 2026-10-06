@@ -65,7 +65,11 @@ function EditTechnologyForm({ organizationId, catalogue, technology, onDone }: E
           value={name}
           required
           maxLength={100}
-          aria-describedby="edit-technology-name-hint"
+          aria-describedby={
+            duplicate
+              ? 'edit-technology-name-hint edit-technology-name-duplicate'
+              : 'edit-technology-name-hint'
+          }
           aria-invalid={duplicate ? true : undefined}
           onChange={(event) => setName(event.target.value)}
         />
@@ -88,7 +92,7 @@ function EditTechnologyForm({ organizationId, catalogue, technology, onDone }: E
         </NativeSelect>
       </div>
       {duplicate && (
-        <Alert role="status">
+        <Alert id="edit-technology-name-duplicate" role="status">
           <TriangleAlertIcon />
           <AlertDescription className="text-foreground">
             {m.technology_exists({ name: duplicate.name })}
