@@ -1,8 +1,9 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
-import { SearchIcon } from 'lucide-react'
+import { PlusIcon, SearchIcon } from 'lucide-react'
 import { useState } from 'react'
 import { Badge } from '#/components/ui/badge'
+import { Button } from '#/components/ui/button'
 import { Card } from '#/components/ui/card'
 import { Input } from '#/components/ui/input'
 import { NativeSelect, NativeSelectOption } from '#/components/ui/native-select'
@@ -61,10 +62,12 @@ function ProjectRow({ organization, project }: { organization: string; project: 
 export function ProjectsPage({
   organizationId,
   organization,
+  canCreate,
 }: {
   organizationId: string
   // The organization's slug, for links.
   organization: string
+  canCreate: boolean
 }) {
   const { data: projects } = useSuspenseQuery(projectsQuery(organizationId))
   const [search, setSearch] = useState('')
@@ -84,11 +87,21 @@ export function ProjectsPage({
 
   return (
     <main className="flex flex-col gap-6 p-4 md:p-8">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-3xl">{m.projects_title()}</h1>
-        <p className="text-muted-foreground text-sm">
-          {m.projects_count({ count: projects.length })}
-        </p>
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-3xl">{m.projects_title()}</h1>
+          <p className="text-muted-foreground text-sm">
+            {m.projects_count({ count: projects.length })}
+          </p>
+        </div>
+        {canCreate && (
+          <Button asChild>
+            <Link to="/$organization/projects/new" params={{ organization }}>
+              <PlusIcon />
+              {m.projects_add()}
+            </Link>
+          </Button>
+        )}
       </div>
 
       {projects.length === 0 ? (

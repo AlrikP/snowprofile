@@ -81,6 +81,7 @@ export async function findProject(db: Executor, scope: Scope, projectId: string)
     .select({
       id: project.id,
       name: project.name,
+      customerId: project.customerId,
       customerName: customer.name,
       descriptionEt: project.descriptionEt,
       descriptionEn: project.descriptionEn,
@@ -194,4 +195,85 @@ export async function listProjectContacts(db: Executor, scope: Scope, projectId:
       ),
     )
     .orderBy(asc(contactPerson.noLongerValid), asc(contactPerson.name))
+}
+
+// The columns the project form writes.
+type ProjectValues = Pick<
+  typeof project.$inferInsert,
+  | 'name'
+  | 'normalizedName'
+  | 'customerId'
+  | 'descriptionEt'
+  | 'descriptionEn'
+  | 'startDate'
+  | 'endDate'
+  | 'tenderReference'
+  | 'totalHours'
+  | 'totalHoursQualifier'
+  | 'cost'
+  | 'costQualifier'
+>
+
+export async function insertProject(
+  db: Executor,
+  scope: Scope,
+  values: ProjectValues & { id: string },
+) {
+  await db.insert(project).values({ ...values, organizationId: scope.organizationId })
+}
+
+export async function updateProject(
+  db: Executor,
+  scope: Scope,
+  projectId: string,
+  values: ProjectValues,
+) {
+  await db
+    .update(project)
+    .set(values)
+    .where(and(liveProjects(scope), eq(project.id, projectId)))
+}
+
+export async function removeProject(db: Executor, scope: Scope, projectId: string) {
+  await db
+    .update(project)
+    .set({ sysDeleted: true })
+    .where(and(liveProjects(scope), eq(project.id, projectId)))
+}
+
+function liveCustomers(scope: Scope) {
+  return and(eq(customer.organizationId, scope.organizationId), eq(customer.sysDeleted, sql`0`))
+}
+
+export async function listCustomers(db: Executor, scope: Scope) {
+  return db
+    .select({ id: customer.id, name: customer.name })
+    .from(customer)
+    .where(liveCustomers(scope))
+    .orderBy(asc(customer.name))
+}
+
+export async function findCustomer(db: Executor, scope: Scope, customerId: string) {
+  const [row] = await db
+    .select({ id: customer.id })
+    .from(customer)
+    .where(and(liveCustomers(scope), eq(customer.id, customerId)))
+  return row
+}
+
+// The live customer with exactly this name, which the unique index allows only once.
+export async function findCustomerByName(db: Executor, scope: Scope, name: string) {
+  const [row] = await db
+    .select({ id: customer.id })
+    .from(customer)
+    .where(and(liveCustomers(scope), eq(customer.name, name)))
+  return row
+}
+
+export async function insertCustomer(
+  db: Executor,
+  scope: Scope,
+  values: { id: string; name: string },
+) {
+  await db.insert(customer).values({ ...values, organizationId: scope.organizationId })
 }

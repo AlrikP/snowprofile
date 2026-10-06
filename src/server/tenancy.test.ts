@@ -10,8 +10,10 @@ import { v7 as uuidv7 } from 'uuid'
 import type { Database } from '#/db'
 import { withActor } from '#/db/actor'
 import {
+  customer,
   employeeProfile,
   participationRole,
+  project,
   projectRole,
   projectTechnology,
   technology,
@@ -47,6 +49,9 @@ const b = {
   otherRoleId: '',
   // A project with participations, answers, technologies, and contacts.
   projectId: '',
+  // A customer whose name A has no customer of.
+  customerId: '',
+  customerName: '',
 }
 // A category in A, for writes that would otherwise fail on the category alone.
 let aCategoryId = ''
@@ -133,7 +138,39 @@ beforeAll(async () => {
   const projectId = full.rows[0]?.[0]
   if (typeof projectId !== 'string') throw new Error('expected a fully seeded project in B')
   b.projectId = projectId
+  const onlyB = await db.$client.execute(`
+    SELECT id, name FROM customer WHERE organization_id = '${b.organizationId}'
+      AND name NOT IN (SELECT name FROM customer WHERE organization_id = '${seedIds.orgs.demo}')
+    LIMIT 1`)
+  const customerId = onlyB.rows[0]?.[0]
+  const customerName = onlyB.rows[0]?.[1]
+  if (typeof customerId !== 'string' || typeof customerName !== 'string') {
+    throw new Error('expected a customer only B has')
+  }
+  b.customerId = customerId
+  b.customerName = customerName
 })
+
+async function bProject() {
+  const [row] = await db.select().from(project).where(eq(project.id, b.projectId))
+  return row
+}
+
+// The columns the project form writes, for a write from A.
+const projectValues = {
+  name: 'Kirjutatud A-st',
+  normalizedName: 'kirjutatudast',
+  customerId: null,
+  descriptionEt: null,
+  descriptionEn: null,
+  startDate: '2024',
+  endDate: null,
+  tenderReference: null,
+  totalHours: null,
+  totalHoursQualifier: null,
+  cost: null,
+  costQualifier: null,
+}
 
 async function bRole(id: string) {
   const [row] = await db.select().from(projectRole).where(eq(projectRole.id, id))
@@ -273,6 +310,49 @@ const cases: Record<string, () => Promise<void>> = {
   },
   'projects.listProjectContacts': async () => {
     expect(await projects.listProjectContacts(db, scopeA, b.projectId)).toEqual([])
+  },
+  'projects.insertProject': async () => {
+    // The organization comes from the scope, so B's customer can't be used from A.
+    function insert() {
+      return withActor(scopeA.userId, () =>
+        projects.insertProject(db, scopeA, {
+          ...projectValues,
+          id: uuidv7(),
+          customerId: b.customerId,
+        }),
+      )
+    }
+    expect(await failure(insert)).toContain('FOREIGN KEY')
+  },
+  'projects.updateProject': async () => {
+    const before = await bProject()
+    await withActor(scopeA.userId, () =>
+      projects.updateProject(db, scopeA, b.projectId, projectValues),
+    )
+    expect((await bProject())?.name).toBe(before?.name)
+  },
+  'projects.removeProject': async () => {
+    await withActor(scopeA.userId, () => projects.removeProject(db, scopeA, b.projectId))
+    expect((await bProject())?.sysDeleted).toBe(false)
+  },
+  'projects.listCustomers': async () => {
+    const ids = (await projects.listCustomers(db, scopeA)).map((row) => row.id)
+    expect(ids).not.toContain(b.customerId)
+  },
+  'projects.findCustomer': async () => {
+    expect(await projects.findCustomer(db, scopeA, b.customerId)).toBeUndefined()
+  },
+  'projects.findCustomerByName': async () => {
+    expect(await projects.findCustomerByName(db, scopeA, b.customerName)).toBeUndefined()
+  },
+  'projects.insertCustomer': async () => {
+    // The organization comes from the scope: the row lands in A, even with B's name.
+    const id = uuidv7()
+    await withActor(scopeA.userId, () =>
+      projects.insertCustomer(db, scopeA, { id, name: `${b.customerName} (A)` }),
+    )
+    const [row] = await db.select().from(customer).where(eq(customer.id, id))
+    expect(row?.organizationId).toBe(scopeA.organizationId)
   },
   'roles.listRoles': async () => {
     const ids = (await roles.listRoles(db, scopeA)).map((row) => row.id)

@@ -133,11 +133,13 @@ export function ProjectPage({
   organizationId,
   organization,
   projectId,
+  canEdit,
 }: {
   organizationId: string
   // The organization's slug, for links.
   organization: string
   projectId: string
+  canEdit: boolean
 }) {
   const { data: project } = useSuspenseQuery(projectQuery(organizationId, projectId))
   const mine = project.people.filter((person) => person.mine)
@@ -145,29 +147,42 @@ export function ProjectPage({
 
   return (
     <main className="flex flex-col gap-6 p-4 md:p-8">
-      <div className="flex flex-col gap-2">
-        <Button asChild variant="ghost" size="sm" className="-ml-2 self-start">
-          <Link to="/$organization/projects" params={{ organization }}>
-            <ArrowLeftIcon />
-            {m.action_back_to_projects()}
-          </Link>
-        </Button>
-        <h1 className="text-3xl">{project.name}</h1>
-        <p className="text-muted-foreground flex flex-wrap gap-x-4 gap-y-1 text-sm">
-          <span className="flex items-center gap-1.5">
-            <BuildingIcon className="size-4" />
-            {project.customerName ?? m.projects_no_customer()}
-          </span>
-          <span className="flex items-center gap-1.5">
-            <CalendarIcon className="size-4" />
-            {formatPeriod(project.startDate, project.endDate)}
-          </span>
-        </p>
-        <p className="text-muted-foreground text-xs">
-          {project.lastChange.by === null
-            ? m.project_last_change_system({ at })
-            : m.project_last_change({ at, name: project.lastChange.by })}
-        </p>
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div className="flex flex-col gap-2">
+          <Button asChild variant="ghost" size="sm" className="-ml-2 self-start">
+            <Link to="/$organization/projects" params={{ organization }}>
+              <ArrowLeftIcon />
+              {m.action_back_to_projects()}
+            </Link>
+          </Button>
+          <h1 className="text-3xl">{project.name}</h1>
+          <p className="text-muted-foreground flex flex-wrap gap-x-4 gap-y-1 text-sm">
+            <span className="flex items-center gap-1.5">
+              <BuildingIcon className="size-4" />
+              {project.customerName ?? m.projects_no_customer()}
+            </span>
+            <span className="flex items-center gap-1.5">
+              <CalendarIcon className="size-4" />
+              {formatPeriod(project.startDate, project.endDate)}
+            </span>
+          </p>
+          <p className="text-muted-foreground text-xs">
+            {project.lastChange.by === null
+              ? m.project_last_change_system({ at })
+              : m.project_last_change({ at, name: project.lastChange.by })}
+          </p>
+        </div>
+        {canEdit && (
+          <Button asChild variant="outline">
+            <Link
+              to="/$organization/projects/$projectId/edit"
+              params={{ organization, projectId: project.id }}
+            >
+              <PencilIcon />
+              {m.project_edit()}
+            </Link>
+          </Button>
+        )}
       </div>
 
       {project.technologies.length > 0 && (
@@ -203,6 +218,9 @@ export function ProjectPage({
             </ul>
           </Section>
           <Section id="project-people" title={m.project_section_people()}>
+            {project.people.length === 0 && (
+              <p className="text-muted-foreground text-sm">{m.value_not_set()}</p>
+            )}
             <ul className="flex flex-col gap-3 text-sm">
               {project.people.map((person) => (
                 <li key={person.participationId} className="flex flex-col">

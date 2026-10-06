@@ -50,10 +50,11 @@ const projects = [
   }),
 ]
 
-function show(list = projects) {
-  return renderPage(<ProjectsPage organizationId="org" organization="demo" />, [
-    [projectsQuery('org').queryKey, list],
-  ])
+function show(list = projects, { canCreate = false } = {}) {
+  return renderPage(
+    <ProjectsPage organizationId="org" organization="demo" canCreate={canCreate} />,
+    [[projectsQuery('org').queryKey, list]],
+  )
 }
 
 function names() {
@@ -96,6 +97,14 @@ describe('ProjectsPage', () => {
     expect(names()).toEqual(['Võrguandmete platvorm'])
     await userEvent.type(screen.getByRole('searchbox'), 'blockchain')
     expect(screen.getByText('No project matches.')).toBeInTheDocument()
+  })
+
+  it('offers adding a project only to those who may', async () => {
+    await show(projects, { canCreate: true })
+    expect(screen.getByRole('link', { name: 'Add project' })).toHaveAttribute(
+      'href',
+      '/demo/projects/new',
+    )
   })
 
   it('says when there are no projects', async () => {

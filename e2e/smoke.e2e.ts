@@ -57,6 +57,23 @@ test.describe('the admin', () => {
     await expect(names.nth(0)).toHaveText(second)
     await expect(names.nth(1)).toHaveText(first)
   })
+
+  test('projects.admin-edits: creates a project, then renames it', async ({ page }) => {
+    await page.goto('/demo/projects')
+    await page.getByRole('link', { name: 'Add project' }).click()
+
+    await page.getByLabel('Name').fill('E2E projekt')
+    await page.getByRole('group', { name: 'Start' }).getByLabel('Year').fill('2018')
+    await page.getByRole('button', { name: 'Save' }).click()
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('E2E projekt')
+
+    await page.getByRole('link', { name: 'Edit project' }).click()
+    await page.getByLabel('Name').fill('E2E projekt, muudetud')
+    await page.getByRole('button', { name: 'Save' }).click()
+
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('E2E projekt, muudetud')
+    await expect(page.getByText(/^Last changed .* by Anna Admin$/)).toBeVisible()
+  })
 })
 
 test.describe('the employee', () => {

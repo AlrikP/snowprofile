@@ -55,6 +55,7 @@ const PEOPLE_COUNT = sql<number>`(
   SELECT count(DISTINCT used.profile_id) FROM (
     SELECT pa.profile_id FROM participation_technology AS pt
     JOIN participation AS pa ON pa.id = pt.participation_id AND pa.sys_deleted = 0
+    JOIN project AS p ON p.id = pa.project_id AND p.sys_deleted = 0
     WHERE pt.technology_id = technology.id
     UNION
     SELECT op.profile_id FROM own_project_technology AS ot

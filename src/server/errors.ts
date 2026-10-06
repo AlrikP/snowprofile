@@ -34,6 +34,9 @@ export const errorMessages = {
   role_not_found: 'Role not found.',
   role_merge_self: 'Choose another role to merge into.',
   project_not_found: 'Project not found.',
+  project_forbidden: 'Only admins can change projects.',
+  project_name_invalid: 'The name needs at least one letter or digit.',
+  customer_not_found: 'Customer not found.',
 } as const
 
 export type AppErrorKey = keyof typeof errorMessages

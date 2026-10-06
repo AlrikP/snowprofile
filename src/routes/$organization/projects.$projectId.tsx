@@ -1,6 +1,7 @@
 import { createFileRoute, getRouteApi } from '@tanstack/react-router'
 import { ProjectPage, ProjectPending } from '#/features/projects/project-page'
 import { projectQuery } from '#/features/projects/projects-query'
+import { roleHasPermission } from '#/lib/permissions'
 
 const organizationRoute = getRouteApi('/$organization')
 
@@ -23,6 +24,7 @@ function ProjectRoute() {
       organizationId={organization.id}
       organization={organization.slug}
       projectId={projectId}
+      canEdit={roleHasPermission(organization.role, { project: ['update'] })}
     />
   )
 }

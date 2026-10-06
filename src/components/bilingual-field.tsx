@@ -20,6 +20,7 @@ export function BilingualField({
   multiline = false,
   hint,
   error,
+  hideLegend = false,
 }: {
   id: string
   legend: string
@@ -28,13 +29,17 @@ export function BilingualField({
   multiline?: boolean
   hint?: string
   error?: string
+  // For a field whose section heading already names it; screen readers still get it.
+  hideLegend?: boolean
 }) {
   const hintId = `${id}-hint`
   const errorId = `${id}-error`
   const describedBy = [hint && hintId, error && errorId].filter(Boolean).join(' ')
   return (
     <fieldset className="flex flex-col gap-2">
-      <legend className="mb-2 text-sm leading-none font-medium">{legend}</legend>
+      <legend className={hideLegend ? 'sr-only' : 'mb-2 text-sm leading-none font-medium'}>
+        {legend}
+      </legend>
       <div className="grid gap-4 md:grid-cols-2">
         {LANGUAGES.map(({ locale, label }) => {
           const field = {

@@ -72,3 +72,81 @@ A project's page must show who last changed the project and when.
 - **Given** a project an admin changed
 - **When** a member opens it
 - **Then** the page names the admin and the time of the change
+
+### Requirement: Admins edit projects
+
+Admins must be able to create and change a project: its name, description in Estonian
+and English, customer, period, tender reference, total hours, and cost. The customer is
+an existing one or a new one added by name. Each save must record who made it and when.
+Employees must not create, change, or delete projects.
+
+#### Scenario: projects.admin-creates
+
+- **Given** an admin
+- **When** they create a project with a new customer, tender details, and a period
+- **Then** the project lists for every member, with the new customer, and names the
+  admin as its last change
+
+#### Scenario: projects.admin-edits
+
+- **Given** an admin and an existing project
+- **When** they change its name, customer, description, and period
+- **Then** the project shows the new values, and names the admin and the time as its last
+  change
+
+#### Scenario: projects.employee-cannot-edit
+
+- **Given** an employee
+- **When** they try to create, change, or delete a project, or open its edit form
+- **Then** the server refuses
+
+### Requirement: Periods as precise as known
+
+A project's start and end must each be a day, a month, or a year, as precisely as they
+are known, and the end must be empty while the project is ongoing. An end before the
+start, compared at the end's precision, must be refused.
+
+#### Scenario: projects.year-only-period
+
+- **Given** an admin who knows only the year a project started
+- **When** they save the project with the year alone
+- **Then** the start is stored as that year, and the form says a year alone is vague in a
+  CV
+
+#### Scenario: projects.end-before-start-refused
+
+- **Given** a project starting in 03-2024
+- **When** an admin saves it with an end in 2023
+- **Then** the form says the end can't be before the start, and the server refuses the
+  period
+
+#### Scenario: projects.ongoing-clears-end
+
+- **Given** a project with an end date
+- **When** an admin ticks Ongoing and saves
+- **Then** the end date is cleared
+
+### Requirement: Similar names are flagged
+
+When a project's name normalizes like another project's name, the form must warn and
+link to the other project, but still let the admin save.
+
+#### Scenario: projects.similar-name-warned
+
+- **Given** a project named "Võrguandmete platvorm"
+- **When** an admin types "Võrguandmete-platvorm" as a project's name
+- **Then** the form names the existing project with its customer and links to it, and
+  saving still works
+
+### Requirement: Deleted projects disappear
+
+Deleting a project must remove it from every list, search, and CV, and its participations
+must stop showing and stop counting. The rows stay stored, so a mistaken delete can be
+undone by hand.
+
+#### Scenario: projects.deleted-hidden
+
+- **Given** a project with participations
+- **When** an admin deletes it
+- **Then** it leaves the project list, its page is not found, and the role catalogue no
+  longer counts its participations

@@ -2,14 +2,25 @@
 
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
 import { eq } from 'drizzle-orm'
+import { v7 as uuidv7 } from 'uuid'
+import * as v from 'valibot'
 import type { Database } from '#/db'
 import { withActor } from '#/db/actor'
-import { employeeProfile, project, tenderCriterion } from '#/db/schema'
+import { customer, employeeProfile, project, tenderCriterion } from '#/db/schema'
 import { seedIds } from '#/db/seed-accounts'
 import { createTestDatabase } from '#/db/testing'
+import { catalogue as roleCatalogue } from '../roles/roles.server'
 import { resolveScope, type Scope } from '../scope.server'
 import { rejection } from '../testing'
-import { projectList, projectView } from './projects.server'
+import { type CreateProjectInput, UpdateProjectInput } from './projects.schemas'
+import {
+  createProject,
+  deleteProject,
+  projectForm,
+  projectList,
+  projectView,
+  updateProject,
+} from './projects.server'
 
 let db: Database
 let cleanup: () => void
@@ -224,4 +235,191 @@ test('a removed project, or another organization’s, is not found', async () =>
       key: 'project_not_found',
     })
   }
+})
+
+function fields(overrides: Partial<CreateProjectInput> = {}): CreateProjectInput {
+  return {
+    id: uuidv7(),
+    name: 'Testprojekt',
+    description: { et: 'Kirjeldus', en: null },
+    customer: null,
+    period: { startDate: '2024-03', endDate: null },
+    tenderReference: null,
+    totalHours: null,
+    cost: null,
+    ...overrides,
+  }
+}
+
+// What the actor's save would be, with the actor set as the middleware sets it.
+function as<T>(scope: Scope, run: () => Promise<T>) {
+  return withActor(scope.userId, run)
+}
+
+describe('editing', () => {
+  test('projects.admin-creates: an admin creates a project with a new customer', async () => {
+    const input = fields({
+      name: 'Uus kodanikuportaal',
+      customer: { kind: 'new', id: uuidv7(), name: 'Testklient OÜ' },
+      tenderReference: '275431',
+      totalHours: { value: 4200, qualifier: 'approximately' },
+      cost: { value: 250000, qualifier: 'more_than' },
+    })
+    await as(admin, () => createProject(db, admin, input))
+
+    const view = await projectView(db, admin, { projectId: input.id })
+    expect(view).toMatchObject({
+      name: 'Uus kodanikuportaal',
+      customerName: 'Testklient OÜ',
+      startDate: '2024-03',
+      endDate: null,
+      details: {
+        tenderReference: '275431',
+        totalHours: { value: 4200, qualifier: 'approximately' },
+        cost: { value: 250000, qualifier: 'more_than' },
+      },
+      lastChange: { by: 'Anna Admin' },
+    })
+    expect((await projectList(db, employee)).map((row) => row.id)).toContain(input.id)
+  })
+
+  test('projects.admin-edits: an admin changes a project, recorded as the last change', async () => {
+    const input = fields()
+    await as(admin, () => createProject(db, admin, input))
+    const [existing] = await db
+      .select({ id: customer.id })
+      .from(customer)
+      .where(eq(customer.organizationId, org))
+    if (!existing) throw new Error('expected a seeded customer')
+    const before = Date.now()
+
+    await as(admin, () =>
+      updateProject(db, admin, {
+        ...fields({ name: 'Ümbernimetatud', customer: { kind: 'existing', id: existing.id } }),
+        projectId: input.id,
+        description: { et: null, en: 'Renamed' },
+        period: { startDate: '2024-03-15', endDate: '2025' },
+      }),
+    )
+
+    const form = await projectForm(db, admin, { projectId: input.id })
+    expect(form).toMatchObject({
+      name: 'Ümbernimetatud',
+      customerId: existing.id,
+      description: { et: null, en: 'Renamed' },
+      startDate: '2024-03-15',
+      endDate: '2025',
+      lastChange: { by: 'Anna Admin' },
+    })
+    expect(form.lastChange.at.getTime()).toBeGreaterThanOrEqual(before - 1000)
+  })
+
+  test('projects.employee-cannot-edit: an employee can’t create, change, or delete a project', async () => {
+    const forbidden = { code: 'FORBIDDEN', key: 'project_forbidden' }
+    const projectId = fixture.mine
+
+    expect(
+      await rejection(as(employee, () => createProject(db, employee, fields()))),
+    ).toMatchObject(forbidden)
+    expect(
+      await rejection(as(employee, () => updateProject(db, employee, { ...fields(), projectId }))),
+    ).toMatchObject(forbidden)
+    expect(
+      await rejection(as(employee, () => deleteProject(db, employee, { projectId }))),
+    ).toMatchObject(forbidden)
+    expect(await rejection(projectForm(db, employee, { projectId }))).toMatchObject(forbidden)
+  })
+
+  test('projects.year-only-period: a start known only to the year is stored as the year', async () => {
+    const input = fields({ period: { startDate: '2019', endDate: '2021-06' } })
+    await as(admin, () => createProject(db, admin, input))
+
+    expect(await projectView(db, admin, { projectId: input.id })).toMatchObject({
+      startDate: '2019',
+      endDate: '2021-06',
+    })
+  })
+
+  test('projects.end-before-start-refused: the server refuses an end before the start', () => {
+    const input = { ...fields(), projectId: uuidv7() }
+    const refused = { ...input, period: { startDate: '2024-03', endDate: '2023-12' } }
+    // Compared at the end's precision: a 2024 end is in order for a 2024-03 start.
+    const sameYear = { ...input, period: { startDate: '2024-03', endDate: '2024' } }
+
+    expect(v.safeParse(UpdateProjectInput, refused).success).toBe(false)
+    expect(v.safeParse(UpdateProjectInput, sameYear).success).toBe(true)
+  })
+
+  test('allows a name like an existing project’s: the form only warns', async () => {
+    const [first, second] = [fields({ name: 'Sama nimi' }), fields({ name: 'sama-nimi' })]
+    await as(admin, () => createProject(db, admin, first))
+    await as(admin, () => createProject(db, admin, second))
+
+    const ids = (await projectList(db, admin)).map((row) => row.id)
+    expect(ids).toEqual(expect.arrayContaining([first.id, second.id]))
+  })
+
+  test('a new customer named like an existing one is that customer', async () => {
+    const [existing] = await db.select().from(customer).where(eq(customer.organizationId, org))
+    if (!existing) throw new Error('expected a seeded customer')
+    const input = fields({ customer: { kind: 'new', id: uuidv7(), name: existing.name } })
+    await as(admin, () => createProject(db, admin, input))
+
+    expect((await projectForm(db, admin, { projectId: input.id })).customerId).toBe(existing.id)
+  })
+
+  test('refuses another organization’s customer, and a name without letters or digits', async () => {
+    const foreign = await first(
+      `SELECT id FROM customer WHERE organization_id = '${seedIds.orgs.tormilind}'`,
+    )
+    const withForeign = fields({ customer: { kind: 'existing', id: foreign } })
+    expect(await rejection(as(admin, () => createProject(db, admin, withForeign)))).toMatchObject({
+      code: 'INVALID',
+      key: 'customer_not_found',
+    })
+    expect(
+      await rejection(as(admin, () => createProject(db, admin, fields({ name: '!!' })))),
+    ).toMatchObject({ code: 'INVALID', key: 'project_name_invalid' })
+  })
+
+  test('projects.deleted-hidden: a deleted project and its participations stop showing', async () => {
+    const projectId = await first(
+      `SELECT pa.project_id FROM participation pa
+        JOIN participation_role pr ON pr.participation_id = pa.id
+        WHERE pa.organization_id = '${org}' AND pa.sys_deleted = 0
+          AND pa.project_id NOT IN ('${fixture.mine}', '${fixture.others}', '${fixture.removed}',
+            '${fixture.withLeaver}')
+        ORDER BY pa.project_id LIMIT 1`,
+    )
+    const roleId = await first(
+      `SELECT pr.role_id FROM participation_role pr
+        JOIN participation pa ON pa.id = pr.participation_id
+        WHERE pa.project_id = '${projectId}' AND pa.sys_deleted = 0 LIMIT 1`,
+    )
+    const links = Number(
+      (
+        await db.$client.execute(
+          `SELECT count(*) FROM participation_role pr
+            JOIN participation pa ON pa.id = pr.participation_id
+            WHERE pa.project_id = '${projectId}' AND pa.sys_deleted = 0
+              AND pr.role_id = '${roleId}'`,
+        )
+      ).rows[0]?.[0],
+    )
+    async function uses() {
+      const roles = await roleCatalogue(db, admin)
+      return roles.find((role) => role.id === roleId)?.uses
+    }
+    const before = await uses()
+
+    await as(admin, () => deleteProject(db, admin, { projectId }))
+
+    expect((await projectList(db, admin)).map((row) => row.id)).not.toContain(projectId)
+    expect(await rejection(projectView(db, admin, { projectId }))).toMatchObject({
+      key: 'project_not_found',
+    })
+    expect(await uses()).toBe((before ?? 0) - links)
+    const [row] = await db.select().from(project).where(eq(project.id, projectId))
+    expect(row).toMatchObject({ sysDeleted: true, updatedBy: seedIds.users.admin })
+  })
 })

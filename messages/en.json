@@ -216,7 +216,30 @@
     {
       "declarations": ["input count", "local countPlural = count: plural"],
       "selectors": ["countPlural"],
-      "match": { "countPlural=one": "{count} project", "countPlural=*": "{count} projects" }
+      "match": {
+        "countPlural=one": "{count} project",
+        "countPlural=*": "{count} projects"
+      }
     }
-  ]
+  ],
+  "error_project_forbidden": "Only admins can change projects.",
+  "error_project_name_invalid": "The name needs at least one letter or digit.",
+  "error_customer_not_found": "Customer not found.",
+  "projects_add": "Add project",
+  "project_new_title": "New project",
+  "project_edit": "Edit project",
+  "project_section_general": "General",
+  "project_name": "Name",
+  "project_name_hint": "The same name in both languages.",
+  "project_name_required": "Enter the project’s name.",
+  "project_similar": "A project with a similar name exists: {name} ({customer}). Is it the same one?",
+  "project_open_existing": "Open the existing one",
+  "project_customer": "Customer",
+  "project_customer_new": "Add customer",
+  "project_customer_name": "Name",
+  "project_section_description_hint": "A CV uses the chosen language. A missing translation is flagged before the CV is generated.",
+  "project_section_tender_hint": "Admins and the project’s participants see these.",
+  "project_delete": "Delete project",
+  "project_delete_title": "Delete “{name}”?",
+  "project_delete_body": "The project leaves the project list, search, and CVs, and its participations stop showing on profiles."
 }

@@ -76,10 +76,11 @@ function view(overrides: Partial<ProjectView> = {}): ProjectView {
   }
 }
 
-function show(project: ProjectView) {
-  return renderPage(<ProjectPage organizationId="org" organization="demo" projectId="portal" />, [
-    [projectQuery('org', 'portal').queryKey, project],
-  ])
+function show(project: ProjectView, { canEdit = false } = {}) {
+  return renderPage(
+    <ProjectPage organizationId="org" organization="demo" projectId="portal" canEdit={canEdit} />,
+    [[projectQuery('org', 'portal').queryKey, project]],
+  )
 }
 
 function section(name: string) {
@@ -144,5 +145,18 @@ describe('ProjectPage', () => {
     await show(view({ lastChange: { at: new Date('2026-10-06T14:05:00'), by: null } }))
 
     expect(screen.getByText(/^Last changed 6 Oct 2026\b.*14:05 by the system$/)).toBeInTheDocument()
+  })
+
+  it('links admins to the edit form, and no one else', async () => {
+    await show(view(), { canEdit: true })
+    expect(screen.getByRole('link', { name: 'Edit project' })).toHaveAttribute(
+      'href',
+      '/demo/projects/portal/edit',
+    )
+  })
+
+  it('shows no edit link without the permission', async () => {
+    await show(view())
+    expect(screen.queryByRole('link', { name: 'Edit project' })).not.toBeInTheDocument()
   })
 })

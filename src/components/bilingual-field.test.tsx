@@ -69,4 +69,14 @@ describe('BilingualField', () => {
       )
     }
   })
+
+  it('keeps a hidden legend as the group’s name', () => {
+    const value = bilingualInputValue(null)
+    render(
+      <BilingualField id="d" legend="Description" value={value} onChange={() => {}} hideLegend />,
+    )
+
+    expect(screen.getByRole('group', { name: 'Description' })).toBeInTheDocument()
+    expect(screen.getByText('Description')).toHaveClass('sr-only')
+  })
 })

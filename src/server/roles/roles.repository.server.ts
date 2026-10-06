@@ -8,6 +8,7 @@ import type { Scope } from '../scope.server'
 const USE_COUNT = sql<number>`(
   SELECT count(*) FROM participation_role AS pr
   JOIN participation AS pa ON pa.id = pr.participation_id AND pa.sys_deleted = 0
+  JOIN project AS p ON p.id = pa.project_id AND p.sys_deleted = 0
   WHERE pr.role_id = project_role.id
 ) + (
   SELECT count(*) FROM own_project_role AS opr

@@ -25,7 +25,9 @@ import { Route as OrganizationTechnologiesRouteImport } from './routes/$organiza
 import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as OrganizationProjectsIndexRouteImport } from './routes/$organization/projects.index'
 import { Route as OrganizationProjectsProjectIdRouteImport } from './routes/$organization/projects.$projectId'
+import { Route as OrganizationProjectsNewRouteImport } from './routes/$organization/projects.new'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as OrganizationProjectsProjectIdEditRouteImport } from './routes/$organization/projects.$projectId_.edit'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -110,11 +112,22 @@ const OrganizationProjectsProjectIdRoute =
     path: '/projects/$projectId',
     getParentRoute: () => OrganizationRouteRoute,
   } as any)
+const OrganizationProjectsNewRoute = OrganizationProjectsNewRouteImport.update({
+  id: '/projects/new',
+  path: '/projects/new',
+  getParentRoute: () => OrganizationRouteRoute,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OrganizationProjectsProjectIdEditRoute =
+  OrganizationProjectsProjectIdEditRouteImport.update({
+    id: '/projects/$projectId_/edit',
+    path: '/projects/$projectId/edit',
+    getParentRoute: () => OrganizationRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -132,8 +145,10 @@ export interface FileRoutesByFullPath {
   '/api/health': typeof ApiHealthRoute
   '/$organization/': typeof OrganizationIndexRoute
   '/$organization/projects/$projectId': typeof OrganizationProjectsProjectIdRoute
+  '/$organization/projects/new': typeof OrganizationProjectsNewRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/$organization/projects/': typeof OrganizationProjectsIndexRoute
+  '/$organization/projects/$projectId/edit': typeof OrganizationProjectsProjectIdEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -150,8 +165,10 @@ export interface FileRoutesByTo {
   '/api/health': typeof ApiHealthRoute
   '/$organization': typeof OrganizationIndexRoute
   '/$organization/projects/$projectId': typeof OrganizationProjectsProjectIdRoute
+  '/$organization/projects/new': typeof OrganizationProjectsNewRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/$organization/projects': typeof OrganizationProjectsIndexRoute
+  '/$organization/projects/$projectId/edit': typeof OrganizationProjectsProjectIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -170,8 +187,10 @@ export interface FileRoutesById {
   '/api/health': typeof ApiHealthRoute
   '/$organization/': typeof OrganizationIndexRoute
   '/$organization/projects/$projectId': typeof OrganizationProjectsProjectIdRoute
+  '/$organization/projects/new': typeof OrganizationProjectsNewRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/$organization/projects/': typeof OrganizationProjectsIndexRoute
+  '/$organization/projects/$projectId_/edit': typeof OrganizationProjectsProjectIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -191,8 +210,10 @@ export interface FileRouteTypes {
     | '/api/health'
     | '/$organization/'
     | '/$organization/projects/$projectId'
+    | '/$organization/projects/new'
     | '/api/auth/$'
     | '/$organization/projects/'
+    | '/$organization/projects/$projectId/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -209,8 +230,10 @@ export interface FileRouteTypes {
     | '/api/health'
     | '/$organization'
     | '/$organization/projects/$projectId'
+    | '/$organization/projects/new'
     | '/api/auth/$'
     | '/$organization/projects'
+    | '/$organization/projects/$projectId/edit'
   id:
     | '__root__'
     | '/'
@@ -228,8 +251,10 @@ export interface FileRouteTypes {
     | '/api/health'
     | '/$organization/'
     | '/$organization/projects/$projectId'
+    | '/$organization/projects/new'
     | '/api/auth/$'
     | '/$organization/projects/'
+    | '/$organization/projects/$projectId_/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -355,12 +380,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrganizationProjectsProjectIdRouteImport
       parentRoute: typeof OrganizationRouteRoute
     }
+    '/$organization/projects/new': {
+      id: '/$organization/projects/new'
+      path: '/projects/new'
+      fullPath: '/$organization/projects/new'
+      preLoaderRoute: typeof OrganizationProjectsNewRouteImport
+      parentRoute: typeof OrganizationRouteRoute
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
       fullPath: '/api/auth/$'
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/$organization/projects/$projectId_/edit': {
+      id: '/$organization/projects/$projectId_/edit'
+      path: '/projects/$projectId/edit'
+      fullPath: '/$organization/projects/$projectId/edit'
+      preLoaderRoute: typeof OrganizationProjectsProjectIdEditRouteImport
+      parentRoute: typeof OrganizationRouteRoute
     }
   }
 }
@@ -376,7 +415,9 @@ interface OrganizationRouteRouteChildren {
   OrganizationTechnologiesRoute: typeof OrganizationTechnologiesRoute
   OrganizationIndexRoute: typeof OrganizationIndexRoute
   OrganizationProjectsProjectIdRoute: typeof OrganizationProjectsProjectIdRoute
+  OrganizationProjectsNewRoute: typeof OrganizationProjectsNewRoute
   OrganizationProjectsIndexRoute: typeof OrganizationProjectsIndexRoute
+  OrganizationProjectsProjectIdEditRoute: typeof OrganizationProjectsProjectIdEditRoute
 }
 
 const OrganizationRouteRouteChildren: OrganizationRouteRouteChildren = {
@@ -390,7 +431,10 @@ const OrganizationRouteRouteChildren: OrganizationRouteRouteChildren = {
   OrganizationTechnologiesRoute: OrganizationTechnologiesRoute,
   OrganizationIndexRoute: OrganizationIndexRoute,
   OrganizationProjectsProjectIdRoute: OrganizationProjectsProjectIdRoute,
+  OrganizationProjectsNewRoute: OrganizationProjectsNewRoute,
   OrganizationProjectsIndexRoute: OrganizationProjectsIndexRoute,
+  OrganizationProjectsProjectIdEditRoute:
+    OrganizationProjectsProjectIdEditRoute,
 }
 
 const OrganizationRouteRouteWithChildren =
