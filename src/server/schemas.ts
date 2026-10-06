@@ -24,12 +24,29 @@ export function parseOrganizationInput<T extends { organizationId: string }>(inp
 // A period date: YYYY-MM-DD, YYYY-MM, or YYYY, naming a date that exists.
 const PeriodDate = v.pipe(v.string(), v.check(isPeriodDate, 'Invalid period date.'))
 
+// A calendar date: YYYY-MM-DD, naming a day that exists.
+export const CalendarDate = v.pipe(
+  v.string(),
+  v.check((value) => value.length === 10 && isPeriodDate(value), 'Invalid date.'),
+)
+
 // A start and an end, null while ongoing, with the database's ordering rule.
 export const Period = v.pipe(
   v.object({ startDate: PeriodDate, endDate: v.nullable(PeriodDate) }),
   v.check(
     ({ startDate, endDate }) => endDate === null || !endsBeforeStart(startDate, endDate),
     'The end is before the start.',
+  ),
+)
+
+// A period whose start may be unknown too, as on older education entries. An end still
+// needs a start.
+export const OptionalPeriod = v.pipe(
+  v.object({ startDate: v.nullable(PeriodDate), endDate: v.nullable(PeriodDate) }),
+  v.check(
+    ({ startDate, endDate }) =>
+      endDate === null || (startDate !== null && !endsBeforeStart(startDate, endDate)),
+    'The end needs a start, and can’t be before it.',
   ),
 )
 

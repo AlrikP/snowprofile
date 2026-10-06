@@ -11,6 +11,11 @@ export async function findLocale(db: Executor, userId: string): Promise<Locale |
   return row?.locale ?? null
 }
 
+export async function findName(db: Executor, userId: string): Promise<string | null> {
+  const [row] = await db.select({ name: user.name }).from(user).where(eq(user.id, userId))
+  return row?.name ?? null
+}
+
 // Better Auth's user table has no audit columns; updated_at is its own.
 export async function updateLocale(db: Executor, userId: string, locale: Locale) {
   await db.update(user).set({ locale, updatedAt: new Date() }).where(eq(user.id, userId))

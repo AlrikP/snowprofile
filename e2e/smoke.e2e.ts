@@ -89,6 +89,23 @@ test.describe('the employee', () => {
     ])
   })
 
+  test('employee-profile.education-added: an added entry survives a reload', async ({ page }) => {
+    await page.goto('/demo/profile')
+    const education = page.getByRole('region', { name: 'Education' })
+
+    await education.getByRole('button', { name: 'Add' }).click()
+    const dialog = page.getByRole('dialog')
+    await dialog
+      .getByRole('group', { name: 'Institution' })
+      .getByLabel('In Estonian')
+      .fill('E2E Akadeemia')
+    await dialog.getByRole('button', { name: 'Save' }).click()
+    await expect(education).toContainText('E2E Akadeemia')
+    await page.reload()
+
+    await expect(education).toContainText('E2E Akadeemia')
+  })
+
   test('technology-catalogue.employee-adds: adds an entry on the technologies page', async ({
     page,
   }) => {

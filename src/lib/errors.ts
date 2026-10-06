@@ -8,6 +8,8 @@ const errorText: Record<AppErrorKey, () => string> = {
   not_organization_member: m.error_not_organization_member,
   profile_not_found: m.error_profile_not_found,
   profile_left: m.error_profile_left,
+  profile_join_after_left: m.error_profile_join_after_left,
+  education_not_found: m.error_education_not_found,
   update_request_forbidden: m.error_update_request_forbidden,
   update_request_open: m.error_update_request_open,
   technology_forbidden: m.error_technology_forbidden,

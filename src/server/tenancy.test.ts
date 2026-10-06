@@ -12,6 +12,7 @@ import { withActor } from '#/db/actor'
 import {
   contactPerson,
   customer,
+  education,
   employeeProfile,
   participationRole,
   project,
@@ -21,6 +22,7 @@ import {
   technologyCategory,
   tenderCriterion,
   updateRequest,
+  user,
 } from '#/db/schema'
 import { seedIds } from '#/db/seed-accounts'
 import { createTestDatabase, failure } from '#/db/testing'
@@ -53,6 +55,9 @@ const b = {
   // A customer whose name A has no customer of.
   customerId: '',
   customerName: '',
+  // An education entry on a profile in B.
+  educationId: '',
+  educationProfileId: '',
   // A contact of B's project, and its customer.
   contactId: '',
   contactCustomerId: '',
@@ -164,7 +169,38 @@ beforeAll(async () => {
   }
   b.contactId = contactId
   b.contactCustomerId = contactCustomerId
+  const [entry] = await db
+    .select({ id: education.id, profileId: education.profileId })
+    .from(education)
+    .where(eq(education.organizationId, b.organizationId))
+  if (!entry) throw new Error('expected an education entry in B')
+  b.educationId = entry.id
+  b.educationProfileId = entry.profileId
 })
+
+async function bEducation() {
+  const [row] = await db.select().from(education).where(eq(education.id, b.educationId))
+  return row
+}
+
+async function bEducationProfile() {
+  const [row] = await db
+    .select()
+    .from(employeeProfile)
+    .where(eq(employeeProfile.id, b.educationProfileId))
+  return row
+}
+
+const educationValues = {
+  institutionEt: 'A kool',
+  institutionEn: null,
+  fieldEt: null,
+  fieldEn: null,
+  degreeEt: null,
+  degreeEn: null,
+  startDate: null,
+  endDate: null,
+}
 
 async function bContact() {
   const [row] = await db.select().from(contactPerson).where(eq(contactPerson.id, b.contactId))
@@ -277,6 +313,10 @@ const cases: Record<string, () => Promise<void>> = {
     await account.updateLocale(db, seedIds.users.admin, 'et')
     expect(await account.findLocale(db, seedIds.users.employee)).toBe('en')
   },
+  'account.findName': async () => {
+    const [row] = await db.select({ name: user.name }).from(user).where(eq(user.id, scopeA.userId))
+    expect(await account.findName(db, scopeA.userId)).toBe(row?.name ?? null)
+  },
   'criteria.listCriteria': async () => {
     const ids = (await criteria.listCriteria(db, scopeA)).map((row) => row.id)
     expect(ids).not.toContain(b.criterionId)
@@ -367,6 +407,86 @@ const cases: Record<string, () => Promise<void>> = {
   },
   'projects.listProjectContacts': async () => {
     expect(await projects.listProjectContacts(db, scopeA, b.projectId)).toEqual([])
+  },
+  'profiles.findOwnProfile': async () => {
+    // A's user has a profile in A; it's found by the scope's organization, not B's.
+    const own = await profiles.findOwnProfile(db, scopeA)
+    const [inB] = await db
+      .select({ id: employeeProfile.id })
+      .from(employeeProfile)
+      .where(
+        and(
+          eq(employeeProfile.organizationId, b.organizationId),
+          eq(employeeProfile.userId, scopeA.userId),
+        ),
+      )
+    expect(own).toBeDefined()
+    expect(own?.id).not.toBe(inB?.id)
+  },
+  'profiles.insertOwnProfile': async () => {
+    // The organization and user come from the scope: A's user already has a profile in A,
+    // so the insert fails rather than landing in B.
+    function insert() {
+      return withActor(scopeA.userId, () =>
+        profiles.insertOwnProfile(db, scopeA, {
+          id: uuidv7(),
+          fullName: 'Ristuv',
+          joinDate: null,
+          birthDate: null,
+        }),
+      )
+    }
+    expect(await failure(insert)).toContain('UNIQUE')
+  },
+  'profiles.updateProfileDetails': async () => {
+    const before = await bEducationProfile()
+    await withActor(scopeA.userId, () =>
+      profiles.updateProfileDetails(db, scopeA, b.educationProfileId, {
+        fullName: 'Muudetud A-st',
+        joinDate: null,
+        birthDate: null,
+      }),
+    )
+    expect((await bEducationProfile())?.fullName).toBe(before?.fullName)
+  },
+  'profiles.touchProfile': async () => {
+    const before = await bEducationProfile()
+    await withActor(scopeA.userId, () => profiles.touchProfile(db, scopeA, b.educationProfileId))
+    expect((await bEducationProfile())?.updatedAt).toEqual(before?.updatedAt)
+  },
+  'profiles.listEducation': async () => {
+    expect(await profiles.listEducation(db, scopeA, b.educationProfileId)).toEqual([])
+  },
+  'profiles.findEducation': async () => {
+    expect(
+      await profiles.findEducation(db, scopeA, b.educationProfileId, b.educationId),
+    ).toBeUndefined()
+  },
+  'profiles.insertEducation': async () => {
+    // The organization comes from the scope, so B's profile can't be used from A.
+    function insert() {
+      return withActor(scopeA.userId, () =>
+        profiles.insertEducation(db, scopeA, {
+          ...educationValues,
+          id: uuidv7(),
+          profileId: b.educationProfileId,
+        }),
+      )
+    }
+    expect(await failure(insert)).toContain('FOREIGN KEY')
+  },
+  'profiles.updateEducation': async () => {
+    const before = await bEducation()
+    await withActor(scopeA.userId, () =>
+      profiles.updateEducation(db, scopeA, b.educationProfileId, b.educationId, educationValues),
+    )
+    expect((await bEducation())?.institutionEt).toBe(before?.institutionEt)
+  },
+  'profiles.removeEducation': async () => {
+    await withActor(scopeA.userId, () =>
+      profiles.removeEducation(db, scopeA, b.educationProfileId, b.educationId),
+    )
+    expect((await bEducation())?.sysDeleted).toBe(false)
   },
   'projects.insertProject': async () => {
     // The organization comes from the scope, so B's customer can't be used from A.
