@@ -1,5 +1,5 @@
 // Database access for organizations and memberships.
-import { and, asc, eq } from 'drizzle-orm'
+import { and, asc, eq, sql } from 'drizzle-orm'
 import type { Executor } from '#/db'
 import { member, organization } from '#/db/schema'
 
@@ -22,6 +22,14 @@ export function listMemberships(db: Executor, userId: string) {
       name: organization.name,
       slug: organization.slug,
       role: member.role,
+      // Whether the user's profile there has an open update request. Plain SQL: a
+      // correlated subquery needs the table names.
+      updateRequested: sql<boolean>`EXISTS (
+        SELECT 1 FROM update_request AS ur
+        JOIN employee_profile AS ep ON ep.id = ur.profile_id
+        WHERE ep.organization_id = organization.id AND ep.user_id = member.user_id
+          AND ur.closed_at IS NULL
+      )`.mapWith(Boolean),
     })
     .from(member)
     .innerJoin(organization, eq(organization.id, member.organizationId))

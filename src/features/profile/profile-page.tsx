@@ -1,16 +1,33 @@
-import { useSuspenseQuery } from '@tanstack/react-query'
-import { Link } from '@tanstack/react-router'
-import { BriefcaseIcon, GraduationCapIcon, LockIcon, PencilIcon, PlusIcon } from 'lucide-react'
+import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
+import { Link, useRouter } from '@tanstack/react-router'
+import {
+  BriefcaseIcon,
+  CircleCheckBigIcon,
+  CircleCheckIcon,
+  GraduationCapIcon,
+  LockIcon,
+  PencilIcon,
+  PlusIcon,
+  TriangleAlertIcon,
+} from 'lucide-react'
 import { type ReactNode, useState } from 'react'
 import { BilingualText } from '#/components/bilingual-text'
+import { Alert, AlertDescription, AlertTitle } from '#/components/ui/alert'
 import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
 import { Card, CardAction, CardContent, CardDescription, CardHeader } from '#/components/ui/card'
 import { formatApproximateNumber } from '#/lib/approximate-number'
 import { formatDate } from '#/lib/date-time'
+import { errorMessage } from '#/lib/errors'
 import { formatPeriod } from '#/lib/period'
 import { m } from '#/paraglide/messages.js'
-import type { Education, OwnProject, Participation } from '#/server/profiles/profiles.functions'
+import {
+  confirmProfile,
+  type Education,
+  type MyProfile,
+  type OwnProject,
+  type Participation,
+} from '#/server/profiles/profiles.functions'
 import { EducationDialog, educationName } from './education-dialog'
 import { OwnProjectDialog } from './own-project-dialog'
 import { ParticipationDialog } from './participation-dialog'
@@ -205,6 +222,86 @@ function OwnProjectEntry({ ownProject, onEdit }: { ownProject: OwnProject; onEdi
   )
 }
 
+function day(date: Date) {
+  return formatDate(date.toISOString().slice(0, 10))
+}
+
+// The profile's last confirmation, an open request, and "Profile is up to date", which
+// records a confirmation and closes the request (profile.html states request, none,
+// confirmed).
+function Confirmation({ organizationId, profile }: { organizationId: string; profile: MyProfile }) {
+  const queryClient = useQueryClient()
+  const router = useRouter()
+  const confirm = useMutation({
+    mutationFn: () => confirmProfile({ data: { organizationId } }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries(myProfileQuery(organizationId))
+      // The frame's request notice goes with it.
+      await router.invalidate()
+    },
+  })
+  const request = profile.openRequest
+  const button = (
+    <Button
+      variant={request ? 'default' : 'outline'}
+      size={request ? 'sm' : 'default'}
+      disabled={confirm.isPending}
+      onClick={() => confirm.mutate()}
+    >
+      <CircleCheckIcon />
+      {m.profile_confirm()}
+    </Button>
+  )
+  return (
+    <>
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-3xl">{m.nav_my_profile()}</h1>
+          <p className="text-muted-foreground text-sm">
+            {profile.confirmedAt
+              ? m.profile_confirmed_at({ date: day(profile.confirmedAt) })
+              : m.profile_never_confirmed()}
+          </p>
+        </div>
+        {!request && button}
+      </div>
+      {request && (
+        <Alert role="status" className="border-primary bg-primary/10 max-w-3xl">
+          <TriangleAlertIcon />
+          <AlertTitle>{m.update_request_title()}</AlertTitle>
+          <AlertDescription className="text-foreground">
+            <p>
+              {request.message
+                ? m.update_request_body_message({
+                    name: request.requestedBy,
+                    date: day(request.requestedAt),
+                    message: request.message,
+                  })
+                : m.update_request_body({
+                    name: request.requestedBy,
+                    date: day(request.requestedAt),
+                  })}
+            </p>
+            <div className="mt-2">{button}</div>
+          </AlertDescription>
+        </Alert>
+      )}
+      {confirm.isSuccess && (
+        <Alert role="status" className="max-w-3xl">
+          <CircleCheckBigIcon className="text-emerald-700" />
+          <AlertTitle>{m.profile_confirmed_title()}</AlertTitle>
+          <AlertDescription>{m.profile_confirmed_body()}</AlertDescription>
+        </Alert>
+      )}
+      {confirm.error && (
+        <p role="alert" className="text-destructive text-sm">
+          {errorMessage(confirm.error)}
+        </p>
+      )}
+    </>
+  )
+}
+
 // The signed-in member's own profile (prototypes/profile.html).
 export function ProfilePage({
   organizationId,
@@ -234,7 +331,7 @@ export function ProfilePage({
 
   return (
     <main className="flex flex-col gap-6 p-4 md:p-8">
-      <h1 className="text-3xl">{m.nav_my_profile()}</h1>
+      <Confirmation organizationId={organizationId} profile={profile} />
       <div className="grid max-w-6xl items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
         <div className="flex flex-col gap-6">
           <Section

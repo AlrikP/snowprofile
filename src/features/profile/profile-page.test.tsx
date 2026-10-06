@@ -26,6 +26,7 @@ const server = vi.hoisted(() => ({
   addOwnProject: vi.fn(),
   updateOwnProject: vi.fn(),
   deleteOwnProject: vi.fn(),
+  confirmProfile: vi.fn(),
 }))
 vi.mock('#/server/profiles/profiles.functions', () => server)
 vi.mock('#/server/projects/projects.functions', () => ({ getProjects: vi.fn() }))
@@ -83,6 +84,8 @@ const participations: Participation[] = [
 
 const profile: MyProfile = {
   stored: true,
+  confirmedAt: new Date('2026-03-15T10:00:00Z'),
+  openRequest: null,
   fullName: 'Erik Employee',
   joinDate: '2020-03-01',
   birthDate: null,
@@ -121,6 +124,7 @@ beforeEach(() => {
   server.addOwnProject.mockResolvedValue({ id: 'new' })
   server.updateOwnProject.mockResolvedValue(undefined)
   server.deleteOwnProject.mockResolvedValue(undefined)
+  server.confirmProfile.mockResolvedValue({ confirmedAt: new Date() })
 })
 
 const ownProjects: OwnProject[] = [
@@ -286,6 +290,8 @@ describe('ProfilePage', () => {
   it('shows a new profile with the account name and nothing else', async () => {
     await show({
       stored: false,
+      confirmedAt: null,
+      openRequest: null,
       fullName: 'Kati Uus',
       joinDate: null,
       birthDate: null,
@@ -602,6 +608,43 @@ describe('ProfilePage', () => {
       expect(server.deleteOwnProject).toHaveBeenCalledWith({
         data: { organizationId: 'org', ownProjectId: 'own1' },
       })
+    })
+  })
+
+  describe('confirmation', () => {
+    it('profile-update-requests.confirmed-without-request: shows the last confirmation and confirms without a request', async () => {
+      await show()
+
+      expect(screen.getByText('Last confirmed: 15 Mar 2026')).toBeInTheDocument()
+      await userEvent.click(screen.getByRole('button', { name: 'Profile is up to date' }))
+
+      expect(server.confirmProfile).toHaveBeenCalledWith({ data: { organizationId: 'org' } })
+      expect(await screen.findByText('Thanks! Your profile is confirmed.')).toBeInTheDocument()
+    })
+
+    it('says when the profile was never confirmed', async () => {
+      await show({ ...profile, confirmedAt: null })
+
+      expect(screen.getByText('Not confirmed yet')).toBeInTheDocument()
+    })
+
+    it('profile-update-requests.notice-shown: shows the open request with who asked, when, and the message', async () => {
+      await show({
+        ...profile,
+        openRequest: {
+          message: 'Lisa 2026. aasta projektid.',
+          requestedAt: new Date('2026-09-12T10:00:00Z'),
+          requestedBy: 'Kalle Kask',
+        },
+      })
+
+      const notice = screen.getByRole('status')
+      expect(notice).toHaveTextContent('Please review your profile')
+      expect(notice).toHaveTextContent(
+        'Kalle Kask asked on 12 Sept 2026: “Lisa 2026. aasta projektid.”',
+      )
+      await userEvent.click(within(notice).getByRole('button', { name: 'Profile is up to date' }))
+      expect(server.confirmProfile).toHaveBeenCalled()
     })
   })
 })

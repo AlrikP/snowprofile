@@ -10,12 +10,19 @@ import type { ComponentProps } from 'react'
 import { describe, expect, it, vi } from 'vitest'
 import { AppFrame } from './app-frame'
 
-const demo = { id: 'org-demo', name: 'Demo Software', slug: 'demo', role: 'admin' }
+const demo = {
+  id: 'org-demo',
+  name: 'Demo Software',
+  slug: 'demo',
+  role: 'admin',
+  updateRequested: false,
+}
 const rabasaare = {
   id: 'org-rabasaare',
   name: 'Rabasaare Digital',
   slug: 'rabasaare',
   role: 'admin',
+  updateRequested: false,
 }
 const user = { name: 'Anna Admin', email: 'admin@demo.example.com' }
 
@@ -124,5 +131,22 @@ describe('AppFrame', () => {
 
     expect(saveLocale).toHaveBeenCalledWith('et')
     expect(await screen.findByRole('alert')).toBeInTheDocument()
+  })
+
+  it('profile-update-requests.notice-shown: an open update request shows a notice that leads to the profile', async () => {
+    const requested = { ...demo, updateRequested: true }
+    await renderFrame({ organization: requested })
+
+    const notice = screen.getByRole('status')
+    expect(notice).toHaveTextContent('An admin asked you to review your profile.')
+    expect(within(notice).getByRole('link', { name: 'Open my profile' })).toHaveAttribute(
+      'href',
+      '/demo/profile',
+    )
+  })
+
+  it('leaves the notice to the profile page itself, and shows none without a request', async () => {
+    await renderFrame({ organization: { ...demo, updateRequested: true } }, '/demo/profile')
+    expect(screen.queryByRole('status')).not.toBeInTheDocument()
   })
 })

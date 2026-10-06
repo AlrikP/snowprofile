@@ -61,3 +61,35 @@ most one open request, and leavers get none. Employees must not request updates.
 - **Given** an employee
 - **When** they request an update from someone
 - **Then** the server refuses
+
+### Requirement: The employee sees the request
+
+A member with an open update request must see it when they open the app: on their
+profile, with who asked, when, and the message; on any other page, as a notice that leads
+to the profile.
+
+#### Scenario: profile-update-requests.notice-shown
+
+- **Given** a member whose profile has an open request with a message
+- **When** they open the app
+- **Then** the profile shows the request with the admin's name, the date, and the
+  message, and other pages show a notice that links to the profile
+
+### Requirement: Confirming closes the request
+
+The profile must show its last confirmation, or that it was never confirmed. "Profile is
+up to date" must record the confirmation and close an open request as confirmed; it works
+without a request too.
+
+#### Scenario: profile-update-requests.confirmed
+
+- **Given** a member with an open request
+- **When** they confirm their profile is up to date
+- **Then** the confirmation is recorded, the request is closed as confirmed, and the
+  notice is gone
+
+#### Scenario: profile-update-requests.confirmed-without-request
+
+- **Given** a member without an open request
+- **When** they confirm their profile is up to date
+- **Then** the confirmation is recorded and the profile shows its date

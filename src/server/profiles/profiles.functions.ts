@@ -31,6 +31,10 @@ export const getMyProfile = createServerFn({ method: 'GET' })
   .middleware([scopeMiddleware])
   .handler(({ context }) => profiles.myProfile(context.db, context.scope))
 
+export const confirmProfile = createServerFn({ method: 'POST' })
+  .middleware([scopeMiddleware])
+  .handler(({ context }) => profiles.confirmProfile(context.db, context.scope))
+
 export const savePersonalDetails = createServerFn({ method: 'POST' })
   .middleware([scopeMiddleware])
   .validator(PersonalDetailsInput)

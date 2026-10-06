@@ -1,7 +1,7 @@
 // Database access for profiles. Every query filters by the scope's organization.
 import { and, asc, desc, eq, isNull, sql } from 'drizzle-orm'
 import type { Executor } from '#/db'
-import { education, employeeProfile, member, updateRequest } from '#/db/schema'
+import { education, employeeProfile, member, updateRequest, user } from '#/db/schema'
 import type { Scope } from '../scope.server'
 
 export async function findProfile(db: Executor, scope: Scope, profileId: string) {
@@ -53,6 +53,7 @@ export async function findOwnProfile(db: Executor, scope: Scope) {
       joinDate: employeeProfile.joinDate,
       leftDate: employeeProfile.leftDate,
       birthDate: employeeProfile.birthDate,
+      confirmedAt: employeeProfile.confirmedAt,
     })
     .from(employeeProfile)
     .where(
@@ -265,4 +266,36 @@ export async function removeMembership(db: Executor, scope: Scope, userId: strin
   await db
     .delete(member)
     .where(and(eq(member.organizationId, scope.organizationId), eq(member.userId, userId)))
+}
+
+// The profile's open update request, with who opened it.
+export async function findOpenRequest(db: Executor, scope: Scope, profileId: string) {
+  const [row] = await db
+    .select({
+      message: updateRequest.message,
+      requestedAt: updateRequest.createdAt,
+      requestedBy: user.name,
+    })
+    .from(updateRequest)
+    .innerJoin(user, eq(user.id, updateRequest.createdBy))
+    .where(
+      and(
+        eq(updateRequest.organizationId, scope.organizationId),
+        eq(updateRequest.profileId, profileId),
+        isNull(updateRequest.closedAt),
+      ),
+    )
+  return row
+}
+
+export async function setConfirmedAt(db: Executor, scope: Scope, profileId: string, at: Date) {
+  await db
+    .update(employeeProfile)
+    .set({ confirmedAt: at })
+    .where(
+      and(
+        eq(employeeProfile.organizationId, scope.organizationId),
+        eq(employeeProfile.id, profileId),
+      ),
+    )
 }

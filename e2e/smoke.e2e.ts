@@ -226,3 +226,38 @@ test('members-and-roles.invitation-accepted: an invited person opens the link si
   await adminContext.close()
   await visitorContext.close()
 })
+
+test('profile-update-requests.confirmed: a requested update shows as a notice until the employee confirms', async ({
+  browser,
+}) => {
+  const adminContext = await browser.newContext({ storageState: session.admin })
+  const employeeContext = await browser.newContext({ storageState: session.employee })
+  const admin = await adminContext.newPage()
+  const employee = await employeeContext.newPage()
+
+  await admin.goto('/demo/people')
+  await admin.getByRole('button', { name: 'Actions for Erik Employee' }).click()
+  const request = admin.getByRole('menuitem', { name: 'Request an update' })
+  if (await request.isVisible()) {
+    await request.click()
+    await admin.getByLabel('Message (optional)').fill('Lisa 2026. aasta projektid.')
+    await admin.getByRole('button', { name: 'Send request' }).click()
+  } else {
+    await admin.keyboard.press('Escape')
+  }
+  await expect(admin.getByRole('row', { name: /Erik Employee/ })).toContainText('Sent')
+
+  await employee.goto('/demo/projects')
+  await employee.getByRole('link', { name: 'Open my profile' }).click()
+  await expect(employee).toHaveURL(/\/demo\/profile$/)
+  await expect(employee.getByText('Please review your profile')).toBeVisible()
+  await employee.getByRole('button', { name: 'Profile is up to date' }).click()
+  await expect(employee.getByText('Thanks! Your profile is confirmed.')).toBeVisible()
+
+  await employee.getByRole('link', { name: 'Projects' }).first().click()
+  await expect(employee.getByRole('link', { name: 'Open my profile' })).toHaveCount(0)
+  await admin.reload()
+  await expect(admin.getByRole('row', { name: /Erik Employee/ })).not.toContainText('Sent')
+  await adminContext.close()
+  await employeeContext.close()
+})

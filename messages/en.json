@@ -426,5 +426,15 @@
   "leave_title": "Mark as left: {name}",
   "leave_date": "Leaving date",
   "leave_body": "The profile is kept, but search and new CVs leave it out by default. The participations stay on the projects. Their access ends now.",
-  "leave_submit": "Mark as left"
+  "leave_submit": "Mark as left",
+  "update_request_title": "Please review your profile",
+  "update_request_body": "{name} asked on {date}.",
+  "update_request_body_message": "{name} asked on {date}: “{message}”",
+  "update_request_banner": "An admin asked you to review your profile.",
+  "update_request_open_profile": "Open my profile",
+  "profile_confirmed_at": "Last confirmed: {date}",
+  "profile_never_confirmed": "Not confirmed yet",
+  "profile_confirm": "Profile is up to date",
+  "profile_confirmed_title": "Thanks! Your profile is confirmed.",
+  "profile_confirmed_body": "Admins can see that your details are current."
 }

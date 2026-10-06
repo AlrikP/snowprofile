@@ -1,5 +1,5 @@
-import { Link } from '@tanstack/react-router'
-import { MenuIcon, XIcon } from 'lucide-react'
+import { Link, useLocation } from '@tanstack/react-router'
+import { MenuIcon, TriangleAlertIcon, XIcon } from 'lucide-react'
 import { type ReactNode, useId, useState } from 'react'
 import { Button } from '#/components/ui/button'
 import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from '#/components/ui/sheet'
@@ -91,6 +91,29 @@ function Sidebar({ onNavigate, ...props }: FrameProps & { onNavigate?: () => voi
   )
 }
 
+// An admin's open update request, on every page but the profile, which shows the request
+// itself (profile-update-requests.notice-shown).
+function UpdateRequestBanner({ organization }: { organization: Membership }) {
+  const { pathname } = useLocation()
+  if (!organization.updateRequested || pathname.endsWith('/profile')) return null
+  return (
+    <div
+      role="status"
+      className="border-primary bg-primary/10 flex flex-wrap items-center gap-x-3 gap-y-1 border-b px-4 py-2 text-sm md:px-8"
+    >
+      <TriangleAlertIcon className="size-4 shrink-0" />
+      <span>{m.update_request_banner()}</span>
+      <Link
+        to="/$organization/profile"
+        params={{ organization: organization.slug }}
+        className="font-medium underline underline-offset-4"
+      >
+        {m.update_request_open_profile()}
+      </Link>
+    </div>
+  )
+}
+
 // The frame around every signed-in page: a navy sidebar on wide screens, and a header with
 // a menu sheet on narrow ones (prototypes/lib/frame.ts). The page brings its own <main>.
 export function AppFrame({ children, ...props }: FrameProps & { children: ReactNode }) {
@@ -138,6 +161,7 @@ export function AppFrame({ children, ...props }: FrameProps & { children: ReactN
           <Wordmark className="text-xl" />
           <span className="ml-auto truncate text-sm">{props.organization.name}</span>
         </header>
+        <UpdateRequestBanner organization={props.organization} />
         {children}
       </div>
     </div>

@@ -6,17 +6,20 @@ import { v7 as uuidv7 } from 'uuid'
 import * as v from 'valibot'
 import type { Database } from '#/db'
 import { withActor } from '#/db/actor'
-import { education, employeeProfile } from '#/db/schema'
+import { education, employeeProfile, member, updateRequest, user } from '#/db/schema'
 import { seedIds } from '#/db/seed-accounts'
 import { createTestDatabase } from '#/db/testing'
+import { memberships } from '../organizations/organizations.server'
 import { projectView } from '../projects/projects.server'
 import { resolveScope, type Scope } from '../scope.server'
 import { rejection } from '../testing'
 import { AddEducationInput, PersonalDetailsInput } from './profiles.schemas'
 import {
   addEducation,
+  confirmProfile,
   deleteEducation,
   myProfile,
+  requestProfileUpdate,
   savePersonalDetails,
   updateEducation,
 } from './profiles.server'
@@ -281,6 +284,8 @@ describe('a member without a profile', () => {
   test('sees an empty profile named after their account, created by their first save', async () => {
     expect(await myProfile(db, newcomer)).toEqual({
       stored: false,
+      confirmedAt: null,
+      openRequest: null,
       fullName: newcomerName,
       joinDate: null,
       birthDate: null,
@@ -294,5 +299,80 @@ describe('a member without a profile', () => {
     expect(profile).toMatchObject({ stored: true, fullName: newcomerName })
     expect(profile.education.map((each) => each.id)).toEqual([added.id])
     expect((await stored(newcomer))?.createdBy).toBe(newcomer.userId)
+  })
+})
+
+describe('update requests', () => {
+  async function requestFor(scope: Scope, message: string | null) {
+    const profile = await stored(scope)
+    await as(admin, () =>
+      requestProfileUpdate(db, admin, { id: uuidv7(), profileId: profile?.id ?? '', message }),
+    )
+    return profile?.id ?? ''
+  }
+
+  function flagged(scope: Scope) {
+    return memberships(db, scope.userId).then(
+      (rows) => rows.find((row) => row.id === scope.organizationId)?.updateRequested,
+    )
+  }
+
+  test('profile-update-requests.notice-shown: the member sees the open request with who asked and the message', async () => {
+    // The seed may have opened one already.
+    await as(employee, () => confirmProfile(db, employee))
+    await requestFor(employee, 'Lisa 2026. aasta projektid.')
+
+    expect((await myProfile(db, employee)).openRequest).toMatchObject({
+      message: 'Lisa 2026. aasta projektid.',
+      requestedBy: 'Anna Admin',
+    })
+    expect(await flagged(employee)).toBe(true)
+  })
+
+  test('profile-update-requests.confirmed: confirming records the time and closes the request as confirmed', async () => {
+    if (!(await myProfile(db, employee)).openRequest) await requestFor(employee, null)
+    const before = Date.now()
+
+    await as(employee, () => confirmProfile(db, employee))
+
+    const profile = await myProfile(db, employee)
+    expect(profile.openRequest).toBeNull()
+    expect(profile.confirmedAt?.getTime()).toBeGreaterThanOrEqual(before - 1000)
+    const requests = await db
+      .select({ closedReason: updateRequest.closedReason })
+      .from(updateRequest)
+      .where(eq(updateRequest.profileId, (await stored(employee))?.id ?? ''))
+    expect(requests.map((each) => each.closedReason)).toContain('confirmed')
+    expect(await flagged(employee)).toBe(false)
+  })
+
+  test('profile-update-requests.confirmed-without-request: confirming works without a request, even without a profile', async () => {
+    // A member of its own, without a profile; the newcomer is the next test's.
+    const userId = uuidv7()
+    const now = new Date()
+    await db.insert(user).values({
+      id: userId,
+      name: 'Kinnitaja',
+      email: `confirm.${userId.slice(-12)}@example.com`,
+      emailVerified: true,
+      createdAt: now,
+      updatedAt: now,
+    })
+    await db.insert(member).values({
+      id: uuidv7(),
+      organizationId: seedIds.orgs.rabasaare,
+      userId,
+      role: 'employee',
+      createdAt: now,
+    })
+    const fresh = await resolveScope(db, userId, seedIds.orgs.rabasaare)
+
+    await as(fresh, () => confirmProfile(db, fresh, new Date('2026-10-06T12:00:00Z')))
+
+    expect(await myProfile(db, fresh)).toMatchObject({
+      stored: true,
+      confirmedAt: new Date('2026-10-06T12:00:00Z'),
+      openRequest: null,
+    })
   })
 })

@@ -794,6 +794,23 @@ const cases: Record<string, () => Promise<void>> = {
     ).toContain('FOREIGN KEY')
     expect(await bParticipationRoles()).toEqual(before)
   },
+  'profiles.findOpenRequest': async () => {
+    expect(await profiles.findOpenRequest(db, scopeA, b.openProfileId)).toBeUndefined()
+  },
+  'profiles.setConfirmedAt': async () => {
+    async function confirmedAt() {
+      const [row] = await db
+        .select({ at: employeeProfile.confirmedAt })
+        .from(employeeProfile)
+        .where(eq(employeeProfile.id, b.profileId))
+      return row?.at
+    }
+    const before = await confirmedAt()
+    await withActor(scopeA.userId, () =>
+      profiles.setConfirmedAt(db, scopeA, b.profileId, new Date('2099-01-01')),
+    )
+    expect(await confirmedAt()).toEqual(before)
+  },
   'profiles.listPeople': async () => {
     const ids = (await profiles.listPeople(db, scopeA)).map((row) => row.id)
     expect(ids).not.toContain(b.profileId)

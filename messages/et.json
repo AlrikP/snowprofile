@@ -382,5 +382,15 @@
   "leave_title": "Märgi lahkunuks: {name}",
   "leave_date": "Lahkumise kuupäev",
   "leave_body": "Profiil jääb alles, kuid otsing ja uued CV-d jätavad selle vaikimisi välja. Osalused jäävad projektidele. Ligipääs lõpeb kohe.",
-  "leave_submit": "Märgi lahkunuks"
+  "leave_submit": "Märgi lahkunuks",
+  "update_request_title": "Palun vaata oma profiil üle",
+  "update_request_body": "{name} palus {date}.",
+  "update_request_body_message": "{name} palus {date}: „{message}“",
+  "update_request_banner": "Administraator palus sul oma profiili üle vaadata.",
+  "update_request_open_profile": "Ava minu profiil",
+  "profile_confirmed_at": "Viimati kinnitatud: {date}",
+  "profile_never_confirmed": "Pole veel kinnitatud",
+  "profile_confirm": "Profiil on ajakohane",
+  "profile_confirmed_title": "Aitäh! Profiil on kinnitatud.",
+  "profile_confirmed_body": "Administraatorid näevad, et su andmed on ajakohased."
 }

@@ -43,9 +43,16 @@ export async function requestProfileUpdate(
 // gets an empty one named after their account; the first save stores it.
 export async function myProfile(db: Database, scope: Scope) {
   const profile = await repository.findOwnProfile(db, scope)
-  const entries = profile ? await repository.listEducation(db, scope, profile.id) : []
+  const [entries, openRequest] = profile
+    ? await Promise.all([
+        repository.listEducation(db, scope, profile.id),
+        repository.findOpenRequest(db, scope, profile.id),
+      ])
+    : [[], undefined]
   return {
     stored: profile !== undefined,
+    confirmedAt: profile?.confirmedAt ?? null,
+    openRequest: openRequest ?? null,
     fullName: profile?.fullName ?? (await findName(db, scope.userId)) ?? '',
     joinDate: profile?.joinDate ?? null,
     birthDate: profile?.birthDate ?? null,
@@ -144,4 +151,15 @@ export async function deleteEducation(db: Database, scope: Scope, input: DeleteE
     await repository.removeEducation(tx, scope, profileId, input.educationId)
     await repository.touchProfile(tx, scope, profileId)
   })
+}
+
+// "My profile is current": records the confirmation and closes an open request as
+// confirmed. It works without a request too, and creates an empty profile if there's none.
+export async function confirmProfile(db: Database, scope: Scope, now = new Date()) {
+  await db.transaction(async (tx) => {
+    const profileId = await ownProfileId(tx, scope)
+    await repository.setConfirmedAt(tx, scope, profileId, now)
+    await repository.closeUpdateRequest(tx, scope, profileId, 'confirmed')
+  })
+  return { confirmedAt: now }
 }
