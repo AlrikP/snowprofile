@@ -473,5 +473,6 @@
   ],
   "search_make_cv": "Make CV ({count})",
   "search_select_person": "Select {name}",
-  "own_badge": "Own project"
+  "own_badge": "Own project",
+  "error_cv_forbidden": "Only admins can make CVs."
 }

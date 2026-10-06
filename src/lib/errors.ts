@@ -9,6 +9,7 @@ const errorText: Record<AppErrorKey, () => string> = {
   profile_not_found: m.error_profile_not_found,
   profile_left: m.error_profile_left,
   profile_forbidden: m.error_profile_forbidden,
+  cv_forbidden: m.error_cv_forbidden,
   profile_left_before_join: m.error_profile_left_before_join,
   update_request_not_found: m.error_update_request_not_found,
   profile_join_after_left: m.error_profile_join_after_left,

@@ -429,5 +429,6 @@
   ],
   "search_make_cv": "Koosta CV ({count})",
   "search_select_person": "Vali {name}",
-  "own_badge": "Omaprojekt"
+  "own_badge": "Omaprojekt",
+  "error_cv_forbidden": "CV-sid saavad koostada ainult administraatorid."
 }

@@ -19,6 +19,7 @@ export const errorMessages = {
   profile_not_found: 'Profile not found.',
   profile_left: 'This person has left the organization.',
   profile_forbidden: 'Only admins can see everyone’s profiles.',
+  cv_forbidden: 'Only admins can make CVs.',
   profile_left_before_join: 'The leaving date can’t be before the join date.',
   update_request_not_found: 'This person has no open update request.',
   profile_join_after_left: 'The join date can’t be after the date the person left.',

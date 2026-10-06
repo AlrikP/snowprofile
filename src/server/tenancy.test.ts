@@ -31,6 +31,7 @@ import { seedIds } from '#/db/seed-accounts'
 import { createTestDatabase, failure } from '#/db/testing'
 import * as account from './account/account.repository.server'
 import * as criteria from './criteria/criteria.repository.server'
+import * as cvs from './cvs/cvs.repository.server'
 import * as invitations from './invitations/invitations.repository.server'
 import * as members from './members/members.repository.server'
 import { findMemberRole, listMemberships } from './organizations/organizations.repository.server'
@@ -523,6 +524,18 @@ const cases: Record<string, () => Promise<void>> = {
   },
   'projects.listProjectContacts': async () => {
     expect(await projects.listProjectContacts(db, scopeA, b.projectId)).toEqual([])
+  },
+  'cvs.cvProfiles': async () => {
+    expect(await cvs.cvProfiles(db, scopeA, [b.profileId])).toEqual([])
+  },
+  'cvs.cvEducation': async () => {
+    expect(await cvs.cvEducation(db, scopeA, [b.educationProfileId])).toEqual([])
+  },
+  'cvs.cvParticipations': async () => {
+    expect(await cvs.cvParticipations(db, scopeA, [b.participationProfileId])).toEqual([])
+  },
+  'cvs.cvOwnProjects': async () => {
+    expect(await cvs.cvOwnProjects(db, scopeA, [b.ownProjectProfileId])).toEqual([])
   },
   'invitations.listPendingInvitations': async () => {
     const ids = (await invitations.listPendingInvitations(db, scopeA, new Date())).map(
