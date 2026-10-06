@@ -298,9 +298,9 @@ This section holds the reasons and where the code lives.
   and the sign-in page build from it. The server's own refusal of password sign-in
   outside demo mode is the guard, not the page hiding the form. Password accounts exist
   only in seeded data.
-- In demo mode, Better Auth's self-service account endpoints return 404
+- In demo mode, Better Auth's self-service account and session endpoints return 404
   (`disabledPaths`). The seeded accounts are shared and their password is published, so
-  one visitor must not lock the others out.
+  one visitor must not lock the others out, see their sessions, or sign them out.
 - The seeder (`bun run db:seed`, also with `--reset`) refuses three cases: a database
   that isn't a local file, `DEMO_MODE` off by the rule above, and a database that holds
   any organization that isn't a demo one. Bun leaves `NODE_ENV` unset for scripts, so

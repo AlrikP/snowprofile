@@ -126,14 +126,16 @@ without one, any address can. Demo mode and an allowlist can't be on together.
 
 In demo mode, the seeded accounts are shared, so a visitor must not be able to change
 them: not their password, email, or profile, not their linked accounts, and not other
-people's sessions.
+people's sessions. Every visitor signs in as the same seeded user, so the server also
+hides the account's session list, which would show the other visitors' sessions. Signing
+out stays open.
 
 #### Scenario: sign-in.demo-accounts-locked
 
 - **Given** demo mode is on and a visitor is signed in as a seeded user
 - **When** they try to change the account's password, email, profile, or linked accounts,
-  delete it, or sign out its other sessions
-- **Then** the server refuses each change
+  delete it, list its sessions, or sign out any of its sessions but their own
+- **Then** the server refuses each request, and they can still sign out
 
 ### Requirement: Where people land
 

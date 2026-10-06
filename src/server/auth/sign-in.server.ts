@@ -18,16 +18,19 @@ export function passwordSignInEnabled(config: SignInConfig): boolean {
 }
 
 // Demo accounts are shared, and the sign-in page publishes their password, so in demo mode
-// nobody may change, take over, or delete one, or sign the others out.
+// nobody may change, take over, or delete one, or see or end the sessions of other visitors
+// signed in as the same user.
 const demoDisabledPaths = [
   '/change-email',
   '/change-password',
   '/delete-user',
   '/delete-user/callback',
   '/link-social',
+  '/list-sessions',
   '/request-password-reset',
   '/reset-password',
   '/revoke-other-sessions',
+  '/revoke-session',
   '/revoke-sessions',
   '/unlink-account',
   '/update-user',
