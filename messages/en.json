@@ -388,5 +388,43 @@
   "invitation_accepting": "Accepting the invitation…",
   "invitation_failed_title": "The invitation can’t be accepted",
   "invitation_go_home": "Go to snowprofile",
-  "error_invitation_used": "This invitation has already been used. Ask an admin for a new one."
+  "error_invitation_used": "This invitation has already been used. Ask an admin for a new one.",
+  "error_profile_forbidden": "Only admins can see everyone’s profiles.",
+  "error_profile_left_before_join": "The leaving date can’t be before the join date.",
+  "error_update_request_not_found": "This person has no open update request.",
+  "people_title": "People",
+  "people_request_all": "Request an update from everyone",
+  "people_col_person": "Person",
+  "people_col_confirmed": "Last confirmed",
+  "people_col_request": "Update request",
+  "people_col_participations": "Participations",
+  "people_request_sent": "Sent",
+  "people_stale": "Over 6 months old",
+  "people_never_confirmed": "Never",
+  "people_show_leavers": "Show leavers",
+  "people_left": "Left {date}",
+  "people_request": "Request an update",
+  "people_cancel_request": "Cancel request",
+  "people_mark_left": "Mark as left",
+  "request_title": "Request a profile update",
+  "request_title_all": "Request an update from everyone",
+  "request_description": "{name} sees the request at their next sign-in.",
+  "request_description_all": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "The request goes to {count} person who doesn’t have an open request yet. They see it at their next sign-in.",
+        "countPlural=*": "The request goes to {count} people who don’t have an open request yet. They see it at their next sign-in."
+      }
+    }
+  ],
+  "request_nobody": "Everyone already has an open request.",
+  "request_message": "Message (optional)",
+  "request_message_placeholder": "For example: add the 2026 projects.",
+  "request_submit": "Send request",
+  "leave_title": "Mark as left: {name}",
+  "leave_date": "Leaving date",
+  "leave_body": "The profile is kept, but search and new CVs leave it out by default. The participations stay on the projects. Their access ends now.",
+  "leave_submit": "Mark as left"
 }

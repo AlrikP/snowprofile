@@ -183,5 +183,7 @@ Both suggestion lists are computed when shown, so nothing records them.
 - **Leavers:** a leaver's profile is kept with a leaving date, left out of search and new
   CVs by default, and their participations stay visible on projects as references
   (`architecture.md`, "Audit and deletion"). Marking a person as left also ends their
-  membership. Open: whether, and after how long, the profile is anonymized or deleted.
+  membership. A leaver who accepts a new invitation is current again: the leaving date is
+  cleared (decided 2026-10-06). Open: whether, and after how long, the profile is
+  anonymized or deleted.
   Needs a GDPR retention decision.

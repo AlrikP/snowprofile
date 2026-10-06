@@ -113,3 +113,19 @@ export type UpdateOwnProjectInput = v.InferOutput<typeof UpdateOwnProjectInput>
 
 export const DeleteOwnProjectInput = v.object({ ownProjectId: Uuidv7 })
 export type DeleteOwnProjectInput = v.InferOutput<typeof DeleteOwnProjectInput>
+
+export const RequestUpdateFromAllInput = v.object({
+  // A note to everyone; blank means none.
+  message: v.pipe(
+    v.optional(v.nullable(v.string()), null),
+    v.transform((text) => text?.trim() || null),
+    v.nullable(v.pipe(v.string(), v.maxLength(500, 'At most 500 characters.'))),
+  ),
+})
+export type RequestUpdateFromAllInput = v.InferOutput<typeof RequestUpdateFromAllInput>
+
+export const ProfileInput = v.object({ profileId: Uuidv7 })
+export type ProfileInput = v.InferOutput<typeof ProfileInput>
+
+export const MarkLeftInput = v.object({ profileId: Uuidv7, leftDate: CalendarDate })
+export type MarkLeftInput = v.InferOutput<typeof MarkLeftInput>

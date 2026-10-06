@@ -77,7 +77,7 @@ beforeAll(async () => {
 afterAll(() => cleanup())
 
 describe('requestProfileUpdate', () => {
-  test('an admin opens a request, as themselves', async () => {
+  test('profile-update-requests.requested: an admin opens a request, as themselves', async () => {
     await request(admin, current, 'Palun lisa 2026. aasta projektid.')
     const rows = await db
       .select()
@@ -91,14 +91,14 @@ describe('requestProfileUpdate', () => {
     })
   })
 
-  test('an employee may not', async () => {
+  test('profile-update-requests.employee-cannot-request: an employee may not', async () => {
     expect(await rejection(request(employee, current))).toMatchObject({
       code: 'FORBIDDEN',
       key: 'update_request_forbidden',
     })
   })
 
-  test('a profile can have only one open request', async () => {
+  test('profile-update-requests.one-open-request: a profile can have only one open request', async () => {
     expect(await rejection(request(admin, erik))).toMatchObject({
       code: 'CONFLICT',
       key: 'update_request_open',

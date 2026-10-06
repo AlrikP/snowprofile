@@ -127,3 +127,37 @@ land on the "no access" page.
 - **Given** a user with no accepted invitation
 - **When** they sign in
 - **Then** they belong to no organization
+
+### Requirement: Marking a leaver ends access
+
+An admin must be able to mark a person as left with a date. One change must set the
+leaving date, end the membership, and cancel an open update request; the profile and its
+participations stay, so the person's work keeps showing on projects. The last admin can't
+be marked as left. The People page must hide leavers unless asked. A leaver who accepts a
+new invitation must be current again.
+
+#### Scenario: members-and-roles.leaver-loses-access
+
+- **Given** a member with an open update request
+- **When** an admin marks them as left
+- **Then** they are no longer a member, and the request is canceled
+
+#### Scenario: members-and-roles.leaver-profile-kept
+
+- **Given** a person with participations
+- **When** an admin marks them as left
+- **Then** their profile stays with its leaving date, and the projects still list their
+  participations, marked as left
+
+#### Scenario: members-and-roles.leavers-hidden
+
+- **Given** a leaver
+- **When** an admin opens the People page
+- **Then** the leaver shows only when "Show leavers" is ticked, marked with the leaving
+  date
+
+#### Scenario: members-and-roles.rejoin-clears-leave
+
+- **Given** a leaver
+- **When** they accept a new invitation
+- **Then** they are a member again, and their profile has no leaving date

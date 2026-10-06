@@ -344,5 +344,43 @@
   "invitation_accepting": "Kutse vastuvõtmine…",
   "invitation_failed_title": "Kutset ei saa vastu võtta",
   "invitation_go_home": "Ava snowprofile",
-  "error_invitation_used": "Seda kutset on juba kasutatud. Küsi administraatorilt uus."
+  "error_invitation_used": "Seda kutset on juba kasutatud. Küsi administraatorilt uus.",
+  "error_profile_forbidden": "Kõigi profiile näevad ainult administraatorid.",
+  "error_profile_left_before_join": "Lahkumise kuupäev ei saa olla varasem kui liitumise kuupäev.",
+  "error_update_request_not_found": "Sellel inimesel pole avatud uuendamise palvet.",
+  "people_title": "Inimesed",
+  "people_request_all": "Küsi kõigilt uuendust",
+  "people_col_person": "Inimene",
+  "people_col_confirmed": "Viimati kinnitatud",
+  "people_col_request": "Uuendamise palve",
+  "people_col_participations": "Osalusi",
+  "people_request_sent": "Saadetud",
+  "people_stale": "Üle 6 kuu vana",
+  "people_never_confirmed": "Mitte kunagi",
+  "people_show_leavers": "Näita lahkunuid",
+  "people_left": "Lahkus {date}",
+  "people_request": "Küsi uuendust",
+  "people_cancel_request": "Tühista palve",
+  "people_mark_left": "Märgi lahkunuks",
+  "request_title": "Küsi profiili uuendamist",
+  "request_title_all": "Küsi kõigilt uuendust",
+  "request_description": "{name} näeb palvet järgmisel sisselogimisel.",
+  "request_description_all": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "Palve läheb {count} inimesele, kellel pole veel avatud palvet. Ta näeb seda järgmisel sisselogimisel.",
+        "countPlural=*": "Palve läheb {count} inimesele, kellel pole veel avatud palvet. Nad näevad seda järgmisel sisselogimisel."
+      }
+    }
+  ],
+  "request_nobody": "Kõigil on juba avatud palve.",
+  "request_message": "Sõnum (valikuline)",
+  "request_message_placeholder": "Näiteks: lisa 2026. aasta projektid.",
+  "request_submit": "Saada palve",
+  "leave_title": "Märgi lahkunuks: {name}",
+  "leave_date": "Lahkumise kuupäev",
+  "leave_body": "Profiil jääb alles, kuid otsing ja uued CV-d jätavad selle vaikimisi välja. Osalused jäävad projektidele. Ligipääs lõpeb kohe.",
+  "leave_submit": "Märgi lahkunuks"
 }

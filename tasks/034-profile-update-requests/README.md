@@ -1,6 +1,6 @@
 # 034: Profile update requests
 
-Status: todo
+Status: in-progress
 
 Admins ask employees to bring their profiles up to date and see who has; employees see
 the request when they sign in and confirm. The People page also marks leavers. The server

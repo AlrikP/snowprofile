@@ -794,6 +794,60 @@ const cases: Record<string, () => Promise<void>> = {
     ).toContain('FOREIGN KEY')
     expect(await bParticipationRoles()).toEqual(before)
   },
+  'profiles.listPeople': async () => {
+    const ids = (await profiles.listPeople(db, scopeA)).map((row) => row.id)
+    expect(ids).not.toContain(b.profileId)
+    expect(ids).not.toContain(b.openProfileId)
+  },
+  'profiles.closeUpdateRequest': async () => {
+    const before = await bRequests()
+    expect(
+      await withActor(scopeA.userId, () =>
+        profiles.closeUpdateRequest(db, scopeA, b.openProfileId, 'canceled'),
+      ),
+    ).toBe(false)
+    const [open] = await db
+      .select()
+      .from(updateRequest)
+      .where(and(eq(updateRequest.profileId, b.openProfileId), isNull(updateRequest.closedAt)))
+    expect(open).toBeDefined()
+    expect(await bRequests()).toBe(before)
+  },
+  'profiles.setLeftDate': async () => {
+    async function leftDate() {
+      const [row] = await db
+        .select({ leftDate: employeeProfile.leftDate })
+        .from(employeeProfile)
+        .where(eq(employeeProfile.id, b.profileId))
+      return row?.leftDate
+    }
+    const before = await leftDate()
+    await withActor(scopeA.userId, () =>
+      profiles.setLeftDate(db, scopeA, b.profileId, '2099-12-31'),
+    )
+    expect(await leftDate()).toBe(before)
+  },
+  'profiles.removeMembership': async () => {
+    // A user who belongs to both: removing from A's scope leaves the membership in B.
+    const [both] = await db
+      .select({ userId: member.userId })
+      .from(member)
+      .where(eq(member.organizationId, b.organizationId))
+    const before = await db
+      .select()
+      .from(member)
+      .where(
+        and(eq(member.organizationId, b.organizationId), eq(member.userId, both?.userId ?? '')),
+      )
+    await profiles.removeMembership(db, scopeA, both?.userId ?? '')
+    const after = await db
+      .select()
+      .from(member)
+      .where(
+        and(eq(member.organizationId, b.organizationId), eq(member.userId, both?.userId ?? '')),
+      )
+    expect(after).toEqual(before)
+  },
   'profiles.findOwnProfile': async () => {
     // A's user has a profile in A; it's found by the scope's organization, not B's.
     const own = await profiles.findOwnProfile(db, scopeA)

@@ -95,7 +95,8 @@ export async function findInvitee(db: Executor, userId: string) {
 
 // The membership and profile acceptance creates, in the invitation's organization; the
 // user is the session's. A profile the user already has there (the sheet migration
-// creates them) stays as it is.
+// creates them, and a leaver keeps theirs) stays, except that a rejoining leaver is
+// current again (decided 2026-10-06).
 export async function insertMembership(
   db: Executor,
   values: {
@@ -122,7 +123,10 @@ export async function insertMembership(
       userId: values.userId,
       fullName: values.fullName,
     })
-    .onConflictDoNothing()
+    .onConflictDoUpdate({
+      target: [employeeProfile.organizationId, employeeProfile.userId],
+      set: { leftDate: null },
+    })
 }
 
 export async function isMember(db: Executor, organizationId: string, userId: string) {

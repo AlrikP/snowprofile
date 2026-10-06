@@ -1,12 +1,17 @@
 // Database access for profiles. Every query filters by the scope's organization.
-import { and, desc, eq, isNull, sql } from 'drizzle-orm'
+import { and, asc, desc, eq, isNull, sql } from 'drizzle-orm'
 import type { Executor } from '#/db'
-import { education, employeeProfile, updateRequest } from '#/db/schema'
+import { education, employeeProfile, member, updateRequest } from '#/db/schema'
 import type { Scope } from '../scope.server'
 
 export async function findProfile(db: Executor, scope: Scope, profileId: string) {
   const [profile] = await db
-    .select({ id: employeeProfile.id, leftDate: employeeProfile.leftDate })
+    .select({
+      id: employeeProfile.id,
+      userId: employeeProfile.userId,
+      joinDate: employeeProfile.joinDate,
+      leftDate: employeeProfile.leftDate,
+    })
     .from(employeeProfile)
     .where(
       and(
@@ -189,4 +194,75 @@ export async function removeEducation(
     .update(education)
     .set({ sysDeleted: true })
     .where(and(liveEducation(scope, profileId), eq(education.id, educationId)))
+}
+
+// How many live participations on live projects the profile has. Plain SQL: a correlated
+// subquery needs the table name.
+const PARTICIPATION_COUNT = sql<number>`(
+  SELECT count(*) FROM participation AS pa
+  JOIN project AS p ON p.id = pa.project_id AND p.sys_deleted = 0
+  WHERE pa.profile_id = employee_profile.id AND pa.sys_deleted = 0
+)`
+
+// Every profile in the organization, leavers included, with the open update request, if
+// any.
+export async function listPeople(db: Executor, scope: Scope) {
+  return db
+    .select({
+      id: employeeProfile.id,
+      userId: employeeProfile.userId,
+      fullName: employeeProfile.fullName,
+      confirmedAt: employeeProfile.confirmedAt,
+      leftDate: employeeProfile.leftDate,
+      participations: PARTICIPATION_COUNT,
+      requestedAt: updateRequest.createdAt,
+    })
+    .from(employeeProfile)
+    .leftJoin(
+      updateRequest,
+      and(eq(updateRequest.profileId, employeeProfile.id), isNull(updateRequest.closedAt)),
+    )
+    .where(eq(employeeProfile.organizationId, scope.organizationId))
+    .orderBy(asc(employeeProfile.fullName))
+}
+
+// Closes the profile's open request, if any; returns whether there was one.
+export async function closeUpdateRequest(
+  db: Executor,
+  scope: Scope,
+  profileId: string,
+  reason: 'confirmed' | 'canceled',
+) {
+  const closed = await db
+    .update(updateRequest)
+    .set({ closedAt: new Date(), closedReason: reason })
+    .where(
+      and(
+        eq(updateRequest.organizationId, scope.organizationId),
+        eq(updateRequest.profileId, profileId),
+        isNull(updateRequest.closedAt),
+      ),
+    )
+    .returning({ id: updateRequest.id })
+  return closed.length > 0
+}
+
+export async function setLeftDate(db: Executor, scope: Scope, profileId: string, leftDate: string) {
+  await db
+    .update(employeeProfile)
+    .set({ leftDate })
+    .where(
+      and(
+        eq(employeeProfile.organizationId, scope.organizationId),
+        eq(employeeProfile.id, profileId),
+      ),
+    )
+}
+
+// Ends the user's membership in the scope's organization; Better Auth's sessions then find
+// no membership there.
+export async function removeMembership(db: Executor, scope: Scope, userId: string) {
+  await db
+    .delete(member)
+    .where(and(eq(member.organizationId, scope.organizationId), eq(member.userId, userId)))
 }
