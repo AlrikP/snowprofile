@@ -26,6 +26,8 @@ export const errorMessages = {
   technology_exists: 'That technology is already in the catalogue.',
   technology_not_found: 'Technology not found.',
   technology_merge_self: 'Choose another technology to merge into.',
+  criterion_forbidden: 'Only admins can manage the technical characteristics.',
+  criterion_not_found: 'Technical characteristic not found.',
 } as const
 
 export type AppErrorKey = keyof typeof errorMessages

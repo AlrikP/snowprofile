@@ -285,6 +285,10 @@ MVP"). What the script must handle:
   server rules.
 - Users can't create organizations; platform operators do (`product.md`). Organizations
   can't be deleted, because they own all their data.
+- A page that needs a permission, such as the technical characteristics page, is left out
+  of the navigation for roles without it, and its route loader sends them to the
+  organization's start page. The server functions check the permission themselves, so the
+  page's checks only spare a member a page they can't use.
 
 ### Sign-in modes
 

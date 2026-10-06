@@ -4,7 +4,7 @@
 // read or change organization B's data through any repository function. Every function a
 // *.repository.server.ts exports needs a case here, so a new one can't skip the check.
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
-import { and, count, desc, eq, isNotNull, isNull } from 'drizzle-orm'
+import { and, count, desc, eq, gt, isNotNull, isNull } from 'drizzle-orm'
 import { basename } from 'node:path'
 import { v7 as uuidv7 } from 'uuid'
 import type { Database } from '#/db'
@@ -14,11 +14,13 @@ import {
   projectTechnology,
   technology,
   technologyCategory,
+  tenderCriterion,
   updateRequest,
 } from '#/db/schema'
 import { seedIds } from '#/db/seed-accounts'
 import { createTestDatabase, failure } from '#/db/testing'
 import * as account from './account/account.repository.server'
+import * as criteria from './criteria/criteria.repository.server'
 import { findMemberRole, listMemberships } from './organizations/organizations.repository.server'
 import * as profiles from './profiles/profiles.repository.server'
 import { resolveScope, type Scope } from './scope.server'
@@ -36,6 +38,7 @@ const b = {
   categoryId: '',
   technologyId: '',
   otherTechnologyId: '',
+  criterionId: '',
 }
 // A category in A, for writes that would otherwise fail on the category alone.
 let aCategoryId = ''
@@ -92,7 +95,21 @@ beforeAll(async () => {
   aCategoryId = aCategory.id
   b.technologyId = used[0]?.id ?? ''
   b.otherTechnologyId = used[1]?.id ?? ''
+  // Not the first, so renumbering it from A would show.
+  const [criterion] = await db
+    .select({ id: tenderCriterion.id })
+    .from(tenderCriterion)
+    .where(
+      and(eq(tenderCriterion.organizationId, b.organizationId), gt(tenderCriterion.position, 0)),
+    )
+  if (!criterion) throw new Error('expected a seeded characteristic in B')
+  b.criterionId = criterion.id
 })
+
+async function bCriterion() {
+  const [row] = await db.select().from(tenderCriterion).where(eq(tenderCriterion.id, b.criterionId))
+  return row
+}
 
 async function bTechnology(id: string) {
   const [row] = await db.select().from(technology).where(eq(technology.id, id))
@@ -123,6 +140,40 @@ const cases: Record<string, () => Promise<void>> = {
     await account.updateLocale(db, seedIds.users.employee, 'en')
     await account.updateLocale(db, seedIds.users.admin, 'et')
     expect(await account.findLocale(db, seedIds.users.employee)).toBe('en')
+  },
+  'criteria.listCriteria': async () => {
+    const ids = (await criteria.listCriteria(db, scopeA)).map((row) => row.id)
+    expect(ids).not.toContain(b.criterionId)
+  },
+  'criteria.findCriterion': async () => {
+    expect(await criteria.findCriterion(db, scopeA, b.criterionId)).toBeUndefined()
+  },
+  'criteria.insertCriterion': async () => {
+    // The organization comes from the scope, and the position from A's checklist only.
+    const id = uuidv7()
+    await withActor(scopeA.userId, () =>
+      criteria.insertCriterion(db, scopeA, { id, nameEt: 'Ristuv', nameEn: null }),
+    )
+    const [row] = await db.select().from(tenderCriterion).where(eq(tenderCriterion.id, id))
+    expect(row?.organizationId).toBe(scopeA.organizationId)
+  },
+  'criteria.updateCriterion': async () => {
+    const before = await bCriterion()
+    await withActor(scopeA.userId, () =>
+      criteria.updateCriterion(db, scopeA, b.criterionId, { nameEt: 'A muutis', nameEn: null }),
+    )
+    expect((await bCriterion())?.nameEt).toBe(before?.nameEt)
+  },
+  'criteria.setCriterionPositions': async () => {
+    const before = await bCriterion()
+    await withActor(scopeA.userId, () =>
+      criteria.setCriterionPositions(db, scopeA, [b.criterionId]),
+    )
+    expect((await bCriterion())?.position).toBe(before?.position)
+  },
+  'criteria.removeCriterion': async () => {
+    await withActor(scopeA.userId, () => criteria.removeCriterion(db, scopeA, b.criterionId))
+    expect((await bCriterion())?.sysDeleted).toBe(false)
   },
   'organizations.findMemberRole': async () => {
     // The lookup that builds a scope: a member of A has no role in B.

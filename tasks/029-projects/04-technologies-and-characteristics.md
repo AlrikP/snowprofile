@@ -16,7 +16,8 @@ this one.
       project from there.
 - [ ] An admin answers each technical characteristic yes or no with an optional note, or
       leaves it unanswered; the project page shows the answers as solution
-      characteristics.
+      characteristics. Answers to a characteristic removed in task 027 stay stored but
+      don't show, in the form or on the page.
 
 ## Spec changes
 
@@ -26,4 +27,4 @@ this one.
   - Participants' extra technologies: `projects.extra-technologies-counted`,
     `projects.extra-technology-adopted`.
   - Solution characteristics: `projects.characteristic-answered`,
-    `projects.characteristic-unanswered`.
+    `projects.characteristic-unanswered`, `projects.removed-characteristic-hidden`.

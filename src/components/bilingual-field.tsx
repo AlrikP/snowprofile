@@ -18,6 +18,7 @@ export function BilingualField({
   value,
   onChange,
   multiline = false,
+  hint,
   error,
 }: {
   id: string
@@ -25,9 +26,12 @@ export function BilingualField({
   value: BilingualInputValue
   onChange: (value: BilingualInputValue) => void
   multiline?: boolean
+  hint?: string
   error?: string
 }) {
+  const hintId = `${id}-hint`
   const errorId = `${id}-error`
+  const describedBy = [hint && hintId, error && errorId].filter(Boolean).join(' ')
   return (
     <fieldset className="flex flex-col gap-2">
       <legend className="mb-2 text-sm leading-none font-medium">{legend}</legend>
@@ -38,7 +42,7 @@ export function BilingualField({
             lang: locale,
             value: value[locale],
             'aria-invalid': error ? true : undefined,
-            'aria-describedby': error ? errorId : undefined,
+            'aria-describedby': describedBy || undefined,
           }
           return (
             <div key={locale} className="flex flex-col gap-2">
@@ -59,6 +63,11 @@ export function BilingualField({
           )
         })}
       </div>
+      {hint && (
+        <p id={hintId} className="text-muted-foreground text-sm">
+          {hint}
+        </p>
+      )}
       {error && (
         <p id={errorId} className="text-destructive text-sm">
           {error}

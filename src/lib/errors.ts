@@ -16,6 +16,8 @@ const errorText: Record<AppErrorKey, () => string> = {
   technology_exists: m.error_technology_exists,
   technology_not_found: m.error_technology_not_found,
   technology_merge_self: m.error_technology_merge_self,
+  criterion_forbidden: m.error_criterion_forbidden,
+  criterion_not_found: m.error_criterion_not_found,
 }
 
 // The text to show for an error from a server function. Server functions send codes and

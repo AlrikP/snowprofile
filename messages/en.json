@@ -75,6 +75,8 @@
   "error_technology_exists": "That technology is already in the catalogue.",
   "error_technology_not_found": "Technology not found.",
   "error_technology_merge_self": "Choose another technology to merge into.",
+  "error_criterion_forbidden": "Only admins can manage the technical characteristics.",
+  "error_criterion_not_found": "Technical characteristic not found.",
   "action_close": "Close",
   "action_cancel": "Cancel",
   "action_save": "Save",
@@ -117,5 +119,30 @@
     }
   ],
   "technology_merge_choose": "Choose a technology",
-  "technology_picker_none": "No technologies chosen."
+  "technology_picker_none": "No technologies chosen.",
+  "bilingual_one_required": "Fill in at least one language.",
+  "criteria_title": "Technical characteristics",
+  "criteria_description": "Yes or no questions that tenders ask about a project’s solution. Every project answers each one.",
+  "criteria_add": "Add characteristic",
+  "criteria_answers": "Answers: {count}",
+  "criteria_move_up": "Move {name} up",
+  "criteria_move_down": "Move {name} down",
+  "criteria_name": "Name",
+  "criteria_edit": "Edit",
+  "criteria_edit_title": "Edit characteristic",
+  "criteria_bilingual_hint": "The list flags a missing translation.",
+  "criteria_remove": "Remove",
+  "criteria_remove_title": "Remove “{name}”?",
+  "criteria_remove_unanswered": "The characteristic leaves the checklist. No project has answered it.",
+  "criteria_empty": "No characteristics yet. Add the first one, for example “Automated tests”.",
+  "criteria_remove_body": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "The characteristic leaves the checklist and the projects. The answers of {count} project are kept but no longer shown.",
+        "countPlural=*": "The characteristic leaves the checklist and the projects. The answers of {count} projects are kept but no longer shown."
+      }
+    }
+  ]
 }

@@ -50,4 +50,23 @@ describe('BilingualField', () => {
     )
     expect(screen.getByLabelText('In English')).toHaveAttribute('aria-invalid', 'true')
   })
+
+  it('describes both fields with the hint, then the error', () => {
+    render(
+      <BilingualField
+        id="name"
+        legend="Name"
+        value={{ et: '', en: '' }}
+        onChange={() => {}}
+        hint="The list flags a missing translation."
+        error="Fill in at least one language."
+      />,
+    )
+
+    for (const label of ['In Estonian', 'In English']) {
+      expect(screen.getByLabelText(label)).toHaveAccessibleDescription(
+        'The list flags a missing translation. Fill in at least one language.',
+      )
+    }
+  })
 })

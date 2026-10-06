@@ -43,6 +43,20 @@ test.describe('the admin', () => {
 
     await expect(page).toHaveURL(/\/rabasaare\/profile$/)
   })
+
+  test('technical-characteristics.admin-reorders: a move survives a reload', async ({ page }) => {
+    await page.goto('/demo/criteria')
+    const names = page.getByRole('listitem').locator('span.font-medium')
+    const [first, second] = await names.allTextContents()
+    if (!first || !second) throw new Error('expected seeded characteristics')
+
+    await page.getByRole('button', { name: `Move ${second} up` }).click()
+    await expect(names.first()).toHaveText(second)
+    await page.reload()
+
+    await expect(names.nth(0)).toHaveText(second)
+    await expect(names.nth(1)).toHaveText(first)
+  })
 })
 
 test.describe('the employee', () => {
@@ -75,5 +89,13 @@ test.describe('the employee', () => {
     // Loaded again on the server, through the route's loader.
     await page.reload()
     await expect(added).toBeVisible()
+  })
+
+  test('technical-characteristics.employee-refused: the checklist page sends them to their profile', async ({
+    page,
+  }) => {
+    await page.goto('/demo/criteria')
+
+    await expect(page).toHaveURL(/\/demo\/profile$/)
   })
 })
