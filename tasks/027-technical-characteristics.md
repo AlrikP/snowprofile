@@ -1,7 +1,7 @@
 # 027: Technical characteristics
 
 Status: todo
-Depends on: task 025 (bilingual field)
+Depends on: task 025 (bilingual field), task cr-002 (fixes from the review of cr-001 through task 026)
 
 The admin's checklist of yes/no questions that tenders ask about a project's solution.
 Projects answer them in task 029.4. The code name is `tender_criterion`

@@ -15,6 +15,10 @@ belongs to the task that sets up the Hetzner server.
 - [ ] The CI `check` job builds both `Dockerfile` targets (`app` and `caddy`) without
       pushing, with the GitHub Actions build cache, so a broken image fails the pull
       request. `AGENTS.md` lists the step with the others.
+- [ ] The same job runs the built `app` image on an empty volume with
+      `MIGRATE_ON_START=true`, waits for `/api/health`, and seeds it with the bundled
+      `db-seed.js`. The e2e tests run `scripts/*.ts` from source, so today nothing in CI
+      runs the bundled scripts the image starts with (task cr-002).
 - [ ] A "Compose deploy" workflow, started by hand from the Actions tab, builds both images
       for `linux/amd64` and pushes them to `ghcr.io/alrikp/snowprofile-app` and
       `ghcr.io/alrikp/snowprofile-caddy`, tagged with the commit's short ID.
