@@ -11,6 +11,8 @@ import type { Database } from '#/db'
 import { withActor } from '#/db/actor'
 import {
   employeeProfile,
+  participationRole,
+  projectRole,
   projectTechnology,
   technology,
   technologyCategory,
@@ -23,6 +25,7 @@ import * as account from './account/account.repository.server'
 import * as criteria from './criteria/criteria.repository.server'
 import { findMemberRole, listMemberships } from './organizations/organizations.repository.server'
 import * as profiles from './profiles/profiles.repository.server'
+import * as roles from './roles/roles.repository.server'
 import { resolveScope, type Scope } from './scope.server'
 import * as technologies from './technologies/technologies.repository.server'
 
@@ -39,6 +42,8 @@ const b = {
   technologyId: '',
   otherTechnologyId: '',
   criterionId: '',
+  roleId: '',
+  otherRoleId: '',
 }
 // A category in A, for writes that would otherwise fail on the category alone.
 let aCategoryId = ''
@@ -104,7 +109,31 @@ beforeAll(async () => {
     )
   if (!criterion) throw new Error('expected a seeded characteristic in B')
   b.criterionId = criterion.id
+  // B's two most used roles, so moving links between them would show.
+  const usedRoles = await db
+    .select({ id: participationRole.roleId, n: count() })
+    .from(participationRole)
+    .where(eq(participationRole.organizationId, b.organizationId))
+    .groupBy(participationRole.roleId)
+    .orderBy(desc(count()))
+    .limit(2)
+  if (usedRoles.length < 2) throw new Error('expected seeded roles in B')
+  b.roleId = usedRoles[0]?.id ?? ''
+  b.otherRoleId = usedRoles[1]?.id ?? ''
 })
+
+async function bRole(id: string) {
+  const [row] = await db.select().from(projectRole).where(eq(projectRole.id, id))
+  return row
+}
+
+async function bRoleLinks(roleId: string) {
+  const [row] = await db
+    .select({ n: count() })
+    .from(participationRole)
+    .where(eq(participationRole.roleId, roleId))
+  return row?.n
+}
 
 async function bCriterion() {
   const [row] = await db.select().from(tenderCriterion).where(eq(tenderCriterion.id, b.criterionId))
@@ -204,6 +233,59 @@ const cases: Record<string, () => Promise<void>> = {
     }
     expect(await failure(insert)).toContain('FOREIGN KEY')
     expect(await bRequests()).toBe(before)
+  },
+  'roles.listRoles': async () => {
+    const ids = (await roles.listRoles(db, scopeA)).map((row) => row.id)
+    expect(ids).not.toContain(b.roleId)
+  },
+  'roles.findRole': async () => {
+    expect(await roles.findRole(db, scopeA, b.roleId)).toBeUndefined()
+  },
+  'roles.findRoleByName': async () => {
+    // The seeded organizations share their role names, so B gets one of its own.
+    await withActor(scopeA.userId, async () => {
+      await db.insert(projectRole).values({
+        id: uuidv7(),
+        organizationId: b.organizationId,
+        nameEt: 'Ainult B roll',
+        nameEn: 'B only role',
+        normalizedName: 'ainulbroll',
+      })
+    })
+    expect(await roles.findRoleByName(db, scopeA, 'ainulbroll')).toBeUndefined()
+  },
+  'roles.insertRole': async () => {
+    // The organization comes from the scope: the row lands in A.
+    const id = uuidv7()
+    await withActor(scopeA.userId, () =>
+      roles.insertRole(db, scopeA, {
+        id,
+        nameEt: 'Ristuv roll',
+        nameEn: 'Crossing role',
+        normalizedName: 'ristuvroll',
+      }),
+    )
+    expect((await bRole(id))?.organizationId).toBe(scopeA.organizationId)
+  },
+  'roles.updateRole': async () => {
+    const before = await bRole(b.roleId)
+    await withActor(scopeA.userId, () =>
+      roles.updateRole(db, scopeA, b.roleId, {
+        nameEt: 'A muutis',
+        nameEn: 'Changed from A',
+        normalizedName: 'amuutis',
+      }),
+    )
+    expect((await bRole(b.roleId))?.nameEt).toBe(before?.nameEt)
+  },
+  'roles.moveRoleLinks': async () => {
+    const before = [await bRoleLinks(b.roleId), await bRoleLinks(b.otherRoleId)]
+    await withActor(scopeA.userId, () => roles.moveRoleLinks(db, scopeA, b.roleId, b.otherRoleId))
+    expect([await bRoleLinks(b.roleId), await bRoleLinks(b.otherRoleId)]).toEqual(before)
+  },
+  'roles.markRoleMerged': async () => {
+    await withActor(scopeA.userId, () => roles.markRoleMerged(db, scopeA, b.roleId, b.otherRoleId))
+    expect(await bRole(b.roleId)).toMatchObject({ sysDeleted: false, mergedIntoId: null })
   },
   'technologies.listCategories': async () => {
     const ids = (await technologies.listCategories(db, scopeA)).map((row) => row.id)

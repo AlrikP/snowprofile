@@ -18,6 +18,11 @@ const errorText: Record<AppErrorKey, () => string> = {
   technology_merge_self: m.error_technology_merge_self,
   criterion_forbidden: m.error_criterion_forbidden,
   criterion_not_found: m.error_criterion_not_found,
+  role_forbidden: m.error_role_forbidden,
+  role_name_invalid: m.error_role_name_invalid,
+  role_exists: m.error_role_exists,
+  role_not_found: m.error_role_not_found,
+  role_merge_self: m.error_role_merge_self,
 }
 
 // The text to show for an error from a server function. Server functions send codes and

@@ -98,4 +98,12 @@ test.describe('the employee', () => {
 
     await expect(page).toHaveURL(/\/demo\/profile$/)
   })
+
+  test('role-catalogue.employee-cannot-curate: the roles page sends them to their profile', async ({
+    page,
+  }) => {
+    await page.goto('/demo/roles')
+
+    await expect(page).toHaveURL(/\/demo\/profile$/)
+  })
 })

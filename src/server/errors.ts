@@ -28,6 +28,11 @@ export const errorMessages = {
   technology_merge_self: 'Choose another technology to merge into.',
   criterion_forbidden: 'Only admins can manage the technical characteristics.',
   criterion_not_found: 'Technical characteristic not found.',
+  role_forbidden: 'Only admins can change roles.',
+  role_name_invalid: 'The Estonian name needs at least one letter or digit.',
+  role_exists: 'That role is already in the list.',
+  role_not_found: 'Role not found.',
+  role_merge_self: 'Choose another role to merge into.',
 } as const
 
 export type AppErrorKey = keyof typeof errorMessages

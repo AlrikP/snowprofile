@@ -77,6 +77,11 @@
   "error_technology_merge_self": "Choose another technology to merge into.",
   "error_criterion_forbidden": "Only admins can manage the technical characteristics.",
   "error_criterion_not_found": "Technical characteristic not found.",
+  "error_role_forbidden": "Only admins can change roles.",
+  "error_role_name_invalid": "The Estonian name needs at least one letter or digit.",
+  "error_role_exists": "That role is already in the list.",
+  "error_role_not_found": "Role not found.",
+  "error_role_merge_self": "Choose another role to merge into.",
   "action_close": "Close",
   "action_cancel": "Cancel",
   "action_save": "Save",
@@ -142,6 +147,34 @@
       "match": {
         "countPlural=one": "The characteristic leaves the checklist and the projects. The answers of {count} project are kept but no longer shown.",
         "countPlural=*": "The characteristic leaves the checklist and the projects. The answers of {count} projects are kept but no longer shown."
+      }
+    }
+  ],
+  "action_actions": "Actions",
+  "roles_title": "Roles",
+  "roles_description": "Project roles that employees pick for their participations. A CV uses the name in its language.",
+  "roles_add": "Add role",
+  "roles_col_uses": "Uses",
+  "roles_edit": "Edit",
+  "roles_merge": "Merge into another",
+  "role_add_title": "New role",
+  "role_add_description": "The role joins the organization’s list of roles. A CV needs both languages.",
+  "role_edit_title": "Edit role",
+  "role_name": "Name",
+  "role_exists": "{name} is already in the list.",
+  "role_both_names_required": "Fill in both languages.",
+  "role_merge_choose": "Choose a role",
+  "role_picker_search": "Add a role",
+  "role_picker_add": "Add a new role: {name}",
+  "role_picker_none": "No roles chosen.",
+  "role_remove": "Remove {name}",
+  "role_merge_explanation": [
+    {
+      "declarations": ["input count", "input name", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "Its {count} use moves to the chosen role, and “{name}” leaves the list.",
+        "countPlural=*": "All {count} uses move to the chosen role, and “{name}” leaves the list."
       }
     }
   ]
