@@ -1,6 +1,8 @@
 // Valibot building blocks shared by the domain schemas. This file and every *.schemas.ts
 // must stay importable from the browser: no server imports.
 import * as v from 'valibot'
+import { QUALIFIERS } from '#/lib/approximate-number'
+import { endsBeforeStart, isPeriodDate } from '#/lib/period'
 
 // App-owned rows get their ID on the client, so optimistic updates keep a stable key
 // (docs/architecture.md, "Types").
@@ -18,3 +20,40 @@ export function parseOrganizationInput<T extends { organizationId: string }>(inp
   v.parse(OrganizationInput, input)
   return input
 }
+
+// A period date: YYYY-MM-DD, YYYY-MM, or YYYY, naming a date that exists.
+const PeriodDate = v.pipe(v.string(), v.check(isPeriodDate, 'Invalid period date.'))
+
+// A start and an end, null while ongoing, with the database's ordering rule.
+export const Period = v.pipe(
+  v.object({ startDate: PeriodDate, endDate: v.nullable(PeriodDate) }),
+  v.check(
+    ({ startDate, endDate }) => endDate === null || !endsBeforeStart(startDate, endDate),
+    'The end is before the start.',
+  ),
+)
+
+// Hours or euros with their precision; null when unknown.
+export const ApproximateNumber = v.nullable(
+  v.object({
+    value: v.pipe(v.number(), v.safeInteger(), v.minValue(0)),
+    qualifier: v.picklist(QUALIFIERS),
+  }),
+)
+
+const Translation = v.nullable(
+  v.pipe(
+    v.string(),
+    v.trim(),
+    v.transform((text) => text || null),
+  ),
+)
+
+// Text in Estonian and English, either missing; an empty string counts as missing.
+export const Bilingual = v.object({ et: Translation, en: Translation })
+
+// Bilingual text that needs at least one language, such as a name.
+export const RequiredBilingual = v.pipe(
+  Bilingual,
+  v.check(({ et, en }) => et !== null || en !== null, 'At least one language is required.'),
+)

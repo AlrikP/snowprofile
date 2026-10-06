@@ -42,7 +42,7 @@
           <legend class="sr-only" data-t="projects_col_period"></legend>
           <div class="grid gap-4 lg:grid-cols-2">
             <fieldset class="flex flex-col gap-2">
-              <legend data-slot="label" class="mb-2" data-t="project_start"></legend>
+              <legend data-slot="label" class="mb-2" data-t="period_start"></legend>
               <div class="grid grid-cols-[4rem_minmax(0,1fr)_5.5rem] gap-2">
                 <div class="flex flex-col gap-1">
                   <label class="text-xs text-muted-foreground" for="project-start-day" data-t="period_day"></label>
@@ -60,11 +60,11 @@
                   <input data-slot="input" id="project-start-year" inputmode="numeric" maxlength="4" value="2024" aria-describedby="project-period-hint project-year-only" data-state-values='{"new": "", "invalid-period": "2024", "year-only": "2019"}' />
                 </div>
               </div>
-              <p id="project-year-only" class="text-sm text-muted-foreground" data-show-in="year-only" data-t="project_period_year_only"></p>
+              <p id="project-year-only" class="text-sm text-muted-foreground" data-show-in="year-only" data-t="period_year_only"></p>
             </fieldset>
             <div class="flex flex-col gap-3">
             <fieldset id="project-end" class="flex flex-col gap-2 disabled:[&_:is(legend,label)]:opacity-50">
-              <legend data-slot="label" class="mb-2" data-t="project_end"></legend>
+              <legend data-slot="label" class="mb-2" data-t="period_end"></legend>
               <div class="grid grid-cols-[4rem_minmax(0,1fr)_5.5rem] gap-2">
                 <div class="flex flex-col gap-1">
                   <label class="text-xs text-muted-foreground" for="project-end-day" data-t="period_day"></label>
@@ -87,12 +87,12 @@
                  brings them back. Saving with Ongoing ticked clears the end date. -->
             <label class="flex items-center gap-2 text-sm">
               <input type="checkbox" data-slot="checkbox" data-state-checked="edit similar contact technology new year-only" data-disables="project-end" />
-              <span data-t="project_ongoing"></span>
+              <span data-t="period_ongoing_label"></span>
             </label>
             </div>
           </div>
-          <p id="project-period-hint" class="text-sm text-muted-foreground" data-t="project_period_parts_hint"></p>
-          <p id="project-period-error" class="text-sm text-destructive" data-show-in="invalid-period" data-t="project_period_invalid"></p>
+          <p id="project-period-hint" class="text-sm text-muted-foreground" data-t="period_parts_hint"></p>
+          <p id="project-period-error" class="text-sm text-destructive" data-show-in="invalid-period" data-t="period_end_before_start"></p>
         </fieldset>
         </div>
       </section>

@@ -50,11 +50,11 @@
             </div>
             <div class="flex flex-col gap-0.5">
               <dt class="text-sm text-muted-foreground" data-t="profile_join_date"></dt>
-              <dd class="font-medium"><span data-date="2020-03-01" data-show-in="request none confirmed personal education participation role-search add-role own-project"></span><span class="font-normal text-muted-foreground" data-show-in="empty" data-t="profile_not_set"></span></dd>
+              <dd class="font-medium"><span data-date="2020-03-01" data-show-in="request none confirmed personal education participation role-search add-role own-project"></span><span class="font-normal text-muted-foreground" data-show-in="empty" data-t="value_not_set"></span></dd>
             </div>
             <div class="flex flex-col gap-0.5">
               <dt class="text-sm text-muted-foreground" data-t="profile_birth_date"></dt>
-              <dd class="font-medium"><span data-date="1990-06-14" data-show-in="request none confirmed personal education participation role-search add-role own-project"></span><span class="font-normal text-muted-foreground" data-show-in="empty" data-t="profile_not_set"></span></dd>
+              <dd class="font-medium"><span data-date="1990-06-14" data-show-in="request none confirmed personal education participation role-search add-role own-project"></span><span class="font-normal text-muted-foreground" data-show-in="empty" data-t="value_not_set"></span></dd>
             </div>
           </dl>
           <p class="flex gap-2 text-sm text-muted-foreground"><i data-icon="LockIcon" class="mt-0.5 size-4 shrink-0"></i><span data-t="profile_birth_date_hint"></span></p>
@@ -254,16 +254,16 @@
           <legend class="sr-only" data-t="projects_col_period"></legend>
           <div class="grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
             <div class="flex flex-col gap-2">
-              <label data-slot="label" for="education-start" data-t="project_start"></label>
+              <label data-slot="label" for="education-start" data-t="period_start"></label>
               <input data-slot="input" id="education-start" inputmode="numeric" placeholder="MM-YYYY" value="2012" aria-describedby="education-period-hint" />
             </div>
             <div class="flex flex-col gap-2">
-              <label data-slot="label" for="education-end" data-t="project_end"></label>
+              <label data-slot="label" for="education-end" data-t="period_end"></label>
               <input data-slot="input" id="education-end" inputmode="numeric" placeholder="MM-YYYY" value="2014" aria-describedby="education-period-hint" />
             </div>
             <label class="flex h-9 items-center gap-2 text-sm">
               <input type="checkbox" data-slot="checkbox" />
-              <span data-t="project_ongoing"></span>
+              <span data-t="period_ongoing_label"></span>
             </label>
           </div>
           <p id="education-period-hint" class="text-sm text-muted-foreground" data-t="education_dates_hint"></p>
@@ -291,16 +291,16 @@
           <legend class="sr-only" data-t="projects_col_period"></legend>
           <div class="grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
             <div class="flex flex-col gap-2">
-              <label data-slot="label" for="participation-start" data-t="project_start"></label>
+              <label data-slot="label" for="participation-start" data-t="period_start"></label>
               <input data-slot="input" id="participation-start" inputmode="numeric" placeholder="MM-YYYY" value="05-2024" aria-describedby="participation-period-hint" />
             </div>
             <div class="flex flex-col gap-2">
-              <label data-slot="label" for="participation-end" data-t="project_end"></label>
+              <label data-slot="label" for="participation-end" data-t="period_end"></label>
               <input data-slot="input" id="participation-end" inputmode="numeric" placeholder="MM-YYYY" value="" aria-describedby="participation-period-hint" />
             </div>
             <label class="flex h-9 items-center gap-2 text-sm">
               <input type="checkbox" data-slot="checkbox" checked />
-              <span data-t="project_ongoing"></span>
+              <span data-t="period_ongoing_label"></span>
             </label>
           </div>
           <p id="participation-period-hint" class="text-sm text-muted-foreground" data-t="project_period_hint"></p>
@@ -401,16 +401,16 @@
           <legend class="sr-only" data-t="projects_col_period"></legend>
           <div class="grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
             <div class="flex flex-col gap-2">
-              <label data-slot="label" for="own-start" data-t="project_start"></label>
+              <label data-slot="label" for="own-start" data-t="period_start"></label>
               <input data-slot="input" id="own-start" inputmode="numeric" placeholder="MM-YYYY" value="2016" aria-describedby="own-period-hint" />
             </div>
             <div class="flex flex-col gap-2">
-              <label data-slot="label" for="own-end" data-t="project_end"></label>
+              <label data-slot="label" for="own-end" data-t="period_end"></label>
               <input data-slot="input" id="own-end" inputmode="numeric" placeholder="MM-YYYY" value="2019" aria-describedby="own-period-hint" />
             </div>
             <label class="flex h-9 items-center gap-2 text-sm">
               <input type="checkbox" data-slot="checkbox" />
-              <span data-t="project_ongoing"></span>
+              <span data-t="period_ongoing_label"></span>
             </label>
           </div>
           <p id="own-period-hint" class="text-sm text-muted-foreground" data-t="project_period_hint"></p>
