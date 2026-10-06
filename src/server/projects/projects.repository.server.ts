@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, sql } from 'drizzle-orm'
+import { and, asc, desc, eq, inArray, notInArray, sql } from 'drizzle-orm'
 import type { Executor } from '#/db'
 import {
   contactPerson,
@@ -6,6 +6,7 @@ import {
   employeeProfile,
   participation,
   participationRole,
+  participationTechnology,
   project,
   projectContact,
   projectCriterionAnswer,
@@ -365,4 +366,151 @@ export async function setProjectContacts(
       organizationId: scope.organizationId,
     })),
   )
+}
+
+// The live checklist, in order, for a new project's form.
+export async function listChecklist(db: Executor, scope: Scope) {
+  return db
+    .select({
+      id: tenderCriterion.id,
+      nameEt: tenderCriterion.nameEt,
+      nameEn: tenderCriterion.nameEn,
+    })
+    .from(tenderCriterion)
+    .where(
+      and(
+        eq(tenderCriterion.organizationId, scope.organizationId),
+        eq(tenderCriterion.sysDeleted, sql`0`),
+      ),
+    )
+    .orderBy(asc(tenderCriterion.position), asc(tenderCriterion.id))
+}
+
+// Which of these IDs are live technologies of the organization.
+export async function findLiveTechnologies(db: Executor, scope: Scope, technologyIds: string[]) {
+  if (technologyIds.length === 0) return []
+  return db
+    .select({ id: technology.id })
+    .from(technology)
+    .where(
+      and(
+        eq(technology.organizationId, scope.organizationId),
+        eq(technology.sysDeleted, sql`0`),
+        inArray(technology.id, technologyIds),
+      ),
+    )
+}
+
+// Replaces the project's technology links with these. Participations keep their own.
+export async function setProjectTechnologies(
+  db: Executor,
+  scope: Scope,
+  projectId: string,
+  technologyIds: string[],
+) {
+  await db
+    .delete(projectTechnology)
+    .where(
+      and(
+        eq(projectTechnology.organizationId, scope.organizationId),
+        eq(projectTechnology.projectId, projectId),
+      ),
+    )
+  if (technologyIds.length === 0) return
+  await insertProjectTechnologies(db, scope, projectId, technologyIds)
+}
+
+// Links technologies to the project; ones already linked stay as they are.
+export async function insertProjectTechnologies(
+  db: Executor,
+  scope: Scope,
+  projectId: string,
+  technologyIds: string[],
+) {
+  await db
+    .insert(projectTechnology)
+    .values(
+      technologyIds.map((technologyId) => ({
+        projectId,
+        technologyId,
+        organizationId: scope.organizationId,
+      })),
+    )
+    .onConflictDoNothing()
+}
+
+// Stores the answers to live characteristics: these are set, the others cleared. Answers to
+// removed characteristics stay stored.
+export async function setProjectAnswers(
+  db: Executor,
+  scope: Scope,
+  projectId: string,
+  answers: { criterionId: string; answer: boolean; note: string | null }[],
+) {
+  const live = db
+    .select({ id: tenderCriterion.id })
+    .from(tenderCriterion)
+    .where(
+      and(
+        eq(tenderCriterion.organizationId, scope.organizationId),
+        eq(tenderCriterion.sysDeleted, sql`0`),
+      ),
+    )
+  await db.delete(projectCriterionAnswer).where(
+    and(
+      eq(projectCriterionAnswer.organizationId, scope.organizationId),
+      eq(projectCriterionAnswer.projectId, projectId),
+      inArray(projectCriterionAnswer.criterionId, live),
+      notInArray(
+        projectCriterionAnswer.criterionId,
+        answers.map((each) => each.criterionId),
+      ),
+    ),
+  )
+  for (const { criterionId, answer, note } of answers) {
+    await db
+      .insert(projectCriterionAnswer)
+      .values({ projectId, criterionId, answer, note, organizationId: scope.organizationId })
+      .onConflictDoUpdate({
+        target: [projectCriterionAnswer.projectId, projectCriterionAnswer.criterionId],
+        set: { answer, note },
+        setWhere: eq(projectCriterionAnswer.organizationId, scope.organizationId),
+      })
+  }
+}
+
+// Live technologies that the project's live participations used but the project doesn't
+// list, with how many people used each.
+export async function listParticipantTechnologies(db: Executor, scope: Scope, projectId: string) {
+  return db
+    .select({
+      id: technology.id,
+      name: technology.name,
+      people: sql<number>`count(DISTINCT ${participation.profileId})`,
+    })
+    .from(participationTechnology)
+    .innerJoin(participation, eq(participation.id, participationTechnology.participationId))
+    .innerJoin(technology, eq(technology.id, participationTechnology.technologyId))
+    .where(
+      and(
+        eq(participation.organizationId, scope.organizationId),
+        eq(participation.projectId, projectId),
+        eq(participation.sysDeleted, sql`0`),
+        eq(technology.sysDeleted, sql`0`),
+        sql`NOT EXISTS (
+          SELECT 1 FROM project_technology AS pt
+          WHERE pt.project_id = ${projectId} AND pt.technology_id = ${technology.id}
+        )`,
+      ),
+    )
+    .groupBy(technology.id, technology.name)
+    .orderBy(desc(sql`count(DISTINCT ${participation.profileId})`), asc(technology.normalizedName))
+}
+
+// Records a change to the project's links as a change to the project.
+export async function touchProject(db: Executor, scope: Scope, projectId: string) {
+  await db
+    .update(project)
+    .set({ updatedAt: new Date() })
+    .where(and(liveProjects(scope), eq(project.id, projectId)))
 }

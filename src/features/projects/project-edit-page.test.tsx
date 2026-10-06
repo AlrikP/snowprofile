@@ -1,15 +1,24 @@
 import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { technologyCatalogueQuery } from '#/lib/technology-catalogue'
 import type {
+  ChecklistItem,
   Contact,
   Customer,
   ProjectForm,
   ProjectListItem,
 } from '#/server/projects/projects.functions'
 import { renderPage } from '#/test/router'
+import { testCatalogue } from '#/test/technology-catalogue'
 import { ProjectEditPage } from './project-edit-page'
-import { contactsQuery, customersQuery, projectFormQuery, projectsQuery } from './projects-query'
+import {
+  checklistQuery,
+  contactsQuery,
+  customersQuery,
+  projectFormQuery,
+  projectsQuery,
+} from './projects-query'
 
 const server = vi.hoisted(() => ({
   getProjects: vi.fn(),
@@ -23,6 +32,12 @@ const server = vi.hoisted(() => ({
   addContact: vi.fn(),
   updateContact: vi.fn(),
   deleteContact: vi.fn(),
+  getChecklist: vi.fn(),
+  addProjectTechnology: vi.fn(),
+}))
+vi.mock('#/server/technologies/technologies.functions', () => ({
+  getTechnologyCatalogue: vi.fn(),
+  addTechnology: vi.fn(),
 }))
 vi.mock('#/server/projects/projects.functions', () => server)
 
@@ -36,6 +51,9 @@ const stored: ProjectForm = {
   name: 'Kodanikuportaali uuendus',
   customerId: 'smin',
   contactIds: ['mari'],
+  technologyIds: ['react'],
+  participantTechnologies: [{ id: 'angular', name: 'Angular', people: 2 }],
+  answers: [{ criterionId: 'tests', answer: true, note: 'JUnit' }],
   description: { et: 'Uus kodanikuportaal.', en: null },
   startDate: '2024-03',
   endDate: '2025-06',
@@ -44,6 +62,12 @@ const stored: ProjectForm = {
   cost: null,
   lastChange: { at: new Date('2026-10-06T14:05:00'), by: 'Anna Admin' },
 }
+
+const checklist: ChecklistItem[] = [
+  { id: 'tests', name: { et: 'Automaattestid', en: 'Automated tests' } },
+  { id: 'xroad', name: { et: 'X-tee', en: 'X-Road' } },
+  { id: 'k8s', name: { et: 'Kubernetes', en: 'Kubernetes' } },
+]
 
 const contacts: Contact[] = [
   {
@@ -111,6 +135,8 @@ function show(projectId: string | null, { canDelete = true } = {}) {
       [customersQuery('org').queryKey, customers],
       [projectFormQuery('org', 'portal').queryKey, stored],
       [contactsQuery('org', 'smin').queryKey, contacts],
+      [checklistQuery('org').queryKey, checklist],
+      [technologyCatalogueQuery('org').queryKey, testCatalogue],
     ],
   )
 }
@@ -386,6 +412,82 @@ describe('ProjectEditPage', () => {
       )
       expect(contactsSection().getByText(/Save the project first/)).toBeInTheDocument()
       expect(add).toBeDisabled()
+    })
+  })
+
+  describe('technologies', () => {
+    function technologiesSection() {
+      return within(screen.getByRole('region', { name: 'Technologies' }))
+    }
+
+    it('projects.technology-added-not-copied: picks technologies and saves them with the project', async () => {
+      await show('portal')
+
+      const section = technologiesSection()
+      expect(section.getByRole('list', { name: 'Technologies' })).toHaveTextContent('React')
+      await userEvent.type(section.getByRole('combobox'), 'postgresql')
+      await userEvent.click(section.getByRole('option', { name: /PostgreSQL/ }))
+      await userEvent.click(section.getByRole('button', { name: 'Remove React' }))
+      await userEvent.click(screen.getByRole('button', { name: 'Save' }))
+
+      expect(saved(server.updateProject)?.technologyIds).toEqual(['postgresql'])
+    })
+
+    it('projects.extra-technology-adopted: adds a technology participants used', async () => {
+      await show('portal')
+
+      const section = technologiesSection()
+      await userEvent.click(
+        section.getByRole('button', { name: 'Add Angular to the project (participants: 2)' }),
+      )
+      expect(section.queryByText('Participants also used')).not.toBeInTheDocument()
+      await userEvent.click(screen.getByRole('button', { name: 'Save' }))
+
+      expect(saved(server.updateProject)?.technologyIds).toEqual(['react', 'angular'])
+      expect(server.addProjectTechnology).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('solution characteristics', () => {
+    function criteriaSection() {
+      return within(screen.getByRole('region', { name: 'Solution characteristics' }))
+    }
+
+    it('projects.characteristic-answered: answers yes or no with a note', async () => {
+      await show('portal')
+
+      const section = criteriaSection()
+      const tests = section.getByRole('radiogroup', { name: 'Automated tests' })
+      expect(within(tests).getByRole('radio', { name: 'Yes' })).toBeChecked()
+      expect(section.getByRole('textbox', { name: 'Note on Automated tests' })).toHaveValue('JUnit')
+
+      const xroad = section.getByRole('radiogroup', { name: 'X-Road' })
+      await userEvent.click(within(xroad).getByRole('radio', { name: 'No' }))
+      await userEvent.type(section.getByRole('textbox', { name: 'Note on X-Road' }), 'Ei')
+      await userEvent.click(screen.getByRole('button', { name: 'Save' }))
+
+      expect(saved(server.updateProject)?.answers).toEqual([
+        { criterionId: 'tests', answer: true, note: 'JUnit' },
+        { criterionId: 'xroad', answer: false, note: 'Ei' },
+      ])
+    })
+
+    it('projects.characteristic-unanswered: clearing an answer leaves the characteristic out', async () => {
+      await show('portal')
+
+      const tests = criteriaSection().getByRole('radiogroup', { name: 'Automated tests' })
+      await userEvent.click(within(tests).getByRole('radio', { name: 'Unanswered' }))
+      await userEvent.click(screen.getByRole('button', { name: 'Save' }))
+
+      expect(saved(server.updateProject)?.answers).toEqual([])
+    })
+
+    it('a new project starts with every characteristic unanswered', async () => {
+      await show(null)
+
+      for (const group of criteriaSection().getAllByRole('radiogroup')) {
+        expect(within(group).getByRole('radio', { name: 'Unanswered' })).toBeChecked()
+      }
     })
   })
 })

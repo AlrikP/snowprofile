@@ -1,6 +1,6 @@
 # 029: Projects
 
-Status: in-progress
+Status: done
 
 The organization's projects: a list every member sees, a project page, and the admin's
 editing. Own projects are task 033.
@@ -20,4 +20,4 @@ permissions `project` and `customer`.
 
 ## Acceptance criteria
 
-- [ ] All subtasks are done.
+- [x] All subtasks are done.

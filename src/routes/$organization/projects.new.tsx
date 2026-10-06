@@ -1,7 +1,8 @@
 import { createFileRoute, getRouteApi, redirect } from '@tanstack/react-router'
 import { ProjectEditPage, ProjectEditPending } from '#/features/projects/project-edit-page'
-import { customersQuery, projectsQuery } from '#/features/projects/projects-query'
+import { checklistQuery, customersQuery, projectsQuery } from '#/features/projects/projects-query'
 import { roleHasPermission } from '#/lib/permissions'
+import { technologyCatalogueQuery } from '#/lib/technology-catalogue'
 
 const organizationRoute = getRouteApi('/$organization')
 
@@ -15,6 +16,8 @@ export const Route = createFileRoute('/$organization/projects/new')({
     }
     await Promise.all([
       context.queryClient.ensureQueryData(customersQuery(organization.id)),
+      context.queryClient.ensureQueryData(checklistQuery(organization.id)),
+      context.queryClient.ensureQueryData(technologyCatalogueQuery(organization.id)),
       context.queryClient.ensureQueryData(projectsQuery(organization.id)),
     ])
   },

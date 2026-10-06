@@ -36,6 +36,8 @@ import { CustomerDialog } from './customer-dialog'
 import { DeleteProjectDialog } from './delete-project-dialog'
 import { FormSection } from './form-section'
 import { type ContactsCustomer, ProjectContacts } from './project-contacts'
+import { answersInputValue, parseAnswers, ProjectCriteria } from './project-criteria'
+import { ProjectTechnologies } from './project-technologies'
 import { customersQuery, projectFormQuery, projectsKey, projectsQuery } from './projects-query'
 
 function initialValues(stored: ProjectForm | null) {
@@ -43,6 +45,8 @@ function initialValues(stored: ProjectForm | null) {
     name: stored?.name ?? '',
     customerId: stored?.customerId ?? '',
     contactIds: stored?.contactIds ?? [],
+    technologyIds: stored?.technologyIds ?? [],
+    answers: answersInputValue(stored?.answers ?? []),
     description: bilingualInputValue(stored?.description ?? null),
     // A new project starts as ongoing, as most are added while they run.
     period: stored
@@ -139,6 +143,8 @@ function ProjectFormBody({ organizationId, organization, stored, canDelete }: Fo
         totalHours: totalHours.value,
         cost: cost.value,
         contactIds: values.contactIds,
+        technologyIds: values.technologyIds,
+        answers: parseAnswers(values.answers),
       }
       if (stored) {
         await updateProject({ data: { organizationId, projectId: stored.id, ...fields } })
@@ -291,6 +297,19 @@ function ProjectFormBody({ organizationId, organization, stored, canDelete }: Fo
           customer={contactsCustomer()}
           value={values.contactIds}
           onChange={(contactIds) => set('contactIds', contactIds)}
+        />
+
+        <ProjectTechnologies
+          organizationId={organizationId}
+          participantTechnologies={stored?.participantTechnologies ?? []}
+          value={values.technologyIds}
+          onChange={(technologyIds) => set('technologyIds', technologyIds)}
+        />
+
+        <ProjectCriteria
+          organizationId={organizationId}
+          value={values.answers}
+          onChange={(answers) => set('answers', answers)}
         />
 
         {save.error && (

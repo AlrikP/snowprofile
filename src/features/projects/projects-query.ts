@@ -1,5 +1,6 @@
 import { queryOptions } from '@tanstack/react-query'
 import {
+  getChecklist,
   getContacts,
   getCustomers,
   getProject,
@@ -45,5 +46,12 @@ export function contactsQuery(organizationId: string, customerId: string) {
   return queryOptions({
     queryKey: ['customers', organizationId, customerId, 'contacts'],
     queryFn: () => getContacts({ data: { organizationId, customerId } }),
+  })
+}
+
+export function checklistQuery(organizationId: string) {
+  return queryOptions({
+    queryKey: ['checklist', organizationId],
+    queryFn: () => getChecklist({ data: { organizationId } }),
   })
 }

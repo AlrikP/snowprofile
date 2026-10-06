@@ -35,6 +35,9 @@ const ProjectFields = {
   cost: ApproximateNumber,
   // The customer's contact persons who are references for this project.
   contactIds: v.array(Uuidv7),
+  technologyIds: v.array(Uuidv7),
+  // The characteristics answered; one left out is unanswered.
+  answers: v.array(v.object({ criterionId: Uuidv7, answer: v.boolean(), note: OptionalText })),
 }
 
 export const CreateProjectInput = v.object({
@@ -73,3 +76,6 @@ export type UpdateContactInput = v.InferOutput<typeof UpdateContactInput>
 
 export const DeleteContactInput = v.object({ contactId: Uuidv7 })
 export type DeleteContactInput = v.InferOutput<typeof DeleteContactInput>
+
+export const AddProjectTechnologyInput = v.object({ projectId: Uuidv7, technologyId: Uuidv7 })
+export type AddProjectTechnologyInput = v.InferOutput<typeof AddProjectTechnologyInput>

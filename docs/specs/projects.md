@@ -192,3 +192,68 @@ the rest out of the response, not only the page.
 - **When** a participant opens the project
 - **Then** the response holds only the current contact, without its note, while an admin
   sees both contacts with their notes
+
+### Requirement: Project technologies don't change participations
+
+An admin must be able to add and remove a project's technologies, picked from the
+catalogue. A participation's technologies are the person's own and appear in their CV, so
+a change to the project's technologies must never change a participation's
+(`docs/product.md`, "Technologies on projects and participations").
+
+#### Scenario: projects.technology-added-not-copied
+
+- **Given** a project with participations
+- **When** an admin adds a technology to the project
+- **Then** the project lists it, and no participation gets it
+
+#### Scenario: projects.technology-removed-kept
+
+- **Given** a project technology that participations also list
+- **When** an admin removes it from the project
+- **Then** the participations still list it
+
+### Requirement: Participants' extra technologies
+
+A project must show admins the technologies its participants used that the project
+doesn't list, with how many participants used each. An admin must be able to add one to
+the project from there; the participations stay as they are.
+
+#### Scenario: projects.extra-technologies-counted
+
+- **Given** a project whose participants used a technology the project doesn't list
+- **When** an admin opens the project
+- **Then** they see that technology with how many participants used it, and an employee's
+  response holds none of it
+
+#### Scenario: projects.extra-technology-adopted
+
+- **Given** a technology participants used that the project doesn't list
+- **When** an admin adds it to the project
+- **Then** the project lists it, it leaves the participants' extra technologies, the admin
+  is the last change, and the participations are unchanged
+
+### Requirement: Solution characteristics
+
+An admin must be able to answer each live technical characteristic yes or no with an
+optional note, or leave it unanswered. The project's page must show the answers as its
+solution characteristics. Answers to a removed characteristic must stay stored but not
+show, in the form or on the page.
+
+#### Scenario: projects.characteristic-answered
+
+- **Given** an admin editing a project
+- **When** they answer one characteristic yes with a note and another no
+- **Then** the project shows both answers, and the note with the first
+
+#### Scenario: projects.characteristic-unanswered
+
+- **Given** a project that answered a characteristic
+- **When** an admin clears the answer and saves
+- **Then** the characteristic shows as unanswered, without a note
+
+#### Scenario: projects.removed-characteristic-hidden
+
+- **Given** a project that answered a characteristic
+- **When** the characteristic is removed from the checklist
+- **Then** neither the form nor the page shows the answer, and saving the project keeps it
+  stored

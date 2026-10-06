@@ -1,12 +1,19 @@
 /// <reference types="bun" />
 
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
-import { eq } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 import { v7 as uuidv7 } from 'uuid'
 import * as v from 'valibot'
 import type { Database } from '#/db'
 import { withActor } from '#/db/actor'
-import { customer, employeeProfile, project, projectContact, tenderCriterion } from '#/db/schema'
+import {
+  customer,
+  employeeProfile,
+  project,
+  projectContact,
+  projectCriterionAnswer,
+  tenderCriterion,
+} from '#/db/schema'
 import { seedIds } from '#/db/seed-accounts'
 import { createTestDatabase } from '#/db/testing'
 import { catalogue as roleCatalogue } from '../roles/roles.server'
@@ -15,6 +22,7 @@ import { rejection } from '../testing'
 import { type CreateProjectInput, UpdateProjectInput } from './projects.schemas'
 import {
   addContact,
+  addProjectTechnology,
   contacts,
   createProject,
   deleteContact,
@@ -222,7 +230,7 @@ test('the characteristics are the live checklist, with the project’s answers o
   const live = await db
     .select({ id: tenderCriterion.id })
     .from(tenderCriterion)
-    .where(eq(tenderCriterion.organizationId, org))
+    .where(and(eq(tenderCriterion.organizationId, org), eq(tenderCriterion.sysDeleted, false)))
   expect(view.criteria.map((each) => each.id).sort()).toEqual(live.map((row) => row.id).sort())
   for (const criterion of view.criteria) {
     expect([true, false, null]).toContain(criterion.answer)
@@ -252,6 +260,8 @@ function fields(overrides: Partial<CreateProjectInput> = {}): CreateProjectInput
     totalHours: null,
     cost: null,
     contactIds: [],
+    technologyIds: [],
+    answers: [],
     ...overrides,
   }
 }
@@ -649,5 +659,227 @@ describe('contact persons', () => {
         expect.objectContaining({ id: former.id, noLongerValid: true, note: 'Ei tööta enam.' }),
       ]),
     )
+  })
+})
+
+// The update input that saves the project as it is stored.
+async function asStored(projectId: string) {
+  const form = await projectForm(db, admin, { projectId })
+  return {
+    projectId,
+    name: form.name,
+    description: form.description,
+    customer: form.customerId ? { kind: 'existing' as const, id: form.customerId } : null,
+    period: { startDate: form.startDate, endDate: form.endDate },
+    tenderReference: form.tenderReference,
+    totalHours: form.totalHours,
+    cost: form.cost,
+    contactIds: form.contactIds,
+    technologyIds: form.technologyIds,
+    answers: form.answers,
+  }
+}
+
+// Every participation's technologies on the project, as "participation:technology" rows.
+async function participationTechnologies(projectId: string) {
+  return (
+    await column(
+      `SELECT pt.participation_id || ':' || pt.technology_id FROM participation_technology pt
+        JOIN participation pa ON pa.id = pt.participation_id WHERE pa.project_id = '${projectId}'`,
+    )
+  ).sort()
+}
+
+// A live project whose participants used a technology the project doesn't list, and that
+// technology. Not one of the fixtures, which other tests read.
+async function projectWithExtraTechnology() {
+  const row = (
+    await db.$client.execute(
+      `SELECT pa.project_id, pt.technology_id FROM participation_technology pt
+        JOIN participation pa ON pa.id = pt.participation_id AND pa.sys_deleted = 0
+        JOIN project p ON p.id = pa.project_id AND p.sys_deleted = 0
+        JOIN technology t ON t.id = pt.technology_id AND t.sys_deleted = 0
+        WHERE p.organization_id = '${org}'
+          AND p.id NOT IN ('${fixture.mine}', '${fixture.others}', '${fixture.withLeaver}')
+          AND NOT EXISTS (SELECT 1 FROM project_technology x
+            WHERE x.project_id = p.id AND x.technology_id = pt.technology_id)
+        ORDER BY pa.project_id LIMIT 1`,
+    )
+  ).rows[0]
+  const [projectId, technologyId] = [row?.[0], row?.[1]]
+  if (typeof projectId !== 'string' || typeof technologyId !== 'string') {
+    throw new Error('expected a participant-only technology in the demo data')
+  }
+  return { projectId, technologyId }
+}
+
+describe('technologies', () => {
+  test('projects.technology-added-not-copied: a technology added to the project doesn’t reach its participations', async () => {
+    const { projectId, technologyId } = await projectWithExtraTechnology()
+    const unused = await first(
+      `SELECT id FROM technology WHERE organization_id = '${org}' AND sys_deleted = 0
+        AND id NOT IN (SELECT technology_id FROM project_technology WHERE project_id = '${projectId}')
+        AND id <> '${technologyId}' LIMIT 1`,
+    )
+    const before = await participationTechnologies(projectId)
+    const input = await asStored(projectId)
+
+    await as(admin, () =>
+      updateProject(db, admin, { ...input, technologyIds: [...input.technologyIds, unused] }),
+    )
+
+    const view = await projectView(db, admin, { projectId })
+    expect(view.technologies.map((each) => each.id)).toContain(unused)
+    expect(await participationTechnologies(projectId)).toEqual(before)
+  })
+
+  test('projects.technology-removed-kept: a technology removed from the project stays on participations', async () => {
+    const projectId = await first(
+      `SELECT pa.project_id FROM participation_technology pt
+        JOIN participation pa ON pa.id = pt.participation_id AND pa.sys_deleted = 0
+        JOIN project_technology x ON x.project_id = pa.project_id AND x.technology_id = pt.technology_id
+        JOIN project p ON p.id = pa.project_id AND p.sys_deleted = 0
+        WHERE p.organization_id = '${org}'
+          AND p.id NOT IN ('${fixture.mine}', '${fixture.others}', '${fixture.withLeaver}')
+        ORDER BY pa.project_id DESC LIMIT 1`,
+    )
+    const before = await participationTechnologies(projectId)
+    const input = await asStored(projectId)
+
+    await as(admin, () => updateProject(db, admin, { ...input, technologyIds: [] }))
+
+    expect((await projectView(db, admin, { projectId })).technologies).toEqual([])
+    expect(await participationTechnologies(projectId)).toEqual(before)
+  })
+
+  test('projects.extra-technologies-counted: admins see what participants used beyond the project, with how many', async () => {
+    const { projectId, technologyId } = await projectWithExtraTechnology()
+    const people = Number(
+      (
+        await db.$client.execute(
+          `SELECT count(DISTINCT pa.profile_id) FROM participation_technology pt
+            JOIN participation pa ON pa.id = pt.participation_id AND pa.sys_deleted = 0
+            WHERE pa.project_id = '${projectId}' AND pt.technology_id = '${technologyId}'`,
+        )
+      ).rows[0]?.[0],
+    )
+
+    const view = await projectView(db, admin, { projectId })
+    const listed = new Set(view.technologies.map((each) => each.id))
+    expect(view.participantTechnologies?.find((each) => each.id === technologyId)?.people).toBe(
+      people,
+    )
+    expect(view.participantTechnologies?.some((each) => listed.has(each.id))).toBe(false)
+    expect((await projectView(db, employee, { projectId })).participantTechnologies).toBeNull()
+  })
+
+  test('projects.extra-technology-adopted: an admin adds one to the project, participations unchanged', async () => {
+    const { projectId, technologyId } = await projectWithExtraTechnology()
+    const before = await participationTechnologies(projectId)
+
+    await as(admin, () => addProjectTechnology(db, admin, { projectId, technologyId }))
+
+    const view = await projectView(db, admin, { projectId })
+    expect(view.technologies.map((each) => each.id)).toContain(technologyId)
+    expect(view.participantTechnologies?.map((each) => each.id)).not.toContain(technologyId)
+    expect(view.lastChange.by).toBe('Anna Admin')
+    expect(await participationTechnologies(projectId)).toEqual(before)
+    expect(
+      await rejection(
+        as(employee, () => addProjectTechnology(db, employee, { projectId, technologyId })),
+      ),
+    ).toMatchObject({ code: 'FORBIDDEN', key: 'project_forbidden' })
+  })
+
+  test('refuses a technology that isn’t in the catalogue', async () => {
+    const foreign = await first(
+      `SELECT id FROM technology WHERE organization_id = '${seedIds.orgs.tormilind}'`,
+    )
+    expect(
+      await rejection(
+        as(admin, () => createProject(db, admin, fields({ technologyIds: [foreign] }))),
+      ),
+    ).toMatchObject({ code: 'INVALID', key: 'technology_not_found' })
+  })
+})
+
+describe('solution characteristics', () => {
+  async function liveCriteria() {
+    return column(
+      `SELECT id FROM tender_criterion WHERE organization_id = '${org}' AND sys_deleted = 0
+        ORDER BY position, id`,
+    )
+  }
+
+  test('projects.characteristic-answered: answers show as solution characteristics', async () => {
+    const [yes, no] = await liveCriteria()
+    if (!yes || !no) throw new Error('expected seeded characteristics')
+    const input = fields({
+      answers: [
+        { criterionId: yes, answer: true, note: 'JUnit' },
+        { criterionId: no, answer: false, note: null },
+      ],
+    })
+    await as(admin, () => createProject(db, admin, input))
+
+    const criteria = (await projectView(db, admin, { projectId: input.id })).criteria
+    expect(criteria.find((each) => each.id === yes)).toMatchObject({ answer: true, note: 'JUnit' })
+    expect(criteria.find((each) => each.id === no)).toMatchObject({ answer: false, note: null })
+  })
+
+  test('projects.characteristic-unanswered: an answer left out is cleared', async () => {
+    const [criterionId] = await liveCriteria()
+    if (!criterionId) throw new Error('expected seeded characteristics')
+    const input = fields({ answers: [{ criterionId, answer: true, note: 'x' }] })
+    await as(admin, () => createProject(db, admin, input))
+
+    await as(admin, () => updateProject(db, admin, { ...input, projectId: input.id, answers: [] }))
+
+    const criteria = (await projectView(db, admin, { projectId: input.id })).criteria
+    expect(criteria.every((each) => each.answer === null && each.note === null)).toBe(true)
+    expect((await projectForm(db, admin, { projectId: input.id })).answers).toEqual([])
+  })
+
+  test('projects.removed-characteristic-hidden: answers to a removed characteristic stay stored but don’t show', async () => {
+    // A characteristic of its own, so removing it doesn't change the seeded checklist.
+    const criterionId = uuidv7()
+    await as(admin, async () => {
+      await db.insert(tenderCriterion).values({
+        id: criterionId,
+        organizationId: org,
+        nameEt: 'Ajutine',
+        nameEn: 'Temporary',
+        position: 999,
+      })
+    })
+    const input = fields({ answers: [{ criterionId, answer: true, note: 'Jah' }] })
+    await as(admin, () => createProject(db, admin, input))
+    await as(admin, async () => {
+      await db
+        .update(tenderCriterion)
+        .set({ sysDeleted: true })
+        .where(eq(tenderCriterion.id, criterionId))
+    })
+
+    const view = await projectView(db, admin, { projectId: input.id })
+    expect(view.criteria.map((each) => each.id)).not.toContain(criterionId)
+    expect((await projectForm(db, admin, { projectId: input.id })).answers).toEqual([])
+    await as(admin, async () => updateProject(db, admin, await asStored(input.id)))
+    const stored = await db
+      .select()
+      .from(projectCriterionAnswer)
+      .where(eq(projectCriterionAnswer.criterionId, criterionId))
+    expect(stored).toMatchObject([{ projectId: input.id, answer: true, note: 'Jah' }])
+    expect(
+      await rejection(
+        as(admin, () =>
+          updateProject(db, admin, {
+            ...input,
+            projectId: input.id,
+            answers: [{ criterionId, answer: false, note: null }],
+          }),
+        ),
+      ),
+    ).toMatchObject({ code: 'INVALID', key: 'criterion_not_found' })
   })
 })

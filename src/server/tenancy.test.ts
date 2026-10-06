@@ -171,6 +171,36 @@ async function bContact() {
   return row
 }
 
+async function bProjectRows(table: string, column: string) {
+  const rows = await db.$client.execute(
+    `SELECT ${column} FROM ${table} WHERE project_id = '${b.projectId}' ORDER BY 1`,
+  )
+  return rows.rows.map((row) => row[0])
+}
+
+// A write from A to B's project: with B's own IDs it changes none of B's rows (a scoped
+// delete, a skipped conflict), and with any other ID it fails on the foreign keys, since the
+// rows would be A's.
+async function expectProjectLinksKept(
+  table: string,
+  column: string,
+  write: (ids: string[]) => Promise<unknown>,
+  // What a change from A would alter, beyond the key.
+  values = 'created_by',
+) {
+  function rows() {
+    return bProjectRows(table, `${column} || '|' || ${values}`)
+  }
+  const before = await rows()
+  const own = (await bProjectRows(table, column)).filter((id) => typeof id === 'string')
+  await failure(() => withActor(scopeA.userId, () => write(own)))
+  expect(await rows()).toEqual(before)
+  expect(await failure(() => withActor(scopeA.userId, () => write([uuidv7()])))).toContain(
+    'FOREIGN KEY',
+  )
+  expect(await rows()).toEqual(before)
+}
+
 async function bProjectContacts() {
   const rows = await db.$client.execute(
     `SELECT contact_person_id FROM project_contact WHERE project_id = '${b.projectId}'`,
@@ -439,6 +469,45 @@ const cases: Record<string, () => Promise<void>> = {
       ).toMatch(contactId === unlinked ? /FOREIGN KEY/ : /UNIQUE/)
     }
     expect(await bProjectContacts()).toEqual(before)
+  },
+  'projects.listChecklist': async () => {
+    const ids = (await projects.listChecklist(db, scopeA)).map((row) => row.id)
+    expect(ids).not.toContain(b.criterionId)
+  },
+  'projects.findLiveTechnologies': async () => {
+    expect(await projects.findLiveTechnologies(db, scopeA, [b.technologyId])).toEqual([])
+  },
+  'projects.setProjectTechnologies': async () => {
+    await expectProjectLinksKept('project_technology', 'technology_id', (ids) =>
+      projects.setProjectTechnologies(db, scopeA, b.projectId, ids),
+    )
+  },
+  'projects.insertProjectTechnologies': async () => {
+    await expectProjectLinksKept('project_technology', 'technology_id', (ids) =>
+      projects.insertProjectTechnologies(db, scopeA, b.projectId, ids),
+    )
+  },
+  'projects.setProjectAnswers': async () => {
+    await expectProjectLinksKept(
+      'project_criterion_answer',
+      'criterion_id',
+      (ids) =>
+        projects.setProjectAnswers(
+          db,
+          scopeA,
+          b.projectId,
+          ids.map((criterionId) => ({ criterionId, answer: false, note: 'A' })),
+        ),
+      `answer || '|' || coalesce(note, '') || '|' || updated_by`,
+    )
+  },
+  'projects.listParticipantTechnologies': async () => {
+    expect(await projects.listParticipantTechnologies(db, scopeA, b.projectId)).toEqual([])
+  },
+  'projects.touchProject': async () => {
+    const before = await bProject()
+    await withActor(scopeA.userId, () => projects.touchProject(db, scopeA, b.projectId))
+    expect((await bProject())?.updatedAt).toEqual(before?.updatedAt)
   },
   'roles.listRoles': async () => {
     const ids = (await roles.listRoles(db, scopeA)).map((row) => row.id)

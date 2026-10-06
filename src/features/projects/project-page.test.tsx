@@ -1,14 +1,17 @@
 import { screen, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import type { ProjectView } from '#/server/projects/projects.functions'
 import { renderPage } from '#/test/router'
 import { ProjectPage } from './project-page'
 import { projectQuery } from './projects-query'
 
-vi.mock('#/server/projects/projects.functions', () => ({
+const server = vi.hoisted(() => ({
   getProjects: vi.fn(),
   getProject: vi.fn(),
+  addProjectTechnology: vi.fn(),
 }))
+vi.mock('#/server/projects/projects.functions', () => server)
 
 const details: NonNullable<ProjectView['details']> = {
   tenderReference: '275431',
@@ -43,6 +46,7 @@ function view(overrides: Partial<ProjectView> = {}): ProjectView {
     startDate: '2024-03',
     endDate: null,
     technologies: [{ id: 't1', name: 'React' }],
+    participantTechnologies: null,
     criteria: [
       {
         id: 'k1',
@@ -171,5 +175,25 @@ describe('ProjectPage', () => {
   it('shows no edit link without the permission', async () => {
     await show(view())
     expect(screen.queryByRole('link', { name: 'Edit project' })).not.toBeInTheDocument()
+  })
+
+  it('projects.extra-technologies-counted: shows admins what participants also used, and adds it', async () => {
+    server.addProjectTechnology.mockResolvedValue(undefined)
+    await show(view({ participantTechnologies: [{ id: 't2', name: 'Kafka', people: 2 }] }), {
+      canEdit: true,
+    })
+
+    const kafka = screen.getByRole('button', { name: 'Add Kafka to the project (participants: 2)' })
+    expect(kafka).toHaveTextContent('Kafka· 2')
+    await userEvent.click(kafka)
+
+    expect(server.addProjectTechnology).toHaveBeenCalledWith({
+      data: { organizationId: 'org', projectId: 'portal', technologyId: 't2' },
+    })
+  })
+
+  it('shows no participants’ technologies when the response has none', async () => {
+    await show(view())
+    expect(screen.queryByText('Participants also used')).not.toBeInTheDocument()
   })
 })

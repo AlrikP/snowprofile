@@ -3,6 +3,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { scopeMiddleware } from '../middleware'
 import {
   AddContactInput,
+  AddProjectTechnologyInput,
   ContactsInput,
   CreateProjectInput,
   DeleteContactInput,
@@ -65,8 +66,18 @@ export const deleteContact = createServerFn({ method: 'POST' })
   .validator(DeleteContactInput)
   .handler(({ data, context }) => projects.deleteContact(context.db, context.scope, data))
 
+export const getChecklist = createServerFn({ method: 'GET' })
+  .middleware([scopeMiddleware])
+  .handler(({ context }) => projects.checklist(context.db, context.scope))
+
+export const addProjectTechnology = createServerFn({ method: 'POST' })
+  .middleware([scopeMiddleware])
+  .validator(AddProjectTechnologyInput)
+  .handler(({ data, context }) => projects.addProjectTechnology(context.db, context.scope, data))
+
 export type ProjectListItem = Awaited<ReturnType<typeof getProjects>>[number]
 export type ProjectView = Awaited<ReturnType<typeof getProject>>
 export type ProjectForm = Awaited<ReturnType<typeof getProjectForm>>
+export type ChecklistItem = Awaited<ReturnType<typeof getChecklist>>[number]
 export type Contact = Awaited<ReturnType<typeof getContacts>>[number]
 export type Customer = Awaited<ReturnType<typeof getCustomers>>[number]

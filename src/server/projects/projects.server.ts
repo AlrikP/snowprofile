@@ -10,6 +10,7 @@ import { hasPermission, requirePermission, type Scope } from '../scope.server'
 import * as repository from './projects.repository.server'
 import type {
   AddContactInput,
+  AddProjectTechnologyInput,
   ContactsInput,
   CreateProjectInput,
   DeleteContactInput,
@@ -55,11 +56,14 @@ function visibleContacts(contacts: ProjectContact[], isAdmin: boolean) {
 export async function projectView(db: Database, scope: Scope, input: ProjectInput) {
   const found = await repository.findProject(db, scope, input.projectId)
   if (!found) throw new AppError('NOT_FOUND', 'project_not_found')
-  const [technologies, criteria, people, roles] = await Promise.all([
+  const isAdmin = hasPermission(scope, { project: ['update'] })
+  const [technologies, criteria, people, roles, participantTechnologies] = await Promise.all([
     repository.listProjectTechnologies(db, scope, found.id),
     repository.listProjectCriteria(db, scope, found.id),
     repository.listProjectPeople(db, scope, found.id),
     repository.listProjectRoles(db, scope, found.id),
+    // For admins to adopt; nobody else acts on them.
+    isAdmin ? repository.listParticipantTechnologies(db, scope, found.id) : null,
   ])
   const rolesOf = new Map<string, { et: string | null; en: string | null }[]>()
   for (const { participationId, nameEt, nameEn } of roles) {
@@ -75,7 +79,6 @@ export async function projectView(db: Database, scope: Scope, input: ProjectInpu
   }))
   // Cost, hours, the tender reference, and the customer's contacts are for admins and the
   // people who took part. The others get none of it, not only a page that hides it.
-  const isAdmin = hasPermission(scope, { project: ['update'] })
   const canSeeDetails = isAdmin || participations.some((each) => each.mine)
   const details = canSeeDetails
     ? {
@@ -96,6 +99,7 @@ export async function projectView(db: Database, scope: Scope, input: ProjectInpu
     startDate: found.startDate,
     endDate: found.endDate,
     technologies: technologies.map(({ id, name }) => ({ id, name })),
+    participantTechnologies,
     criteria: criteria.map(({ id, nameEt, nameEn, answer, note }) => ({
       id,
       name: { et: nameEt, en: nameEn },
@@ -116,6 +120,18 @@ function lastChange(found: { updatedAt: Date; updatedById: string; updatedByName
   }
 }
 
+// The live technical characteristics a project answers, for the form.
+export async function checklist(db: Database, scope: Scope) {
+  if (
+    !hasPermission(scope, { project: ['create'] }) &&
+    !hasPermission(scope, { project: ['update'] })
+  ) {
+    throw new AppError('FORBIDDEN', 'project_forbidden')
+  }
+  const rows = await repository.listChecklist(db, scope)
+  return rows.map(({ id, nameEt, nameEn }) => ({ id, name: { et: nameEt, en: nameEn } }))
+}
+
 export function customers(db: Database, scope: Scope) {
   return repository.listCustomers(db, scope)
 }
@@ -125,12 +141,22 @@ export async function projectForm(db: Database, scope: Scope, input: ProjectInpu
   requirePermission(scope, { project: ['update'] }, 'project_forbidden')
   const found = await repository.findProject(db, scope, input.projectId)
   if (!found) throw new AppError('NOT_FOUND', 'project_not_found')
-  const contacts = await repository.listProjectContacts(db, scope, found.id)
+  const [contacts, technologies, criteria, participantTechnologies] = await Promise.all([
+    repository.listProjectContacts(db, scope, found.id),
+    repository.listProjectTechnologies(db, scope, found.id),
+    repository.listProjectCriteria(db, scope, found.id),
+    repository.listParticipantTechnologies(db, scope, found.id),
+  ])
   return {
     id: found.id,
     name: found.name,
     customerId: found.customerId,
     contactIds: contacts.map((contact) => contact.id),
+    technologyIds: technologies.map((each) => each.id),
+    participantTechnologies,
+    answers: criteria.flatMap(({ id, answer, note }) =>
+      answer === null ? [] : [{ criterionId: id, answer, note }],
+    ),
     description: { et: found.descriptionEt, en: found.descriptionEn },
     startDate: found.startDate,
     endDate: found.endDate,
@@ -205,6 +231,37 @@ async function saveProject(
   if (isNew) await repository.insertProject(db, scope, { id: projectId, ...values })
   else await repository.updateProject(db, scope, projectId, values)
   await repository.setProjectContacts(db, scope, projectId, contactIds)
+  await repository.setProjectTechnologies(
+    db,
+    scope,
+    projectId,
+    await liveTechnologies(db, scope, fields.technologyIds),
+  )
+  await repository.setProjectAnswers(
+    db,
+    scope,
+    projectId,
+    await liveAnswers(db, scope, fields.answers),
+  )
+}
+
+// The technologies, each once, refused unless all are live catalogue entries.
+async function liveTechnologies(db: Executor, scope: Scope, technologyIds: string[]) {
+  const ids = [...new Set(technologyIds)]
+  if ((await repository.findLiveTechnologies(db, scope, ids)).length !== ids.length) {
+    throw new AppError('INVALID', 'technology_not_found')
+  }
+  return ids
+}
+
+// The answers, refused unless each is to a live characteristic, once.
+async function liveAnswers(db: Executor, scope: Scope, answers: ProjectFields['answers']) {
+  const live = new Set((await repository.listChecklist(db, scope)).map((each) => each.id))
+  const ids = new Set(answers.map((each) => each.criterionId))
+  if (ids.size !== answers.length || ![...ids].every((id) => live.has(id))) {
+    throw new AppError('INVALID', 'criterion_not_found')
+  }
+  return answers
 }
 
 // A name that normalizes like an existing project's is allowed: the form only warns,
@@ -295,5 +352,24 @@ export async function deleteContact(db: Database, scope: Scope, input: DeleteCon
   await db.transaction(async (tx) => {
     await requireContact(tx, scope, input.contactId)
     await repository.removeContact(tx, scope, input.contactId)
+  })
+}
+
+// Adopts a technology participants used: the project lists it from now on. Participations
+// keep their own lists either way (docs/product.md, "Technologies on projects and
+// participations").
+export async function addProjectTechnology(
+  db: Database,
+  scope: Scope,
+  input: AddProjectTechnologyInput,
+) {
+  requirePermission(scope, { project: ['update'] }, 'project_forbidden')
+  await db.transaction(async (tx) => {
+    if (!(await repository.findProject(tx, scope, input.projectId))) {
+      throw new AppError('NOT_FOUND', 'project_not_found')
+    }
+    await liveTechnologies(tx, scope, [input.technologyId])
+    await repository.insertProjectTechnologies(tx, scope, input.projectId, [input.technologyId])
+    await repository.touchProject(tx, scope, input.projectId)
   })
 }

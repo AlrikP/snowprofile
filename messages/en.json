@@ -273,5 +273,12 @@
       }
     }
   ],
-  "contacts_change_customer_confirm": "Change customer"
+  "contacts_change_customer_confirm": "Change customer",
+  "project_section_technologies": "Technologies",
+  "project_participant_technologies": "Participants also used",
+  "project_participant_technologies_hint": "Add the ones the project used. Participants’ CVs don’t change either way.",
+  "project_add_participant_technology": "Add {name} to the project (participants: {count})",
+  "project_section_criteria_hint": "Answer yes or no for each one. A note is internal and stays out of CVs.",
+  "criterion_note": "Note",
+  "criterion_note_for": "Note on {name}"
 }

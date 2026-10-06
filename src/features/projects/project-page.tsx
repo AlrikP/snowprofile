@@ -1,4 +1,4 @@
-import { useSuspenseQuery } from '@tanstack/react-query'
+import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import {
   ArrowLeftIcon,
@@ -18,10 +18,12 @@ import { Button } from '#/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader } from '#/components/ui/card'
 import { formatApproximateNumber } from '#/lib/approximate-number'
 import { formatDateTime } from '#/lib/date-time'
+import { errorMessage } from '#/lib/errors'
 import { formatPeriod } from '#/lib/period'
 import { m } from '#/paraglide/messages.js'
-import type { ProjectView } from '#/server/projects/projects.functions'
-import { projectQuery } from './projects-query'
+import { addProjectTechnology, type ProjectView } from '#/server/projects/projects.functions'
+import { ParticipantTechnologies } from './participant-technologies'
+import { projectQuery, projectsKey } from './projects-query'
 
 type Person = ProjectView['people'][number]
 type Details = NonNullable<ProjectView['details']>
@@ -133,6 +135,38 @@ function TenderDetails({ details }: { details: Details }) {
   )
 }
 
+// For admins: technologies participants used that the project doesn't list, added to the
+// project with one click.
+function AdoptTechnologies({
+  organizationId,
+  project,
+}: {
+  organizationId: string
+  project: ProjectView
+}) {
+  const queryClient = useQueryClient()
+  const adopt = useMutation({
+    mutationFn: (technologyId: string) =>
+      addProjectTechnology({ data: { organizationId, projectId: project.id, technologyId } }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: projectsKey(organizationId) }),
+  })
+  if (!project.participantTechnologies?.length) return null
+  return (
+    <div className="flex flex-col gap-2">
+      <ParticipantTechnologies
+        technologies={project.participantTechnologies}
+        onAdd={(technologyId) => adopt.mutate(technologyId)}
+        disabled={adopt.isPending}
+      />
+      {adopt.error && (
+        <p role="alert" className="text-destructive text-sm">
+          {errorMessage(adopt.error)}
+        </p>
+      )}
+    </div>
+  )
+}
+
 // One project, with tender details for admins and participants (prototypes/project.html).
 export function ProjectPage({
   organizationId,
@@ -199,6 +233,8 @@ export function ProjectPage({
           ))}
         </ul>
       )}
+
+      <AdoptTechnologies organizationId={organizationId} project={project} />
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
         <div className="flex flex-col gap-6">

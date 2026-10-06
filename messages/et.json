@@ -229,5 +229,12 @@
       }
     }
   ],
-  "contacts_change_customer_confirm": "Muuda klienti"
+  "contacts_change_customer_confirm": "Muuda klienti",
+  "project_section_technologies": "Tehnoloogiad",
+  "project_participant_technologies": "Osalejad kasutasid ka",
+  "project_participant_technologies_hint": "Lisa projektile need, mida projekt kasutas. Osalejate CV-d ei muutu kummalgi juhul.",
+  "project_add_participant_technology": "Lisa projektile {name} (osalejaid: {count})",
+  "project_section_criteria_hint": "Märgi iga näitaja kohta jah või ei. Märkus on sisemine ega lähe CV-sse.",
+  "criterion_note": "Märkus",
+  "criterion_note_for": "Märkus: {name}"
 }
