@@ -33,6 +33,7 @@ export const errorMessages = {
   role_exists: 'That role is already in the list.',
   role_not_found: 'Role not found.',
   role_merge_self: 'Choose another role to merge into.',
+  project_not_found: 'Project not found.',
 } as const
 
 export type AppErrorKey = keyof typeof errorMessages

@@ -106,4 +106,16 @@ test.describe('the employee', () => {
 
     await expect(page).toHaveURL(/\/demo\/profile$/)
   })
+
+  test('projects.details-hidden: a project they didn’t take part in hides its tender details', async ({
+    page,
+  }) => {
+    await page.goto('/demo/projects')
+    const notMine = page.getByRole('row').filter({ hasNot: page.getByText('You took part') })
+    await notMine.nth(1).getByRole('link').click()
+
+    await expect(page).toHaveURL(/\/demo\/projects\/[0-9a-f-]+$/)
+    await expect(page.getByText(/see the tender details and contact persons/)).toBeVisible()
+    await expect(page.getByRole('region', { name: 'Tender details' })).toHaveCount(0)
+  })
 })

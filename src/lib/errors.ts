@@ -23,6 +23,7 @@ const errorText: Record<AppErrorKey, () => string> = {
   role_exists: m.error_role_exists,
   role_not_found: m.error_role_not_found,
   role_merge_self: m.error_role_merge_self,
+  project_not_found: m.error_project_not_found,
 }
 
 // The text to show for an error from a server function. Server functions send codes and

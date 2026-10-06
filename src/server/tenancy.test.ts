@@ -25,6 +25,7 @@ import * as account from './account/account.repository.server'
 import * as criteria from './criteria/criteria.repository.server'
 import { findMemberRole, listMemberships } from './organizations/organizations.repository.server'
 import * as profiles from './profiles/profiles.repository.server'
+import * as projects from './projects/projects.repository.server'
 import * as roles from './roles/roles.repository.server'
 import { resolveScope, type Scope } from './scope.server'
 import * as technologies from './technologies/technologies.repository.server'
@@ -44,6 +45,8 @@ const b = {
   criterionId: '',
   roleId: '',
   otherRoleId: '',
+  // A project with participations, answers, technologies, and contacts.
+  projectId: '',
 }
 // A category in A, for writes that would otherwise fail on the category alone.
 let aCategoryId = ''
@@ -120,6 +123,16 @@ beforeAll(async () => {
   if (usedRoles.length < 2) throw new Error('expected seeded roles in B')
   b.roleId = usedRoles[0]?.id ?? ''
   b.otherRoleId = usedRoles[1]?.id ?? ''
+  const full = await db.$client.execute(`
+    SELECT p.id FROM project p WHERE p.organization_id = '${b.organizationId}'
+      AND EXISTS (SELECT 1 FROM participation pa WHERE pa.project_id = p.id)
+      AND EXISTS (SELECT 1 FROM project_criterion_answer a WHERE a.project_id = p.id)
+      AND EXISTS (SELECT 1 FROM project_technology pt WHERE pt.project_id = p.id)
+      AND EXISTS (SELECT 1 FROM project_contact pc WHERE pc.project_id = p.id)
+    LIMIT 1`)
+  const projectId = full.rows[0]?.[0]
+  if (typeof projectId !== 'string') throw new Error('expected a fully seeded project in B')
+  b.projectId = projectId
 })
 
 async function bRole(id: string) {
@@ -233,6 +246,33 @@ const cases: Record<string, () => Promise<void>> = {
     }
     expect(await failure(insert)).toContain('FOREIGN KEY')
     expect(await bRequests()).toBe(before)
+  },
+  'projects.listProjects': async () => {
+    const ids = (await projects.listProjects(db, scopeA)).map((row) => row.id)
+    expect(ids).not.toContain(b.projectId)
+  },
+  'projects.listProjectTechnologies': async () => {
+    const all = await projects.listProjectTechnologies(db, scopeA)
+    expect(all.map((row) => row.projectId)).not.toContain(b.projectId)
+    expect(await projects.listProjectTechnologies(db, scopeA, b.projectId)).toEqual([])
+  },
+  'projects.findProject': async () => {
+    expect(await projects.findProject(db, scopeA, b.projectId)).toBeUndefined()
+  },
+  'projects.listProjectCriteria': async () => {
+    // A's checklist, without B's answers.
+    const rows = await projects.listProjectCriteria(db, scopeA, b.projectId)
+    expect(rows.length).toBeGreaterThan(0)
+    expect(rows.every((row) => row.answer === null)).toBe(true)
+  },
+  'projects.listProjectPeople': async () => {
+    expect(await projects.listProjectPeople(db, scopeA, b.projectId)).toEqual([])
+  },
+  'projects.listProjectRoles': async () => {
+    expect(await projects.listProjectRoles(db, scopeA, b.projectId)).toEqual([])
+  },
+  'projects.listProjectContacts': async () => {
+    expect(await projects.listProjectContacts(db, scopeA, b.projectId)).toEqual([])
   },
   'roles.listRoles': async () => {
     const ids = (await roles.listRoles(db, scopeA)).map((row) => row.id)

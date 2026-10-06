@@ -1,6 +1,6 @@
 # 029: Projects
 
-Status: todo
+Status: in-progress
 
 The organization's projects: a list every member sees, a project page, and the admin's
 editing. Own projects are task 033.

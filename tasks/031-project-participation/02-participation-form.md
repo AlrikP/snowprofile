@@ -15,7 +15,8 @@ Depends on: task 030 (the profile page), task 032 (role picker), task 025 (input
       roles.
 - [ ] Only the person changes their participations; an admin's project edit never does.
 - [ ] "Edit my participation" on the project page opens that participation on the
-      profile.
+      profile. Task 029.1 links to `/$organization/profile?participation=<id>`, and the
+      profile route already validates the search param.
 
 ## Spec changes
 

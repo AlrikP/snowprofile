@@ -82,6 +82,7 @@
   "error_role_exists": "That role is already in the list.",
   "error_role_not_found": "Role not found.",
   "error_role_merge_self": "Choose another role to merge into.",
+  "error_project_not_found": "Project not found.",
   "action_close": "Close",
   "action_cancel": "Cancel",
   "action_save": "Save",
@@ -176,6 +177,46 @@
         "countPlural=one": "Its {count} use moves to the chosen role, and “{name}” leaves the list.",
         "countPlural=*": "All {count} uses move to the chosen role, and “{name}” leaves the list."
       }
+    }
+  ],
+  "action_back_to_projects": "Projects",
+  "projects_title": "Projects",
+  "projects_search": "Search projects",
+  "projects_all_customers": "All customers",
+  "projects_only_mine": "Only my projects",
+  "projects_col_name": "Project",
+  "projects_col_customer": "Customer",
+  "projects_col_period": "Period",
+  "projects_col_technologies": "Technologies",
+  "projects_col_people": "People",
+  "projects_you_took_part": "You took part",
+  "projects_no_customer": "No customer",
+  "projects_more": "+{count}",
+  "projects_empty": "No projects yet.",
+  "projects_no_match": "No project matches.",
+  "project_section_description": "Description",
+  "project_section_tender": "Tender details",
+  "project_tender_reference": "Tender reference number",
+  "project_hours": "Total hours",
+  "project_cost": "Cost",
+  "project_section_contacts": "Contact persons",
+  "contact_no_longer_valid": "No longer valid",
+  "project_section_criteria": "Solution characteristics",
+  "answer_yes": "Yes",
+  "answer_no": "No",
+  "answer_none": "Unanswered",
+  "project_section_people": "Participants",
+  "project_person_left": "Left",
+  "project_my_participation": "My participation",
+  "project_edit_my_participation": "Edit my participation",
+  "project_details_hidden": "Admins and the project’s participants see the tender details and contact persons.",
+  "project_last_change": "Last changed {at} by {name}",
+  "project_last_change_system": "Last changed {at} by the system",
+  "projects_count": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": { "countPlural=one": "{count} project", "countPlural=*": "{count} projects" }
     }
   ]
 }

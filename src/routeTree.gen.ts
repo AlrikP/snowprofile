@@ -19,11 +19,12 @@ import { Route as OrganizationCvsRouteImport } from './routes/$organization/cvs'
 import { Route as OrganizationMembersRouteImport } from './routes/$organization/members'
 import { Route as OrganizationPeopleRouteImport } from './routes/$organization/people'
 import { Route as OrganizationProfileRouteImport } from './routes/$organization/profile'
-import { Route as OrganizationProjectsRouteImport } from './routes/$organization/projects'
 import { Route as OrganizationRolesRouteImport } from './routes/$organization/roles'
 import { Route as OrganizationSearchRouteImport } from './routes/$organization/search'
 import { Route as OrganizationTechnologiesRouteImport } from './routes/$organization/technologies'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
+import { Route as OrganizationProjectsIndexRouteImport } from './routes/$organization/projects.index'
+import { Route as OrganizationProjectsProjectIdRouteImport } from './routes/$organization/projects.$projectId'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
 const IndexRoute = IndexRouteImport.update({
@@ -76,11 +77,6 @@ const OrganizationProfileRoute = OrganizationProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => OrganizationRouteRoute,
 } as any)
-const OrganizationProjectsRoute = OrganizationProjectsRouteImport.update({
-  id: '/projects',
-  path: '/projects',
-  getParentRoute: () => OrganizationRouteRoute,
-} as any)
 const OrganizationRolesRoute = OrganizationRolesRouteImport.update({
   id: '/roles',
   path: '/roles',
@@ -102,6 +98,18 @@ const ApiHealthRoute = ApiHealthRouteImport.update({
   path: '/api/health',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OrganizationProjectsIndexRoute =
+  OrganizationProjectsIndexRouteImport.update({
+    id: '/projects/',
+    path: '/projects/',
+    getParentRoute: () => OrganizationRouteRoute,
+  } as any)
+const OrganizationProjectsProjectIdRoute =
+  OrganizationProjectsProjectIdRouteImport.update({
+    id: '/projects/$projectId',
+    path: '/projects/$projectId',
+    getParentRoute: () => OrganizationRouteRoute,
+  } as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -118,13 +126,14 @@ export interface FileRoutesByFullPath {
   '/$organization/members': typeof OrganizationMembersRoute
   '/$organization/people': typeof OrganizationPeopleRoute
   '/$organization/profile': typeof OrganizationProfileRoute
-  '/$organization/projects': typeof OrganizationProjectsRoute
   '/$organization/roles': typeof OrganizationRolesRoute
   '/$organization/search': typeof OrganizationSearchRoute
   '/$organization/technologies': typeof OrganizationTechnologiesRoute
   '/api/health': typeof ApiHealthRoute
   '/$organization/': typeof OrganizationIndexRoute
+  '/$organization/projects/$projectId': typeof OrganizationProjectsProjectIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/$organization/projects/': typeof OrganizationProjectsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -135,13 +144,14 @@ export interface FileRoutesByTo {
   '/$organization/members': typeof OrganizationMembersRoute
   '/$organization/people': typeof OrganizationPeopleRoute
   '/$organization/profile': typeof OrganizationProfileRoute
-  '/$organization/projects': typeof OrganizationProjectsRoute
   '/$organization/roles': typeof OrganizationRolesRoute
   '/$organization/search': typeof OrganizationSearchRoute
   '/$organization/technologies': typeof OrganizationTechnologiesRoute
   '/api/health': typeof ApiHealthRoute
   '/$organization': typeof OrganizationIndexRoute
+  '/$organization/projects/$projectId': typeof OrganizationProjectsProjectIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/$organization/projects': typeof OrganizationProjectsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -154,13 +164,14 @@ export interface FileRoutesById {
   '/$organization/members': typeof OrganizationMembersRoute
   '/$organization/people': typeof OrganizationPeopleRoute
   '/$organization/profile': typeof OrganizationProfileRoute
-  '/$organization/projects': typeof OrganizationProjectsRoute
   '/$organization/roles': typeof OrganizationRolesRoute
   '/$organization/search': typeof OrganizationSearchRoute
   '/$organization/technologies': typeof OrganizationTechnologiesRoute
   '/api/health': typeof ApiHealthRoute
   '/$organization/': typeof OrganizationIndexRoute
+  '/$organization/projects/$projectId': typeof OrganizationProjectsProjectIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/$organization/projects/': typeof OrganizationProjectsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -174,13 +185,14 @@ export interface FileRouteTypes {
     | '/$organization/members'
     | '/$organization/people'
     | '/$organization/profile'
-    | '/$organization/projects'
     | '/$organization/roles'
     | '/$organization/search'
     | '/$organization/technologies'
     | '/api/health'
     | '/$organization/'
+    | '/$organization/projects/$projectId'
     | '/api/auth/$'
+    | '/$organization/projects/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -191,13 +203,14 @@ export interface FileRouteTypes {
     | '/$organization/members'
     | '/$organization/people'
     | '/$organization/profile'
-    | '/$organization/projects'
     | '/$organization/roles'
     | '/$organization/search'
     | '/$organization/technologies'
     | '/api/health'
     | '/$organization'
+    | '/$organization/projects/$projectId'
     | '/api/auth/$'
+    | '/$organization/projects'
   id:
     | '__root__'
     | '/'
@@ -209,13 +222,14 @@ export interface FileRouteTypes {
     | '/$organization/members'
     | '/$organization/people'
     | '/$organization/profile'
-    | '/$organization/projects'
     | '/$organization/roles'
     | '/$organization/search'
     | '/$organization/technologies'
     | '/api/health'
     | '/$organization/'
+    | '/$organization/projects/$projectId'
     | '/api/auth/$'
+    | '/$organization/projects/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -299,13 +313,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrganizationProfileRouteImport
       parentRoute: typeof OrganizationRouteRoute
     }
-    '/$organization/projects': {
-      id: '/$organization/projects'
-      path: '/projects'
-      fullPath: '/$organization/projects'
-      preLoaderRoute: typeof OrganizationProjectsRouteImport
-      parentRoute: typeof OrganizationRouteRoute
-    }
     '/$organization/roles': {
       id: '/$organization/roles'
       path: '/roles'
@@ -334,6 +341,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiHealthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/$organization/projects/': {
+      id: '/$organization/projects/'
+      path: '/projects'
+      fullPath: '/$organization/projects/'
+      preLoaderRoute: typeof OrganizationProjectsIndexRouteImport
+      parentRoute: typeof OrganizationRouteRoute
+    }
+    '/$organization/projects/$projectId': {
+      id: '/$organization/projects/$projectId'
+      path: '/projects/$projectId'
+      fullPath: '/$organization/projects/$projectId'
+      preLoaderRoute: typeof OrganizationProjectsProjectIdRouteImport
+      parentRoute: typeof OrganizationRouteRoute
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -350,11 +371,12 @@ interface OrganizationRouteRouteChildren {
   OrganizationMembersRoute: typeof OrganizationMembersRoute
   OrganizationPeopleRoute: typeof OrganizationPeopleRoute
   OrganizationProfileRoute: typeof OrganizationProfileRoute
-  OrganizationProjectsRoute: typeof OrganizationProjectsRoute
   OrganizationRolesRoute: typeof OrganizationRolesRoute
   OrganizationSearchRoute: typeof OrganizationSearchRoute
   OrganizationTechnologiesRoute: typeof OrganizationTechnologiesRoute
   OrganizationIndexRoute: typeof OrganizationIndexRoute
+  OrganizationProjectsProjectIdRoute: typeof OrganizationProjectsProjectIdRoute
+  OrganizationProjectsIndexRoute: typeof OrganizationProjectsIndexRoute
 }
 
 const OrganizationRouteRouteChildren: OrganizationRouteRouteChildren = {
@@ -363,11 +385,12 @@ const OrganizationRouteRouteChildren: OrganizationRouteRouteChildren = {
   OrganizationMembersRoute: OrganizationMembersRoute,
   OrganizationPeopleRoute: OrganizationPeopleRoute,
   OrganizationProfileRoute: OrganizationProfileRoute,
-  OrganizationProjectsRoute: OrganizationProjectsRoute,
   OrganizationRolesRoute: OrganizationRolesRoute,
   OrganizationSearchRoute: OrganizationSearchRoute,
   OrganizationTechnologiesRoute: OrganizationTechnologiesRoute,
   OrganizationIndexRoute: OrganizationIndexRoute,
+  OrganizationProjectsProjectIdRoute: OrganizationProjectsProjectIdRoute,
+  OrganizationProjectsIndexRoute: OrganizationProjectsIndexRoute,
 }
 
 const OrganizationRouteRouteWithChildren =
