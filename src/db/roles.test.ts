@@ -16,6 +16,17 @@ import { createTestDatabase, failure } from './testing'
 
 const ROLE_MIGRATION = readdirSync('drizzle').find((name) => name.endsWith('_role_catalogue'))
 
+// A copy of the migrations named before last, or through it, so a later migration that
+// touches the same tables doesn't run in the middle of the test.
+function migrationsUpTo(target: string, last: string, inclusive = false) {
+  for (const name of readdirSync('drizzle')) {
+    if (name < last || (inclusive && name === last)) {
+      cpSync(join('drizzle', name), join(target, name), { recursive: true })
+    }
+  }
+  return target
+}
+
 describe('role catalogue migration', () => {
   let dir: string
   let db: Database
@@ -94,13 +105,8 @@ describe('role catalogue migration', () => {
   beforeAll(async () => {
     if (!ROLE_MIGRATION) throw new Error('The role catalogue migration is missing.')
     dir = mkdtempSync(join(tmpdir(), 'snowprofile-roles-'))
-    const before = join(dir, 'before')
-    cpSync('drizzle', before, {
-      recursive: true,
-      filter: (source) => !source.includes(ROLE_MIGRATION),
-    })
     db = openDatabase(`file:${join(dir, 'test.db')}`)
-    await migrate(db, { migrationsFolder: before })
+    await migrate(db, { migrationsFolder: migrationsUpTo(join(dir, 'before'), ROLE_MIGRATION) })
 
     for (const [id, slug] of [
       [home, 'home'],
@@ -125,7 +131,9 @@ describe('role catalogue migration', () => {
       [rows.developerLowercase, home, homeParents.profileId, SYSTEM_USER_ID, SYSTEM_USER_ID],
     )
 
-    await migrate(db, { migrationsFolder: 'drizzle' })
+    await migrate(db, {
+      migrationsFolder: migrationsUpTo(join(dir, 'through'), ROLE_MIGRATION, true),
+    })
   })
 
   afterAll(() => {

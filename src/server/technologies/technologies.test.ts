@@ -1,7 +1,7 @@
 /// <reference types="bun" />
 
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
-import { and, eq, sql } from 'drizzle-orm'
+import { and, eq, ne, sql } from 'drizzle-orm'
 import { v7 as uuidv7 } from 'uuid'
 import type { Database } from '#/db'
 import { withActor } from '#/db/actor'
@@ -55,6 +55,50 @@ beforeAll(async () => {
 afterAll(() => cleanup())
 
 describe('the catalogue', () => {
+  // Two people use it: one in a participation and an own project, one in a participation.
+  // A person counts once, however many places they used it.
+  let counted: string
+
+  beforeAll(async () => {
+    counted = await add(admin, 'Counted Tech')
+    const organizationId = seedIds.orgs.demo
+    const [twice] = await db
+      .select({
+        ownProjectId: ownProject.id,
+        participationId: participation.id,
+        profileId: participation.profileId,
+        projectId: participation.projectId,
+      })
+      .from(ownProject)
+      .innerJoin(participation, eq(participation.profileId, ownProject.profileId))
+      .where(eq(ownProject.organizationId, organizationId))
+      .limit(1)
+    if (!twice) throw new Error('expected a seeded person with an own project and a participation')
+    const [once] = await db
+      .select({ id: participation.id })
+      .from(participation)
+      .where(
+        and(
+          eq(participation.organizationId, organizationId),
+          ne(participation.profileId, twice.profileId),
+        ),
+      )
+      .limit(1)
+    if (!once) throw new Error('expected a seeded participation of another person')
+    await as(admin, async () => {
+      await db
+        .insert(projectTechnology)
+        .values({ projectId: twice.projectId, technologyId: counted, organizationId })
+      await db.insert(participationTechnology).values([
+        { participationId: twice.participationId, technologyId: counted, organizationId },
+        { participationId: once.id, technologyId: counted, organizationId },
+      ])
+      await db
+        .insert(ownProjectTechnology)
+        .values({ ownProjectId: twice.ownProjectId, technologyId: counted, organizationId })
+    })
+  })
+
   test('technology-catalogue.grouped-by-category: lists categories in order and counts uses', async () => {
     const { categories: rows, technologies } = await catalogue(db, employee)
     const positions = await db
@@ -64,15 +108,10 @@ describe('the catalogue', () => {
       .orderBy(technologyCategory.position)
     expect(rows.map((row) => row.id)).toEqual(positions.map((row) => row.id))
 
-    const used = technologies.find((row) => row.projects > 0)
-    if (!used) throw new Error('expected a technology on a seeded project')
-    const [projects] = await db
-      .select({ n: sql<number>`count(DISTINCT ${projectTechnology.projectId})` })
-      .from(projectTechnology)
-      .innerJoin(project, eq(project.id, projectTechnology.projectId))
-      .where(and(eq(projectTechnology.technologyId, used.id), eq(project.sysDeleted, sql`0`)))
-    expect(used.projects).toBe(projects?.n ?? -1)
-    expect(technologies.some((row) => row.people > 0)).toBe(true)
+    expect(technologies.find((row) => row.id === counted)).toMatchObject({
+      projects: 1,
+      people: 2,
+    })
   })
 
   test('leaves out another organization’s entries', async () => {

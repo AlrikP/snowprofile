@@ -57,4 +57,23 @@ test.describe('the employee', () => {
       'Technologies',
     ])
   })
+
+  test('technology-catalogue.employee-adds: adds an entry on the technologies page', async ({
+    page,
+  }) => {
+    await page.goto('/demo/technologies')
+    await expect(page.getByRole('heading', { name: 'Technologies', level: 1 })).toBeVisible()
+
+    await page.getByRole('button', { name: 'Add technology' }).click()
+    const dialog = page.getByRole('dialog', { name: 'Add technology' })
+    await dialog.getByLabel('Name').fill('Playwright Probe')
+    await dialog.getByRole('button', { name: 'Save' }).click()
+
+    await expect(dialog).toBeHidden()
+    const added = page.getByRole('listitem').filter({ hasText: 'Playwright Probe' })
+    await expect(added).toBeVisible()
+    // Loaded again on the server, through the route's loader.
+    await page.reload()
+    await expect(added).toBeVisible()
+  })
 })
