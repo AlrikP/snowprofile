@@ -1,7 +1,7 @@
 import { createFileRoute, getRouteApi } from '@tanstack/react-router'
 import { ProjectsPage, ProjectsPending } from '#/features/projects/projects-page'
-import { projectsQuery } from '#/features/projects/projects-query'
 import { roleHasPermission } from '#/lib/permissions'
+import { projectsQuery } from '#/lib/project-list'
 
 const organizationRoute = getRouteApi('/$organization')
 

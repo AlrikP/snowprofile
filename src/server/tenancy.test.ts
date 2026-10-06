@@ -14,6 +14,7 @@ import {
   customer,
   education,
   employeeProfile,
+  participation,
   participationRole,
   project,
   projectRole,
@@ -29,6 +30,7 @@ import { createTestDatabase, failure } from '#/db/testing'
 import * as account from './account/account.repository.server'
 import * as criteria from './criteria/criteria.repository.server'
 import { findMemberRole, listMemberships } from './organizations/organizations.repository.server'
+import * as participations from './profiles/participations.repository.server'
 import * as profiles from './profiles/profiles.repository.server'
 import * as projects from './projects/projects.repository.server'
 import * as roles from './roles/roles.repository.server'
@@ -55,6 +57,9 @@ const b = {
   // A customer whose name A has no customer of.
   customerId: '',
   customerName: '',
+  // A participation in B, on its profile.
+  participationId: '',
+  participationProfileId: '',
   // An education entry on a profile in B.
   educationId: '',
   educationProfileId: '',
@@ -176,7 +181,38 @@ beforeAll(async () => {
   if (!entry) throw new Error('expected an education entry in B')
   b.educationId = entry.id
   b.educationProfileId = entry.profileId
+  const [taken] = await db
+    .select({ id: participation.id, profileId: participation.profileId })
+    .from(participation)
+    .innerJoin(participationRole, eq(participationRole.participationId, participation.id))
+    .where(eq(participation.organizationId, b.organizationId))
+  if (!taken) throw new Error('expected a participation with roles in B')
+  b.participationId = taken.id
+  b.participationProfileId = taken.profileId
 })
+
+async function bParticipation() {
+  const [row] = await db.select().from(participation).where(eq(participation.id, b.participationId))
+  return row
+}
+
+async function bParticipationRoles() {
+  const rows = await db
+    .select({ roleId: participationRole.roleId, by: participationRole.createdBy })
+    .from(participationRole)
+    .where(eq(participationRole.participationId, b.participationId))
+  return rows.map((row) => `${row.roleId}|${row.by}`).sort()
+}
+
+const participationValues = {
+  projectId: '',
+  startDate: '2024',
+  endDate: null,
+  hours: null,
+  hoursQualifier: null,
+  tasksEt: 'A-st',
+  tasksEn: null,
+}
 
 async function bEducation() {
   const [row] = await db.select().from(education).where(eq(education.id, b.educationId))
@@ -407,6 +443,75 @@ const cases: Record<string, () => Promise<void>> = {
   },
   'projects.listProjectContacts': async () => {
     expect(await projects.listProjectContacts(db, scopeA, b.projectId)).toEqual([])
+  },
+  'participations.listParticipations': async () => {
+    expect(await participations.listParticipations(db, scopeA, b.participationProfileId)).toEqual(
+      [],
+    )
+  },
+  'participations.listParticipationRoles': async () => {
+    expect(
+      await participations.listParticipationRoles(db, scopeA, b.participationProfileId),
+    ).toEqual([])
+  },
+  'participations.findParticipation': async () => {
+    expect(
+      await participations.findParticipation(
+        db,
+        scopeA,
+        b.participationProfileId,
+        b.participationId,
+      ),
+    ).toBeUndefined()
+  },
+  'participations.findLiveProject': async () => {
+    expect(await participations.findLiveProject(db, scopeA, b.projectId)).toBeUndefined()
+  },
+  'participations.findLiveRoles': async () => {
+    expect(await participations.findLiveRoles(db, scopeA, [b.roleId])).toEqual([])
+  },
+  'participations.insertParticipation': async () => {
+    // The organization comes from the scope, so B's profile and project can't be used.
+    function insert() {
+      return withActor(scopeA.userId, () =>
+        participations.insertParticipation(db, scopeA, {
+          ...participationValues,
+          id: uuidv7(),
+          profileId: b.participationProfileId,
+          projectId: b.projectId,
+        }),
+      )
+    }
+    expect(await failure(insert)).toContain('FOREIGN KEY')
+  },
+  'participations.updateParticipation': async () => {
+    const before = await bParticipation()
+    await withActor(scopeA.userId, () =>
+      participations.updateParticipation(db, scopeA, b.participationProfileId, b.participationId, {
+        ...participationValues,
+        projectId: before?.projectId ?? '',
+      }),
+    )
+    expect((await bParticipation())?.tasksEt).toBe(before?.tasksEt)
+  },
+  'participations.removeParticipation': async () => {
+    await withActor(scopeA.userId, () =>
+      participations.removeParticipation(db, scopeA, b.participationProfileId, b.participationId),
+    )
+    expect((await bParticipation())?.sysDeleted).toBe(false)
+  },
+  'participations.setParticipationRoles': async () => {
+    // The delete is scoped, so B's roles stay; the insert fails on the keys, since the
+    // rows would be A's.
+    const before = await bParticipationRoles()
+    expect(
+      await failure(() =>
+        withActor(scopeA.userId, () =>
+          participations.setParticipationRoles(db, scopeA, b.participationId, [uuidv7()]),
+        ),
+      ),
+    ).toContain('FOREIGN KEY')
+    expect(await bParticipationRoles()).toEqual(before)
   },
   'profiles.findOwnProfile': async () => {
     // A's user has a profile in A; it's found by the scope's organization, not B's.

@@ -26,6 +26,7 @@ import { formatDateTime } from '#/lib/date-time'
 import { errorMessage } from '#/lib/errors'
 import { normalizeName } from '#/lib/normalize-name'
 import { parsePeriodInput, periodInputValue } from '#/lib/period'
+import { projectsKey, projectsQuery } from '#/lib/project-list'
 import { m } from '#/paraglide/messages.js'
 import {
   createProject,
@@ -38,7 +39,7 @@ import { FormSection } from './form-section'
 import { type ContactsCustomer, ProjectContacts } from './project-contacts'
 import { answersInputValue, parseAnswers, ProjectCriteria } from './project-criteria'
 import { ProjectTechnologies } from './project-technologies'
-import { customersQuery, projectFormQuery, projectsKey, projectsQuery } from './projects-query'
+import { customersQuery, projectFormQuery } from './projects-query'
 
 function initialValues(stored: ProjectForm | null) {
   return {

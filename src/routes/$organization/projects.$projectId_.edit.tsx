@@ -5,9 +5,9 @@ import {
   contactsQuery,
   customersQuery,
   projectFormQuery,
-  projectsQuery,
 } from '#/features/projects/projects-query'
 import { roleHasPermission } from '#/lib/permissions'
+import { projectsQuery } from '#/lib/project-list'
 import { technologyCatalogueQuery } from '#/lib/technology-catalogue'
 
 const organizationRoute = getRouteApi('/$organization')

@@ -1,6 +1,8 @@
 import { createFileRoute, getRouteApi } from '@tanstack/react-router'
 import { ProfilePage, ProfilePending } from '#/features/profile/profile-page'
-import { myProfileQuery } from '#/features/profile/profile-query'
+import { myParticipationsQuery, myProfileQuery } from '#/features/profile/profile-query'
+import { projectsQuery } from '#/lib/project-list'
+import { roleCatalogueQuery } from '#/lib/role-catalogue'
 
 const organizationRoute = getRouteApi('/$organization')
 
@@ -10,7 +12,13 @@ export const Route = createFileRoute('/$organization/profile')({
     typeof search.participation === 'string' ? { participation: search.participation } : {},
   loader: async ({ context, parentMatchPromise }) => {
     const { organization } = (await parentMatchPromise).loaderData ?? {}
-    if (organization) await context.queryClient.ensureQueryData(myProfileQuery(organization.id))
+    if (!organization) return
+    await Promise.all([
+      context.queryClient.ensureQueryData(myProfileQuery(organization.id)),
+      context.queryClient.ensureQueryData(myParticipationsQuery(organization.id)),
+      context.queryClient.ensureQueryData(projectsQuery(organization.id)),
+      context.queryClient.ensureQueryData(roleCatalogueQuery(organization.id)),
+    ])
   },
   pendingComponent: ProfilePending,
   component: ProfileRoute,
@@ -18,5 +26,16 @@ export const Route = createFileRoute('/$organization/profile')({
 
 function ProfileRoute() {
   const { organization } = organizationRoute.useLoaderData()
-  return <ProfilePage organizationId={organization.id} />
+  const { participation } = Route.useSearch()
+  const navigate = Route.useNavigate()
+  return (
+    <ProfilePage
+      organizationId={organization.id}
+      organization={organization.slug}
+      initialParticipation={participation}
+      onParticipationClosed={() => {
+        if (participation) void navigate({ search: {}, replace: true })
+      }}
+    />
+  )
 }

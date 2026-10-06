@@ -300,5 +300,21 @@
   "education_empty": "No education added.",
   "education_edit_for": "Edit {name}",
   "education_delete": "Delete",
-  "education_delete_confirm": "Delete {name} from your education?"
+  "education_delete_confirm": "Delete {name} from your education?",
+  "error_participation_not_found": "Participation not found.",
+  "profile_section_participations": "Project participations",
+  "profile_section_participations_hint": "Your role and work on the organization’s projects.",
+  "participation_add": "Add participation",
+  "participation_title": "Participation in a project",
+  "participation_project": "Project",
+  "participation_project_choose": "Choose a project",
+  "participation_project_required": "Choose the project.",
+  "participation_roles": "Roles",
+  "participation_roles_required": "Add at least one role.",
+  "participation_hours": "Your hours",
+  "participation_tasks": "What you did",
+  "participation_empty": "No participations yet. Add a project you’ve worked on.",
+  "participation_edit_for": "Edit {name}",
+  "participation_delete": "Delete",
+  "participation_delete_confirm": "Delete your participation in {name}? The project stays, with the other participants."
 }

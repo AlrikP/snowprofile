@@ -106,6 +106,20 @@ test.describe('the employee', () => {
     await expect(education).toContainText('E2E Akadeemia')
   })
 
+  test('project-participation.added: opens their participation from the project page', async ({
+    page,
+  }) => {
+    await page.goto('/demo/projects')
+    await page.getByRole('checkbox', { name: 'Only my projects' }).click()
+    await page.getByRole('row').nth(1).getByRole('link').first().click()
+    await page.getByRole('link', { name: 'Edit my participation' }).first().click()
+
+    await expect(page).toHaveURL(/\/demo\/profile\?participation=/)
+    await expect(page.getByRole('dialog', { name: 'Participation in a project' })).toBeVisible()
+    await page.getByRole('button', { name: 'Cancel' }).click()
+    await expect(page).toHaveURL(/\/demo\/profile$/)
+  })
+
   test('technology-catalogue.employee-adds: adds an entry on the technologies page', async ({
     page,
   }) => {

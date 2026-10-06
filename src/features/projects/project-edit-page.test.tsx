@@ -1,6 +1,7 @@
 import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { projectsQuery } from '#/lib/project-list'
 import { technologyCatalogueQuery } from '#/lib/technology-catalogue'
 import type {
   ChecklistItem,
@@ -12,13 +13,7 @@ import type {
 import { renderPage } from '#/test/router'
 import { testCatalogue } from '#/test/technology-catalogue'
 import { ProjectEditPage } from './project-edit-page'
-import {
-  checklistQuery,
-  contactsQuery,
-  customersQuery,
-  projectFormQuery,
-  projectsQuery,
-} from './projects-query'
+import { checklistQuery, contactsQuery, customersQuery, projectFormQuery } from './projects-query'
 
 const server = vi.hoisted(() => ({
   getProjects: vi.fn(),

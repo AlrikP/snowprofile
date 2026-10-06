@@ -3,11 +3,12 @@ import { PencilIcon, UserPlusIcon } from 'lucide-react'
 import { useState } from 'react'
 import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
+import { projectsKey } from '#/lib/project-list'
 import { m } from '#/paraglide/messages.js'
 import type { Contact } from '#/server/projects/projects.functions'
 import { ContactDialog } from './contact-dialog'
 import { FormSection } from './form-section'
-import { contactsQuery, projectsKey } from './projects-query'
+import { contactsQuery } from './projects-query'
 
 // Which customer the form has: none, one added in this form and not yet stored, or a
 // stored one, whose contacts can be listed and added to.

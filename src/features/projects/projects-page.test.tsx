@@ -1,10 +1,10 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
+import { projectsQuery } from '#/lib/project-list'
 import type { ProjectListItem } from '#/server/projects/projects.functions'
 import { renderPage } from '#/test/router'
 import { ProjectsPage } from './projects-page'
-import { projectsQuery } from './projects-query'
 
 vi.mock('#/server/projects/projects.functions', () => ({
   getProjects: vi.fn(),

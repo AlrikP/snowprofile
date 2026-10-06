@@ -1,25 +1,30 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
+import { Link } from '@tanstack/react-router'
 import { GraduationCapIcon, LockIcon, PencilIcon, PlusIcon } from 'lucide-react'
 import { type ReactNode, useState } from 'react'
 import { BilingualText } from '#/components/bilingual-text'
 import { Button } from '#/components/ui/button'
-import { Card, CardAction, CardContent, CardHeader } from '#/components/ui/card'
+import { Card, CardAction, CardContent, CardDescription, CardHeader } from '#/components/ui/card'
+import { formatApproximateNumber } from '#/lib/approximate-number'
 import { formatDate } from '#/lib/date-time'
 import { formatPeriod } from '#/lib/period'
 import { m } from '#/paraglide/messages.js'
-import type { Education } from '#/server/profiles/profiles.functions'
+import type { Education, Participation } from '#/server/profiles/profiles.functions'
 import { EducationDialog, educationName } from './education-dialog'
+import { ParticipationDialog } from './participation-dialog'
 import { PersonalDialog } from './personal-dialog'
-import { myProfileQuery } from './profile-query'
+import { myParticipationsQuery, myProfileQuery } from './profile-query'
 
 function Section({
   id,
   title,
+  hint,
   action,
   children,
 }: {
   id: string
   title: string
+  hint?: string
   action: ReactNode
   children: ReactNode
 }) {
@@ -29,6 +34,7 @@ function Section({
         <h2 id={id} className="text-xl">
           {title}
         </h2>
+        {hint && <CardDescription>{hint}</CardDescription>}
         <CardAction>{action}</CardAction>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">{children}</CardContent>
@@ -78,11 +84,82 @@ function EducationEntry({ entry, onEdit }: { entry: Education; onEdit: () => voi
   )
 }
 
-// The signed-in member's own profile (prototypes/profile.html). Participations and own
-// projects get their sections in tasks 031 and 033.
-export function ProfilePage({ organizationId }: { organizationId: string }) {
+function ParticipationEntry({
+  organization,
+  participation,
+  onEdit,
+}: {
+  organization: string
+  participation: Participation
+  onEdit: () => void
+}) {
+  return (
+    <li className="flex flex-col gap-2 py-4">
+      <div className="flex items-start gap-2">
+        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+          <Link
+            to="/$organization/projects/$projectId"
+            params={{ organization, projectId: participation.projectId }}
+            className="font-medium underline-offset-4 hover:underline"
+          >
+            {participation.projectName}
+          </Link>
+          {participation.customerName && (
+            <span className="text-muted-foreground text-sm">{participation.customerName}</span>
+          )}
+        </div>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          aria-label={m.participation_edit_for({ name: participation.projectName })}
+          onClick={onEdit}
+        >
+          <PencilIcon />
+        </Button>
+      </div>
+      <p className="text-sm">
+        {participation.roles.map((role, index) => (
+          <span key={role.id} className="font-medium">
+            {index > 0 && ', '}
+            <BilingualText value={role.name} />
+          </span>
+        ))}
+        {' · '}
+        {formatPeriod(participation.startDate, participation.endDate)}
+        {participation.hours && ` · ${formatApproximateNumber(participation.hours, 'hours')}`}
+      </p>
+      {(participation.tasks.et || participation.tasks.en) && (
+        <p className="text-muted-foreground text-sm whitespace-pre-line">
+          <BilingualText value={participation.tasks} />
+        </p>
+      )}
+    </li>
+  )
+}
+
+// The signed-in member's own profile (prototypes/profile.html). Own projects get their
+// section in task 033.
+export function ProfilePage({
+  organizationId,
+  organization,
+  initialParticipation,
+  onParticipationClosed,
+}: {
+  organizationId: string
+  // The organization's slug, for links.
+  organization: string
+  // A participation to open for editing, as a project page's link asks.
+  initialParticipation?: string
+  onParticipationClosed: () => void
+}) {
   const { data: profile } = useSuspenseQuery(myProfileQuery(organizationId))
+  const { data: participations } = useSuspenseQuery(myParticipationsQuery(organizationId))
   const [personalOpen, setPersonalOpen] = useState(false)
+  // The participation being edited, null to add one, or undefined while the dialog is closed.
+  const [participation, setParticipation] = useState<Participation | null | undefined>(() =>
+    participations.find((each) => each.id === initialParticipation),
+  )
   // The entry being edited, null to add one, or undefined while the dialog is closed.
   const [editing, setEditing] = useState<Education | null | undefined>(undefined)
 
@@ -145,7 +222,44 @@ export function ProfilePage({ organizationId }: { organizationId: string }) {
             )}
           </Section>
         </div>
+        <div className="flex flex-col gap-6">
+          <Section
+            id="section-participations"
+            title={m.profile_section_participations()}
+            hint={m.profile_section_participations_hint()}
+            action={
+              <Button variant="outline" size="sm" onClick={() => setParticipation(null)}>
+                <PlusIcon />
+                {m.participation_add()}
+              </Button>
+            }
+          >
+            {participations.length === 0 ? (
+              <p className="text-muted-foreground text-sm">{m.participation_empty()}</p>
+            ) : (
+              <ul className="-mt-2 flex flex-col divide-y">
+                {participations.map((each) => (
+                  <ParticipationEntry
+                    key={each.id}
+                    organization={organization}
+                    participation={each}
+                    onEdit={() => setParticipation(each)}
+                  />
+                ))}
+              </ul>
+            )}
+          </Section>
+        </div>
       </div>
+      <ParticipationDialog
+        open={participation !== undefined}
+        onClose={() => {
+          setParticipation(undefined)
+          onParticipationClosed()
+        }}
+        organizationId={organizationId}
+        participation={participation ?? null}
+      />
       <PersonalDialog
         open={personalOpen}
         onClose={() => setPersonalOpen(false)}
@@ -168,6 +282,7 @@ export function ProfilePending() {
       <h1 className="text-3xl">{m.nav_my_profile()}</h1>
       <div className="grid max-w-6xl gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
         <div className="bg-muted h-64 animate-pulse rounded-xl" />
+        <div className="bg-muted h-96 animate-pulse rounded-xl" />
       </div>
     </main>
   )

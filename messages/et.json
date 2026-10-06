@@ -256,5 +256,21 @@
   "education_empty": "Haridust pole lisatud.",
   "education_edit_for": "Muuda: {name}",
   "education_delete": "Kustuta",
-  "education_delete_confirm": "Kustutada {name} sinu hariduse alt?"
+  "education_delete_confirm": "Kustutada {name} sinu hariduse alt?",
+  "error_participation_not_found": "Osalust ei leitud.",
+  "profile_section_participations": "Osalused projektides",
+  "profile_section_participations_hint": "Sinu roll ja töö organisatsiooni projektides.",
+  "participation_add": "Lisa osalus",
+  "participation_title": "Osalus projektis",
+  "participation_project": "Projekt",
+  "participation_project_choose": "Vali projekt",
+  "participation_project_required": "Vali projekt.",
+  "participation_roles": "Rollid",
+  "participation_roles_required": "Lisa vähemalt üks roll.",
+  "participation_hours": "Sinu töötunnid",
+  "participation_tasks": "Mida tegid",
+  "participation_empty": "Osalusi pole veel. Lisa projekt, kus oled töötanud.",
+  "participation_edit_for": "Muuda: {name}",
+  "participation_delete": "Kustuta",
+  "participation_delete_confirm": "Kustutada sinu osalus projektis {name}? Projekt jääb alles koos teiste osalejatega."
 }

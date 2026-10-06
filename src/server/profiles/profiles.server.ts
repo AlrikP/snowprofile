@@ -61,7 +61,7 @@ export async function myProfile(db: Database, scope: Scope) {
 }
 
 // The session user's profile ID, creating the profile first when there is none.
-async function ownProfileId(db: Executor, scope: Scope) {
+export async function ownProfileId(db: Executor, scope: Scope) {
   const profile = await repository.findOwnProfile(db, scope)
   if (profile) return profile.id
   const id = uuidv7()

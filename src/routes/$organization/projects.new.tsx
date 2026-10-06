@@ -1,7 +1,8 @@
 import { createFileRoute, getRouteApi, redirect } from '@tanstack/react-router'
 import { ProjectEditPage, ProjectEditPending } from '#/features/projects/project-edit-page'
-import { checklistQuery, customersQuery, projectsQuery } from '#/features/projects/projects-query'
+import { checklistQuery, customersQuery } from '#/features/projects/projects-query'
 import { roleHasPermission } from '#/lib/permissions'
+import { projectsQuery } from '#/lib/project-list'
 import { technologyCatalogueQuery } from '#/lib/technology-catalogue'
 
 const organizationRoute = getRouteApi('/$organization')

@@ -20,6 +20,7 @@ export const errorMessages = {
   profile_left: 'This person has left the organization.',
   profile_join_after_left: 'The join date can’t be after the date the person left.',
   education_not_found: 'Education entry not found.',
+  participation_not_found: 'Participation not found.',
   update_request_forbidden: 'Only admins can request profile updates.',
   update_request_open: 'This profile already has an open update request.',
   technology_forbidden: 'Only admins can change catalogue entries.',

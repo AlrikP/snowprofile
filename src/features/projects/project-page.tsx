@@ -20,10 +20,11 @@ import { formatApproximateNumber } from '#/lib/approximate-number'
 import { formatDateTime } from '#/lib/date-time'
 import { errorMessage } from '#/lib/errors'
 import { formatPeriod } from '#/lib/period'
+import { projectsKey } from '#/lib/project-list'
 import { m } from '#/paraglide/messages.js'
 import { addProjectTechnology, type ProjectView } from '#/server/projects/projects.functions'
 import { ParticipantTechnologies } from './participant-technologies'
-import { projectQuery, projectsKey } from './projects-query'
+import { projectQuery } from './projects-query'
 
 type Person = ProjectView['people'][number]
 type Details = NonNullable<ProjectView['details']>

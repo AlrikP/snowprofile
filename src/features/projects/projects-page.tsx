@@ -9,9 +9,9 @@ import { Input } from '#/components/ui/input'
 import { NativeSelect, NativeSelectOption } from '#/components/ui/native-select'
 import { normalizeName } from '#/lib/normalize-name'
 import { formatPeriod } from '#/lib/period'
+import { projectsQuery } from '#/lib/project-list'
 import { m } from '#/paraglide/messages.js'
 import type { ProjectListItem } from '#/server/projects/projects.functions'
-import { projectsQuery } from './projects-query'
 
 const SHOWN_TECHNOLOGIES = 3
 
