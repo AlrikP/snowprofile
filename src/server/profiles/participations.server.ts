@@ -6,6 +6,7 @@
 import type { Database, Executor } from '#/db'
 import type { ApproximateNumber, Qualifier } from '#/lib/approximate-number'
 import { AppError } from '../errors'
+import { findLiveTechnologies } from '../projects/projects.repository.server'
 import type { Scope } from '../scope.server'
 import * as repository from './participations.repository.server'
 import * as profiles from './profiles.repository.server'
@@ -23,10 +24,18 @@ function approximate(value: number | null, qualifier: Qualifier | null): Approxi
 export async function myParticipations(db: Database, scope: Scope) {
   const profile = await profiles.findOwnProfile(db, scope)
   if (!profile) return []
-  const [rows, roles] = await Promise.all([
+  const [rows, roles, technologies] = await Promise.all([
     repository.listParticipations(db, scope, profile.id),
     repository.listParticipationRoles(db, scope, profile.id),
+    repository.listParticipationTechnologies(db, scope, profile.id),
   ])
+  const technologiesOf = new Map<string, { id: string; name: string }[]>()
+  for (const { participationId, id, name } of technologies) {
+    technologiesOf.set(participationId, [
+      ...(technologiesOf.get(participationId) ?? []),
+      { id, name },
+    ])
+  }
   const rolesOf = new Map<
     string,
     { id: string; name: { et: string | null; en: string | null } }[]
@@ -47,6 +56,7 @@ export async function myParticipations(db: Database, scope: Scope) {
     hours: approximate(row.hours, row.hoursQualifier),
     tasks: { et: row.tasksEt, en: row.tasksEn },
     roles: rolesOf.get(row.id) ?? [],
+    technologies: technologiesOf.get(row.id) ?? [],
   }))
 }
 
@@ -61,8 +71,13 @@ async function participationValues(db: Executor, scope: Scope, fields: Fields) {
   if ((await repository.findLiveRoles(db, scope, roleIds)).length !== roleIds.length) {
     throw new AppError('INVALID', 'role_not_found')
   }
+  const technologyIds = [...new Set(fields.technologyIds)]
+  if ((await findLiveTechnologies(db, scope, technologyIds)).length !== technologyIds.length) {
+    throw new AppError('INVALID', 'technology_not_found')
+  }
   return {
     roleIds,
+    technologyIds,
     values: {
       projectId: fields.projectId,
       startDate: fields.period.startDate,
@@ -79,10 +94,11 @@ async function participationValues(db: Executor, scope: Scope, fields: Fields) {
 // in several periods or roles.
 export async function addParticipation(db: Database, scope: Scope, input: AddParticipationInput) {
   await db.transaction(async (tx) => {
-    const { roleIds, values } = await participationValues(tx, scope, input)
+    const { roleIds, technologyIds, values } = await participationValues(tx, scope, input)
     const profileId = await ownProfileId(tx, scope)
     await repository.insertParticipation(tx, scope, { id: input.id, profileId, ...values })
     await repository.setParticipationRoles(tx, scope, input.id, roleIds)
+    await repository.setParticipationTechnologies(tx, scope, input.id, technologyIds)
     await profiles.touchProfile(tx, scope, profileId)
   })
   return { id: input.id }
@@ -104,9 +120,10 @@ export async function updateParticipation(
 ) {
   await db.transaction(async (tx) => {
     const profileId = await profileWithParticipation(tx, scope, input.participationId)
-    const { roleIds, values } = await participationValues(tx, scope, input)
+    const { roleIds, technologyIds, values } = await participationValues(tx, scope, input)
     await repository.updateParticipation(tx, scope, profileId, input.participationId, values)
     await repository.setParticipationRoles(tx, scope, input.participationId, roleIds)
+    await repository.setParticipationTechnologies(tx, scope, input.participationId, technologyIds)
     await profiles.touchProfile(tx, scope, profileId)
   })
 }

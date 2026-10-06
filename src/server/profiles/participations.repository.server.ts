@@ -2,7 +2,15 @@
 // Every query filters by the scope's organization.
 import { and, asc, desc, eq, inArray, sql } from 'drizzle-orm'
 import type { Executor } from '#/db'
-import { customer, participation, participationRole, project, projectRole } from '#/db/schema'
+import {
+  customer,
+  participation,
+  participationRole,
+  participationTechnology,
+  project,
+  projectRole,
+  technology,
+} from '#/db/schema'
 import type { Scope } from '../scope.server'
 
 function liveParticipations(scope: Scope, profileId: string) {
@@ -49,6 +57,21 @@ export async function listParticipationRoles(db: Executor, scope: Scope, profile
     .innerJoin(projectRole, eq(projectRole.id, participationRole.roleId))
     .where(liveParticipations(scope, profileId))
     .orderBy(asc(projectRole.normalizedName))
+}
+
+// The live technologies of the profile's live participations.
+export async function listParticipationTechnologies(db: Executor, scope: Scope, profileId: string) {
+  return db
+    .select({
+      participationId: participationTechnology.participationId,
+      id: technology.id,
+      name: technology.name,
+    })
+    .from(participationTechnology)
+    .innerJoin(participation, eq(participation.id, participationTechnology.participationId))
+    .innerJoin(technology, eq(technology.id, participationTechnology.technologyId))
+    .where(and(liveParticipations(scope, profileId), eq(technology.sysDeleted, sql`0`)))
+    .orderBy(asc(technology.normalizedName))
 }
 
 export async function findParticipation(
@@ -152,4 +175,29 @@ export async function setParticipationRoles(
     .values(
       roleIds.map((roleId) => ({ participationId, roleId, organizationId: scope.organizationId })),
     )
+}
+
+// Replaces the participation's technologies with these.
+export async function setParticipationTechnologies(
+  db: Executor,
+  scope: Scope,
+  participationId: string,
+  technologyIds: string[],
+) {
+  await db
+    .delete(participationTechnology)
+    .where(
+      and(
+        eq(participationTechnology.organizationId, scope.organizationId),
+        eq(participationTechnology.participationId, participationId),
+      ),
+    )
+  if (technologyIds.length === 0) return
+  await db.insert(participationTechnology).values(
+    technologyIds.map((technologyId) => ({
+      participationId,
+      technologyId,
+      organizationId: scope.organizationId,
+    })),
+  )
 }

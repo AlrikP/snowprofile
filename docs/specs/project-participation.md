@@ -67,3 +67,38 @@ empty while the participation is ongoing, and an end before the start must be re
 - **When** the member saves it with an end in 03-2024
 - **Then** the form says the end can't be before the start, and the server refuses the
   period
+
+### Requirement: Technologies start from the project's
+
+A participation's technologies appear in the person's CV, so they are the person's own
+list. A new participation must start with a copy of the project's technologies, which the
+person trims and adds to with the technology picker. Later changes to the project's
+technologies must never change a saved participation (`docs/product.md`, "Technologies on
+projects and participations").
+
+#### Scenario: project-participation.technologies-prefilled
+
+- **Given** a project with technologies
+- **When** a member starts a new participation on it
+- **Then** the form lists the project's technologies, and saves the list as the member
+  leaves it
+
+#### Scenario: project-participation.own-copy
+
+- **Given** a saved participation with its technologies
+- **When** an admin changes the project's technologies, or the member picks another
+  project for the participation
+- **Then** the participation keeps its own list
+
+### Requirement: Missing project technologies are suggested
+
+When a member edits a participation, the form must offer the project's technologies that
+the participation lacks, each added with one click. The suggestions are computed when
+shown; nothing records them.
+
+#### Scenario: project-participation.project-technologies-suggested
+
+- **Given** a participation that lacks one of the project's technologies
+- **When** the member edits it
+- **Then** the form offers that technology under "Also on the project", and adding it
+  removes the suggestion

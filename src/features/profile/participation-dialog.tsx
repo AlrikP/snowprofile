@@ -1,11 +1,12 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
-import { Trash2Icon } from 'lucide-react'
+import { PlusIcon, Trash2Icon } from 'lucide-react'
 import { type FormEvent, useState } from 'react'
 import { v7 as uuidv7 } from 'uuid'
 import { ApproximateNumberInput } from '#/components/approximate-number-input'
 import { BilingualField } from '#/components/bilingual-field'
 import { PeriodInput } from '#/components/period-input'
 import { RolePicker } from '#/components/role-picker'
+import { TechnologyPicker } from '#/components/technology-picker'
 import { Button } from '#/components/ui/button'
 import {
   Dialog,
@@ -24,6 +25,7 @@ import { errorMessage } from '#/lib/errors'
 import { parsePeriodInput, periodInputValue } from '#/lib/period'
 import { projectsKey, projectsQuery } from '#/lib/project-list'
 import { roleCatalogueQuery } from '#/lib/role-catalogue'
+import { technologyCatalogueQuery } from '#/lib/technology-catalogue'
 import { m } from '#/paraglide/messages.js'
 import {
   addParticipation,
@@ -102,6 +104,7 @@ function ConfirmDelete({
 function ParticipationForm({ organizationId, participation, onDone }: FormProps) {
   const { data: projects } = useSuspenseQuery(projectsQuery(organizationId))
   const { data: roles } = useSuspenseQuery(roleCatalogueQuery(organizationId))
+  const { data: catalogue } = useSuspenseQuery(technologyCatalogueQuery(organizationId))
   const refresh = useRefresh(organizationId)
   const [values, setValues] = useState({
     projectId: participation?.projectId ?? '',
@@ -109,6 +112,7 @@ function ParticipationForm({ organizationId, participation, onDone }: FormProps)
     roleIds: participation?.roles.map((role) => role.id) ?? [],
     hours: approximateNumberInputValue(participation?.hours ?? null),
     tasks: bilingualInputValue(participation?.tasks ?? null),
+    technologyIds: participation?.technologies.map((technology) => technology.id) ?? [],
   })
   const [submitted, setSubmitted] = useState(false)
   const [confirming, setConfirming] = useState(false)
@@ -125,6 +129,7 @@ function ParticipationForm({ organizationId, participation, onDone }: FormProps)
         roleIds: values.roleIds,
         hours: hours.value,
         tasks: parseBilingual(values.tasks),
+        technologyIds: values.technologyIds,
       }
       if (participation) {
         await updateParticipation({
@@ -142,6 +147,28 @@ function ParticipationForm({ organizationId, participation, onDone }: FormProps)
 
   function set<K extends keyof typeof values>(key: K, value: (typeof values)[K]) {
     setValues((current) => ({ ...current, [key]: value }))
+  }
+
+  // The chosen project's technologies the person's list lacks, offered one click each.
+  // Computed when shown; nothing records them.
+  const projectTechnologies =
+    projects.find((project) => project.id === values.projectId)?.technologies ?? []
+  const suggestions = projectTechnologies.filter(
+    (technology) => !values.technologyIds.includes(technology.id),
+  )
+
+  // A new participation starts from the project's technologies; the person then removes the
+  // ones they didn't use. A saved one keeps its own list whatever the project lists.
+  function chooseProject(projectId: string) {
+    setValues((current) => ({
+      ...current,
+      projectId,
+      technologyIds: participation
+        ? current.technologyIds
+        : (projects.find((project) => project.id === projectId)?.technologies ?? []).map(
+            (technology) => technology.id,
+          ),
+    }))
   }
 
   function submit(event: FormEvent) {
@@ -171,7 +198,7 @@ function ParticipationForm({ organizationId, participation, onDone }: FormProps)
         <NativeSelect
           id="participation-project"
           value={values.projectId}
-          onChange={(event) => set('projectId', event.target.value)}
+          onChange={(event) => chooseProject(event.target.value)}
           aria-invalid={(submitted && !values.projectId) || undefined}
         >
           <NativeSelectOption value="">{m.participation_project_choose()}</NativeSelectOption>
@@ -222,6 +249,43 @@ function ParticipationForm({ organizationId, participation, onDone }: FormProps)
         value={values.tasks}
         onChange={(value) => set('tasks', value)}
       />
+      <fieldset className="flex flex-col gap-2">
+        <legend className="mb-2 text-sm leading-none font-medium">
+          {m.participation_technologies()}
+        </legend>
+        <TechnologyPicker
+          id="participation-technologies"
+          label={m.participation_technologies()}
+          organizationId={organizationId}
+          catalogue={catalogue}
+          value={values.technologyIds}
+          onChange={(technologyIds) => set('technologyIds', technologyIds)}
+        />
+        {suggestions.length > 0 && (
+          <div
+            className="flex flex-wrap items-center gap-2"
+            role="group"
+            aria-labelledby="participation-project-suggestions"
+          >
+            <span id="participation-project-suggestions" className="text-muted-foreground text-sm">
+              {m.participation_project_suggestions()}
+            </span>
+            {suggestions.map((technology) => (
+              <button
+                key={technology.id}
+                type="button"
+                className="hover:bg-muted inline-flex h-7 items-center gap-1 rounded-md border border-dashed px-2.5 text-sm"
+                aria-label={m.participation_add_project_technology({ name: technology.name })}
+                onClick={() => set('technologyIds', [...values.technologyIds, technology.id])}
+              >
+                <PlusIcon className="size-3.5" />
+                {technology.name}
+              </button>
+            ))}
+          </div>
+        )}
+        <p className="text-muted-foreground text-sm">{m.participation_technologies_hint()}</p>
+      </fieldset>
       {save.error && <p role="alert">{errorMessage(save.error)}</p>}
       <DialogFooter className="sm:justify-between">
         {participation ? (

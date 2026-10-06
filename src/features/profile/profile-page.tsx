@@ -3,6 +3,7 @@ import { Link } from '@tanstack/react-router'
 import { GraduationCapIcon, LockIcon, PencilIcon, PlusIcon } from 'lucide-react'
 import { type ReactNode, useState } from 'react'
 import { BilingualText } from '#/components/bilingual-text'
+import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
 import { Card, CardAction, CardContent, CardDescription, CardHeader } from '#/components/ui/card'
 import { formatApproximateNumber } from '#/lib/approximate-number'
@@ -133,6 +134,15 @@ function ParticipationEntry({
         <p className="text-muted-foreground text-sm whitespace-pre-line">
           <BilingualText value={participation.tasks} />
         </p>
+      )}
+      {participation.technologies.length > 0 && (
+        <ul className="flex flex-wrap gap-1" aria-label={m.participation_technologies()}>
+          {participation.technologies.map((technology) => (
+            <li key={technology.id}>
+              <Badge variant="secondary">{technology.name}</Badge>
+            </li>
+          ))}
+        </ul>
       )}
     </li>
   )

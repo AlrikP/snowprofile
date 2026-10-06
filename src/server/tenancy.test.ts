@@ -454,6 +454,31 @@ const cases: Record<string, () => Promise<void>> = {
       await participations.listParticipationRoles(db, scopeA, b.participationProfileId),
     ).toEqual([])
   },
+  'participations.listParticipationTechnologies': async () => {
+    expect(
+      await participations.listParticipationTechnologies(db, scopeA, b.participationProfileId),
+    ).toEqual([])
+  },
+  'participations.setParticipationTechnologies': async () => {
+    // The delete is scoped, so B's technologies stay; the insert fails on the keys, since
+    // the rows would be A's.
+    async function bTechnologies() {
+      const rows = await db.$client.execute(
+        `SELECT technology_id || '|' || created_by FROM participation_technology
+          WHERE participation_id = '${b.participationId}' ORDER BY 1`,
+      )
+      return rows.rows.map((row) => row[0])
+    }
+    const before = await bTechnologies()
+    expect(
+      await failure(() =>
+        withActor(scopeA.userId, () =>
+          participations.setParticipationTechnologies(db, scopeA, b.participationId, [uuidv7()]),
+        ),
+      ),
+    ).toContain('FOREIGN KEY')
+    expect(await bTechnologies()).toEqual(before)
+  },
   'participations.findParticipation': async () => {
     expect(
       await participations.findParticipation(

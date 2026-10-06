@@ -1,6 +1,6 @@
 # 031: Project participation
 
-Status: in-progress
+Status: done
 
 A person's participations on organization projects, kept on their profile. The task
 starts with the role catalogue migration, because participations and own projects store
@@ -19,4 +19,4 @@ projects and participations"); `prototypes/profile.html` (states `participation`
 
 ## Acceptance criteria
 
-- [ ] All subtasks are done.
+- [x] All subtasks are done.

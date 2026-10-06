@@ -316,5 +316,9 @@
   "participation_empty": "No participations yet. Add a project you’ve worked on.",
   "participation_edit_for": "Edit {name}",
   "participation_delete": "Delete",
-  "participation_delete_confirm": "Delete your participation in {name}? The project stays, with the other participants."
+  "participation_delete_confirm": "Delete your participation in {name}? The project stays, with the other participants.",
+  "participation_technologies": "Technologies used",
+  "participation_technologies_hint": "Remove the ones you didn’t use, and add the ones only you used. Changes to the project don’t change your list.",
+  "participation_project_suggestions": "Also on the project:",
+  "participation_add_project_technology": "Add {name}, which the project lists"
 }

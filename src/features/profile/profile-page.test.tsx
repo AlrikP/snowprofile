@@ -3,10 +3,12 @@ import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { projectsQuery } from '#/lib/project-list'
 import { roleCatalogueQuery } from '#/lib/role-catalogue'
+import { technologyCatalogueQuery } from '#/lib/technology-catalogue'
 import type { MyProfile, Participation } from '#/server/profiles/profiles.functions'
 import type { ProjectListItem } from '#/server/projects/projects.functions'
 import { testRoles } from '#/test/role-catalogue'
 import { renderPage } from '#/test/router'
+import { testCatalogue } from '#/test/technology-catalogue'
 import { ProfilePage } from './profile-page'
 import { myParticipationsQuery, myProfileQuery } from './profile-query'
 
@@ -24,8 +26,17 @@ const server = vi.hoisted(() => ({
 vi.mock('#/server/profiles/profiles.functions', () => server)
 vi.mock('#/server/projects/projects.functions', () => ({ getProjects: vi.fn() }))
 vi.mock('#/server/roles/roles.functions', () => ({ getRoleCatalogue: vi.fn(), addRole: vi.fn() }))
+vi.mock('#/server/technologies/technologies.functions', () => ({
+  getTechnologyCatalogue: vi.fn(),
+  addTechnology: vi.fn(),
+}))
 
-function project(id: string, name: string, customerName: string | null): ProjectListItem {
+function project(
+  id: string,
+  name: string,
+  customerName: string | null,
+  technologies: ProjectListItem['technologies'] = [],
+): ProjectListItem {
   return {
     id,
     name,
@@ -36,13 +47,19 @@ function project(id: string, name: string, customerName: string | null): Project
     descriptionEn: null,
     people: 3,
     mine: false,
-    technologies: [],
+    technologies,
   }
 }
 
 const projects = [
-  project('portal', 'Kodanikuportaali uuendus', 'Siseministeerium'),
-  project('tax', 'e-MTA deklaratsioonid', null),
+  project('portal', 'Kodanikuportaali uuendus', 'Siseministeerium', [
+    { id: 'react', name: 'React' },
+    { id: 'postgresql', name: 'PostgreSQL' },
+  ]),
+  project('tax', 'e-MTA deklaratsioonid', null, [
+    { id: 'angular', name: 'Angular' },
+    { id: 'postgres', name: 'Postgres' },
+  ]),
 ]
 
 const participations: Participation[] = [
@@ -56,6 +73,7 @@ const participations: Participation[] = [
     hours: { value: 1800, qualifier: 'approximately' },
     tasks: { et: 'Reacti komponendid.', en: 'React components.' },
     roles: [{ id: 'developer', name: { et: 'Arendaja', en: 'Developer' } }],
+    technologies: [{ id: 'react', name: 'React' }],
   },
 ]
 
@@ -112,6 +130,7 @@ function show(data = profile, { initialParticipation = undefined as string | und
       [myParticipationsQuery('org').queryKey, participations],
       [projectsQuery('org').queryKey, projects],
       [roleCatalogueQuery('org').queryKey, testRoles],
+      [technologyCatalogueQuery('org').queryKey, testCatalogue],
     ],
   )
 }
@@ -260,7 +279,7 @@ describe('ProfilePage', () => {
 
       const item = participationsSection().getAllByRole('listitem')[0]
       expect(item).toHaveTextContent(
-        'Kodanikuportaali uuendusSiseministeeriumDeveloper · 05-2024 – ongoing · approximately 1,800 hReact components.',
+        'Kodanikuportaali uuendusSiseministeeriumDeveloper · 05-2024 – ongoing · approximately 1,800 hReact components.React',
       )
       expect(
         within(item as HTMLElement).getByRole('link', { name: 'Kodanikuportaali uuendus' }),
@@ -295,6 +314,7 @@ describe('ProfilePage', () => {
         roleIds: ['analyst'],
         hours: { value: 3000, qualifier: 'approximately' },
         tasks: { et: null, en: 'Declaration forms.' },
+        technologyIds: ['angular', 'postgres'],
       })
     })
 
@@ -396,6 +416,68 @@ describe('ProfilePage', () => {
       expect(server.deleteParticipation).toHaveBeenCalledWith({
         data: { organizationId: 'org', participationId: 'pa1' },
       })
+    })
+
+    it('project-participation.technologies-prefilled: a new participation starts with the project’s technologies', async () => {
+      await show()
+
+      await userEvent.click(
+        participationsSection().getByRole('button', { name: 'Add participation' }),
+      )
+      const dialog = within(screen.getByRole('dialog'))
+      await userEvent.selectOptions(dialog.getByLabelText('Project'), 'tax')
+      const chosen = dialog.getByRole('list', { name: 'Technologies used' })
+      expect(chosen).toHaveTextContent('AngularPostgres')
+      await userEvent.click(dialog.getByRole('button', { name: 'Remove Postgres' }))
+      await userEvent.type(
+        dialog.getByRole('combobox', { name: 'Add a technology from the catalogue' }),
+        'react',
+      )
+      await userEvent.click(dialog.getByRole('option', { name: /React/ }))
+      await userEvent.type(
+        within(dialog.getByRole('group', { name: 'Start' })).getByLabelText('Year'),
+        '2021',
+      )
+      await userEvent.type(dialog.getByRole('combobox', { name: 'Add a role' }), 'arend')
+      await userEvent.click(dialog.getByRole('option', { name: /^Developer/ }))
+      await userEvent.click(dialog.getByRole('button', { name: 'Save' }))
+
+      expect(sent(server.addParticipation)?.technologyIds).toEqual(['angular', 'react'])
+    })
+
+    it('project-participation.project-technologies-suggested: editing offers the project’s technologies the list lacks', async () => {
+      await show()
+
+      await userEvent.click(
+        participationsSection().getByRole('button', { name: 'Edit Kodanikuportaali uuendus' }),
+      )
+      const dialog = within(screen.getByRole('dialog'))
+      const suggested = within(dialog.getByRole('group', { name: 'Also on the project:' }))
+      expect(suggested.getAllByRole('button').map((each) => each.textContent)).toEqual([
+        'PostgreSQL',
+      ])
+      await userEvent.click(
+        suggested.getByRole('button', { name: 'Add PostgreSQL, which the project lists' }),
+      )
+      expect(dialog.queryByRole('group', { name: 'Also on the project:' })).not.toBeInTheDocument()
+      await userEvent.click(dialog.getByRole('button', { name: 'Save' }))
+
+      expect(sent(server.updateParticipation)?.technologyIds).toEqual(['react', 'postgresql'])
+    })
+
+    it('project-participation.own-copy: changing a saved participation’s project keeps its list', async () => {
+      await show()
+
+      await userEvent.click(
+        participationsSection().getByRole('button', { name: 'Edit Kodanikuportaali uuendus' }),
+      )
+      const dialog = within(screen.getByRole('dialog'))
+      await userEvent.selectOptions(dialog.getByLabelText('Project'), 'tax')
+
+      expect(dialog.getByRole('list', { name: 'Technologies used' })).toHaveTextContent('React')
+      expect(dialog.getByRole('list', { name: 'Technologies used' })).not.toHaveTextContent(
+        'Angular',
+      )
     })
   })
 })

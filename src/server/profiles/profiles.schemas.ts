@@ -57,6 +57,8 @@ const ParticipationFields = {
   roleIds: v.pipe(v.array(Uuidv7), v.minLength(1, 'At least one role.')),
   hours: ApproximateNumber,
   tasks: Bilingual,
+  // The person's own list, a copy and not a link: project changes never reach it.
+  technologyIds: v.array(Uuidv7),
 }
 
 export const AddParticipationInput = v.object({

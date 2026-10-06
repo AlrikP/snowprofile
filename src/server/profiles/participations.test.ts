@@ -9,7 +9,7 @@ import { withActor } from '#/db/actor'
 import { participation, project } from '#/db/schema'
 import { seedIds } from '#/db/seed-accounts'
 import { createTestDatabase } from '#/db/testing'
-import { projectView } from '../projects/projects.server'
+import { projectForm, projectView, updateProject } from '../projects/projects.server'
 import { addRole } from '../roles/roles.server'
 import { resolveScope, type Scope } from '../scope.server'
 import { rejection } from '../testing'
@@ -29,6 +29,7 @@ const org = seedIds.orgs.demo
 // Live projects and roles of the demo organization, from the seed.
 let projects: string[] = []
 let roles: string[] = []
+let technologies: string[] = []
 
 async function column(sql: string) {
   const result = await db.$client.execute(sql)
@@ -45,6 +46,9 @@ beforeAll(async () => {
   employee = await resolveScope(db, seedIds.users.employee, org)
   projects = await column(
     `SELECT id FROM project WHERE organization_id = '${org}' AND sys_deleted = 0 ORDER BY id`,
+  )
+  technologies = await column(
+    `SELECT id FROM technology WHERE organization_id = '${org}' AND sys_deleted = 0 ORDER BY id`,
   )
   roles = await column(
     `SELECT id FROM project_role WHERE organization_id = '${org}' AND sys_deleted = 0 ORDER BY id`,
@@ -65,6 +69,7 @@ function input(overrides: Partial<AddParticipationInput> = {}): AddParticipation
     roleIds: [roles[0] ?? ''],
     hours: { value: 1800, qualifier: 'approximately' },
     tasks: { et: 'Arendus', en: null },
+    technologyIds: [],
     ...overrides,
   }
 }
@@ -227,5 +232,44 @@ describe('participations', () => {
     await as(admin, async () => {
       await db.update(project).set({ sysDeleted: false }).where(eq(project.id, removed))
     })
+  })
+
+  test('project-participation.own-copy: the list is the person’s; project changes never reach it', async () => {
+    const projectId = projects[3] ?? ''
+    const [mineOnly, shared, added] = [technologies[0], technologies[1], technologies[2]]
+    if (!mineOnly || !shared || !added) throw new Error('expected seeded technologies')
+    const own = input({ projectId, technologyIds: [mineOnly, shared] })
+    await as(employee, () => addParticipation(db, employee, own))
+    async function stored() {
+      return (await mine(employee, own.id))?.technologies.map((each) => each.id).sort()
+    }
+    expect(await stored()).toEqual([mineOnly, shared].sort())
+
+    const form = await projectForm(db, admin, { projectId })
+    await as(admin, () =>
+      updateProject(db, admin, {
+        projectId,
+        name: form.name,
+        description: form.description,
+        customer: form.customerId ? { kind: 'existing', id: form.customerId } : null,
+        period: { startDate: form.startDate, endDate: form.endDate },
+        tenderReference: form.tenderReference,
+        totalHours: form.totalHours,
+        cost: form.cost,
+        contactIds: form.contactIds,
+        technologyIds: [added],
+        answers: form.answers,
+      }),
+    )
+
+    expect(await stored()).toEqual([mineOnly, shared].sort())
+  })
+
+  test('refuses a technology that isn’t in the catalogue', async () => {
+    expect(
+      await rejection(
+        as(employee, () => addParticipation(db, employee, input({ technologyIds: [uuidv7()] }))),
+      ),
+    ).toMatchObject({ code: 'INVALID', key: 'technology_not_found' })
   })
 })

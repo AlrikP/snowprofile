@@ -272,5 +272,9 @@
   "participation_empty": "Osalusi pole veel. Lisa projekt, kus oled töötanud.",
   "participation_edit_for": "Muuda: {name}",
   "participation_delete": "Kustuta",
-  "participation_delete_confirm": "Kustutada sinu osalus projektis {name}? Projekt jääb alles koos teiste osalejatega."
+  "participation_delete_confirm": "Kustutada sinu osalus projektis {name}? Projekt jääb alles koos teiste osalejatega.",
+  "participation_technologies": "Kasutatud tehnoloogiad",
+  "participation_technologies_hint": "Eemalda need, mida sa ei kasutanud, ja lisa need, mida kasutasid ainult sina. Projekti muudatused sinu valikut ei muuda.",
+  "participation_project_suggestions": "Projektis veel:",
+  "participation_add_project_technology": "Lisa {name}, mis on projektis"
 }
