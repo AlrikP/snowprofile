@@ -22,6 +22,7 @@ export const relations = defineRelations(schema, (r) => ({
     technologyCategories: r.many.technologyCategory(),
     technologies: r.many.technology(),
     tenderCriteria: r.many.tenderCriterion(),
+    projectRoles: r.many.projectRole(),
     customers: r.many.customer(),
     projects: r.many.project(),
     profiles: r.many.employeeProfile(),
@@ -73,6 +74,16 @@ export const relations = defineRelations(schema, (r) => ({
       optional: false,
     }),
     answers: r.many.projectCriterionAnswer(),
+  },
+  projectRole: {
+    organization: r.one.organization({
+      from: r.projectRole.organizationId,
+      to: r.organization.id,
+      optional: false,
+    }),
+    mergedInto: r.one.projectRole({ from: r.projectRole.mergedIntoId, to: r.projectRole.id }),
+    participations: r.many.participationRole(),
+    ownProjects: r.many.ownProjectRole(),
   },
   customer: {
     organization: r.one.organization({
@@ -166,6 +177,7 @@ export const relations = defineRelations(schema, (r) => ({
     }),
     project: r.one.project({ from: r.participation.projectId, to: r.project.id, optional: false }),
     technologies: r.many.participationTechnology(),
+    roles: r.many.participationRole(),
   },
   participationTechnology: {
     participation: r.one.participation({
@@ -179,6 +191,18 @@ export const relations = defineRelations(schema, (r) => ({
       optional: false,
     }),
   },
+  participationRole: {
+    participation: r.one.participation({
+      from: r.participationRole.participationId,
+      to: r.participation.id,
+      optional: false,
+    }),
+    role: r.one.projectRole({
+      from: r.participationRole.roleId,
+      to: r.projectRole.id,
+      optional: false,
+    }),
+  },
   ownProject: {
     profile: r.one.employeeProfile({
       from: r.ownProject.profileId,
@@ -186,6 +210,7 @@ export const relations = defineRelations(schema, (r) => ({
       optional: false,
     }),
     technologies: r.many.ownProjectTechnology(),
+    roles: r.many.ownProjectRole(),
   },
   ownProjectTechnology: {
     ownProject: r.one.ownProject({
@@ -196,6 +221,18 @@ export const relations = defineRelations(schema, (r) => ({
     technology: r.one.technology({
       from: r.ownProjectTechnology.technologyId,
       to: r.technology.id,
+      optional: false,
+    }),
+  },
+  ownProjectRole: {
+    ownProject: r.one.ownProject({
+      from: r.ownProjectRole.ownProjectId,
+      to: r.ownProject.id,
+      optional: false,
+    }),
+    role: r.one.projectRole({
+      from: r.ownProjectRole.roleId,
+      to: r.projectRole.id,
       optional: false,
     }),
   },

@@ -1,6 +1,6 @@
 # 031: Project participation
 
-Status: todo
+Status: in-progress
 
 A person's participations on organization projects, kept on their profile. The task
 starts with the role catalogue migration, because participations and own projects store

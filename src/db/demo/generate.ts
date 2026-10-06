@@ -9,12 +9,15 @@ import type {
   member,
   organization,
   ownProject,
+  ownProjectRole,
   ownProjectTechnology,
   participation,
+  participationRole,
   participationTechnology,
   project,
   projectContact,
   projectCriterionAnswer,
+  projectRole,
   projectTechnology,
   QUALIFIERS,
   technology,
@@ -231,6 +234,27 @@ export function generateOrganization(seed: number, spec: OrganizationSpec) {
     }),
   )
 
+  // The role catalogue: Estonian names always, English ones sometimes missing, as after the
+  // sheet migration.
+  const roleCatalogue = ROLES.map((role) => ({
+    tasks: role.tasks,
+    row: {
+      id: id(),
+      organizationId: spec.id,
+      nameEt: role.name.et,
+      nameEn: random.chance(EN_MISSING) ? null : role.name.en,
+      normalizedName: normalizeName(role.name.et),
+      ...audit,
+    } satisfies typeof projectRole.$inferInsert,
+  }))
+  const projectRoles = roleCatalogue.map((entry) => entry.row)
+
+  // One role, sometimes two; the first decides the tasks.
+  function pickRoles() {
+    const picked = random.sample(roleCatalogue, random.chance(0.15) ? 2 : 1)
+    return { tasks: picked[0]?.tasks ?? [], ids: picked.map((entry) => entry.row.id) }
+  }
+
   // Customers -------------------------------------------------------------------------------
 
   const pickedCustomers = random.sample(CUSTOMERS, spec.customers).map((picked) => ({
@@ -393,8 +417,10 @@ export function generateOrganization(seed: number, spec: OrganizationSpec) {
   const educations: (typeof education.$inferInsert)[] = []
   const participations: (typeof participation.$inferInsert)[] = []
   const participationTechnologies: (typeof participationTechnology.$inferInsert)[] = []
+  const participationRoles: (typeof participationRole.$inferInsert)[] = []
   const ownProjects: (typeof ownProject.$inferInsert)[] = []
   const ownProjectTechnologies: (typeof ownProjectTechnology.$inferInsert)[] = []
+  const ownProjectRoles: (typeof ownProjectRole.$inferInsert)[] = []
   const updateRequests: (typeof updateRequest.$inferInsert)[] = []
 
   type Person = { userId: string; name: string; role: 'admin' | 'employee'; dev: boolean }
@@ -506,9 +532,8 @@ export function generateOrganization(seed: number, spec: OrganizationSpec) {
       const start = random.int(from, until)
       const ongoing = projectPeriod.end === null && left === null && random.chance(0.6)
       const end = ongoing ? null : random.int(start, until)
-      const role = random.pick(ROLES)
-      const roleName = text(role.name)
-      const picked = random.sample(role.tasks, random.int(1, 2))
+      const roles = pickRoles()
+      const picked = random.sample(roles.tasks, random.int(1, 2))
       const tasks = text({
         et: picked.map((task) => task.et).join(' '),
         en: picked.map((task) => task.en).join(' '),
@@ -525,14 +550,20 @@ export function generateOrganization(seed: number, spec: OrganizationSpec) {
         projectId: row.id,
         startDate: monthText(start),
         endDate: end === null ? null : monthText(end),
-        roleEt: roleName.et,
-        roleEn: roleName.en,
         hours: hours?.value ?? null,
         hoursQualifier: hours?.qualifier ?? null,
         tasksEt: tasks.et,
         tasksEn: tasks.en,
         ...audit,
       })
+      for (const roleId of roles.ids) {
+        participationRoles.push({
+          participationId,
+          roleId,
+          organizationId: spec.id,
+          createdAt: at,
+        })
+      }
 
       // Most of the project's stack, sometimes with something the project didn't list.
       const stack = projectStacks.get(row.id) ?? []
@@ -561,9 +592,8 @@ export function generateOrganization(seed: number, spec: OrganizationSpec) {
         const system = random.pick(SYSTEMS)
         const formerCustomer = random.pick(CUSTOMERS)
         const description = text(system.description)
-        const role = random.pick(ROLES)
-        const roleName = text(role.name)
-        const tasks = text(random.pick(role.tasks))
+        const roles = pickRoles()
+        const tasks = text(random.pick(roles.tasks))
         const hours = approximate((end - start + 1) * random.int(60, 140), 10)
         const ownProjectId = id()
         ownProjects.push({
@@ -577,14 +607,15 @@ export function generateOrganization(seed: number, spec: OrganizationSpec) {
           descriptionEn: description.en,
           startDate: monthText(start),
           endDate: monthText(end),
-          roleEt: roleName.et,
-          roleEn: roleName.en,
           hours: hours.value,
           hoursQualifier: hours.qualifier,
           tasksEt: tasks.et,
           tasksEn: tasks.en,
           ...audit,
         })
+        for (const roleId of roles.ids) {
+          ownProjectRoles.push({ ownProjectId, roleId, organizationId: spec.id, createdAt: at })
+        }
         for (const technologyId of random.sample(usableTechnologies, random.int(2, 4))) {
           ownProjectTechnologies.push({
             ownProjectId,
@@ -633,6 +664,7 @@ export function generateOrganization(seed: number, spec: OrganizationSpec) {
     technologyCategories,
     technologies,
     tenderCriteria,
+    projectRoles,
     customers,
     contactPersons,
     projects,
@@ -643,8 +675,10 @@ export function generateOrganization(seed: number, spec: OrganizationSpec) {
     educations,
     participations,
     participationTechnologies,
+    participationRoles,
     ownProjects,
     ownProjectTechnologies,
+    ownProjectRoles,
     updateRequests,
   }
 }

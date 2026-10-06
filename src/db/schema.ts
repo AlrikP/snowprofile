@@ -325,6 +325,34 @@ export const tenderCriterion = sqliteTable(
 
 // Projects ----------------------------------------------------------------------------------
 
+export const projectRole = sqliteTable(
+  'project_role',
+  {
+    id: text().primaryKey(),
+    organizationId: organizationId(),
+    nameEt: text('name_et'),
+    nameEn: text('name_en'),
+    normalizedName: text('normalized_name').notNull(),
+    mergedIntoId: text('merged_into_id'),
+    ...createdAudit(),
+    ...updatedAudit(),
+    ...sysDeleted(),
+  },
+  (t) => [
+    foreignKey({
+      name: 'project_role_merged_into',
+      columns: [t.mergedIntoId, t.organizationId],
+      foreignColumns: [t.id, t.organizationId],
+    }),
+    uniqueIndex('project_role_organization_id_normalized_name_unique')
+      .on(t.organizationId, t.normalizedName)
+      .where(sql`sys_deleted = 0`),
+    uniqueIndex('project_role_id_organization_id_unique').on(t.id, t.organizationId),
+    check('project_role_name', sql`name_et IS NOT NULL OR name_en IS NOT NULL`),
+    check('project_role_sys_deleted', sql`sys_deleted IN (0, 1)`),
+  ],
+)
+
 export const customer = sqliteTable(
   'customer',
   {
@@ -570,8 +598,6 @@ export const participation = sqliteTable(
     projectId: text('project_id').notNull(),
     startDate: text('start_date').notNull(),
     endDate: text('end_date'),
-    roleEt: text('role_et'),
-    roleEn: text('role_en'),
     hours: integer(),
     hoursQualifier: text('hours_qualifier', { enum: QUALIFIERS }),
     tasksEt: text('tasks_et'),
@@ -622,6 +648,31 @@ export const participationTechnology = sqliteTable(
   ],
 )
 
+export const participationRole = sqliteTable(
+  'participation_role',
+  {
+    participationId: text('participation_id').notNull(),
+    roleId: text('role_id').notNull(),
+    organizationId: organizationId(),
+    ...createdAudit(),
+  },
+  (t) => [
+    index('participation_role_organization_id_idx').on(t.organizationId),
+    primaryKey({ columns: [t.participationId, t.roleId] }),
+    foreignKey({
+      name: 'participation_role_participation',
+      columns: [t.participationId, t.organizationId],
+      foreignColumns: [participation.id, participation.organizationId],
+    }),
+    foreignKey({
+      name: 'participation_role_role',
+      columns: [t.roleId, t.organizationId],
+      foreignColumns: [projectRole.id, projectRole.organizationId],
+    }),
+    index('participation_role_role_id_idx').on(t.roleId),
+  ],
+)
+
 export const ownProject = sqliteTable(
   'own_project',
   {
@@ -640,8 +691,6 @@ export const ownProject = sqliteTable(
     totalHoursQualifier: text('total_hours_qualifier', { enum: QUALIFIERS }),
     cost: integer(),
     costQualifier: text('cost_qualifier', { enum: QUALIFIERS }),
-    roleEt: text('role_et'),
-    roleEn: text('role_en'),
     hours: integer(),
     hoursQualifier: text('hours_qualifier', { enum: QUALIFIERS }),
     tasksEt: text('tasks_et'),
@@ -685,6 +734,31 @@ export const ownProjectTechnology = sqliteTable(
       foreignColumns: [technology.id, technology.organizationId],
     }),
     index('own_project_technology_technology_id_idx').on(t.technologyId),
+  ],
+)
+
+export const ownProjectRole = sqliteTable(
+  'own_project_role',
+  {
+    ownProjectId: text('own_project_id').notNull(),
+    roleId: text('role_id').notNull(),
+    organizationId: organizationId(),
+    ...createdAudit(),
+  },
+  (t) => [
+    index('own_project_role_organization_id_idx').on(t.organizationId),
+    primaryKey({ columns: [t.ownProjectId, t.roleId] }),
+    foreignKey({
+      name: 'own_project_role_own_project',
+      columns: [t.ownProjectId, t.organizationId],
+      foreignColumns: [ownProject.id, ownProject.organizationId],
+    }),
+    foreignKey({
+      name: 'own_project_role_role',
+      columns: [t.roleId, t.organizationId],
+      foreignColumns: [projectRole.id, projectRole.organizationId],
+    }),
+    index('own_project_role_role_id_idx').on(t.roleId),
   ],
 )
 

@@ -123,6 +123,7 @@ async function insertOrganization(db: Executor, data: DemoOrganization, password
   await insertAll(db, schema.technologyCategory, data.technologyCategories)
   await insertAll(db, schema.technology, data.technologies)
   await insertAll(db, schema.tenderCriterion, data.tenderCriteria)
+  await insertAll(db, schema.projectRole, data.projectRoles)
   await insertAll(db, schema.customer, data.customers)
   await insertAll(db, schema.contactPerson, data.contactPersons)
   await insertAll(db, schema.project, data.projects)
@@ -133,8 +134,10 @@ async function insertOrganization(db: Executor, data: DemoOrganization, password
   await insertAll(db, schema.education, data.educations)
   await insertAll(db, schema.participation, data.participations)
   await insertAll(db, schema.participationTechnology, data.participationTechnologies)
+  await insertAll(db, schema.participationRole, data.participationRoles)
   await insertAll(db, schema.ownProject, data.ownProjects)
   await insertAll(db, schema.ownProjectTechnology, data.ownProjectTechnologies)
+  await insertAll(db, schema.ownProjectRole, data.ownProjectRoles)
   await insertAll(db, schema.updateRequest, data.updateRequests)
 }
 
@@ -146,7 +149,9 @@ async function deleteOrganization(db: Executor, organizationId: string) {
     schema.projectTechnology,
     schema.projectCriterionAnswer,
     schema.participationTechnology,
+    schema.participationRole,
     schema.ownProjectTechnology,
+    schema.ownProjectRole,
     schema.updateRequest,
     schema.participation,
     schema.ownProject,
@@ -168,7 +173,21 @@ async function deleteOrganization(db: Executor, organizationId: string) {
         isNotNull(schema.technology.mergedIntoId),
       ),
     )
-  for (const table of [schema.technology, schema.technologyCategory, schema.tenderCriterion]) {
+  // Roles that visitors merged, likewise.
+  await db
+    .delete(schema.projectRole)
+    .where(
+      and(
+        eq(schema.projectRole.organizationId, organizationId),
+        isNotNull(schema.projectRole.mergedIntoId),
+      ),
+    )
+  for (const table of [
+    schema.technology,
+    schema.technologyCategory,
+    schema.tenderCriterion,
+    schema.projectRole,
+  ]) {
     await db.delete(table).where(eq(table.organizationId, organizationId))
   }
   await db.delete(schema.organization).where(eq(schema.organization.id, organizationId))
