@@ -34,6 +34,25 @@ describe('demo.first: describe titles do not cite', () => {})`
   expect(citedIds(source)).toEqual(['demo.first', 'demo.second-case', 'demo.first', 'demo.first'])
 })
 
+test('a test that doesn’t run cites nothing', () => {
+  const source = `// test('demo.first: commented out', () => {})
+/* test('demo.first: in a block comment', () => {})
+*/
+const glob = 'src/**/*.test.ts'
+test.skip('demo.first: skipped', () => {})
+test.todo('demo.first: to do')
+test.fixme('demo.first: Playwright fixme', () => {})
+helper.test('demo.first: not a test function', () => {})
+test.only('demo.second-case: only', () => {})`
+  expect(citedIds(source)).toEqual(['demo.second-case'])
+})
+
+test('a component test cites like any other', () => {
+  expect(citedIds(`test('demo.first: renders', () => render(<p>Hi</p>))`, 'tsx')).toEqual([
+    'demo.first',
+  ])
+})
+
 test('every scenario needs a citing test, and every citation a scenario', () => {
   const tests = [
     {

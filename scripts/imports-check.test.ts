@@ -24,6 +24,16 @@ test('#/ is for other areas only', () => {
   expect(importProblem(file, '#/server/middleware')).toContain('relative path')
 })
 
+test('a relative import takes the shortest path', () => {
+  const file = 'src/server/auth/x.server.ts'
+  expect(importProblem(file, '../middleware')).toBeNull()
+  expect(importProblem(file, './sign-in.server')).toBeNull()
+  expect(importProblem(file, '../../server/middleware')).toContain("import it as '../middleware'")
+  expect(importProblem(file, '../auth/sign-in.server')).toContain("import it as './sign-in.server'")
+  expect(importProblem(file, './../middleware')).toContain("import it as '../middleware'")
+  expect(importProblem('src/db/seed.ts', './')).toContain("import it as '.'")
+})
+
 test('a file at the src/ root imports everything through #/', () => {
   expect(importProblem('src/env.test.ts', './env')).toContain('import it through #/')
   expect(importProblem('src/router.tsx', '#/routeTree.gen')).toBeNull()

@@ -41,6 +41,18 @@
           {
             "name": "#/db/schema",
             "message": "Only repositories (*.repository.server.ts) query the database (AGENTS.md, \"Code conventions\")."
+          },
+          {
+            "name": "#/db",
+            "message": "Server-only module: client code reaches the database and settings through server functions (AGENTS.md, \"Code conventions\")."
+          },
+          {
+            "name": "#/db/connection",
+            "message": "Server-only module: client code reaches the database and settings through server functions (AGENTS.md, \"Code conventions\")."
+          },
+          {
+            "name": "#/env",
+            "message": "Server-only module: client code reaches the database and settings through server functions (AGENTS.md, \"Code conventions\")."
           }
         ]
       }
@@ -76,6 +88,18 @@
               {
                 "name": "#/db/schema",
                 "message": "Only repositories (*.repository.server.ts) query the database (AGENTS.md, \"Code conventions\")."
+              },
+              {
+                "name": "#/db",
+                "message": "Server-only module: client code reaches the database and settings through server functions (AGENTS.md, \"Code conventions\")."
+              },
+              {
+                "name": "#/db/connection",
+                "message": "Server-only module: client code reaches the database and settings through server functions (AGENTS.md, \"Code conventions\")."
+              },
+              {
+                "name": "#/env",
+                "message": "Server-only module: client code reaches the database and settings through server functions (AGENTS.md, \"Code conventions\")."
               }
             ]
           }

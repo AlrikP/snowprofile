@@ -1,12 +1,14 @@
 // Checks how src/ files import each other (AGENTS.md, "Code conventions"): a relative path
 // inside the importer's area, and the #/ alias for everything else. An area is one feature
 // folder (src/features/<name>/) or another top-level folder of src/; files at the src/
-// root belong to no area. oxlint can't tell, because it depends on where a path resolves.
+// root belong to no area. A relative path is also the shortest one to its target, so a
+// pattern such as oxlint's '../middleware' matches every import of that file. oxlint can't
+// tell, because it depends on where a path resolves.
 //
 // Usage: bun run imports:check
 
 import { readFileSync } from 'node:fs'
-import { dirname, join, normalize } from 'node:path'
+import { dirname, join, normalize, relative } from 'node:path'
 
 // The area of a repository-relative path under src/, or null for a file at the src/ root.
 export function areaOf(path: string): string | null {
@@ -19,6 +21,12 @@ export function areaOf(path: string): string | null {
 export function specifiers(source: string): string[] {
   const pattern = /(?:\bfrom\s*|\bimport\s*\(?\s*)['"]([^'"]+)['"]/g
   return [...source.matchAll(pattern)].flatMap((match) => (match[1] ? [match[1]] : []))
+}
+
+// The shortest relative specifier for the file that specifier points to from file.
+function shortestPath(file: string, specifier: string): string {
+  const path = relative(dirname(file), join(dirname(file), specifier)) || '.'
+  return path.startsWith('.') ? path : `./${path}`
 }
 
 // What is wrong with importing specifier from file, or null when nothing is.
@@ -35,6 +43,8 @@ export function importProblem(file: string, specifier: string): string | null {
     if (!normalize(target).startsWith('src/')) return null
     if (from === null) return `${specifier} is relative from the src/ root; import it through #/`
     if (areaOf(target) !== from) return `${specifier} leaves ${from}/; import it through #/`
+    const shortest = shortestPath(file, specifier)
+    if (specifier !== shortest) return `${specifier} takes a detour; import it as '${shortest}'`
     return null
   }
   if (specifier.startsWith('#/')) {

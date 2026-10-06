@@ -16,10 +16,16 @@ export function scenarioIds(spec: string): string[] {
   )
 }
 
+// Modifiers that still run the test. test.skip, test.todo, test.fixme, and the like don't,
+// so they cite nothing.
+const RUNS = '(?:\\.(?:only|concurrent|serial))?'
+
 // Scenario IDs that test titles start with: test('<id>: ...'), it, and Playwright's setup.
-export function citedIds(source: string): string[] {
-  const title = new RegExp(`\\b(?:test|it|setup)(?:\\.\\w+)?\\(\\s*['"\`](${ID}): `, 'g')
-  return [...source.matchAll(title)].map((match) => match[1] ?? '')
+// The transpiler drops comments, so a commented-out test cites nothing either.
+export function citedIds(source: string, loader: 'ts' | 'tsx' = 'ts'): string[] {
+  const code = new Bun.Transpiler({ loader }).transformSync(source)
+  const title = new RegExp(`(?<![\\w.])(?:test|it|setup)${RUNS}\\(\\s*['"\`](${ID}): `, 'g')
+  return [...code.matchAll(title)].map((match) => match[1] ?? '')
 }
 
 export function specProblems(
@@ -40,7 +46,7 @@ export function specProblems(
   }
   const cited = new Set<string>()
   for (const { file, source } of tests) {
-    for (const id of citedIds(source)) {
+    for (const id of citedIds(source, file.endsWith('.tsx') ? 'tsx' : 'ts')) {
       cited.add(id)
       if (!scenarios.has(id)) problems.push(`${file}: cites ${id}, which no spec defines`)
     }

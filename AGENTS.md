@@ -83,9 +83,10 @@ convention names its check; the ones under "Checked in review" have none.
   `*.server.ts` files under `src/server/` (the auth instance is
   `src/server/auth/better-auth.server.ts`). Client code imports a domain's
   `*.functions.ts` and `*.schemas.ts`, and the shared `src/server/errors.ts` and
-  `src/server/schemas.ts`, never `*.server.ts`. `src/server/middleware.ts` is server-only
-  code without the suffix: only `*.functions.ts` import it. Route files that only define
-  server handlers (under `src/routes/api/`) are server code. Check: oxlint
+  `src/server/schemas.ts`, never `*.server.ts`. Some server-only code has no suffix:
+  `src/server/middleware.ts`, which only `*.functions.ts` import, and `#/db`,
+  `#/db/connection`, and `#/env`, which client code never imports. Route files that only
+  define server handlers (under `src/routes/api/`) are server code. Check: oxlint
   `no-restricted-imports`, with one set of restrictions per file group in `.oxlintrc.json`.
 - Database access goes only through repository modules
   (`src/server/<domain>/<domain>.repository.server.ts`). Each function takes
@@ -99,7 +100,8 @@ convention names its check; the ones under "Checked in review" have none.
 - Import with a relative path inside the importer's area, and through the `#/` alias for
   everything else. An area is one feature folder (`src/features/<name>/`), `src/server/`,
   or another top-level folder of `src/` (`src/components/`, `src/lib/`, `src/routes/`).
-  Files at the `src/` root belong to no area. Check: `imports:check`, both directions.
+  Files at the `src/` root belong to no area. A relative path is the shortest one to its
+  target, so lint patterns for a file match every import of it. Check: `imports:check`.
 - Named functions are `function` declarations; shadcn copies in `src/components/ui/` are
   exempt. Check: oxlint `func-style`.
 - Icon components end in `Icon`, so JSX shows what they are. Import Lucide icons by their
@@ -113,7 +115,8 @@ convention names its check; the ones under "Checked in review" have none.
 - Read environment variables only through `src/env.ts`, from server code.
 - A test that checks a behavior spec scenario starts its title with the scenario's ID:
   `test('sign-in.demo-password: ...')`. Check: `specs:check` fails on a scenario no test
-  cites, or a cited ID no spec defines.
+  cites, or a cited ID no spec defines. A skipped, todo, or commented-out test cites
+  nothing.
 - Comment only where the code is hard to follow without it, and say only what a reader of
   that code needs: why, a constraint, or a contract the code can't show. Don't restate the
   next line, and don't describe earlier versions or the task that added the code; history
