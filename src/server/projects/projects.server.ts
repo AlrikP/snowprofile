@@ -9,9 +9,13 @@ import { AppError } from '../errors'
 import { hasPermission, requirePermission, type Scope } from '../scope.server'
 import * as repository from './projects.repository.server'
 import type {
+  AddContactInput,
+  ContactsInput,
   CreateProjectInput,
+  DeleteContactInput,
   ProjectFields,
   ProjectInput,
+  UpdateContactInput,
   UpdateProjectInput,
 } from './projects.schemas'
 
@@ -34,6 +38,18 @@ export async function projectList(db: Database, scope: Scope) {
   ])
   const technologiesOf = byProject(technologies)
   return projects.map((row) => ({ ...row, technologies: technologiesOf.get(row.id) ?? [] }))
+}
+
+type ProjectContact = Awaited<ReturnType<typeof repository.listProjectContacts>>[number]
+
+// Admins see every contact with the admins' note on them. Participants see only the
+// contacts who are still valid, and no notes: a former contact and why they stopped being
+// one are the admins' business (docs/product.md, "Personal data and GDPR").
+function visibleContacts(contacts: ProjectContact[], isAdmin: boolean) {
+  if (isAdmin) return contacts
+  return contacts
+    .filter((contact) => !contact.noLongerValid)
+    .map((contact) => ({ ...contact, note: null }))
 }
 
 export async function projectView(db: Database, scope: Scope, input: ProjectInput) {
@@ -59,14 +75,17 @@ export async function projectView(db: Database, scope: Scope, input: ProjectInpu
   }))
   // Cost, hours, the tender reference, and the customer's contacts are for admins and the
   // people who took part. The others get none of it, not only a page that hides it.
-  const canSeeDetails =
-    hasPermission(scope, { project: ['update'] }) || participations.some((each) => each.mine)
+  const isAdmin = hasPermission(scope, { project: ['update'] })
+  const canSeeDetails = isAdmin || participations.some((each) => each.mine)
   const details = canSeeDetails
     ? {
         tenderReference: found.tenderReference,
         totalHours: approximate(found.totalHours, found.totalHoursQualifier),
         cost: approximate(found.cost, found.costQualifier),
-        contacts: await repository.listProjectContacts(db, scope, found.id),
+        contacts: visibleContacts(
+          await repository.listProjectContacts(db, scope, found.id),
+          isAdmin,
+        ),
       }
     : null
   return {
@@ -106,10 +125,12 @@ export async function projectForm(db: Database, scope: Scope, input: ProjectInpu
   requirePermission(scope, { project: ['update'] }, 'project_forbidden')
   const found = await repository.findProject(db, scope, input.projectId)
   if (!found) throw new AppError('NOT_FOUND', 'project_not_found')
+  const contacts = await repository.listProjectContacts(db, scope, found.id)
   return {
     id: found.id,
     name: found.name,
     customerId: found.customerId,
+    contactIds: contacts.map((contact) => contact.id),
     description: { et: found.descriptionEt, en: found.descriptionEn },
     startDate: found.startDate,
     endDate: found.endDate,
@@ -156,16 +177,41 @@ async function projectValues(db: Executor, scope: Scope, fields: ProjectFields) 
   }
 }
 
+// The project's contacts must be live contacts of its customer.
+async function requireCustomerContacts(
+  db: Executor,
+  scope: Scope,
+  customerId: string | null,
+  contactIds: string[],
+) {
+  if (contactIds.length === 0) return
+  const own = customerId ? await repository.listContacts(db, scope, customerId) : []
+  const ids = new Set(own.map((contact) => contact.id))
+  if (!contactIds.every((id) => ids.has(id))) {
+    throw new AppError('INVALID', 'contact_other_customer')
+  }
+}
+
+async function saveProject(
+  db: Executor,
+  scope: Scope,
+  projectId: string,
+  fields: ProjectFields,
+  isNew: boolean,
+) {
+  const values = await projectValues(db, scope, fields)
+  const contactIds = [...new Set(fields.contactIds)]
+  await requireCustomerContacts(db, scope, values.customerId, contactIds)
+  if (isNew) await repository.insertProject(db, scope, { id: projectId, ...values })
+  else await repository.updateProject(db, scope, projectId, values)
+  await repository.setProjectContacts(db, scope, projectId, contactIds)
+}
+
 // A name that normalizes like an existing project's is allowed: the form only warns,
 // because two projects can share a name.
 export async function createProject(db: Database, scope: Scope, input: CreateProjectInput) {
   requirePermission(scope, { project: ['create'] }, 'project_forbidden')
-  await db.transaction(async (tx) => {
-    await repository.insertProject(tx, scope, {
-      id: input.id,
-      ...(await projectValues(tx, scope, input)),
-    })
-  })
+  await db.transaction((tx) => saveProject(tx, scope, input.id, input, true))
   return { id: input.id }
 }
 
@@ -175,12 +221,7 @@ export async function updateProject(db: Database, scope: Scope, input: UpdatePro
     if (!(await repository.findProject(tx, scope, input.projectId))) {
       throw new AppError('NOT_FOUND', 'project_not_found')
     }
-    await repository.updateProject(
-      tx,
-      scope,
-      input.projectId,
-      await projectValues(tx, scope, input),
-    )
+    await saveProject(tx, scope, input.projectId, input, false)
   })
 }
 
@@ -193,5 +234,66 @@ export async function deleteProject(db: Database, scope: Scope, input: ProjectIn
       throw new AppError('NOT_FOUND', 'project_not_found')
     }
     await repository.removeProject(tx, scope, input.projectId)
+  })
+}
+
+// Contact persons are the customer's, edited from the project form. They are third-party
+// personal data, so only admins read or change them here (docs/product.md, "Personal data
+// and GDPR").
+function requireContacts(scope: Scope) {
+  requirePermission(scope, { customer: ['update'] }, 'contact_forbidden')
+}
+
+export async function contacts(db: Database, scope: Scope, input: ContactsInput) {
+  requireContacts(scope)
+  return repository.listContacts(db, scope, input.customerId)
+}
+
+function contactValues(input: AddContactInput | UpdateContactInput) {
+  return {
+    name: input.name,
+    email: input.email,
+    phone: input.phone,
+    noLongerValid: input.noLongerValid,
+    note: input.note,
+  }
+}
+
+export async function addContact(db: Database, scope: Scope, input: AddContactInput) {
+  requireContacts(scope)
+  await db.transaction(async (tx) => {
+    if (!(await repository.findCustomer(tx, scope, input.customerId))) {
+      throw new AppError('INVALID', 'customer_not_found')
+    }
+    await repository.insertContact(tx, scope, {
+      id: input.id,
+      customerId: input.customerId,
+      ...contactValues(input),
+    })
+  })
+  return { id: input.id }
+}
+
+async function requireContact(db: Executor, scope: Scope, contactId: string) {
+  if (!(await repository.findContact(db, scope, contactId))) {
+    throw new AppError('NOT_FOUND', 'contact_not_found')
+  }
+}
+
+export async function updateContact(db: Database, scope: Scope, input: UpdateContactInput) {
+  requireContacts(scope)
+  await db.transaction(async (tx) => {
+    await requireContact(tx, scope, input.contactId)
+    await repository.updateContact(tx, scope, input.contactId, contactValues(input))
+  })
+}
+
+// Soft-deletes the contact. Its project links stay stored but stop showing, because every
+// read joins them through a live contact.
+export async function deleteContact(db: Database, scope: Scope, input: DeleteContactInput) {
+  requireContacts(scope)
+  await db.transaction(async (tx) => {
+    await requireContact(tx, scope, input.contactId)
+    await repository.removeContact(tx, scope, input.contactId)
   })
 }

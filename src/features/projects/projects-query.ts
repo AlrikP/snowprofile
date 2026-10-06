@@ -1,5 +1,6 @@
 import { queryOptions } from '@tanstack/react-query'
 import {
+  getContacts,
   getCustomers,
   getProject,
   getProjectForm,
@@ -36,5 +37,13 @@ export function customersQuery(organizationId: string) {
   return queryOptions({
     queryKey: ['customers', organizationId],
     queryFn: () => getCustomers({ data: { organizationId } }),
+  })
+}
+
+// Under the customers' key, so refreshing the customers refreshes their contacts too.
+export function contactsQuery(organizationId: string, customerId: string) {
+  return queryOptions({
+    queryKey: ['customers', organizationId, customerId, 'contacts'],
+    queryFn: () => getContacts({ data: { organizationId, customerId } }),
   })
 }

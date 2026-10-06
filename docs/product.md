@@ -151,7 +151,8 @@ Both suggestion lists are computed when shown, so nothing records them.
   references. Store only what references need, and allow marking a contact as no longer
   valid (the sheet already notes "no longer works at Telia").
 - **Visibility:** admins edit cost, hours, customer contacts, and tender reference
-  numbers. Employees can read them on projects they took part in.
+  numbers. Employees can read them on projects they took part in, except contacts marked
+  as no longer valid and the admins' notes on contacts, which only admins see.
 - **Birth date** shows only to admins and the person, and goes into a CV only when chosen
   explicitly.
 - **Residency:** data stays in the EU (`hosting.md`).

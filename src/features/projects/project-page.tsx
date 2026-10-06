@@ -112,13 +112,18 @@ function TenderDetails({ details }: { details: Details }) {
                 <span className="flex flex-wrap items-center gap-2 font-medium">
                   {contact.name}
                   {contact.noLongerValid && (
-                    <Badge variant="outline">{m.contact_no_longer_valid()}</Badge>
+                    <Badge variant="outline" className="border-amber-500 text-amber-800">
+                      {m.contact_no_longer_valid()}
+                    </Badge>
                   )}
                 </span>
                 <span className="text-muted-foreground flex flex-wrap gap-x-3">
                   {contact.email && <span>{contact.email}</span>}
                   {contact.phone && <span>{contact.phone}</span>}
                 </span>
+                {contact.note && (
+                  <span className="text-muted-foreground italic">{contact.note}</span>
+                )}
               </li>
             ))}
           </ul>

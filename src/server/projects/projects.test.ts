@@ -6,7 +6,7 @@ import { v7 as uuidv7 } from 'uuid'
 import * as v from 'valibot'
 import type { Database } from '#/db'
 import { withActor } from '#/db/actor'
-import { customer, employeeProfile, project, tenderCriterion } from '#/db/schema'
+import { customer, employeeProfile, project, projectContact, tenderCriterion } from '#/db/schema'
 import { seedIds } from '#/db/seed-accounts'
 import { createTestDatabase } from '#/db/testing'
 import { catalogue as roleCatalogue } from '../roles/roles.server'
@@ -14,11 +14,15 @@ import { resolveScope, type Scope } from '../scope.server'
 import { rejection } from '../testing'
 import { type CreateProjectInput, UpdateProjectInput } from './projects.schemas'
 import {
+  addContact,
+  contacts,
   createProject,
+  deleteContact,
   deleteProject,
   projectForm,
   projectList,
   projectView,
+  updateContact,
   updateProject,
 } from './projects.server'
 
@@ -247,6 +251,7 @@ function fields(overrides: Partial<CreateProjectInput> = {}): CreateProjectInput
     tenderReference: null,
     totalHours: null,
     cost: null,
+    contactIds: [],
     ...overrides,
   }
 }
@@ -421,5 +426,228 @@ describe('editing', () => {
     expect(await uses()).toBe((before ?? 0) - links)
     const [row] = await db.select().from(project).where(eq(project.id, projectId))
     expect(row).toMatchObject({ sysDeleted: true, updatedBy: seedIds.users.admin })
+  })
+})
+
+describe('contact persons', () => {
+  // A customer of its own, so contacts added here don't touch the seeded projects.
+  async function customerWithProject() {
+    const customerId = uuidv7()
+    const input = fields({
+      customer: { kind: 'new', id: customerId, name: `Klient ${customerId}` },
+    })
+    await as(admin, () => createProject(db, admin, input))
+    return { customerId, projectId: input.id, input }
+  }
+
+  function contact(customerId: string, overrides: Partial<Parameters<typeof addContact>[2]> = {}) {
+    return {
+      id: uuidv7(),
+      customerId,
+      name: 'Mari Mets',
+      email: 'mari@example.ee',
+      phone: null,
+      noLongerValid: false,
+      note: null,
+      ...overrides,
+    }
+  }
+
+  test('projects.contact-added: an admin adds a customer’s contact and links it to the project', async () => {
+    const { customerId, projectId, input } = await customerWithProject()
+    const added = contact(customerId)
+    await as(admin, () => addContact(db, admin, added))
+
+    expect((await contacts(db, admin, { customerId })).map((each) => each.name)).toEqual([
+      'Mari Mets',
+    ])
+    await as(admin, () =>
+      updateProject(db, admin, {
+        ...input,
+        projectId,
+        customer: { kind: 'existing', id: customerId },
+        contactIds: [added.id],
+      }),
+    )
+
+    const view = await projectView(db, admin, { projectId })
+    expect(view.details?.contacts).toMatchObject([
+      { id: added.id, name: 'Mari Mets', email: 'mari@example.ee' },
+    ])
+    expect((await projectForm(db, admin, { projectId })).contactIds).toEqual([added.id])
+  })
+
+  test('projects.contact-other-customer-refused: a contact of another customer can’t be linked', async () => {
+    const first = await customerWithProject()
+    const second = await customerWithProject()
+    const foreign = contact(second.customerId)
+    await as(admin, () => addContact(db, admin, foreign))
+
+    const refused = { code: 'INVALID', key: 'contact_other_customer' }
+    const linking = {
+      ...first.input,
+      projectId: first.projectId,
+      customer: { kind: 'existing' as const, id: first.customerId },
+      contactIds: [foreign.id],
+    }
+    expect(await rejection(as(admin, () => updateProject(db, admin, linking)))).toMatchObject(
+      refused,
+    )
+    const withoutCustomer = { ...linking, customer: null }
+    expect(
+      await rejection(as(admin, () => updateProject(db, admin, withoutCustomer))),
+    ).toMatchObject(refused)
+  })
+
+  test('changing the customer without the old contacts removes their links', async () => {
+    const { customerId, projectId, input } = await customerWithProject()
+    const added = contact(customerId)
+    await as(admin, () => addContact(db, admin, added))
+    const existing = { kind: 'existing' as const, id: customerId }
+    await as(admin, () =>
+      updateProject(db, admin, { ...input, projectId, customer: existing, contactIds: [added.id] }),
+    )
+
+    const other = await customerWithProject()
+    await as(admin, () =>
+      updateProject(db, admin, {
+        ...input,
+        projectId,
+        customer: { kind: 'existing', id: other.customerId },
+        contactIds: [],
+      }),
+    )
+    expect((await projectView(db, admin, { projectId })).details?.contacts).toEqual([])
+  })
+
+  test('projects.contact-no-longer-valid: an admin marks a contact as no longer valid, with a note', async () => {
+    const { customerId, projectId, input } = await customerWithProject()
+    const added = contact(customerId)
+    await as(admin, () => addContact(db, admin, added))
+    await as(admin, () =>
+      updateProject(db, admin, {
+        ...input,
+        projectId,
+        customer: { kind: 'existing', id: customerId },
+        contactIds: [added.id],
+      }),
+    )
+
+    await as(admin, () =>
+      updateContact(db, admin, {
+        contactId: added.id,
+        name: 'Mari Mets',
+        email: null,
+        phone: '+372 612 5000',
+        noLongerValid: true,
+        note: 'Ei tööta enam ministeeriumis.',
+      }),
+    )
+
+    expect(await contacts(db, admin, { customerId })).toMatchObject([
+      {
+        email: null,
+        phone: '+372 612 5000',
+        noLongerValid: true,
+        note: 'Ei tööta enam ministeeriumis.',
+      },
+    ])
+    expect((await projectView(db, admin, { projectId })).details?.contacts).toMatchObject([
+      { id: added.id, noLongerValid: true },
+    ])
+  })
+
+  test('a deleted contact leaves the customer and its projects', async () => {
+    const { customerId, projectId, input } = await customerWithProject()
+    const added = contact(customerId)
+    await as(admin, () => addContact(db, admin, added))
+    await as(admin, () =>
+      updateProject(db, admin, {
+        ...input,
+        projectId,
+        customer: { kind: 'existing', id: customerId },
+        contactIds: [added.id],
+      }),
+    )
+
+    await as(admin, () => deleteContact(db, admin, { contactId: added.id }))
+
+    expect(await contacts(db, admin, { customerId })).toEqual([])
+    expect((await projectView(db, admin, { projectId })).details?.contacts).toEqual([])
+    expect(
+      await rejection(as(admin, () => deleteContact(db, admin, { contactId: added.id }))),
+    ).toMatchObject({ code: 'NOT_FOUND', key: 'contact_not_found' })
+  })
+
+  test('an employee can’t read or change contacts', async () => {
+    const { customerId } = await customerWithProject()
+    const added = contact(customerId)
+    await as(admin, () => addContact(db, admin, added))
+    const forbidden = { code: 'FORBIDDEN', key: 'contact_forbidden' }
+
+    expect(await rejection(contacts(db, employee, { customerId }))).toMatchObject(forbidden)
+    expect(
+      await rejection(as(employee, () => addContact(db, employee, contact(customerId)))),
+    ).toMatchObject(forbidden)
+    expect(
+      await rejection(
+        as(employee, () => updateContact(db, employee, { ...added, contactId: added.id })),
+      ),
+    ).toMatchObject(forbidden)
+    expect(
+      await rejection(as(employee, () => deleteContact(db, employee, { contactId: added.id }))),
+    ).toMatchObject(forbidden)
+  })
+
+  test('a contact needs a customer of the organization', async () => {
+    const foreign = await first(
+      `SELECT id FROM customer WHERE organization_id = '${seedIds.orgs.tormilind}'`,
+    )
+    expect(await rejection(as(admin, () => addContact(db, admin, contact(foreign))))).toMatchObject(
+      { code: 'INVALID', key: 'customer_not_found' },
+    )
+  })
+
+  test('projects.former-contacts-admin-only: participants see current contacts without notes, admins all with notes', async () => {
+    const [mine] = await db
+      .select({ customerId: project.customerId })
+      .from(project)
+      .where(eq(project.id, fixture.mine))
+    const customerId = mine?.customerId
+    if (!customerId) throw new Error('expected a customer on the employee’s project')
+    const current = contact(customerId, { name: 'Kehtiv Kontakt', note: 'Eelistab e-posti.' })
+    const former = contact(customerId, {
+      name: 'Endine Kontakt',
+      noLongerValid: true,
+      note: 'Ei tööta enam.',
+    })
+    await as(admin, async () => {
+      await addContact(db, admin, current)
+      await addContact(db, admin, former)
+      await db.insert(projectContact).values(
+        [current, former].map((each) => ({
+          projectId: fixture.mine,
+          contactPersonId: each.id,
+          organizationId: org,
+        })),
+      )
+    })
+
+    const participant = (await projectView(db, employee, { projectId: fixture.mine })).details
+    const ids = participant?.contacts.map((each) => each.id)
+    expect(ids).toContain(current.id)
+    expect(ids).not.toContain(former.id)
+    expect(participant?.contacts.every((each) => !each.noLongerValid && each.note === null)).toBe(
+      true,
+    )
+    expect(JSON.stringify(participant)).not.toContain('Ei tööta enam.')
+
+    const all = (await projectView(db, admin, { projectId: fixture.mine })).details?.contacts
+    expect(all).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: current.id, note: 'Eelistab e-posti.' }),
+        expect.objectContaining({ id: former.id, noLongerValid: true, note: 'Ei tööta enam.' }),
+      ]),
+    )
   })
 })

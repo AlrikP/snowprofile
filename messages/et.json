@@ -197,5 +197,37 @@
   "project_section_tender_hint": "Näevad administraatorid ja projekti osalejad.",
   "project_delete": "Kustuta projekt",
   "project_delete_title": "Kustutada „{name}“?",
-  "project_delete_body": "Projekt kaob projektide nimekirjast, otsingust ja CV-dest ning selle osalusi profiilidel enam ei näidata."
+  "project_delete_body": "Projekt kaob projektide nimekirjast, otsingust ja CV-dest ning selle osalusi profiilidel enam ei näidata.",
+  "error_contact_forbidden": "Kontaktisikuid saavad muuta ainult administraatorid.",
+  "error_contact_not_found": "Kontaktisikut ei leitud.",
+  "error_contact_other_customer": "Projekti kontaktisikud peavad olema selle kliendi omad.",
+  "project_section_contacts_hint": "Kliendi inimesed, keda saab hankes referentsina nimetada. Märgi need, kes on selle projekti referentsid.",
+  "contact_add": "Lisa kontaktisik",
+  "contact_edit_for": "Muuda: {name}",
+  "contact_dialog_title": "Kontaktisik",
+  "contact_name": "Nimi",
+  "contact_email": "E-post",
+  "contact_phone": "Telefon",
+  "contact_invalid_label": "Ei saa enam referentsiks olla",
+  "contact_invalid_hint": "CV tabelid jätavad ta välja.",
+  "contact_note": "Märkus",
+  "contact_note_hint": "Ei kuvata CV-s.",
+  "contact_name_required": "Sisesta kontaktisiku nimi.",
+  "contact_delete": "Kustuta",
+  "contact_delete_confirm": "Kustutada {name} kliendi kontaktisikute hulgast? Kõik kliendi projektid kaotavad ta referentsina.",
+  "contacts_no_customer": "Vali kõigepealt klient: kontaktisikud on kliendi omad.",
+  "contacts_new_customer": "Uuele kliendile kontaktisikute lisamiseks salvesta enne projekt.",
+  "contacts_none": "Kliendil pole veel kontaktisikuid.",
+  "contacts_change_customer_title": "Muuta klienti?",
+  "contacts_change_customer_body": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "Projekti {count} kontaktisik kuulub praegusele kliendile ja eemaldatakse projektist.",
+        "countPlural=*": "Projekti {count} kontaktisikut kuuluvad praegusele kliendile ja eemaldatakse projektist."
+      }
+    }
+  ],
+  "contacts_change_customer_confirm": "Muuda klienti"
 }

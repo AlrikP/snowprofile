@@ -10,6 +10,7 @@ import { v7 as uuidv7 } from 'uuid'
 import type { Database } from '#/db'
 import { withActor } from '#/db/actor'
 import {
+  contactPerson,
   customer,
   employeeProfile,
   participationRole,
@@ -52,6 +53,9 @@ const b = {
   // A customer whose name A has no customer of.
   customerId: '',
   customerName: '',
+  // A contact of B's project, and its customer.
+  contactId: '',
+  contactCustomerId: '',
 }
 // A category in A, for writes that would otherwise fail on the category alone.
 let aCategoryId = ''
@@ -149,7 +153,30 @@ beforeAll(async () => {
   }
   b.customerId = customerId
   b.customerName = customerName
+  const linked = await db.$client.execute(`
+    SELECT cp.id, cp.customer_id FROM project_contact pc
+    JOIN contact_person cp ON cp.id = pc.contact_person_id
+    WHERE pc.project_id = '${b.projectId}' LIMIT 1`)
+  const contactId = linked.rows[0]?.[0]
+  const contactCustomerId = linked.rows[0]?.[1]
+  if (typeof contactId !== 'string' || typeof contactCustomerId !== 'string') {
+    throw new Error('expected a contact on B’s project')
+  }
+  b.contactId = contactId
+  b.contactCustomerId = contactCustomerId
 })
+
+async function bContact() {
+  const [row] = await db.select().from(contactPerson).where(eq(contactPerson.id, b.contactId))
+  return row
+}
+
+async function bProjectContacts() {
+  const rows = await db.$client.execute(
+    `SELECT contact_person_id FROM project_contact WHERE project_id = '${b.projectId}'`,
+  )
+  return rows.rows.map((row) => row[0])
+}
 
 async function bProject() {
   const [row] = await db.select().from(project).where(eq(project.id, b.projectId))
@@ -353,6 +380,65 @@ const cases: Record<string, () => Promise<void>> = {
     )
     const [row] = await db.select().from(customer).where(eq(customer.id, id))
     expect(row?.organizationId).toBe(scopeA.organizationId)
+  },
+  'projects.listContacts': async () => {
+    expect(await projects.listContacts(db, scopeA, b.contactCustomerId)).toEqual([])
+  },
+  'projects.findContact': async () => {
+    expect(await projects.findContact(db, scopeA, b.contactId)).toBeUndefined()
+  },
+  'projects.insertContact': async () => {
+    // The organization comes from the scope, so B's customer can't be used from A.
+    function insert() {
+      return withActor(scopeA.userId, () =>
+        projects.insertContact(db, scopeA, {
+          id: uuidv7(),
+          customerId: b.contactCustomerId,
+          name: 'Ristuv',
+          email: null,
+          phone: null,
+          noLongerValid: false,
+          note: null,
+        }),
+      )
+    }
+    expect(await failure(insert)).toContain('FOREIGN KEY')
+  },
+  'projects.updateContact': async () => {
+    const before = await bContact()
+    await withActor(scopeA.userId, () =>
+      projects.updateContact(db, scopeA, b.contactId, {
+        name: 'Muudetud A-st',
+        email: null,
+        phone: null,
+        noLongerValid: true,
+        note: null,
+      }),
+    )
+    expect(await bContact()).toMatchObject({
+      name: before?.name,
+      noLongerValid: before?.noLongerValid,
+    })
+  },
+  'projects.removeContact': async () => {
+    await withActor(scopeA.userId, () => projects.removeContact(db, scopeA, b.contactId))
+    expect((await bContact())?.sysDeleted).toBe(false)
+  },
+  'projects.setProjectContacts': async () => {
+    // The delete is scoped, so B's links stay; the insert then fails on the link already
+    // there, and on the foreign keys for any other, since the rows would be A's.
+    const before = await bProjectContacts()
+    const unlinked = uuidv7()
+    for (const contactId of [b.contactId, unlinked]) {
+      expect(
+        await failure(() =>
+          withActor(scopeA.userId, () =>
+            projects.setProjectContacts(db, scopeA, b.projectId, [contactId]),
+          ),
+        ),
+      ).toMatch(contactId === unlinked ? /FOREIGN KEY/ : /UNIQUE/)
+    }
+    expect(await bProjectContacts()).toEqual(before)
   },
   'roles.listRoles': async () => {
     const ids = (await roles.listRoles(db, scopeA)).map((row) => row.id)

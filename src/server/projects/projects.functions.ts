@@ -1,7 +1,15 @@
 // Project server functions. Thin wrappers: the rules live in projects.server.ts.
 import { createServerFn } from '@tanstack/react-start'
 import { scopeMiddleware } from '../middleware'
-import { CreateProjectInput, ProjectInput, UpdateProjectInput } from './projects.schemas'
+import {
+  AddContactInput,
+  ContactsInput,
+  CreateProjectInput,
+  DeleteContactInput,
+  ProjectInput,
+  UpdateContactInput,
+  UpdateProjectInput,
+} from './projects.schemas'
 import * as projects from './projects.server'
 
 export const getProjects = createServerFn({ method: 'GET' })
@@ -37,7 +45,28 @@ export const deleteProject = createServerFn({ method: 'POST' })
   .validator(ProjectInput)
   .handler(({ data, context }) => projects.deleteProject(context.db, context.scope, data))
 
+export const getContacts = createServerFn({ method: 'GET' })
+  .middleware([scopeMiddleware])
+  .validator(ContactsInput)
+  .handler(({ data, context }) => projects.contacts(context.db, context.scope, data))
+
+export const addContact = createServerFn({ method: 'POST' })
+  .middleware([scopeMiddleware])
+  .validator(AddContactInput)
+  .handler(({ data, context }) => projects.addContact(context.db, context.scope, data))
+
+export const updateContact = createServerFn({ method: 'POST' })
+  .middleware([scopeMiddleware])
+  .validator(UpdateContactInput)
+  .handler(({ data, context }) => projects.updateContact(context.db, context.scope, data))
+
+export const deleteContact = createServerFn({ method: 'POST' })
+  .middleware([scopeMiddleware])
+  .validator(DeleteContactInput)
+  .handler(({ data, context }) => projects.deleteContact(context.db, context.scope, data))
+
 export type ProjectListItem = Awaited<ReturnType<typeof getProjects>>[number]
 export type ProjectView = Awaited<ReturnType<typeof getProject>>
 export type ProjectForm = Awaited<ReturnType<typeof getProjectForm>>
+export type Contact = Awaited<ReturnType<typeof getContacts>>[number]
 export type Customer = Awaited<ReturnType<typeof getCustomers>>[number]

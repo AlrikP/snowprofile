@@ -27,6 +27,9 @@ const errorText: Record<AppErrorKey, () => string> = {
   project_forbidden: m.error_project_forbidden,
   project_name_invalid: m.error_project_name_invalid,
   customer_not_found: m.error_customer_not_found,
+  contact_forbidden: m.error_contact_forbidden,
+  contact_not_found: m.error_contact_not_found,
+  contact_other_customer: m.error_contact_other_customer,
 }
 
 // The text to show for an error from a server function. Server functions send codes and

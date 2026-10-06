@@ -241,5 +241,37 @@
   "project_section_tender_hint": "Admins and the project’s participants see these.",
   "project_delete": "Delete project",
   "project_delete_title": "Delete “{name}”?",
-  "project_delete_body": "The project leaves the project list, search, and CVs, and its participations stop showing on profiles."
+  "project_delete_body": "The project leaves the project list, search, and CVs, and its participations stop showing on profiles.",
+  "error_contact_forbidden": "Only admins can change contact persons.",
+  "error_contact_not_found": "Contact person not found.",
+  "error_contact_other_customer": "A project’s contact persons must be its customer’s.",
+  "project_section_contacts_hint": "People at the customer who can be named as tender references. Tick the ones who are references for this project.",
+  "contact_add": "Add contact person",
+  "contact_edit_for": "Edit {name}",
+  "contact_dialog_title": "Contact person",
+  "contact_name": "Name",
+  "contact_email": "Email",
+  "contact_phone": "Phone",
+  "contact_invalid_label": "Can no longer act as a reference",
+  "contact_invalid_hint": "CV tables leave them out.",
+  "contact_note": "Note",
+  "contact_note_hint": "Not shown in CVs.",
+  "contact_name_required": "Enter the contact person’s name.",
+  "contact_delete": "Delete",
+  "contact_delete_confirm": "Delete {name} from the customer’s contact persons? Every project of the customer loses them as a reference.",
+  "contacts_no_customer": "Choose the customer first: contact persons are the customer’s.",
+  "contacts_new_customer": "Save the project first to add contact persons for the new customer.",
+  "contacts_none": "The customer has no contact persons yet.",
+  "contacts_change_customer_title": "Change the customer?",
+  "contacts_change_customer_body": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "The project’s {count} contact person belongs to the current customer and will be removed from the project.",
+        "countPlural=*": "The project’s {count} contact persons belong to the current customer and will be removed from the project."
+      }
+    }
+  ],
+  "contacts_change_customer_confirm": "Change customer"
 }

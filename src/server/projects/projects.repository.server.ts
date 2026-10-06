@@ -184,6 +184,7 @@ export async function listProjectContacts(db: Executor, scope: Scope, projectId:
       email: contactPerson.email,
       phone: contactPerson.phone,
       noLongerValid: contactPerson.noLongerValid,
+      note: contactPerson.note,
     })
     .from(projectContact)
     .innerJoin(contactPerson, eq(contactPerson.id, projectContact.contactPersonId))
@@ -276,4 +277,92 @@ export async function insertCustomer(
   values: { id: string; name: string },
 ) {
   await db.insert(customer).values({ ...values, organizationId: scope.organizationId })
+}
+
+function liveContacts(scope: Scope) {
+  return and(
+    eq(contactPerson.organizationId, scope.organizationId),
+    eq(contactPerson.sysDeleted, sql`0`),
+  )
+}
+
+// The customer's live contact persons, valid ones first.
+export async function listContacts(db: Executor, scope: Scope, customerId: string) {
+  return db
+    .select({
+      id: contactPerson.id,
+      name: contactPerson.name,
+      email: contactPerson.email,
+      phone: contactPerson.phone,
+      noLongerValid: contactPerson.noLongerValid,
+      note: contactPerson.note,
+    })
+    .from(contactPerson)
+    .where(and(liveContacts(scope), eq(contactPerson.customerId, customerId)))
+    .orderBy(asc(contactPerson.noLongerValid), asc(contactPerson.name))
+}
+
+export async function findContact(db: Executor, scope: Scope, contactId: string) {
+  const [row] = await db
+    .select({ id: contactPerson.id, customerId: contactPerson.customerId })
+    .from(contactPerson)
+    .where(and(liveContacts(scope), eq(contactPerson.id, contactId)))
+  return row
+}
+
+type ContactValues = Pick<
+  typeof contactPerson.$inferInsert,
+  'name' | 'email' | 'phone' | 'noLongerValid' | 'note'
+>
+
+export async function insertContact(
+  db: Executor,
+  scope: Scope,
+  values: ContactValues & { id: string; customerId: string },
+) {
+  await db.insert(contactPerson).values({ ...values, organizationId: scope.organizationId })
+}
+
+export async function updateContact(
+  db: Executor,
+  scope: Scope,
+  contactId: string,
+  values: ContactValues,
+) {
+  await db
+    .update(contactPerson)
+    .set(values)
+    .where(and(liveContacts(scope), eq(contactPerson.id, contactId)))
+}
+
+export async function removeContact(db: Executor, scope: Scope, contactId: string) {
+  await db
+    .update(contactPerson)
+    .set({ sysDeleted: true })
+    .where(and(liveContacts(scope), eq(contactPerson.id, contactId)))
+}
+
+// Replaces the project's contact links with these.
+export async function setProjectContacts(
+  db: Executor,
+  scope: Scope,
+  projectId: string,
+  contactIds: string[],
+) {
+  await db
+    .delete(projectContact)
+    .where(
+      and(
+        eq(projectContact.organizationId, scope.organizationId),
+        eq(projectContact.projectId, projectId),
+      ),
+    )
+  if (contactIds.length === 0) return
+  await db.insert(projectContact).values(
+    contactIds.map((contactPersonId) => ({
+      projectId,
+      contactPersonId,
+      organizationId: scope.organizationId,
+    })),
+  )
 }

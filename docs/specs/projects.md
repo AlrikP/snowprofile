@@ -150,3 +150,45 @@ undone by hand.
 - **When** an admin deletes it
 - **Then** it leaves the project list, its page is not found, and the role catalogue no
   longer counts its participations
+
+### Requirement: Contacts belong to the customer
+
+Contact persons are the customer's: an admin adds them to the project's customer with a
+name and, optionally, an email and a phone, and picks which of them are references for
+the project. A project must link only contacts of its own customer. Changing the
+project's customer must ask before removing the links to the old customer's contacts.
+
+#### Scenario: projects.contact-added
+
+- **Given** an admin editing a project with a stored customer
+- **When** they add a contact person with a name and an email
+- **Then** the contact is stored with the customer and ticked as the project's reference,
+  and the project shows it after saving
+
+#### Scenario: projects.contact-other-customer-refused
+
+- **Given** a contact person of one customer
+- **When** a project of another customer, or of none, is saved with that contact
+- **Then** the server refuses
+
+### Requirement: Contacts can stop being valid
+
+An admin must be able to mark a contact person as no longer valid, with an optional note,
+and to delete one. A deleted contact must leave the customer and every project. Only
+admins must see former contacts, and whoever sees a former contact must see its note;
+participants must see only the current contacts, without notes. The server must leave
+the rest out of the response, not only the page.
+
+#### Scenario: projects.contact-no-longer-valid
+
+- **Given** a project's contact person
+- **When** an admin marks them as no longer valid with a note
+- **Then** the contact stays on the project for admins, marked as no longer valid, with
+  the note
+
+#### Scenario: projects.former-contacts-admin-only
+
+- **Given** a project with a current contact and a former one, each with a note
+- **When** a participant opens the project
+- **Then** the response holds only the current contact, without its note, while an admin
+  sees both contacts with their notes

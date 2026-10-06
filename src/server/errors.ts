@@ -37,6 +37,9 @@ export const errorMessages = {
   project_forbidden: 'Only admins can change projects.',
   project_name_invalid: 'The name needs at least one letter or digit.',
   customer_not_found: 'Customer not found.',
+  contact_forbidden: 'Only admins can change contact persons.',
+  contact_not_found: 'Contact person not found.',
+  contact_other_customer: 'A project’s contact persons must be its customer’s.',
 } as const
 
 export type AppErrorKey = keyof typeof errorMessages

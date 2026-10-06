@@ -8,7 +8,15 @@ import { BilingualField } from '#/components/bilingual-field'
 import { PeriodInput } from '#/components/period-input'
 import { Alert, AlertDescription } from '#/components/ui/alert'
 import { Button } from '#/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader } from '#/components/ui/card'
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '#/components/ui/dialog'
 import { Input } from '#/components/ui/input'
 import { Label } from '#/components/ui/label'
 import { NativeSelect, NativeSelectOption } from '#/components/ui/native-select'
@@ -26,36 +34,15 @@ import {
 } from '#/server/projects/projects.functions'
 import { CustomerDialog } from './customer-dialog'
 import { DeleteProjectDialog } from './delete-project-dialog'
+import { FormSection } from './form-section'
+import { type ContactsCustomer, ProjectContacts } from './project-contacts'
 import { customersQuery, projectFormQuery, projectsKey, projectsQuery } from './projects-query'
-
-function Section({
-  id,
-  title,
-  hint,
-  children,
-}: {
-  id: string
-  title: string
-  hint?: string
-  children: ReactNode
-}) {
-  return (
-    <Card role="region" aria-labelledby={id}>
-      <CardHeader>
-        <h2 id={id} className="text-xl">
-          {title}
-        </h2>
-        {hint && <CardDescription>{hint}</CardDescription>}
-      </CardHeader>
-      <CardContent className="flex flex-col gap-4">{children}</CardContent>
-    </Card>
-  )
-}
 
 function initialValues(stored: ProjectForm | null) {
   return {
     name: stored?.name ?? '',
     customerId: stored?.customerId ?? '',
+    contactIds: stored?.contactIds ?? [],
     description: bilingualInputValue(stored?.description ?? null),
     // A new project starts as ongoing, as most are added while they run.
     period: stored
@@ -85,6 +72,8 @@ function ProjectFormBody({ organizationId, organization, stored, canDelete }: Fo
   const [added, setAdded] = useState<{ id: string; name: string }[]>([])
   const [customerOpen, setCustomerOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
+  // A customer chosen while the project has contacts, waiting for the admin to confirm.
+  const [pendingCustomer, setPendingCustomer] = useState<string | null>(null)
   const [submitted, setSubmitted] = useState(false)
 
   const name = values.name.trim()
@@ -106,8 +95,21 @@ function ProjectFormBody({ organizationId, organization, stored, canDelete }: Fo
     const existing = [...customers, ...added].find((each) => each.name.toLocaleLowerCase() === key)
     const id = existing?.id ?? uuidv7()
     if (!existing) setAdded((current) => [...current, { id, name: customerName }])
-    set('customerId', id)
     setCustomerOpen(false)
+    chooseCustomer(id)
+  }
+
+  // The contacts are the current customer's, so another customer asks before unlinking them.
+  function chooseCustomer(customerId: string) {
+    if (customerId === values.customerId) return
+    if (values.contactIds.length > 0) setPendingCustomer(customerId)
+    else set('customerId', customerId)
+  }
+
+  function contactsCustomer(): ContactsCustomer {
+    if (!values.customerId) return { kind: 'none' }
+    if (added.some((each) => each.id === values.customerId)) return { kind: 'new' }
+    return { kind: 'stored', id: values.customerId }
   }
 
   function customerChoice() {
@@ -136,6 +138,7 @@ function ProjectFormBody({ organizationId, organization, stored, canDelete }: Fo
         tenderReference: values.tenderReference,
         totalHours: totalHours.value,
         cost: cost.value,
+        contactIds: values.contactIds,
       }
       if (stored) {
         await updateProject({ data: { organizationId, projectId: stored.id, ...fields } })
@@ -164,7 +167,7 @@ function ProjectFormBody({ organizationId, organization, stored, canDelete }: Fo
   return (
     <>
       <form onSubmit={submit} noValidate className="flex max-w-5xl flex-col gap-6">
-        <Section id="section-general" title={m.project_section_general()}>
+        <FormSection id="section-general" title={m.project_section_general()}>
           <div className="flex flex-col gap-2">
             <Label htmlFor="project-name">{m.project_name()}</Label>
             <Input
@@ -208,7 +211,7 @@ function ProjectFormBody({ organizationId, organization, stored, canDelete }: Fo
               <NativeSelect
                 id="project-customer"
                 value={values.customerId}
-                onChange={(event) => set('customerId', event.target.value)}
+                onChange={(event) => chooseCustomer(event.target.value)}
               >
                 <NativeSelectOption value="">{m.projects_no_customer()}</NativeSelectOption>
                 {[...customers, ...added].map((customer) => (
@@ -235,9 +238,9 @@ function ProjectFormBody({ organizationId, organization, stored, canDelete }: Fo
             onChange={(value) => set('period', value)}
             errors={periodErrors}
           />
-        </Section>
+        </FormSection>
 
-        <Section
+        <FormSection
           id="section-description"
           title={m.project_section_description()}
           hint={m.project_section_description_hint()}
@@ -250,9 +253,9 @@ function ProjectFormBody({ organizationId, organization, stored, canDelete }: Fo
             value={values.description}
             onChange={(value) => set('description', value)}
           />
-        </Section>
+        </FormSection>
 
-        <Section
+        <FormSection
           id="section-tender"
           title={m.project_section_tender()}
           hint={m.project_section_tender_hint()}
@@ -281,7 +284,14 @@ function ProjectFormBody({ organizationId, organization, stored, canDelete }: Fo
               invalid={submitted && !cost.ok}
             />
           </div>
-        </Section>
+        </FormSection>
+
+        <ProjectContacts
+          organizationId={organizationId}
+          customer={contactsCustomer()}
+          value={values.contactIds}
+          onChange={(contactIds) => set('contactIds', contactIds)}
+        />
 
         {save.error && (
           <p role="alert" className="text-destructive text-sm">
@@ -319,6 +329,39 @@ function ProjectFormBody({ organizationId, organization, stored, canDelete }: Fo
           </Button>
         </div>
       </form>
+      <Dialog
+        open={pendingCustomer !== null}
+        onOpenChange={(open) => !open && setPendingCustomer(null)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{m.contacts_change_customer_title()}</DialogTitle>
+            <DialogDescription>
+              {m.contacts_change_customer_body({ count: values.contactIds.length })}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button type="button" variant="outline">
+                {m.action_cancel()}
+              </Button>
+            </DialogClose>
+            <Button
+              type="button"
+              onClick={() => {
+                setValues((current) => ({
+                  ...current,
+                  customerId: pendingCustomer ?? '',
+                  contactIds: [],
+                }))
+                setPendingCustomer(null)
+              }}
+            >
+              {m.contacts_change_customer_confirm()}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       <CustomerDialog
         open={customerOpen}
         onClose={() => setCustomerOpen(false)}

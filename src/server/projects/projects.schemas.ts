@@ -33,6 +33,8 @@ const ProjectFields = {
   tenderReference: OptionalText,
   totalHours: ApproximateNumber,
   cost: ApproximateNumber,
+  // The customer's contact persons who are references for this project.
+  contactIds: v.array(Uuidv7),
 }
 
 export const CreateProjectInput = v.object({
@@ -46,3 +48,28 @@ export const UpdateProjectInput = v.object({ projectId: Uuidv7, ...ProjectFields
 export type UpdateProjectInput = v.InferOutput<typeof UpdateProjectInput>
 
 export type ProjectFields = Omit<CreateProjectInput, 'id'>
+
+export const ContactsInput = v.object({ customerId: Uuidv7 })
+export type ContactsInput = v.InferOutput<typeof ContactsInput>
+
+const ContactFields = {
+  name: v.pipe(v.string(), v.trim(), v.nonEmpty()),
+  email: OptionalText,
+  phone: OptionalText,
+  noLongerValid: v.boolean(),
+  note: OptionalText,
+}
+
+export const AddContactInput = v.object({
+  // The new contact's ID, from the client.
+  id: Uuidv7,
+  customerId: Uuidv7,
+  ...ContactFields,
+})
+export type AddContactInput = v.InferOutput<typeof AddContactInput>
+
+export const UpdateContactInput = v.object({ contactId: Uuidv7, ...ContactFields })
+export type UpdateContactInput = v.InferOutput<typeof UpdateContactInput>
+
+export const DeleteContactInput = v.object({ contactId: Uuidv7 })
+export type DeleteContactInput = v.InferOutput<typeof DeleteContactInput>

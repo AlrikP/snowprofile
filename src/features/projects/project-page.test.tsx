@@ -21,8 +21,16 @@ const details: NonNullable<ProjectView['details']> = {
       email: 'mari@example.ee',
       phone: '+372 612 5000',
       noLongerValid: false,
+      note: null,
     },
-    { id: 'c2', name: 'Jüri Jõe', email: null, phone: null, noLongerValid: true },
+    {
+      id: 'c2',
+      name: 'Jüri Jõe',
+      email: null,
+      phone: null,
+      noLongerValid: true,
+      note: 'Ei tööta enam ministeeriumis.',
+    },
   ],
 }
 
@@ -116,12 +124,17 @@ describe('ProjectPage', () => {
     expect(section('Tender details').getByText('275431')).toBeInTheDocument()
     expect(section('Tender details').getByText('approximately 4,200 h')).toBeInTheDocument()
     expect(section('Tender details').getByText('more than €250,000')).toBeInTheDocument()
-    expect(section('Contact persons').getAllByRole('listitem')[1]).toHaveTextContent(
-      'Jüri JõeNo longer valid',
-    )
     expect(screen.getByRole('link', { name: 'Edit my participation' })).toHaveAttribute(
       'href',
       '/demo/profile?participation=pa1',
+    )
+  })
+
+  it('projects.former-contacts-admin-only: marks a former contact and shows the note', async () => {
+    await show(view())
+
+    expect(section('Contact persons').getAllByRole('listitem')[1]).toHaveTextContent(
+      'Jüri JõeNo longer validEi tööta enam ministeeriumis.',
     )
   })
 
