@@ -14,9 +14,9 @@ import {
 import { Input } from '#/components/ui/input'
 import { Label } from '#/components/ui/label'
 import { errorMessage } from '#/lib/errors'
+import { peopleQuery } from '#/lib/people'
 import { m } from '#/paraglide/messages.js'
 import { markLeft, type Person } from '#/server/profiles/profiles.functions'
-import { peopleQuery } from './people-query'
 
 function today() {
   return new Date().toISOString().slice(0, 10)

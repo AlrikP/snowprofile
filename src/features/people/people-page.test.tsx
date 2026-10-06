@@ -2,9 +2,9 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { peopleQuery } from '#/lib/people'
 import type { Person } from '#/server/profiles/profiles.functions'
 import { PeoplePage } from './people-page'
-import { peopleQuery } from './people-query'
 
 const server = vi.hoisted(() => ({
   getPeople: vi.fn(),

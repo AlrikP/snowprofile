@@ -15,13 +15,13 @@ import {
 import { Label } from '#/components/ui/label'
 import { Textarea } from '#/components/ui/textarea'
 import { errorMessage } from '#/lib/errors'
+import { peopleQuery } from '#/lib/people'
 import { m } from '#/paraglide/messages.js'
 import {
   type Person,
   requestProfileUpdate,
   requestUpdateFromAll,
 } from '#/server/profiles/profiles.functions'
-import { peopleQuery } from './people-query'
 
 type FormProps = {
   organizationId: string

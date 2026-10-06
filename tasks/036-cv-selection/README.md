@@ -1,6 +1,6 @@
 # 036: CV selection
 
-Status: in-progress
+Status: done
 Depends on: task 026 (technology picker)
 
 The CV page's selection, and the server read that assembles a CV from it. The table
@@ -18,4 +18,4 @@ its link tables, `project`, `customer`; permission `cv: ['generate']`.
 
 ## Acceptance criteria
 
-- [ ] All subtasks are done.
+- [x] All subtasks are done.

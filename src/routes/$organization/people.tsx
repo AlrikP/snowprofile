@@ -1,6 +1,6 @@
 import { createFileRoute, getRouteApi, redirect } from '@tanstack/react-router'
 import { PeoplePage, PeoplePending } from '#/features/people/people-page'
-import { peopleQuery } from '#/features/people/people-query'
+import { peopleQuery } from '#/lib/people'
 import { roleHasPermission } from '#/lib/permissions'
 
 const organizationRoute = getRouteApi('/$organization')

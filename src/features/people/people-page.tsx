@@ -12,10 +12,10 @@ import {
 } from '#/components/ui/dropdown-menu'
 import { formatDate } from '#/lib/date-time'
 import { errorMessage } from '#/lib/errors'
+import { peopleQuery } from '#/lib/people'
 import { m } from '#/paraglide/messages.js'
 import { cancelUpdateRequest, type Person } from '#/server/profiles/profiles.functions'
 import { LeaveDialog } from './leave-dialog'
-import { peopleQuery } from './people-query'
 import { RequestDialog } from './request-dialog'
 
 // A confirmation older than this asks for a look.

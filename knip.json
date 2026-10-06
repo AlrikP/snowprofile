@@ -16,7 +16,7 @@
     "prototypes/*.css",
     "datamodel/*.ts"
   ],
-  "ignore": ["src/components/ui/**", "src/server/cvs/cvs.functions.ts"],
+  "ignore": ["src/components/ui/**"],
   "ignoreDependencies": ["@inlang/plugin-message-format", "@tailwindcss/cli"],
   "ignoreIssues": {
     "src/db/schema.ts": ["exports"]

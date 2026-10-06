@@ -1,8 +1,9 @@
 # CV selection
 
 Admins make a CV of one person (a personal CV) or several (a team CV), in Estonian or
-English, from all of their projects or only those matching technologies and a period. The
-CV read assembles it; the table and the DOCX document render what it returns.
+English, from all of their projects or only those matching technologies and a period. They
+choose on the CV page, the CV read assembles the CV, and the table and the DOCX document
+render what it returns.
 
 ## Requirements
 
@@ -31,6 +32,17 @@ generate CVs must be refused.
 - **Given** an employee
 - **When** they read a CV
 - **Then** the server refuses
+
+### Requirement: Leavers on request
+
+The CV page must leave people who have left out of its people picker unless the admin
+asks for them.
+
+#### Scenario: cv-selection.leavers-hidden
+
+- **Given** a person who has left
+- **When** an admin looks for them in the CV page's people picker
+- **Then** they aren't offered until the admin ticks "Show leavers"
 
 ### Requirement: Projects to include
 
@@ -67,7 +79,8 @@ as in search. Own projects are included like organization projects.
 A CV must be in the chosen language. Text missing in that language must fall back to the
 other, marked, and the read must list each missing translation with where it is fixed:
 the project's form for a project description, the role catalogue for a role, and the
-People page, where the person is asked to update, for what only they edit.
+People page, where the person is asked to update, for what only they edit. The CV page
+must show the list with a link to each fix, and still show the CV.
 
 #### Scenario: cv-selection.language
 
@@ -81,6 +94,8 @@ People page, where the person is asked to update, for what only they edit.
 - **Given** a project description, a role, tasks, and education missing in English
 - **When** an admin reads an English CV
 - **Then** the read lists each, with where it is fixed, and an Estonian CV lists none
+- **And** the CV page lists them with a link to each fix, above the CV with the Estonian
+  text marked
 
 ### Requirement: Birth date only on request
 

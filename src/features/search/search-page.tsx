@@ -3,14 +3,14 @@ import { Link } from '@tanstack/react-router'
 import { FileTextIcon } from 'lucide-react'
 import { useState } from 'react'
 import { BilingualText } from '#/components/bilingual-text'
+import { PeriodFilter } from '#/components/period-filter'
+import { RadioToggle } from '#/components/radio-toggle'
 import { TechnologyPicker } from '#/components/technology-picker'
 import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
 import { Card, CardContent, CardHeader } from '#/components/ui/card'
-import { Input } from '#/components/ui/input'
-import { Label } from '#/components/ui/label'
 import { formatDate } from '#/lib/date-time'
-import { formatPeriod, formatPeriodDate, readPeriodDate } from '#/lib/period'
+import { formatPeriod } from '#/lib/period'
 import type { SearchFilters } from '#/lib/search-filters'
 import { technologyCatalogueQuery } from '#/lib/technology-catalogue'
 import { m } from '#/paraglide/messages.js'
@@ -21,55 +21,6 @@ const MATCHES = [
   { value: 'all', label: m.search_match_all },
   { value: 'any', label: m.search_match_any },
 ] as const
-
-// A period date typed as text; the URL gets it once it reads as one.
-function PeriodField({
-  id,
-  label,
-  value,
-  onChange,
-}: {
-  id: string
-  label: string
-  value: string | undefined
-  onChange: (value: string | undefined) => void
-}) {
-  const [text, setText] = useState(value ? formatPeriodDate(value) : '')
-  const [invalid, setInvalid] = useState(false)
-  function commit() {
-    if (!text.trim()) {
-      setInvalid(false)
-      onChange(undefined)
-      return
-    }
-    const read = readPeriodDate(text)
-    setInvalid(read === null)
-    if (read) onChange(read)
-  }
-  return (
-    <div className="flex flex-col gap-1.5">
-      <Label htmlFor={id}>{label}</Label>
-      <Input
-        id={id}
-        inputMode="numeric"
-        placeholder="MM-YYYY"
-        value={text}
-        aria-invalid={invalid || undefined}
-        aria-describedby={invalid ? `${id}-error` : 'search-period-hint'}
-        onChange={(event) => setText(event.target.value)}
-        onBlur={commit}
-        onKeyDown={(event) => {
-          if (event.key === 'Enter') commit()
-        }}
-      />
-      {invalid && (
-        <p id={`${id}-error`} className="text-destructive text-xs">
-          {m.search_period_invalid()}
-        </p>
-      )}
-    </div>
-  )
-}
 
 function Item({ organization, item }: { organization: string; item: SearchItem }) {
   const details = [
@@ -274,48 +225,18 @@ export function SearchPage({
             />
             <div className="flex flex-wrap items-center gap-3 text-sm">
               <span id="search-match">{m.search_match_label()}</span>
-              <div
-                role="radiogroup"
-                aria-labelledby="search-match"
-                className="inline-flex w-fit items-center rounded-md border shadow-xs"
-              >
-                {MATCHES.map((option) => (
-                  <label
-                    key={option.value}
-                    className="hover:bg-muted has-checked:bg-foreground has-checked:text-background has-focus-visible:ring-ring/50 inline-flex h-8 cursor-pointer items-center border-l px-3 font-medium first:rounded-l-md first:border-l-0 last:rounded-r-md has-focus-visible:ring-[3px]"
-                  >
-                    <input
-                      type="radio"
-                      className="sr-only"
-                      name="search-match"
-                      checked={match === option.value}
-                      onChange={() => set({ match: option.value })}
-                    />
-                    {option.label()}
-                  </label>
-                ))}
-              </div>
+              <RadioToggle
+                name="search-match"
+                labelledBy="search-match"
+                options={MATCHES.map((option) => ({ value: option.value, label: option.label() }))}
+                value={match}
+                onChange={(next) => set({ match: next })}
+              />
             </div>
           </fieldset>
           <fieldset className="flex flex-col gap-2">
             <legend className="mb-2 text-sm font-medium">{m.search_period()}</legend>
-            <div className="grid grid-cols-2 gap-2">
-              <PeriodField
-                id="search-from"
-                label={m.search_from()}
-                value={filters.from}
-                onChange={(from) => set({ from })}
-              />
-              <PeriodField
-                id="search-to"
-                label={m.search_to()}
-                value={filters.to}
-                onChange={(to) => set({ to })}
-              />
-            </div>
-            <p id="search-period-hint" className="text-muted-foreground text-xs">
-              {m.search_period_hint()}
-            </p>
+            <PeriodFilter id="search" value={filters} onChange={set} />
             <label className="mt-2 flex items-center gap-2 text-sm">
               <input
                 type="checkbox"

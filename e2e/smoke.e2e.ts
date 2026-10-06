@@ -57,6 +57,7 @@ test.describe('the admin', () => {
     await expect(page.getByRole('status')).toContainText(/\d+ (person|people)/)
     await page.getByRole('link', { name: /Make CV \(\d+\)/ }).click()
     await expect(page).toHaveURL(/\/demo\/cvs\?.*people=/)
+    await expect(page.getByRole('region', { name: 'Preview' })).toBeVisible()
   })
 
   test('technical-characteristics.admin-reorders: a move survives a reload', async ({ page }) => {
@@ -158,6 +159,14 @@ test.describe('the employee', () => {
     page,
   }) => {
     await page.goto('/demo/criteria')
+
+    await expect(page).toHaveURL(/\/demo\/profile$/)
+  })
+
+  test('cv-selection.employee-refused: the CV page sends them to their profile', async ({
+    page,
+  }) => {
+    await page.goto('/demo/cvs')
 
     await expect(page).toHaveURL(/\/demo\/profile$/)
   })
