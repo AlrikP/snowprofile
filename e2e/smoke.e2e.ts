@@ -167,3 +167,32 @@ test.describe('the employee', () => {
     await expect(page.getByRole('region', { name: 'Tender details' })).toHaveCount(0)
   })
 })
+
+// Last in the file, so the employee tests above run with the employee's own role.
+test('members-and-roles.role-change-applied: a demoted member loses the admin pages without a reload', async ({
+  browser,
+}) => {
+  const adminContext = await browser.newContext({ storageState: session.admin })
+  const employeeContext = await browser.newContext({ storageState: session.employee })
+  const admin = await adminContext.newPage()
+  const employee = await employeeContext.newPage()
+  async function setErikRole(role: 'Admin' | 'Employee') {
+    await admin.goto('/demo/members')
+    await admin.getByRole('button', { name: 'Actions for Erik Employee' }).click()
+    await admin.getByRole('menuitemradio', { name: role }).click()
+    await expect(admin.getByRole('row', { name: /Erik Employee/ })).toContainText(role)
+  }
+
+  await setErikRole('Admin')
+  await employee.goto('/demo/profile')
+  const criteria = employee.getByRole('link', { name: 'Technical characteristics' })
+  await expect(criteria).toBeVisible()
+
+  await setErikRole('Employee')
+  await criteria.click()
+
+  await expect(employee).toHaveURL(/\/demo\/profile$/)
+  await expect(employee.getByRole('link', { name: 'Technical characteristics' })).toHaveCount(0)
+  await adminContext.close()
+  await employeeContext.close()
+})

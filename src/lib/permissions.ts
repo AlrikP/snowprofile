@@ -42,6 +42,9 @@ export const roles = {
 }
 
 type RoleName = keyof typeof roles
+
+// The roles a member can be given, for the members page and its server check.
+export const ROLE_NAMES = Object.keys(roles) as [RoleName, ...RoleName[]]
 export type Permissions = Parameters<(typeof roles)[RoleName]['authorize']>[0]
 
 function isRoleName(name: string): name is RoleName {

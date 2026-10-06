@@ -285,6 +285,16 @@ MVP"). What the script must handle:
   server rules.
 - Users can't create organizations; platform operators do (`product.md`). Organizations
   can't be deleted, because they own all their data.
+- The members page lists members and changes roles through the app's own server
+  functions (`src/server/members/`), which keep at least one member who can manage the
+  members. The organization plugin's `update-member-role` endpoint would skip that rule,
+  so `disabledPaths` closes it over HTTP in every mode (`sign-in.server.ts`). The other
+  plugin endpoints the app calls are `set-active` (the organization switcher); invitations
+  are task 028.2, and the demo guards task 021.
+- The frame, with the member's role, loads once per organization. When a server call
+  answers `FORBIDDEN`, the router reloads its loaders (`src/lib/forbidden-reload.ts`), so
+  a member whose role changed gets the new navigation and page guards without a full
+  reload. Further `FORBIDDEN` answers within ten seconds don't reload again.
 - A page that needs a permission, such as the technical characteristics page, is left out
   of the navigation for roles without it, and its route loader sends them to the
   organization's start page. The server functions check the permission themselves, so the

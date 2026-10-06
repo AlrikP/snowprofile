@@ -337,5 +337,26 @@
   "own_employer_badge": "Employer: {name}",
   "own_edit_for": "Edit {name}",
   "own_delete": "Delete",
-  "own_delete_confirm": "Delete the own project {name}? It leaves your profile and your CVs."
+  "own_delete_confirm": "Delete the own project {name}? It leaves your profile and your CVs.",
+  "error_member_forbidden": "Only admins can manage the members.",
+  "error_member_not_found": "Member not found.",
+  "error_member_last_admin": "The organization needs at least one admin.",
+  "members_title": "Members",
+  "members_count": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} member",
+        "countPlural=*": "{count} members"
+      }
+    }
+  ],
+  "members_col_name": "Name",
+  "members_col_email": "Email",
+  "members_col_role": "Role",
+  "members_col_joined": "Joined",
+  "members_change_role": "Change role",
+  "members_you": "you",
+  "members_last_admin": "The organization needs at least one admin, so you can’t change your own role."
 }

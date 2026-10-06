@@ -6,6 +6,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '#/components/ui/dropdown-menu'
+import { memberRoleLabel } from '#/lib/member-role'
 import { m } from '#/paraglide/messages.js'
 import type { Membership } from '#/server/auth/auth.functions'
 import { sidebarButton } from './sidebar-button'
@@ -17,13 +18,6 @@ export function initials(name: string) {
     .slice(0, 2)
     .map((part) => part[0]?.toUpperCase())
     .join('')
-}
-
-// member.role can hold several roles; the first known one names the membership.
-function roleLabel(role: string) {
-  const names = role.split(',')
-  if (names.includes('admin')) return m.role_admin()
-  return m.role_employee()
 }
 
 function OrganizationMark({ name, small }: { name: string; small?: boolean }) {
@@ -42,7 +36,7 @@ function OrganizationText({ organization }: { organization: Membership }) {
     <span className="grid flex-1 text-left leading-tight">
       <span className="truncate font-medium">{organization.name}</span>
       <span className="text-sidebar-foreground/70 truncate text-xs">
-        {roleLabel(organization.role)}
+        {memberRoleLabel(organization.role)}
       </span>
     </span>
   )

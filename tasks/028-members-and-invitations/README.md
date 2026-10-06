@@ -1,6 +1,6 @@
 # 028: Members and invitations
 
-Status: todo
+Status: in-progress
 
 The members page: admins see the organization's members, change roles, and invite people
 by email. Membership is by invitation only, Snowhound included (`docs/product.md`,

@@ -36,9 +36,14 @@ const demoDisabledPaths = [
   '/update-user',
 ]
 
+// Organization plugin endpoints the app replaces with its own server functions, whose rules
+// they would skip: a role change goes through the members page, which keeps an admin
+// (docs/architecture.md, "Roles").
+const replacedPaths = ['/organization/update-member-role']
+
 // Better Auth's disabledPaths option. It applies to HTTP requests only, not to auth.api.
 export function disabledPaths(config: SignInConfig): string[] {
-  return config.DEMO_MODE ? demoDisabledPaths : []
+  return config.DEMO_MODE ? [...replacedPaths, ...demoDisabledPaths] : replacedPaths
 }
 
 // Better Auth's socialProviders option. src/env.ts refuses a half-set client.

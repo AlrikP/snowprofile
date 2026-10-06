@@ -14,6 +14,7 @@ import {
   customer,
   education,
   employeeProfile,
+  member,
   participation,
   participationRole,
   project,
@@ -29,6 +30,7 @@ import { seedIds } from '#/db/seed-accounts'
 import { createTestDatabase, failure } from '#/db/testing'
 import * as account from './account/account.repository.server'
 import * as criteria from './criteria/criteria.repository.server'
+import * as members from './members/members.repository.server'
 import { findMemberRole, listMemberships } from './organizations/organizations.repository.server'
 import * as ownProjects from './profiles/own-projects.repository.server'
 import * as participations from './profiles/participations.repository.server'
@@ -496,6 +498,23 @@ const cases: Record<string, () => Promise<void>> = {
   },
   'projects.listProjectContacts': async () => {
     expect(await projects.listProjectContacts(db, scopeA, b.projectId)).toEqual([])
+  },
+  'members.listMembers': async () => {
+    const ids = (await members.listMembers(db, scopeA)).map((row) => row.id)
+    const inB = await db
+      .select({ id: member.id })
+      .from(member)
+      .where(eq(member.organizationId, b.organizationId))
+    expect(ids).not.toContain(inB[0]?.id)
+  },
+  'members.updateMemberRole': async () => {
+    const [inB] = await db.select().from(member).where(eq(member.organizationId, b.organizationId))
+    await members.updateMemberRole(db, scopeA, inB?.id ?? '', 'invented')
+    const [after] = await db
+      .select()
+      .from(member)
+      .where(eq(member.id, inB?.id ?? ''))
+    expect(after?.role).toBe(inB?.role)
   },
   'own-projects.listOwnProjects': async () => {
     expect(await ownProjects.listOwnProjects(db, scopeA, b.ownProjectProfileId)).toEqual([])

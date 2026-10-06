@@ -167,11 +167,27 @@ test('outside demo mode, a user lists and ends their own sessions', async () => 
   const second = await signIn('company-user')
   const company = createAuth(db, { DEMO_MODE: false, ALLOWED_LOGIN_DOMAINS: [] })
 
-  expect(disabledPaths({ DEMO_MODE: false, ALLOWED_LOGIN_DOMAINS: [] })).toEqual([])
+  expect(disabledPaths({ DEMO_MODE: false, ALLOWED_LOGIN_DOMAINS: [] })).not.toContain(
+    '/list-sessions',
+  )
   expect(await request(company, first.headers, '/list-sessions')).toBe(200)
   expect(await request(company, first.headers, '/revoke-session', { token: second.token })).toBe(
     200,
   )
   expect(await company.api.getSession({ headers: second.headers })).toBeNull()
   expect(await request(company, first.headers, '/sign-out')).toBe(200)
+})
+
+test('the plugin’s own role endpoint is closed, even to admins', async () => {
+  const admin = await signUp('role-admin')
+  const organizationId = await createOrganization('role-org', admin.userId)
+  const company = createAuth(db, { DEMO_MODE: false, ALLOWED_LOGIN_DOMAINS: [] })
+
+  expect(
+    await request(company, admin.headers, '/organization/update-member-role', {
+      organizationId,
+      memberId: 'any',
+      role: 'employee',
+    }),
+  ).toBe(404)
 })

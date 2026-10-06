@@ -65,7 +65,7 @@ const groups: NavGroup[] = [
         to: '/$organization/members',
         label: m.nav_members,
         icon: UserCogIcon,
-        permission: { member: ['create'] },
+        permission: { member: ['update'] },
       },
       { to: '/$organization/technologies', label: m.nav_technologies, icon: CpuIcon },
       {

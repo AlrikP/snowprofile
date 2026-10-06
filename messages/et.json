@@ -293,5 +293,26 @@
   "own_employer_badge": "Tööandja: {name}",
   "own_edit_for": "Muuda: {name}",
   "own_delete": "Kustuta",
-  "own_delete_confirm": "Kustutada omaprojekt {name}? See kaob sinu profiililt ja CV-dest."
+  "own_delete_confirm": "Kustutada omaprojekt {name}? See kaob sinu profiililt ja CV-dest.",
+  "error_member_forbidden": "Liikmeid saavad hallata ainult administraatorid.",
+  "error_member_not_found": "Liiget ei leitud.",
+  "error_member_last_admin": "Organisatsioonis peab olema vähemalt üks administraator.",
+  "members_title": "Liikmed",
+  "members_count": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} liige",
+        "countPlural=*": "{count} liiget"
+      }
+    }
+  ],
+  "members_col_name": "Nimi",
+  "members_col_email": "E-post",
+  "members_col_role": "Roll",
+  "members_col_joined": "Liitus",
+  "members_change_role": "Muuda rolli",
+  "members_you": "sina",
+  "members_last_admin": "Organisatsioonis peab jääma vähemalt üks administraator, seega ei saa sa enda rolli muuta."
 }
