@@ -31,7 +31,7 @@ commits after reviewing.
 | `bun run env:init`           | Creates `.env.local` with a generated `BETTER_AUTH_SECRET`; keeps existing values              |
 | `bun run i18n:compile`       | Compiles `messages/` into `src/paraglide/`; `check` and `test` run it first                    |
 | `bun --bun run dev`          | Starts the dev server on port 3000. `--bun` runs Vite under Bun, which loads `.env.local`      |
-| `bun run check`              | Compiles messages, then format check, lint, the import and icon checks, type check, knip       |
+| `bun run check`              | Compiles messages, then format check, lint, import, icon, and spec checks, type check, knip    |
 | `bun run lint`               | oxlint, type-aware; warnings fail                                                              |
 | `bun run imports:check`      | Fails on a relative import across areas, or a `#/` import inside one                           |
 | `bun run icons:check`        | Fails on an icon name without the `Icon` suffix; `--fix` renames Lucide imports                |
@@ -125,9 +125,10 @@ convention names its check; the ones under "Checked in review" have none.
   script check that runs in the pre-commit hook or CI, and name the check next to the
   convention here.
 - A lefthook pre-commit hook (`lefthook.yml`) runs the linters and formatters on staged
-  files, actionlint on staged workflow files, and the whole-repository checks
-  (`imports:check`, `icons:check`, knip) when code is staged. CI checks the whole repository. Disable a
-  lint rule inline only with a reason.
+  files, actionlint on staged workflow files, and the whole-repository checks when their
+  inputs are staged: `imports:check`, `icons:check`, and knip for code, `specs:check` for
+  specs and tests, and `datamodel:check` for the schema. CI checks the whole repository.
+  Disable a lint rule inline only with a reason.
 - CI is one `check` job in `.github/workflows/ci.yml`, on pull requests and pushes to
   `main`. Its steps: install, compile messages, format check, lint, import areas, icon
   names, spec scenarios, type check, knip, test, schema drift, data model diagram, build,

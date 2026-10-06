@@ -23,8 +23,8 @@ Builds on: `docs/product.md` ("Technology catalogue"); `prototypes/technologies.
       entry is refused.
 - [x] Admins merge an entry into another in one transaction: its links move to the
       survivor without duplicates, `merged_into_id` is set, and the entry is soft-deleted.
-- [x] The technology picker searches by name, groups by category, and offers to add the
-      typed name when nothing matches.
+- [x] The technology picker searches by name, shows each option's category, and offers to
+      add the typed name when nothing matches.
 - [x] A repository with tenancy cases for every function (`src/server/tenancy.test.ts`).
 - [x] The route renders `TechnologiesPage`, with `TechnologiesPending`.
 

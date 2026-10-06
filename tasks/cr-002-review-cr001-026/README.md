@@ -1,6 +1,6 @@
 # CR-002: Fixes from the review of cr-001 through task 026
 
-Status: in-progress
+Status: done
 
 A code review of the commits from cr-001 through task 026 (`233fbf5..0034e9e`, reviewed
 2026-10-06) found the issues below. `check`, `test`, `specs:check`, `db:drift`,
@@ -20,4 +20,4 @@ these before task 027. Running the bundled scripts in CI went to task 024.
 
 ## Acceptance criteria
 
-- [ ] All subtasks are done.
+- [x] All subtasks are done.

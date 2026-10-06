@@ -177,12 +177,12 @@ conventions apply to every app-owned table; Better Auth's tables keep the plugin
   scripts act as a fixed system user (`SYSTEM_USER_ID` in `src/db/actor.ts`), which a
   migration creates without an account, so nobody can sign in as it. Insert-and-delete link tables have only `created_*`.
 - **Deletion:** entities that users delete from a list (customers, contact persons,
-  projects, technologies, criteria, education, participations, own projects) carry
+  projects, technologies, roles, criteria, education, participations, own projects) carry
   `sys_deleted` (0/1) and are excluded from every query, list, search, and CV. A mistaken
   delete can then be undone by hand, and references from other rows stay valid. Partial
   unique indexes include `sys_deleted = 0`. Link rows (`project_technology` and the like)
   are hard-deleted. Domain states are separate columns, not deletion: a contact person's
-  `no_longer_valid`, a merged technology's `merged_into_id`.
+  `no_longer_valid`, a merged technology's or role's `merged_into_id`.
 - **Users are never hard-deleted,** so audit references to `user` stay valid. GDPR
   erasure anonymizes the row.
 - **Leavers** are a domain state, not deletion. An admin marks a person as left in one

@@ -36,7 +36,10 @@ gitignored `.env.local` or on the command line.
 - **Backward compatible.** Deployed stacks migrate on startup (`AGENTS.md`, "Deployment"),
   and the previous image must keep working against the migrated database for a rollback:
   add before you remove, and split renames into add, backfill, switch, drop. A migration
-  that rewrites a large table runs with the app stopped.
+  that rewrites a large table runs with the app stopped. Until the first deployment, no
+  previous image needs the old columns, so one migration may backfill and drop them, as
+  `20261006074311_role_catalogue` does. Once a stack is deployed, the rule has no
+  exception.
 - **Never run `drizzle-kit push`, or `drizzle-kit generate` without `--custom`,** against
   a real database. `schema.ts` follows the database, not the other way round.
 
