@@ -53,6 +53,13 @@ beforeAll(async () => {
   roles = await column(
     `SELECT id FROM project_role WHERE organization_id = '${org}' AND sys_deleted = 0 ORDER BY id`,
   )
+  // Seeded projects have random periods; an open one takes any period the tests pick.
+  await as(admin, async () => {
+    await db
+      .update(project)
+      .set({ startDate: '2000', endDate: null })
+      .where(eq(project.organizationId, org))
+  })
 })
 
 afterAll(() => cleanup())
@@ -174,6 +181,62 @@ describe('participations', () => {
     expect(v.safeParse(AddParticipationInput, refused).success).toBe(false)
     const noRoles = { ...input(), roleIds: [] }
     expect(v.safeParse(AddParticipationInput, noRoles).success).toBe(false)
+  })
+
+  describe('within the project’s period', () => {
+    function projectId() {
+      return projects[4] ?? ''
+    }
+
+    beforeAll(() =>
+      as(admin, async () => {
+        await db
+          .update(project)
+          .set({ startDate: '2024-03', endDate: '2025-06' })
+          .where(eq(project.id, projectId()))
+      }),
+    )
+
+    function add(period: AddParticipationInput['period']) {
+      return as(employee, () =>
+        addParticipation(db, employee, input({ projectId: projectId(), period })),
+      )
+    }
+
+    test('project-participation.before-project-start-refused: the server refuses a start before the project’s', async () => {
+      expect(await rejection(add({ startDate: '2024-01', endDate: '2024-12' }))).toMatchObject({
+        code: 'INVALID',
+        key: 'participation_outside_project',
+      })
+    })
+
+    test('project-participation.after-project-end-refused: the server refuses an end after the project’s, or ongoing', async () => {
+      for (const endDate of ['2025-09', null]) {
+        expect(await rejection(add({ startDate: '2024-05', endDate }))).toMatchObject({
+          code: 'INVALID',
+          key: 'participation_outside_project',
+        })
+      }
+    })
+
+    test('project-participation.coarser-date-accepted: a year start fits a month start in that year', async () => {
+      const { id } = await add({ startDate: '2024', endDate: '2025' })
+      expect((await mine(employee, id))?.startDate).toBe('2024')
+    })
+
+    test('refuses a change that moves a saved participation outside the project', async () => {
+      const { id } = await add({ startDate: '2024-05', endDate: '2024-12' })
+      expect(
+        await rejection(
+          as(employee, () =>
+            updateParticipation(db, employee, {
+              ...input({ projectId: projectId(), period: { startDate: '2023', endDate: '2024' } }),
+              participationId: id,
+            }),
+          ),
+        ),
+      ).toMatchObject({ code: 'INVALID', key: 'participation_outside_project' })
+    })
   })
 
   test('project-participation.other-person-refused: nobody changes or deletes another person’s participation', async () => {

@@ -386,6 +386,43 @@ describe('ProfilePage', () => {
       expect(dialog.getByText('Project period: 03-2024 – ongoing')).toBeInTheDocument()
     })
 
+    async function addOnTax(from: [string, string], until: [string, string]) {
+      await show()
+      await userEvent.click(
+        participationsSection().getByRole('button', { name: 'Add participation' }),
+      )
+      const dialog = within(screen.getByRole('dialog'))
+      await userEvent.selectOptions(dialog.getByLabelText('Project'), 'tax')
+      const start = within(dialog.getByRole('group', { name: 'Start' }))
+      await userEvent.selectOptions(start.getByLabelText('Month'), from[0])
+      await userEvent.type(start.getByLabelText('Year'), from[1])
+      const end = within(dialog.getByRole('group', { name: 'End' }))
+      await userEvent.selectOptions(end.getByLabelText('Month'), until[0])
+      await userEvent.type(end.getByLabelText('Year'), until[1])
+      await userEvent.type(dialog.getByRole('combobox', { name: 'Add a role' }), 'arend')
+      await userEvent.click(dialog.getByRole('option', { name: /^Developer/ }))
+      await userEvent.click(dialog.getByRole('button', { name: 'Save' }))
+      return dialog
+    }
+
+    it('project-participation.before-project-start-refused: the form refuses a start before the project’s', async () => {
+      const dialog = await addOnTax(['1', '2021'], ['12', '2023'])
+
+      expect(dialog.getByText('Can’t be before the project’s start.')).toBeInTheDocument()
+      expect(server.addParticipation).not.toHaveBeenCalled()
+    })
+
+    it('project-participation.after-project-end-refused: the form refuses an end after the project’s, or ongoing', async () => {
+      const dialog = await addOnTax(['5', '2021'], ['9', '2025'])
+
+      expect(dialog.getByText('Can’t be after the project’s end.')).toBeInTheDocument()
+      await userEvent.click(dialog.getByLabelText('Ongoing'))
+      expect(
+        dialog.getByText('The project has ended, so enter when you finished.'),
+      ).toBeInTheDocument()
+      expect(server.addParticipation).not.toHaveBeenCalled()
+    })
+
     it('asks for a project and a role', async () => {
       await show()
 
@@ -505,6 +542,10 @@ describe('ProfilePage', () => {
       await userEvent.type(
         within(dialog.getByRole('group', { name: 'Start' })).getByLabelText('Year'),
         '2021',
+      )
+      await userEvent.type(
+        within(dialog.getByRole('group', { name: 'End' })).getByLabelText('Year'),
+        '2023',
       )
       await userEvent.type(dialog.getByRole('combobox', { name: 'Add a role' }), 'arend')
       await userEvent.click(dialog.getByRole('option', { name: /^Developer/ }))

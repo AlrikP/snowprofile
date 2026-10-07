@@ -24,6 +24,30 @@ export function endsBeforeStart(startDate: string, endDate: string): boolean {
   return endDate < startDate.slice(0, endDate.length)
 }
 
+// -1, 0, or 1 as a comes before, overlaps, or follows b, compared at the coarser of the
+// two precisions: 2024 and 2024-03 overlap.
+function compareCoarse(a: string, b: string): number {
+  const length = Math.min(a.length, b.length)
+  const [left, right] = [a.slice(0, length), b.slice(0, length)]
+  return left < right ? -1 : left > right ? 1 : 0
+}
+
+// Where a period breaks out of the one it must lie within, such as a participation's
+// project (docs/product.md, "Participation periods"). An ongoing outer period has no end
+// limit; an ongoing inner period needs an ongoing outer one.
+export function outsidePeriod(
+  period: { startDate: string; endDate: string | null },
+  outer: { startDate: string; endDate: string | null },
+): { start?: PeriodError; end?: PeriodError } {
+  const errors: { start?: PeriodError; end?: PeriodError } = {}
+  if (compareCoarse(period.startDate, outer.startDate) < 0) errors.start = 'before_outer_start'
+  if (outer.endDate !== null) {
+    if (period.endDate === null) errors.end = 'ongoing_after_outer_end'
+    else if (compareCoarse(period.endDate, outer.endDate) > 0) errors.end = 'after_outer_end'
+  }
+  return errors
+}
+
 // The first day a period date can mean: 2024 is 2024-01-01, 2024-03 is 2024-03-01.
 export function firstDay(value: string): string {
   if (value.length === 4) return `${value}-01-01`
@@ -79,7 +103,12 @@ export type PeriodInputValue = { start: PeriodParts; end: PeriodParts; ongoing: 
 
 type PeriodDateError = 'year_required' | 'day_without_month' | 'invalid_date'
 
-export type PeriodError = PeriodDateError | 'end_before_start'
+export type PeriodError =
+  | PeriodDateError
+  | 'end_before_start'
+  | 'before_outer_start'
+  | 'after_outer_end'
+  | 'ongoing_after_outer_end'
 
 const EMPTY_PARTS: PeriodParts = { day: '', month: '', year: '' }
 
@@ -165,6 +194,12 @@ export function periodErrorMessage(error: PeriodError): string {
       return m.period_invalid_date()
     case 'end_before_start':
       return m.period_end_before_start()
+    case 'before_outer_start':
+      return m.period_before_project_start()
+    case 'after_outer_end':
+      return m.period_after_project_end()
+    case 'ongoing_after_outer_end':
+      return m.period_ongoing_after_project_end()
   }
 }
 

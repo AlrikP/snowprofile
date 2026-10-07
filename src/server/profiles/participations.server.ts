@@ -5,6 +5,7 @@
 // edit never does either.
 import type { Database, Executor } from '#/db'
 import type { ApproximateNumber, Qualifier } from '#/lib/approximate-number'
+import { outsidePeriod } from '#/lib/period'
 import { AppError } from '../errors'
 import { findLiveTechnologies } from '../projects/projects.repository.server'
 import type { Scope } from '../scope.server'
@@ -62,11 +63,13 @@ export async function myParticipations(db: Database, scope: Scope) {
 
 type Fields = Omit<AddParticipationInput, 'id'>
 
-// The stored columns, refused unless the project and every role are live.
+// The stored columns, refused unless the project and every role are live and the period
+// lies within the project's.
 async function participationValues(db: Executor, scope: Scope, fields: Fields) {
-  if (!(await repository.findLiveProject(db, scope, fields.projectId))) {
-    throw new AppError('INVALID', 'project_not_found')
-  }
+  const project = await repository.findLiveProject(db, scope, fields.projectId)
+  if (!project) throw new AppError('INVALID', 'project_not_found')
+  const outside = outsidePeriod(fields.period, project)
+  if (outside.start || outside.end) throw new AppError('INVALID', 'participation_outside_project')
   const roleIds = [...new Set(fields.roleIds)]
   if ((await repository.findLiveRoles(db, scope, roleIds)).length !== roleIds.length) {
     throw new AppError('INVALID', 'role_not_found')

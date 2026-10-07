@@ -25,6 +25,7 @@ export const errorMessages = {
   profile_join_after_left: 'The join date can’t be after the date the person left.',
   education_not_found: 'Education entry not found.',
   participation_not_found: 'Participation not found.',
+  participation_outside_project: 'The period must be within the project’s period.',
   own_project_not_found: 'Own project not found.',
   member_forbidden: 'Only admins can manage the members.',
   member_not_found: 'Member not found.',

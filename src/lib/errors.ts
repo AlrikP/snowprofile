@@ -15,6 +15,7 @@ const errorText: Record<AppErrorKey, () => string> = {
   profile_join_after_left: m.error_profile_join_after_left,
   education_not_found: m.error_education_not_found,
   participation_not_found: m.error_participation_not_found,
+  participation_outside_project: m.error_participation_outside_project,
   own_project_not_found: m.error_own_project_not_found,
   member_forbidden: m.error_member_forbidden,
   member_not_found: m.error_member_not_found,

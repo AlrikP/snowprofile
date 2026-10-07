@@ -3,6 +3,7 @@
 import { afterAll, beforeAll, describe, expect, setSystemTime, test } from 'bun:test'
 import { and, count, eq, isNull } from 'drizzle-orm'
 import { v7 as uuidv7 } from 'uuid'
+import { outsidePeriod } from '#/lib/period'
 import type { Database } from '.'
 import { SYSTEM_USER_ID, withActor } from './actor'
 import { generateOrganization } from './demo/generate'
@@ -78,6 +79,23 @@ describe('the generator', () => {
     expect(emails.length).toBeGreaterThan(50)
     for (const email of emails) expect(email).toMatch(/^[a-z.-]+@([a-z0-9-]+\.)*example\.com$/)
     expect(new Set(emails).size).toBe(emails.length)
+  })
+
+  test('keeps every participation within its project’s period', () => {
+    for (const organization of data) {
+      const projects = new Map(organization.projects.map((row) => [row.id, row]))
+      const outside = organization.participations.filter((row) => {
+        const outer = projects.get(row.projectId)
+        const errors = outer
+          ? outsidePeriod(
+              { startDate: row.startDate, endDate: row.endDate ?? null },
+              { startDate: outer.startDate, endDate: outer.endDate ?? null },
+            )
+          : {}
+        return !outer || errors.start || errors.end
+      })
+      expect(outside).toEqual([])
+    }
   })
 
   test('gives someone in every organization overlapping participations', () => {

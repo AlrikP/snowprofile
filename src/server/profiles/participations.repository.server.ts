@@ -89,7 +89,7 @@ export async function findParticipation(
 
 export async function findLiveProject(db: Executor, scope: Scope, projectId: string) {
   const [row] = await db
-    .select({ id: project.id })
+    .select({ id: project.id, startDate: project.startDate, endDate: project.endDate })
     .from(project)
     .where(
       and(

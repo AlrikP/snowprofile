@@ -56,11 +56,36 @@ A participation's start and end must each be a day, a month, or a year. The end 
 empty while the participation is ongoing, and an end before the start must be refused. The
 form must show the chosen project's period, so the member can see when the project ran.
 
+The period must lie within the project's, each pair of dates compared at the coarser
+precision; an ongoing project has no end limit, and a participation must not be saved as
+ongoing on a project that has ended. A period outside the project's must be refused
+(`docs/product.md`, "Participation periods").
+
 #### Scenario: project-participation.project-period-shown
 
 - **Given** a project running from 03-2024 to 06-2025
 - **When** a member picks it in the participation form
 - **Then** the form shows the project's period
+
+#### Scenario: project-participation.before-project-start-refused
+
+- **Given** a project starting in 03-2024
+- **When** a member saves a participation on it starting in 01-2024
+- **Then** the form says the participation can't start before the project, and the
+  server refuses the period
+
+#### Scenario: project-participation.after-project-end-refused
+
+- **Given** a project ending in 06-2025
+- **When** a member saves a participation on it ending in 09-2025, or ongoing
+- **Then** the form says it can't end after the project, or be ongoing, and the server
+  refuses the period
+
+#### Scenario: project-participation.coarser-date-accepted
+
+- **Given** a project starting in 03-2024
+- **When** a member saves a participation on it starting in 2024
+- **Then** the participation is saved
 
 #### Scenario: project-participation.ongoing-clears-end
 

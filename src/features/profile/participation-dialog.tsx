@@ -22,7 +22,7 @@ import { NativeSelect, NativeSelectOption } from '#/components/ui/native-select'
 import { approximateNumberInputValue, parseApproximateNumber } from '#/lib/approximate-number'
 import { bilingualInputValue, parseBilingual } from '#/lib/bilingual'
 import { errorMessage } from '#/lib/errors'
-import { formatPeriod, parsePeriodInput, periodInputValue } from '#/lib/period'
+import { formatPeriod, outsidePeriod, parsePeriodInput, periodInputValue } from '#/lib/period'
 import { projectsKey, projectsQuery } from '#/lib/project-list'
 import { roleCatalogueQuery } from '#/lib/role-catalogue'
 import { technologyCatalogueQuery } from '#/lib/technology-catalogue'
@@ -116,9 +116,20 @@ function ParticipationForm({ organizationId, participation, onDone }: FormProps)
   })
   const [submitted, setSubmitted] = useState(false)
   const [confirming, setConfirming] = useState(false)
+  const chosenProject = projects.find((project) => project.id === values.projectId)
   const period = parsePeriodInput(values.period)
+  const periodErrors = !period.ok
+    ? period
+    : chosenProject && period.startDate !== null
+      ? outsidePeriod({ startDate: period.startDate, endDate: period.endDate }, chosenProject)
+      : {}
   const hours = parseApproximateNumber(values.hours)
-  const valid = values.projectId !== '' && values.roleIds.length > 0 && period.ok && hours.ok
+  const valid =
+    values.projectId !== '' &&
+    values.roleIds.length > 0 &&
+    !periodErrors.start &&
+    !periodErrors.end &&
+    hours.ok
 
   const save = useMutation({
     mutationFn: async () => {
@@ -151,7 +162,6 @@ function ParticipationForm({ organizationId, participation, onDone }: FormProps)
 
   // The chosen project's technologies the person's list lacks, offered one click each.
   // Computed when shown; nothing records them.
-  const chosenProject = projects.find((project) => project.id === values.projectId)
   const projectTechnologies = chosenProject?.technologies ?? []
   const suggestions = projectTechnologies.filter(
     (technology) => !values.technologyIds.includes(technology.id),
@@ -225,7 +235,7 @@ function ParticipationForm({ organizationId, participation, onDone }: FormProps)
         legend={m.projects_col_period()}
         value={values.period}
         onChange={(value) => set('period', value)}
-        errors={submitted && !period.ok ? period : {}}
+        errors={submitted ? periodErrors : {}}
       />
       <fieldset className="flex flex-col gap-2">
         <legend className="mb-2 text-sm leading-none font-medium">{m.participation_roles()}</legend>

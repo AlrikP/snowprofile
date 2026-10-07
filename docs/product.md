@@ -131,6 +131,22 @@ them. An admin's edit to the project never changes them.
 
 Both suggestion lists are computed when shown, so nothing records them.
 
+## Participation periods
+
+A participation's period must lie within its project's, so a CV never shows work outside
+the project's dates.
+
+- **Precision:** each pair of dates compares at the coarser precision, so a participation
+  starting in 2024 fits a project starting in 03-2024. An ongoing project has no end
+  limit.
+- **Ongoing:** a participation can't be saved as ongoing on a project that has ended. An
+  ongoing participation saved before the project ended reads as ending on the project's
+  end; its stored end stays empty, so it reads as ongoing again if the project's end is
+  cleared.
+- **The project's period changes:** an admin's change is accepted even when it leaves
+  participations outside the new period. They stay as they are until their owner edits
+  them, and the rule then applies.
+
 ## Data and privacy
 
 ### Data kept

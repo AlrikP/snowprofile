@@ -8,6 +8,7 @@ import {
   isPeriodDate,
   isYearOnly,
   lastDay,
+  outsidePeriod,
   overlaps,
   type PeriodInputValue,
   parsePeriodInput,
@@ -105,6 +106,45 @@ describe('the period input', () => {
     expect(isYearOnly(input('..2019').start)).toBe(true)
     expect(isYearOnly(input('.3.2019').start)).toBe(false)
     expect(isYearOnly(input('').start)).toBe(false)
+  })
+})
+
+describe('a period within another', () => {
+  const project = { startDate: '2024-03', endDate: '2025-06' }
+
+  test('project-participation.before-project-start-refused: a start before the outer start', () => {
+    expect(outsidePeriod({ startDate: '2024-01', endDate: '2024-12' }, project)).toEqual({
+      start: 'before_outer_start',
+    })
+    expect(outsidePeriod({ startDate: '2023', endDate: '2024-12' }, project)).toEqual({
+      start: 'before_outer_start',
+    })
+  })
+
+  test('project-participation.after-project-end-refused: an end after the outer end, or ongoing', () => {
+    expect(outsidePeriod({ startDate: '2024-05', endDate: '2025-09' }, project)).toEqual({
+      end: 'after_outer_end',
+    })
+    expect(outsidePeriod({ startDate: '2024-05', endDate: null }, project)).toEqual({
+      end: 'ongoing_after_outer_end',
+    })
+  })
+
+  test('project-participation.coarser-date-accepted: dates compare at the coarser precision', () => {
+    expect(outsidePeriod({ startDate: '2024', endDate: '2025' }, project)).toEqual({})
+    expect(outsidePeriod({ startDate: '2024-03-01', endDate: '2025-06-30' }, project)).toEqual({})
+    const days = { startDate: '2024-03-15', endDate: '2025-06-10' }
+    expect(outsidePeriod({ startDate: '2024-03', endDate: '2025-06' }, days)).toEqual({})
+    expect(outsidePeriod({ startDate: '2024-03-14', endDate: '2025-06-11' }, days)).toEqual({
+      start: 'before_outer_start',
+      end: 'after_outer_end',
+    })
+  })
+
+  test('an ongoing outer period has no end limit', () => {
+    const ongoing = { startDate: '2024', endDate: null }
+    expect(outsidePeriod({ startDate: '2024-05', endDate: null }, ongoing)).toEqual({})
+    expect(outsidePeriod({ startDate: '2024-05', endDate: '2030' }, ongoing)).toEqual({})
   })
 })
 
