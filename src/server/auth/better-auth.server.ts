@@ -17,6 +17,19 @@ import {
 
 // A factory, so tests run the same configuration against their own database and settings.
 export function createAuth(database: Database, config: SignInConfig = env) {
+  const organizationPlugin = organization({
+    ac,
+    roles,
+    creatorRole: 'admin',
+    // Platform operators create organizations (docs/product.md, "Users and access").
+    allowUserToCreateOrganization: false,
+    // Organizations own all their data and are never hard-deleted.
+    disableOrganizationDeletion: true,
+  })
+  // addMember is server-only: it has no path, though its type says it has one.
+  const organizationPaths = Object.values(organizationPlugin.endpoints).map(
+    (endpoint): string | undefined => endpoint.path,
+  )
   return betterAuth({
     secret: env.BETTER_AUTH_SECRET,
     baseURL: env.BETTER_AUTH_URL,
@@ -31,18 +44,10 @@ export function createAuth(database: Database, config: SignInConfig = env) {
       disableSignUp: true,
     },
     socialProviders: socialProviders(config),
-    disabledPaths: disabledPaths(config),
+    disabledPaths: disabledPaths(config, organizationPaths),
     databaseHooks: loginPolicyHooks(config.ALLOWED_LOGIN_DOMAINS),
     plugins: [
-      organization({
-        ac,
-        roles,
-        creatorRole: 'admin',
-        // Platform operators create organizations (docs/product.md, "Users and access").
-        allowUserToCreateOrganization: false,
-        // Organizations own all their data and are never hard-deleted.
-        disableOrganizationDeletion: true,
-      }),
+      organizationPlugin,
       // Must stay last: it sets cookies from the other plugins' responses.
       tanstackStartCookies(),
     ],

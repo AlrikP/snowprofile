@@ -36,24 +36,24 @@ const demoDisabledPaths = [
   '/update-user',
 ]
 
-// Organization plugin endpoints the app replaces with its own server functions, whose rules
-// they would skip: a role change goes through the members page, which keeps an admin, and
-// invitations through the app's, which create the member's profile (docs/architecture.md,
-// "Roles").
-const replacedPaths = [
-  '/organization/update-member-role',
-  '/organization/invite-member',
-  '/organization/cancel-invitation',
-  '/organization/accept-invitation',
-  '/organization/reject-invitation',
-  '/organization/get-invitation',
-  '/organization/list-invitations',
-  '/organization/list-user-invitations',
-]
+// The organization plugin's endpoints skip the app's rules: listing members and
+// invitations is refused to employees, a leaver keeps a profile with a left date, a role
+// change keeps an admin, and invitations create the member's profile. So every plugin
+// endpoint is closed over HTTP, including ones a plugin upgrade adds, except set-active,
+// which the organization switcher calls (docs/architecture.md, "Roles").
+const openOrganizationPaths = new Set(['/organization/set-active'])
 
-// Better Auth's disabledPaths option. It applies to HTTP requests only, not to auth.api.
-export function disabledPaths(config: SignInConfig): string[] {
-  return config.DEMO_MODE ? [...replacedPaths, ...demoDisabledPaths] : replacedPaths
+// Better Auth's disabledPaths option, given the organization plugin's endpoint paths. It
+// applies to HTTP requests only, not to auth.api. A server-only endpoint has no path.
+export function disabledPaths(
+  config: SignInConfig,
+  organizationPaths: (string | undefined)[],
+): string[] {
+  const closed = organizationPaths.filter(
+    (path): path is string =>
+      path?.startsWith('/organization/') === true && !openOrganizationPaths.has(path),
+  )
+  return config.DEMO_MODE ? [...closed, ...demoDisabledPaths] : closed
 }
 
 // Better Auth's socialProviders option. src/env.ts refuses a half-set client.

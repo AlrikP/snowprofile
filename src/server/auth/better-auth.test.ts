@@ -149,7 +149,7 @@ test('sign-in.demo-accounts-locked: in demo mode, a visitor cannot change a shar
   const { headers } = await signUp('demo-visitor')
   const other = await signIn('demo-visitor')
 
-  const paths = disabledPaths({ DEMO_MODE: true, ALLOWED_LOGIN_DOMAINS: [] })
+  const paths = disabledPaths({ DEMO_MODE: true, ALLOWED_LOGIN_DOMAINS: [] }, [])
   expect(paths).toContain('/list-sessions')
   expect(paths).toContain('/revoke-session')
   for (const path of paths) {
@@ -167,7 +167,7 @@ test('outside demo mode, a user lists and ends their own sessions', async () => 
   const second = await signIn('company-user')
   const company = createAuth(db, { DEMO_MODE: false, ALLOWED_LOGIN_DOMAINS: [] })
 
-  expect(disabledPaths({ DEMO_MODE: false, ALLOWED_LOGIN_DOMAINS: [] })).not.toContain(
+  expect(disabledPaths({ DEMO_MODE: false, ALLOWED_LOGIN_DOMAINS: [] }, [])).not.toContain(
     '/list-sessions',
   )
   expect(await request(company, first.headers, '/list-sessions')).toBe(200)
@@ -178,22 +178,44 @@ test('outside demo mode, a user lists and ends their own sessions', async () => 
   expect(await request(company, first.headers, '/sign-out')).toBe(200)
 })
 
-test('the plugin’s role and invitation endpoints are closed, even to admins', async () => {
+test('every organization plugin endpoint but set-active is closed, even to admins', async () => {
   const admin = await signUp('role-admin')
+  const employee = await signUp('role-employee')
   const organizationId = await createOrganization('role-org', admin.userId)
+  await auth.api.addMember({ body: { organizationId, userId: employee.userId, role: 'employee' } })
   const company = createAuth(db, { DEMO_MODE: false, ALLOWED_LOGIN_DOMAINS: [] })
 
-  const paths = disabledPaths({ DEMO_MODE: false, ALLOWED_LOGIN_DOMAINS: [] })
-  expect(paths).toContain('/organization/update-member-role')
-  expect(paths).toContain('/organization/invite-member')
-  for (const path of paths) {
-    const status = await request(company, admin.headers, path, {
-      organizationId,
-      memberId: 'any',
-      role: 'employee',
-      email: 'someone@example.com',
-      invitationId: 'any',
-    })
-    expect({ path, status }).toEqual({ path, status: 404 })
+  const paths = Object.values(company.api)
+    .map((endpoint): string | undefined => endpoint.path)
+    .filter(
+      (path): path is string =>
+        path?.startsWith('/organization/') === true && path !== '/organization/set-active',
+    )
+  expect(paths).toEqual(
+    expect.arrayContaining([
+      '/organization/list-members',
+      '/organization/get-full-organization',
+      '/organization/remove-member',
+      '/organization/leave',
+      '/organization/update',
+      '/organization/update-member-role',
+      '/organization/invite-member',
+    ]),
+  )
+  const body = {
+    organizationId,
+    memberIdOrEmail: employee.userId,
+    memberId: 'any',
+    role: 'employee',
+    email: 'someone@example.com',
+    invitationId: 'any',
+    data: { slug: 'api' },
   }
+  for (const person of [admin, employee]) {
+    for (const path of paths) {
+      const status = await request(company, person.headers, path, body)
+      expect({ path, status }).toEqual({ path, status: 404 })
+    }
+  }
+  expect(await request(company, employee.headers, '/organization/set-active', body)).toBe(200)
 })

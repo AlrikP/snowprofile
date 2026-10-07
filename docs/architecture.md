@@ -305,12 +305,14 @@ must handle:
   can't be deleted, because they own all their data.
 - The members page lists members and changes roles through the app's own server
   functions (`src/server/members/`), which keep at least one member who can manage the
-  members. The organization plugin's `update-member-role` endpoint would skip that rule,
-  so `disabledPaths` closes it over HTTP in every mode (`sign-in.server.ts`). The other
-  plugin endpoint the app calls is `set-active` (the organization switcher); the demo
-  guards are task 021.
-- **Invitations** are the app's too (`src/server/invitations/`), and the plugin's
-  invitation endpoints are closed the same way. An admin invites an address with a role
+  members. The organization plugin's own endpoints skip the app's rules: they show
+  employees the member list and pending invitations, end a membership without the leaver
+  rule, and rename the organization. So `disabledPaths` closes every plugin endpoint over
+  HTTP in every mode (`sign-in.server.ts`), built from the plugin's list so an upgrade's
+  new endpoints are closed too. Only `set-active` stays open, for the organization
+  switcher. Server code still calls the plugin through `auth.api`. The demo guards are
+  task 021.
+- **Invitations** are the app's too (`src/server/invitations/`). An admin invites an address with a role
   and sends the link, `/invite/<id>`, themselves; the app sends no email. The invitation
   is accepted **on the link**, not on every sign-in: opening it signed in with the
   invited, verified address makes the user a member with the invited role, and creates
