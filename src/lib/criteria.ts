@@ -1,7 +1,9 @@
+// The technical characteristics checklist on the client: its page manages it, and search
+// filters by it, from one shared query.
 import { queryOptions } from '@tanstack/react-query'
-import { type Bilingual, bilingualDisplay } from '#/lib/bilingual'
 import { getLocale } from '#/paraglide/runtime.js'
 import { type Criterion, getCriteria } from '#/server/criteria/criteria.functions'
+import { type Bilingual, bilingualDisplay } from './bilingual'
 
 export type { Criterion }
 

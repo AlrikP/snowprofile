@@ -1,6 +1,8 @@
-// Rules for search (docs/product.md, "Search"): admins find people by the technologies
-// they used and, optionally, when. A participation matches through its own technologies,
-// not its project's, because those are what the person did; own projects count too.
+// Rules for search (docs/product.md, "Search filters"): admins find people by the
+// technologies they used, the solution characteristics of their projects, and, optionally,
+// when. A participation matches through its own technologies, not its project's, because
+// those are what the person did. Own projects count too, except while characteristics are
+// chosen: they have no answers.
 import type { Database } from '#/db'
 import { overlaps } from '#/lib/period'
 import { requirePermission, type Scope } from '../scope.server'
@@ -30,10 +32,21 @@ export async function search(
 ) {
   requirePermission(scope, { profile: ['readAll'] }, 'profile_forbidden')
   const chosen = new Set(input.technologyIds)
+  // A characteristic removed since the search was made no longer narrows it.
+  const criteria = await repository.liveCriteria(db, scope, input.criterionIds)
+  if (input.technologyIds.length === 0 && criteria.length === 0) return []
+  const criterionIds = criteria.map((each) => each.id)
   const [participations, ownProjects] = await Promise.all([
-    repository.matchingParticipations(db, scope, input.technologyIds),
-    repository.matchingOwnProjects(db, scope, input.technologyIds),
+    repository.matchingParticipations(db, scope, {
+      technologyIds: input.technologyIds,
+      criterionIds,
+    }),
+    criterionIds.length > 0 ? [] : repository.matchingOwnProjects(db, scope, input.technologyIds),
   ])
+  const criteriaShown = criteria.map(({ id, nameEt, nameEn }) => ({
+    id,
+    name: { et: nameEt, en: nameEn },
+  }))
   function inPeriod(item: Item) {
     return overlaps(item, input, today)
   }
@@ -88,6 +101,8 @@ export async function search(
         ...each,
         matched: chosen.has(each.id),
       })),
+      // Every chosen characteristic, since the project has them all.
+      criteria: source.kind === 'participation' ? criteriaShown : [],
     }
   }
 

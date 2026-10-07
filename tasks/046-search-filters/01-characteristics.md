@@ -1,6 +1,6 @@
 # 046.1: Search by solution characteristics
 
-Status: todo
+Status: done
 
 The search page lets an admin pick one or more characteristics from the checklist
 (`docs/specs/technical-characteristics.md`). A participation matches only when its
@@ -9,17 +9,17 @@ technology becomes optional, so a search by characteristics alone works.
 
 ## Acceptance criteria
 
-- [ ] `SearchInput` accepts no technologies when a characteristic is chosen, and refuses
+- [x] `SearchInput` accepts no technologies when a characteristic is chosen, and refuses
       a search with neither.
-- [ ] The search form offers the live characteristics, in checklist order and in the
+- [x] The search form offers the live characteristics, in checklist order and in the
       interface language, and an admin can pick one or more.
-- [ ] The chosen characteristics are in the page's search params, so a search can be
+- [x] The chosen characteristics are in the page's search params, so a search can be
       bookmarked and reloaded.
-- [ ] The server matches on the project's yes answers and ignores removed
+- [x] The server matches on the project's yes answers and ignores removed
       characteristics. Queries stay scoped by organization, with a case in
       `src/server/tenancy.test.ts` for any new repository function.
-- [ ] Each result shows which chosen characteristics its project has.
-- [ ] Labels and messages are in Estonian and English.
+- [x] Each result shows which chosen characteristics its project has.
+- [x] Labels and messages are in Estonian and English.
 
 ## Spec changes
 
@@ -40,3 +40,19 @@ technology becomes optional, so a search by characteristics alone works.
 - Added: scenario `search.filter-required`: given the search page, when an admin searches
   with no technology, role, or characteristic, then the form asks for one and the server
   refuses.
+
+## Outcome
+
+- `matchingParticipations` now starts from participations and adds an `EXISTS` per chosen
+  characteristic, plus one for the technologies when any are chosen, so either filter
+  works alone. The server resolves the live characteristics first
+  (`search.liveCriteria`), so a removed one stops narrowing, and a search left with
+  nothing to filter by returns no one.
+- Every chosen characteristic is on every matching project, so each participation result
+  lists all of them; own projects aren't fetched while characteristics are chosen.
+- The characteristics query moved from `src/features/criteria/` to `src/lib/criteria.ts`,
+  now that search uses it too. The search route loads it with the technology catalogue.
+- The page shows the checklist as checkboxes under the other filters, kept in the URL as
+  `c`. The Estonian labels use "tehnilised näitajad", as the rest of the app does.
+- "Make CV" already carries `c` in its link, but the CV ignores it until task 046.3.
+- Checked with server, tenancy, and component tests; not in a browser.

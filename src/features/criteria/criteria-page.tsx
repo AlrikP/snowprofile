@@ -17,10 +17,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '#/components/ui/dropdown-menu'
+import { type Criterion, criteriaQuery, criterionLabel, criterionName } from '#/lib/criteria'
 import { errorMessage } from '#/lib/errors'
 import { m } from '#/paraglide/messages.js'
 import { moveCriterion } from '#/server/criteria/criteria.functions'
-import { type Criterion, criteriaQuery, criterionLabel, criterionName } from './criteria-query'
 import { CriterionDialog } from './criterion-dialog'
 import { RemoveCriterionDialog } from './remove-criterion-dialog'
 

@@ -10,10 +10,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from '#/components/ui/dialog'
+import { type Criterion, criteriaQuery, criterionLabel } from '#/lib/criteria'
 import { errorMessage } from '#/lib/errors'
 import { m } from '#/paraglide/messages.js'
 import { removeCriterion } from '#/server/criteria/criteria.functions'
-import { type Criterion, criteriaQuery, criterionLabel } from './criteria-query'
 
 // Confirms a removal, saying how many projects' answers it hides.
 export function RemoveCriterionDialog({

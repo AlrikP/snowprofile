@@ -1,7 +1,7 @@
-// Database access for search: participations and own projects that used one of the
-// chosen technologies, with what the results show about them. Every query filters by the
+// Database access for search: participations and own projects that match the chosen
+// technologies and characteristics, with what the results show about them. Every query filters by the
 // scope's organization and leaves out deleted rows.
-import { and, asc, eq, inArray, sql } from 'drizzle-orm'
+import { and, asc, eq, exists, inArray, sql } from 'drizzle-orm'
 import type { Executor } from '#/db'
 import {
   customer,
@@ -13,15 +13,42 @@ import {
   participationRole,
   participationTechnology,
   project,
+  projectCriterionAnswer,
   projectRole,
   technology,
+  tenderCriterion,
 } from '#/db/schema'
 import { participationEndDate } from '../profiles/participations.repository.server'
 import type { Scope } from '../scope.server'
 
-// Live participations on live projects that list one of the technologies themselves; the
-// project's own list doesn't count.
-export async function matchingParticipations(db: Executor, scope: Scope, technologyIds: string[]) {
+// The chosen characteristics that are still on the checklist, in its order.
+export async function liveCriteria(db: Executor, scope: Scope, ids: string[]) {
+  if (ids.length === 0) return []
+  return db
+    .select({
+      id: tenderCriterion.id,
+      nameEt: tenderCriterion.nameEt,
+      nameEn: tenderCriterion.nameEn,
+    })
+    .from(tenderCriterion)
+    .where(
+      and(
+        eq(tenderCriterion.organizationId, scope.organizationId),
+        eq(tenderCriterion.sysDeleted, sql`0`),
+        inArray(tenderCriterion.id, ids),
+      ),
+    )
+    .orderBy(asc(tenderCriterion.position), asc(tenderCriterion.id))
+}
+
+// Live participations on live projects that list one of the technologies themselves (the
+// project's own list doesn't count), on a project that answered yes to every
+// characteristic. An empty list of either doesn't narrow.
+export async function matchingParticipations(
+  db: Executor,
+  scope: Scope,
+  filter: { technologyIds: string[]; criterionIds: string[] },
+) {
   return db
     .selectDistinct({
       id: participation.id,
@@ -32,8 +59,7 @@ export async function matchingParticipations(db: Executor, scope: Scope, technol
       startDate: participation.startDate,
       endDate: participationEndDate,
     })
-    .from(participationTechnology)
-    .innerJoin(participation, eq(participation.id, participationTechnology.participationId))
+    .from(participation)
     .innerJoin(project, eq(project.id, participation.projectId))
     .leftJoin(customer, eq(customer.id, project.customerId))
     .where(
@@ -41,7 +67,33 @@ export async function matchingParticipations(db: Executor, scope: Scope, technol
         eq(participation.organizationId, scope.organizationId),
         eq(participation.sysDeleted, sql`0`),
         eq(project.sysDeleted, sql`0`),
-        inArray(participationTechnology.technologyId, technologyIds),
+        filter.technologyIds.length > 0
+          ? exists(
+              db
+                .select({ one: sql`1` })
+                .from(participationTechnology)
+                .where(
+                  and(
+                    eq(participationTechnology.participationId, participation.id),
+                    inArray(participationTechnology.technologyId, filter.technologyIds),
+                  ),
+                ),
+            )
+          : undefined,
+        ...filter.criterionIds.map((criterionId) =>
+          exists(
+            db
+              .select({ one: sql`1` })
+              .from(projectCriterionAnswer)
+              .where(
+                and(
+                  eq(projectCriterionAnswer.projectId, project.id),
+                  eq(projectCriterionAnswer.criterionId, criterionId),
+                  eq(projectCriterionAnswer.answer, true),
+                ),
+              ),
+          ),
+        ),
       ),
     )
 }

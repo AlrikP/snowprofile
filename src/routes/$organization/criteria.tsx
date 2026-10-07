@@ -1,6 +1,6 @@
 import { createFileRoute, getRouteApi, redirect } from '@tanstack/react-router'
 import { CriteriaPage, CriteriaPending } from '#/features/criteria/criteria-page'
-import { criteriaQuery } from '#/features/criteria/criteria-query'
+import { criteriaQuery } from '#/lib/criteria'
 import { roleHasPermission } from '#/lib/permissions'
 
 const organizationRoute = getRouteApi('/$organization')

@@ -4,12 +4,21 @@ import { Uuidv7 } from '../schemas'
 
 const PeriodDate = v.nullable(v.pipe(v.string(), v.check(isPeriodDate, 'Invalid period date.')))
 
-export const SearchInput = v.object({
-  technologyIds: v.pipe(v.array(Uuidv7), v.minLength(1), v.maxLength(20)),
-  // Any: one of the technologies is enough. All: the person used every one of them.
-  match: v.picklist(['any', 'all']),
-  from: PeriodDate,
-  to: PeriodDate,
-  leavers: v.boolean(),
-})
+// Each filter is optional, but a search names at least one technology or characteristic.
+export const SearchInput = v.pipe(
+  v.object({
+    technologyIds: v.pipe(v.array(Uuidv7), v.maxLength(20)),
+    // Any: one of the technologies is enough. All: the person used every one of them.
+    match: v.picklist(['any', 'all']),
+    // A project must have every one of them.
+    criterionIds: v.pipe(v.array(Uuidv7), v.maxLength(20)),
+    from: PeriodDate,
+    to: PeriodDate,
+    leavers: v.boolean(),
+  }),
+  v.check(
+    (input) => input.technologyIds.length > 0 || input.criterionIds.length > 0,
+    'Choose a technology or a characteristic.',
+  ),
+)
 export type SearchInput = v.InferOutput<typeof SearchInput>

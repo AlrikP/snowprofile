@@ -1,6 +1,6 @@
 # 046: Search by role and solution characteristics
 
-Status: todo
+Status: in-progress
 
 Tenders ask for people who held a role, such as an architect, or who worked on projects
 with a given solution, such as X-Road or containers. Search finds people only by

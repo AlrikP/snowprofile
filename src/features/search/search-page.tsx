@@ -9,6 +9,7 @@ import { TechnologyPicker } from '#/components/technology-picker'
 import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
 import { Card, CardContent, CardHeader } from '#/components/ui/card'
+import { type Criterion, criteriaQuery, criterionLabel } from '#/lib/criteria'
 import { formatDate } from '#/lib/date-time'
 import { formatPeriod } from '#/lib/period'
 import type { SearchFilters } from '#/lib/search-filters'
@@ -68,6 +69,17 @@ function Item({ organization, item }: { organization: string; item: SearchItem }
           </li>
         ))}
       </ul>
+      {item.criteria.length > 0 && (
+        <ul className="flex flex-wrap gap-1" aria-label={m.search_characteristics()}>
+          {item.criteria.map((criterion) => (
+            <li key={criterion.id}>
+              <Badge variant="outline">
+                <BilingualText value={criterion.name} />
+              </Badge>
+            </li>
+          ))}
+        </ul>
+      )}
     </li>
   )
 }
@@ -183,7 +195,46 @@ function Results({
   )
 }
 
-// People by the technologies they used and when, for admins (prototypes/search.html). The
+// The checklist as toggles; a project must have every chosen one.
+function CriteriaFilter({
+  criteria,
+  value,
+  onChange,
+}: {
+  criteria: Criterion[]
+  value: string[]
+  onChange: (value: string[]) => void
+}) {
+  return (
+    <fieldset className="flex flex-col gap-2 lg:col-span-2" aria-describedby="search-criteria-hint">
+      <legend className="mb-2 text-sm font-medium">{m.search_characteristics()}</legend>
+      <div className="flex flex-wrap gap-x-4 gap-y-2">
+        {criteria.map((criterion) => (
+          <label key={criterion.id} className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              className="accent-foreground size-4"
+              checked={value.includes(criterion.id)}
+              onChange={(event) =>
+                onChange(
+                  event.target.checked
+                    ? [...value, criterion.id]
+                    : value.filter((id) => id !== criterion.id),
+                )
+              }
+            />
+            {criterionLabel(criterion)}
+          </label>
+        ))}
+      </div>
+      <p id="search-criteria-hint" className="text-muted-foreground text-sm">
+        {m.search_characteristics_hint()}
+      </p>
+    </fieldset>
+  )
+}
+
+// People by the technologies they used, their projects' solution characteristics, and when, for admins (prototypes/search.html). The
 // filters live in the URL, so a search can be shared and reloaded.
 export function SearchPage({
   organizationId,
@@ -198,7 +249,12 @@ export function SearchPage({
   onFiltersChange: (filters: SearchFilters) => void
 }) {
   const { data: catalogue } = useSuspenseQuery(technologyCatalogueQuery(organizationId))
+  const { data: criteria } = useSuspenseQuery(criteriaQuery(organizationId))
   const technologies = filters.t ?? []
+  // Characteristics removed since the link was made are dropped, as the server ignores them.
+  const chosenCriteria = (filters.c ?? []).filter((id) =>
+    criteria.some((criterion) => criterion.id === id),
+  )
   const match = filters.match ?? 'any'
 
   function set(next: Partial<SearchFilters>) {
@@ -247,9 +303,16 @@ export function SearchPage({
               {m.people_show_leavers()}
             </label>
           </fieldset>
+          {criteria.length > 0 && (
+            <CriteriaFilter
+              criteria={criteria}
+              value={chosenCriteria}
+              onChange={(c) => set({ c: c.length > 0 ? c : undefined })}
+            />
+          )}
         </CardContent>
       </Card>
-      {technologies.length === 0 ? (
+      {technologies.length === 0 && chosenCriteria.length === 0 ? (
         <p className="text-muted-foreground">{m.search_prompt()}</p>
       ) : (
         <Results organizationId={organizationId} organization={organization} filters={filters} />

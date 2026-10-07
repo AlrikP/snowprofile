@@ -1175,8 +1175,15 @@ const cases: Record<string, () => Promise<void>> = {
     expect(await bRole(b.roleId)).toMatchObject({ sysDeleted: false, mergedIntoId: null })
   },
   'search.matchingParticipations': async () => {
-    const rows = await search.matchingParticipations(db, scopeA, [b.technologyId])
-    expect(rows).toEqual([])
+    for (const filter of [
+      { technologyIds: [b.technologyId], criterionIds: [] },
+      { technologyIds: [], criterionIds: [b.criterionId] },
+    ]) {
+      expect(await search.matchingParticipations(db, scopeA, filter)).toEqual([])
+    }
+  },
+  'search.liveCriteria': async () => {
+    expect(await search.liveCriteria(db, scopeA, [b.criterionId])).toEqual([])
   },
   'search.matchingOwnProjects': async () => {
     const rows = await search.matchingOwnProjects(db, scopeA, [b.technologyId])

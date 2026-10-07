@@ -3,6 +3,7 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
 import { eq } from 'drizzle-orm'
 import { v7 as uuidv7 } from 'uuid'
+import * as v from 'valibot'
 import type { Database } from '#/db'
 import { withActor } from '#/db/actor'
 import {
@@ -13,16 +14,18 @@ import {
   participation,
   participationTechnology,
   project,
+  projectCriterionAnswer,
   projectTechnology,
   technology,
   technologyCategory,
+  tenderCriterion,
   user,
 } from '#/db/schema'
 import { seedIds } from '#/db/seed-accounts'
 import { createTestDatabase } from '#/db/testing'
 import { resolveScope, type Scope } from '../scope.server'
 import { rejection } from '../testing'
-import type { SearchInput } from './search.schemas'
+import { SearchInput } from './search.schemas'
 import { search } from './search.server'
 
 let db: Database
@@ -151,7 +154,15 @@ function find(input: Partial<SearchInput>) {
   return search(
     db,
     admin,
-    { technologyIds: [t.kotlin], match: 'any', from: null, to: null, leavers: false, ...input },
+    {
+      technologyIds: [t.kotlin],
+      match: 'any',
+      criterionIds: [],
+      from: null,
+      to: null,
+      leavers: false,
+      ...input,
+    },
     today,
   )
 }
@@ -252,6 +263,121 @@ describe('period', () => {
   })
 })
 
+describe('characteristics', () => {
+  // Characteristics only these tests use: the first project has both, the second only X-Road.
+  const c = { xroad: uuidv7(), containers: uuidv7(), removed: uuidv7() }
+
+  beforeAll(() =>
+    as(async () => {
+      for (const [index, [name, id]] of Object.entries(c).entries()) {
+        await db.insert(tenderCriterion).values({
+          id,
+          organizationId: org,
+          nameEt: `Test ${name}`,
+          nameEn: `Test ${name}`,
+          position: 100 + index,
+          sysDeleted: id === c.removed,
+        })
+      }
+      for (const [onProject, criterionId] of [
+        [projectId, c.xroad],
+        [projectId, c.containers],
+        [projectId, c.removed],
+        [endedProjectId, c.xroad],
+      ] as const) {
+        await db
+          .insert(projectCriterionAnswer)
+          .values({ projectId: onProject, criterionId, organizationId: org, answer: true })
+      }
+      await db.insert(projectCriterionAnswer).values({
+        projectId: endedProjectId,
+        criterionId: c.containers,
+        organizationId: org,
+        answer: false,
+      })
+    }),
+  )
+
+  function ids(results: Awaited<ReturnType<typeof find>>) {
+    return results.map((each) => each.id)
+  }
+
+  test('search.characteristics-all: a project must have every chosen characteristic', async () => {
+    const both = await person('Criteria Both')
+    const one = await person('Criteria One')
+    const pa = await worked(both, [t.zig])
+    await worked(one, [t.zig], { startDate: '2021', endDate: '2022' }, endedProjectId)
+
+    const results = await find({ technologyIds: [], criterionIds: [c.xroad, c.containers] })
+
+    expect(ids(results)).toContain(both)
+    expect(ids(results)).not.toContain(one)
+    expect(results.find((each) => each.id === both)?.items).toMatchObject([
+      {
+        id: pa,
+        projectId,
+        criteria: [
+          { id: c.xroad, name: { en: 'Test xroad' } },
+          { id: c.containers, name: { en: 'Test containers' } },
+        ],
+      },
+    ])
+  })
+
+  test('search.characteristics-only: a search by characteristic alone lists the project’s people', async () => {
+    const someone = await person('Criteria Only')
+    await worked(someone, [], { startDate: '2021', endDate: '2022' }, endedProjectId)
+
+    expect(ids(await find({ technologyIds: [], criterionIds: [c.xroad] }))).toContain(someone)
+  })
+
+  test('search.characteristics-with-technology: the technology must be on work on such a project', async () => {
+    const someone = await person('Criteria With Kotlin')
+    await worked(someone, [t.kotlin], { startDate: '2021', endDate: '2022' }, endedProjectId)
+    await worked(someone, [t.elixir])
+
+    expect(
+      ids(await find({ technologyIds: [t.kotlin], criterionIds: [c.containers] })),
+    ).not.toContain(someone)
+    expect(ids(await find({ technologyIds: [t.elixir], criterionIds: [c.containers] }))).toContain(
+      someone,
+    )
+  })
+
+  test('search.characteristics-own-projects-left-out: own projects don’t match while characteristics are chosen', async () => {
+    const someone = await person('Criteria Own')
+    await ownWork(someone, [t.kotlin])
+
+    expect(ids(await find({ technologyIds: [t.kotlin] }))).toContain(someone)
+    expect(ids(await find({ technologyIds: [t.kotlin], criterionIds: [c.xroad] }))).not.toContain(
+      someone,
+    )
+  })
+
+  test('a removed characteristic no longer narrows the search', async () => {
+    const someone = await person('Criteria Removed')
+    await worked(someone, [], { startDate: '2021', endDate: '2022' }, endedProjectId)
+
+    expect(ids(await find({ technologyIds: [], criterionIds: [c.xroad, c.removed] }))).toContain(
+      someone,
+    )
+    expect(await find({ technologyIds: [], criterionIds: [c.removed] })).toEqual([])
+  })
+
+  test('search.filter-required: a search with no technology or characteristic is refused', () => {
+    const input = {
+      technologyIds: [],
+      match: 'any',
+      criterionIds: [],
+      from: null,
+      to: null,
+      leavers: false,
+    }
+    expect(v.safeParse(SearchInput, input).success).toBe(false)
+    expect(v.safeParse(SearchInput, { ...input, criterionIds: [uuidv7()] }).success).toBe(true)
+  })
+})
+
 describe('leavers', () => {
   test('search.leavers-hidden: leavers are left out by default', async () => {
     const leaver = await person('Leaver Kotlin', { leftDate: '2026-01-31' })
@@ -276,6 +402,7 @@ test('search.employee-refused: an employee can’t search', async () => {
       search(db, employee, {
         technologyIds: [t.kotlin],
         match: 'any',
+        criterionIds: [],
         from: null,
         to: null,
         leavers: false,

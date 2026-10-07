@@ -12,10 +12,10 @@ import {
   DialogTitle,
 } from '#/components/ui/dialog'
 import { bilingualInputValue, parseBilingual } from '#/lib/bilingual'
+import { type Criterion, criteriaQuery, criterionName } from '#/lib/criteria'
 import { errorMessage } from '#/lib/errors'
 import { m } from '#/paraglide/messages.js'
 import { addCriterion, updateCriterion } from '#/server/criteria/criteria.functions'
-import { type Criterion, criteriaQuery, criterionName } from './criteria-query'
 
 type FormProps = {
   organizationId: string

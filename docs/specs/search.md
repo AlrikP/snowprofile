@@ -1,16 +1,30 @@
 # Search
 
-Admins find people by the technologies they used and, optionally, when, and go from the
-results to a CV. Results show each person's matching participations and own projects.
+Admins find people by the technologies they used, the solution characteristics of their
+projects, and, optionally, when, and go from the results to a CV. Results show each
+person's matching participations and own projects (`docs/product.md`, "Search filters").
 
 ## Requirements
 
-### Requirement: Search by technology
+### Requirement: Search by technology and solution characteristic
 
-An admin must be able to search by one or more technologies, matching any of them or all
-of them. With all, a person matches when their matching work together covers every chosen
-technology. A participation must match through its own technologies, not its project's;
-own projects must count too, marked as own.
+An admin must be able to search by one or more technologies, one or more solution
+characteristics, or both. Each is optional, but a search must name at least one.
+
+Technologies match any or all, as the admin chooses. With all, a person matches when their
+matching work together covers every chosen technology. A participation must match through
+its own technologies, not its project's; own projects must count too, marked as own.
+
+A participation matches the characteristics when its project answered yes to every chosen
+one, and the same participation must match the chosen technologies. A characteristic
+removed from the checklist no longer narrows a search. Own projects have no answers, so
+they must be left out while characteristics are chosen.
+
+#### Scenario: search.filter-required
+
+- **Given** the search page
+- **When** an admin searches with no technology and no characteristic
+- **Then** the page asks for one, and the server refuses
 
 #### Scenario: search.any-technology
 
@@ -37,6 +51,31 @@ own projects must count too, marked as own.
 - **Given** a person whose own project used Kotlin
 - **When** an admin searches for Kotlin
 - **Then** the person is listed with the own project, marked as own
+
+#### Scenario: search.characteristics-all
+
+- **Given** one project with X-Road and containers, and another with X-Road only
+- **When** an admin searches for X-Road and containers
+- **Then** only the first project's participants are listed, with that project and its
+  characteristics
+
+#### Scenario: search.characteristics-only
+
+- **Given** a project with X-Road
+- **When** an admin searches for X-Road with no technology
+- **Then** its participants are listed
+
+#### Scenario: search.characteristics-with-technology
+
+- **Given** a participant who used Kotlin on a project without containers
+- **When** an admin searches for Kotlin and containers
+- **Then** the participant isn't listed for that participation
+
+#### Scenario: search.characteristics-own-projects-left-out
+
+- **Given** a person whose own project used Kotlin
+- **When** an admin searches for Kotlin and X-Road
+- **Then** the own project isn't listed
 
 ### Requirement: Optional period
 

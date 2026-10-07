@@ -1,5 +1,6 @@
 import { createFileRoute, getRouteApi, redirect } from '@tanstack/react-router'
 import { SearchPage, SearchPending } from '#/features/search/search-page'
+import { criteriaQuery } from '#/lib/criteria'
 import { roleHasPermission } from '#/lib/permissions'
 import { readSearchFilters } from '#/lib/search-filters'
 import { technologyCatalogueQuery } from '#/lib/technology-catalogue'
@@ -16,7 +17,10 @@ export const Route = createFileRoute('/$organization/search')({
     if (!roleHasPermission(organization.role, { profile: ['readAll'] })) {
       throw redirect({ to: '/$organization', params })
     }
-    await context.queryClient.ensureQueryData(technologyCatalogueQuery(organization.id))
+    await Promise.all([
+      context.queryClient.ensureQueryData(technologyCatalogueQuery(organization.id)),
+      context.queryClient.ensureQueryData(criteriaQuery(organization.id)),
+    ])
   },
   pendingComponent: SearchPending,
   component: SearchRoute,

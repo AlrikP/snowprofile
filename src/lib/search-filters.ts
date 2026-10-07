@@ -9,6 +9,8 @@ const SearchFiltersSchema = v.object({
   // Technology IDs.
   t: v.optional(v.array(v.string())),
   match: v.optional(v.picklist(['any', 'all'])),
+  // Technical characteristic (tender criterion) IDs.
+  c: v.optional(v.array(v.string())),
   from: PeriodDate,
   to: PeriodDate,
   leavers: v.optional(v.boolean()),
@@ -22,7 +24,7 @@ export function readSearchFilters(search: Record<string, unknown>): SearchFilter
   const read = v.safeParse(SearchFiltersSchema, search)
   if (read.success) return read.output
   const filters: SearchFilters = {}
-  for (const key of ['t', 'match', 'from', 'to', 'leavers'] as const) {
+  for (const key of ['t', 'match', 'c', 'from', 'to', 'leavers'] as const) {
     const one = v.safeParse(SearchFiltersSchema.entries[key], search[key])
     if (one.success && one.output !== undefined) Object.assign(filters, { [key]: one.output })
   }

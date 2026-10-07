@@ -400,8 +400,10 @@
   "profile_confirmed_title": "Aitäh! Profiil on kinnitatud.",
   "profile_confirmed_body": "Administraatorid näevad, et su andmed on ajakohased.",
   "search_title": "Otsing",
-  "search_description": "Leia inimesed tehnoloogia ja soovi korral perioodi järgi.",
+  "search_description": "Leia inimesed tehnoloogia ja nende projektide tehniliste näitajate ning soovi korral perioodi järgi.",
   "search_technologies": "Tehnoloogiad",
+  "search_characteristics": "Lahenduse tehnilised näitajad",
+  "search_characteristics_hint": "Projektil peavad olema kõik valitud näitajad. Oma projektidel neid pole, nii et need jäävad välja.",
   "search_period": "Periood (valikuline)",
   "period_filter_from": "Alates",
   "period_filter_to": "Kuni",
@@ -421,8 +423,8 @@
       }
     }
   ],
-  "search_prompt": "Vali vähemalt üks tehnoloogia.",
-  "search_no_match": "Keegi ei vasta valikule. Proovi laiemat perioodi või vähem tehnoloogiaid.",
+  "search_prompt": "Vali vähemalt üks tehnoloogia või näitaja.",
+  "search_no_match": "Keegi ei vasta valikule. Proovi laiemat perioodi, vähem tehnoloogiaid või vähem näitajaid.",
   "search_searching": "Otsin…",
   "search_matches": [
     {
