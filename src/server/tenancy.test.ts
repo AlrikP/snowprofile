@@ -1293,7 +1293,7 @@ const cases: Record<string, () => Promise<void>> = {
 
 describe('a user in one organization', () => {
   for (const [name, run] of Object.entries(cases)) {
-    test(`can't reach another organization through ${name}`, run)
+    test(`organizations.isolated: can't reach another organization through ${name}`, run)
   }
 })
 

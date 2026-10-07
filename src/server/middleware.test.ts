@@ -41,7 +41,7 @@ test('a scoped call without an organizationId fails validation', async () => {
   expect(error).toBeInstanceOf(v.ValiError)
 })
 
-test('a scoped call for an organization the user is not a member of is forbidden', async () => {
+test('organizations.non-member-refused: a scoped call for an organization the user is not a member of is forbidden', async () => {
   const { error } = await requestUpdate(admin, uuidv7())
   expect(error).toMatchObject({ code: 'FORBIDDEN', key: 'not_organization_member' })
 })

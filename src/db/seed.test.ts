@@ -30,7 +30,7 @@ import { createTestDatabase, failure } from './testing'
 const data = generateDemoData()
 
 describe('the generator', () => {
-  test('gives the same data for a seed on any day', () => {
+  test('demo-data.repeatable: gives the same data for a seed on any day', () => {
     setSystemTime(new Date('2031-02-03T04:05:06Z'))
     try {
       expect(generateDemoData()).toEqual(data)
@@ -70,7 +70,7 @@ describe('the generator', () => {
     )
   })
 
-  test('uses example.com addresses only', () => {
+  test('demo-data.fictional: uses example.com addresses only', () => {
     const emails = [
       ...seedUsers.map((person) => person.email),
       ...data.flatMap((organization) => organization.users.map((row) => row.email)),
@@ -206,7 +206,7 @@ describe('seeding a seeded database', () => {
 
   afterAll(() => cleanup())
 
-  test('adds nothing and keeps changes', async () => {
+  test('demo-data.changes-kept: adds nothing and keeps changes', async () => {
     await renameFirstProject(db, seedIds.orgs.demo, 'Renamed')
     expect(await seed(db)).toEqual({ added: [], skipped: ['demo', 'rabasaare', 'tormilind'] })
     expect(await projectNames(db, seedIds.orgs.demo)).toContain('Renamed')
@@ -240,7 +240,7 @@ describe('seeding a database with some organizations', () => {
 
   afterAll(() => cleanup())
 
-  test('adds only the missing demo organizations', async () => {
+  test('demo-data.missing-added: adds only the missing demo organizations', async () => {
     expect(await seed(db)).toEqual({ added: ['rabasaare', 'tormilind'], skipped: ['demo'] })
     expect(await projectNames(db, seedIds.orgs.demo)).toEqual([])
     expect(await projectNames(db, company)).toEqual([])
@@ -258,7 +258,7 @@ describe('resetOrganization', () => {
 
   afterAll(() => cleanup())
 
-  test('replaces one organization’s data and leaves the others alone', async () => {
+  test('demo-data.reset-one: replaces one organization’s data and leaves the others alone', async () => {
     await renameFirstProject(db, seedIds.orgs.demo, 'Renamed in demo')
     await renameFirstProject(db, seedIds.orgs.tormilind, 'Renamed in tormilind')
     const [users] = await db.select({ n: count() }).from(user)
@@ -275,7 +275,7 @@ describe('resetOrganization', () => {
     expect(await db.select({ n: count() }).from(user)).toEqual([users])
   })
 
-  test('refuses an organization that isn’t a demo one', async () => {
+  test('demo-data.reset-refused-real: refuses an organization that isn’t a demo one', async () => {
     expect(await failure(() => resetOrganization(db, 'company'))).toContain(
       'No demo organization "company"',
     )

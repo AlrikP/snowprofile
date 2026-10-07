@@ -36,7 +36,7 @@ async function access(email: string, requestLocale: string) {
   return { result, setCookie: response.headers.get('set-cookie') }
 }
 
-test('a saved locale that differs from the request’s goes into the cookie', async () => {
+test('ui-languages.follows-user: a saved locale that differs from the request’s goes into the cookie', async () => {
   await saveLocale(db, employee.id, { locale: 'en' })
   const { result, setCookie } = await access(employee.email, 'et')
   expect(result).toMatchObject({ signedIn: true, locale: 'en' })

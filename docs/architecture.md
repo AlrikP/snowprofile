@@ -23,7 +23,7 @@ the project settles on back into the bootstrap kit.
 | Icons                | `lucide-react` 1.49, named imports with the `Icon` suffix (`import { ClockIcon } from 'lucide-react'`)                                                                                                                                                                                                                                                                                                                       | lucide-react has no typed per-icon paths; it is tree-shakeable (`sideEffects: false`)                                                                                                                                                                                                       |
 | CV documents         | `docx` 9.8.1: the DOCX is built in code from the CV read, on the server, by `src/server/cvs/cv-document.server.ts`; tests unzip it with `jszip` 3.10.2                                                                                                                                                                                                                                                                       | Plain JavaScript with no native code, so it runs in the server bundle under Node and Bun. Building in code keeps the one built-in template a module the tests cover, not a `.docx` file to edit in Word. A template engine such as docxtemplater would need that file                       |
 | Sheet migration      | `read-excel-file` 9.3.10 reads the CV sheet in `scripts/sheet-migration/`; tests build a fictional workbook with `write-excel-file` 4.1.1                                                                                                                                                                                                                                                                                    | Maintained, small, and plain JavaScript. It returns month-formatted cells as dates and, with `parseNumber`, numbers as their exact text. The `xlsx` package on npm is an old release with known vulnerabilities, and `exceljs` hasn't been released since 2023 and brings many dependencies |
-| i18n                 | Paraglide JS installed by hand (not the CLI add-on); `et` (base) and `en`; locale in a cookie and on the user (`docs/product.md`, "Languages")                                                                                                                                                                                                                                                                               | No localized URLs: no public pages to index. Kept on the user too, so the choice follows them across browsers                                                                                                                                                                               |
+| i18n                 | Paraglide JS installed by hand (not the CLI add-on); `et` (base) and `en`; locale in a cookie and on the user (`specs/ui-languages.md`)                                                                                                                                                                                                                                                                                      | No localized URLs: no public pages to index. Kept on the user too, so the choice follows them across browsers                                                                                                                                                                               |
 | Client state         | No library: React state and context, URL search params                                                                                                                                                                                                                                                                                                                                                                       | From the profile                                                                                                                                                                                                                                                                            |
 | Lint and format      | oxlint 1.86 with `oxlint-tsgolint` (type-aware, warnings fail) and its React rules; oxfmt 0.71 with snowtime's style; `tsc --noEmit` with TypeScript 7.0.2; lefthook 2.1 pre-commit hook; actionlint 1.7 (Homebrew) for workflow files; knip 6.39.0 for unused code; `scripts/imports-check.ts` and `scripts/icons-check.ts` for the conventions oxlint can't express                                                        | Fast, one toolchain; same as snowtime except React rules                                                                                                                                                                                                                                    |
 | Tests                | `bun test` for server and database code (`*.test.ts`); Vitest 5.0.3 with React Testing Library 16.3.3, `user-event` 14.6.7, and `jest-dom` 7.0.1 in jsdom 30.1.1 for components (`*.test.tsx`); Playwright 1.63.0 in `e2e/`, against the production build on its own seeded database, and run in CI as its own step. Tests that check a behavior spec scenario cite its ID in their title (`docs/specs/`); no Gherkin runner | Fast local loops without cloud services. Most scenarios are server rules, best checked in `bun test`; a Gherkin runner (`playwright-bdd`) would test them through the browser and add step definitions and a second copy of each scenario                                                   |
@@ -120,10 +120,11 @@ conventions apply to every app-owned table; Better Auth's tables keep the plugin
   active organization doesn't decide it: switching in one tab changes it for every tab, so
   a form opened in one organization could save into another. The active organization only
   picks where the app opens after sign-in.
-- **A signed-in page's URL starts with its organization's slug** (`/demo/projects`). The
-  URL is the one place a tab keeps its own organization, and a link opens in the right
-  one. The `/$organization` layout route loads the frame and checks the membership; a
-  slug the user isn't a member of redirects to `/`, which opens the active organization.
+- **A signed-in page's URL starts with its organization's slug** (`/demo/projects`), as
+  [`specs/organizations.md`](specs/organizations.md) specifies. The URL is the one place a
+  tab keeps its own organization, and a link opens in the right one. The `/$organization`
+  layout route loads the frame and checks the membership; an unknown slug redirects to
+  `/`, which opens the active organization.
   Its pages take the organization's ID from that route's loader data and pass it to
   scoped server functions.
 
@@ -371,13 +372,10 @@ This section holds the reasons and where the code lives.
 - In demo mode, Better Auth's self-service account and session endpoints return 404
   (`disabledPaths`). The seeded accounts are shared and their password is published, so
   one visitor must not lock the others out, see their sessions, or sign them out.
-- The seeder (`bun run db:seed`, also with `--reset`) refuses three cases: a database
-  that isn't a local file, `DEMO_MODE` off by the rule above, and a database that holds
-  any organization that isn't a demo one. Bun leaves `NODE_ENV` unset for scripts, so
-  `.env.development` sets `DEMO_MODE=true` for a local seed.
-- The seeder adds only the demo organizations the database lacks, so it never overwrites
-  data; `--reset <slug>` replaces one demo organization's data and leaves the others
-  alone. Users are kept on reset, because users are never hard-deleted.
+- What the seeder (`bun run db:seed`, also with `--reset`) adds and refuses is specified
+  in [`specs/demo-data.md`](specs/demo-data.md). `DEMO_MODE` follows the rule above, and
+  Bun leaves `NODE_ENV` unset for scripts, so `.env.development` sets `DEMO_MODE=true` for
+  a local seed. Users are kept on reset, because users are never hard-deleted.
 - Google sign-in needs both `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`; the app refuses
   to start with only one of them. The README has the OAuth client setup.
 - `ALLOWED_LOGIN_DOMAINS` is checked in Better Auth's database hooks
@@ -404,9 +402,9 @@ This section holds the reasons and where the code lives.
   standard output, with a health endpoint (`/api/health`).
 - **The app image is the Bun runtime image** (`oven/bun` slim) running the production
   build as the non-root `bun` user, with the database on `/data`. `build:scripts` bundles
-  the start script, the seeder, and the organization script into `.output/server/scripts/`, where they find the
-  libSQL addon Nitro traced, so the image carries no other `node_modules`: 216 MB, built
-  in about 35 seconds with a warm cache. A compiled Bun binary (snowtime's layout) would
+  the start script, the seeder, the organization script, and the sheet migration into
+  `.output/server/scripts/`, where they find the libSQL addon Nitro traced, so the image
+  carries no other `node_modules`: 216 MB, built in about 35 seconds with a warm cache. A compiled Bun binary (snowtime's layout) would
   be about 10% smaller, but needs a plugin that patches libSQL's addon loading and a
   build per CPU architecture; snowtime needs it to run without Bun, which a container
   doesn't. A second image, `caddy`, serves `.output/public` (`Dockerfile`).

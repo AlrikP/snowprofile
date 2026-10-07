@@ -5,7 +5,7 @@ import { AppError } from '#/server/errors'
 import { LanguageSwitch } from './language-switch'
 
 describe('LanguageSwitch', () => {
-  it('shows why a failed save kept the language', async () => {
+  it('ui-languages.save-failed: shows why a failed save kept the language', async () => {
     const save = vi.fn().mockRejectedValue(new AppError('UNAUTHENTICATED', 'sign_in_required'))
     render(<LanguageSwitch save={save} />)
 

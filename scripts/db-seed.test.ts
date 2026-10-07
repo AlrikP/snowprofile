@@ -10,12 +10,12 @@ test('seeds a local file database in development', () => {
   expect(seedRefusal({ DATABASE_URL: 'file:local.db', DEMO_MODE: 'true' })).toBeNull()
 })
 
-test('refuses a database that is not a local file', () => {
+test('demo-data.refused-remote: refuses a database that is not a local file', () => {
   expect(seedRefusal({ DATABASE_URL: 'libsql://remote.example.com' })).toContain('local file')
   expect(seedRefusal({})).toContain('local file')
 })
 
-test('refuses unless DEMO_MODE is on, counting an unset NODE_ENV as production', () => {
+test('demo-data.refused-outside-demo: refuses unless DEMO_MODE is on, counting an unset NODE_ENV as production', () => {
   const file = { DATABASE_URL: 'file:/data/app.db' }
   expect(seedRefusal(file)).toContain('DEMO_MODE')
   expect(seedRefusal({ ...file, NODE_ENV: 'production' })).toContain('DEMO_MODE')
@@ -35,7 +35,7 @@ test('seeds a database that holds only demo organizations', async () => {
   }
 })
 
-test('refuses a database that holds an organization that is not a demo one', async () => {
+test('demo-data.refused-real-organization: refuses a database that holds an organization that is not a demo one', async () => {
   const { db, cleanup } = await createTestDatabase({ seeded: false })
   try {
     await db.insert(organization).values({

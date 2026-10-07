@@ -104,7 +104,7 @@ describe('AppFrame', () => {
     expect(props.onSwitchOrganization).toHaveBeenCalledWith(rabasaare)
   })
 
-  it('offers no switch to a member of one organization', async () => {
+  it('organizations.single-no-switch: offers no switch to a member of one organization', async () => {
     await renderFrame({ frame: { user, organizations: [demo], locale: null } })
 
     expect(sidebar().getByText('Demo Software')).toBeInTheDocument()

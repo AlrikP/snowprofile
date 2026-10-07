@@ -37,7 +37,16 @@ test.describe('the admin', () => {
     await expect(work.getByRole('link')).toHaveText(['Projects', 'People', 'Search', 'CVs'])
   })
 
-  test('switches to their other organization', async ({ page }) => {
+  test('organizations.other-slug-redirected: a slug they aren’t a member of opens their own organization', async ({
+    page,
+  }) => {
+    await page.goto('/tormilind/profile')
+
+    await expect(page).toHaveURL(/\/(demo|rabasaare)\/profile$/)
+    await expect(page.getByRole('heading', { name: 'My profile' })).toBeVisible()
+  })
+
+  test('organizations.switched: switches to their other organization', async ({ page }) => {
     await page.goto('/demo/profile')
 
     await page.getByRole('button', { name: /Switch organization/ }).click()

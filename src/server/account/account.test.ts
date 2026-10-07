@@ -21,7 +21,7 @@ test('a user has no saved locale until they choose one', async () => {
   expect(await savedLocale(db, seedIds.users.admin)).toBeNull()
 })
 
-test('a chosen locale is saved on the user and can change', async () => {
+test('ui-languages.switched: a chosen locale is saved on the user and can change', async () => {
   await saveLocale(db, seedIds.users.employee, { locale: 'en' })
   expect(await savedLocale(db, seedIds.users.employee)).toBe('en')
   await saveLocale(db, seedIds.users.employee, { locale: 'et' })
