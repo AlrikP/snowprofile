@@ -381,7 +381,7 @@ This section holds the reasons and where the code lives.
   standard output, with a health endpoint (`/api/health`).
 - **The app image is the Bun runtime image** (`oven/bun` slim) running the production
   build as the non-root `bun` user, with the database on `/data`. `build:scripts` bundles
-  the start script and the seeder into `.output/server/scripts/`, where they find the
+  the start script, the seeder, and the organization script into `.output/server/scripts/`, where they find the
   libSQL addon Nitro traced, so the image carries no other `node_modules`: 216 MB, built
   in about 35 seconds with a warm cache. A compiled Bun binary (snowtime's layout) would
   be about 10% smaller, but needs a plugin that patches libSQL's addon loading and a
