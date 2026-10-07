@@ -42,7 +42,7 @@ commits after reviewing.
 | `bun run typecheck`                        | `tsc --noEmit`                                                                                          |
 | `bun run knip`                             | Fails on unused files, exports, and dependencies (`knip.json`)                                          |
 | `bun run build`                            | Production build into `.output/`; also regenerates `src/routeTree.gen.ts`                               |
-| `bun run build:scripts`                    | Bundles the start script, seeder, and organization script into `.output/server/scripts/` for the image  |
+| `bun run build:scripts`                    | Bundles the start, seed, organization, and sheet migration scripts into `.output/server/scripts/`       |
 | `bun run start`                            | Runs the build; with `MIGRATE_ON_START=true`, migrates first and fails before listening                 |
 | `bun run db:generate <name>`               | Creates an empty migration in `drizzle/`                                                                |
 | `bun run db:migrate`                       | Checks applied migrations, then applies pending ones to `DATABASE_URL`                                  |
@@ -51,6 +51,7 @@ commits after reviewing.
 | `bun run db:seed`                          | Adds missing demo organizations locally; `--reset <slug>` redoes one                                    |
 | `bun run org:create <slug> <name> <email>` | Creates an organization and prints its first admin's invitation link; an existing slug is left as it is |
 | `bun run sheet:report <file>`              | Reads the CV sheet and prints what the migration can't read; touches no database                        |
+| `bun run sheet:migrate <file> <slug>`      | Loads the CV sheet into an existing organization; a re-run updates and adds nothing twice               |
 | `bun run datamodel:generate`               | Writes `datamodel/snowprofile.dbml` from `schema.ts`; `datamodel:check` fails when it is stale          |
 | `bun run prototypes:build`                 | Builds the UI prototypes into `prototypes/build/`; `--watch` rebuilds                                   |
 | `bun run test`                             | Compiles messages, then runs `test:server` and `test:components`                                        |

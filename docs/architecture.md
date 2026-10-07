@@ -244,8 +244,17 @@ must handle:
   word saying what a name was used for (Oracle backend, RabbitMQ liidestus) are dropped,
   and a fragment longer than three words goes into the report.
   `technology.normalized_name` matches variants, and `merged_into_id` maps merged names.
+  A new name goes into the category its prefix names, in either language, or "Other".
 - **Tender criteria answers** go beyond yes/no ("REST", "Both", "Liquibase for
-  translations"); the answer's note keeps them.
+  translations"); the answer's note keeps them. Such an answer reads as yes unless it
+  starts with "Ei" or "No". A criterion the checklist lacks is added by its Estonian
+  label.
+- **Customers and contact persons** match by name within the organization; a contact
+  cell's line splits into a name, an email, and a phone. A contact without the project's
+  customer goes into the report.
+- **Re-runs** rehearse the migration: projects match by `import_ref`, and the rest by name.
+  A re-run overwrites a project's fields from the sheet but only adds links, so it never
+  removes a technology or contact.
 - **People** are matched by company email. Before the migration, an "E-post:" row with
   each employee's company email is added under "Nimi:" on their sheet in Excel; every
   employee's address is known, because the data is internal (decided 2026-10-06). The script finds or creates

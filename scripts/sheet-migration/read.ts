@@ -31,11 +31,13 @@ const TEMPLATE_SHEET = 'Töötaja template'
 type Period = { startDate: string; endDate: string | null }
 
 // A yes/no criterion as the sheet labels it, and the answer as written ("Jah", "REST").
-type SheetAnswer = { criterion: string; answer: string }
+export type SheetAnswer = { criterion: string; answer: string }
 
-type SheetProject = {
+export type SheetProject = {
   // The sheet's project number, which employee sheets refer to.
   number: number
+  // Its header cell ("B1"), for the report.
+  cell: string
   name: string
   description: string | null
   period: Period | null
@@ -237,6 +239,7 @@ function readProjects(grid: Grid): SheetProject[] {
     }
     projects.push({
       number: ref.number,
+      cell: `${columnName(column)}1`,
       name,
       description: grid.text(rows.description, column),
       period: period(grid, rows.start, rows.end, column),

@@ -88,3 +88,23 @@ It prints an invitation link on `APP_HOST`, valid for 7 days. Send it to the adm
 opens it signed in with that address and then invites the employees from the members
 page. Running it again for the same slug changes nothing. Locally,
 `bun run org:create <slug> <name> <email>` does the same against `DATABASE_URL`.
+
+## Load the CV sheet
+
+Snowhound's data comes from its CV sheet, loaded once into the organization created above
+(`docs/architecture.md`, "From the sheet"). The sheet holds personal data, so it stays
+outside the repository and the image: mount it into the temporary container read-only,
+with the app stopped.
+
+```bash
+bun run sheet:report Snowhound_CV_baas.xlsx    # locally first: what the migration can't read
+docker compose stop app
+docker compose run --rm --no-deps -v "$PWD/Snowhound_CV_baas.xlsx:/sheet.xlsx:ro" app \
+  bun --no-env-file .output/server/scripts/sheet-migrate.js /sheet.xlsx snowhound
+docker compose up -d --wait
+```
+
+It loads everything in one transaction and prints what it loaded and the values it
+couldn't read, for an admin to fix in the app. Running it again updates what it loaded
+instead of duplicating it, so rehearse it on a local Compose stack first. Locally,
+`bun run sheet:migrate <file> <slug>` does the same against `DATABASE_URL`.

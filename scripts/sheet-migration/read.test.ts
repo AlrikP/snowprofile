@@ -22,6 +22,7 @@ describe('the Projektid sheet', () => {
     expect(workbook.projects.map((each) => each.number)).toEqual([1, 2, 3, 4])
     expect(workbook.projects[0]).toEqual({
       number: 1,
+      cell: 'B1',
       name: 'Kalarahva portaal',
       description: 'Kalastuslubade e-teenus.',
       period: { startDate: '2020-05', endDate: '2022-02' },
