@@ -224,9 +224,12 @@ must handle:
   read.
 - **Periods** have month precision and are often open-ended ("jätkuv", "...", "-"). Most
   are date cells shown as months; others are typed: `05.2020`, `6.2015`, `10-2021`, years
-  only (`2018`), and `01.03.2022`. A month typed as a number loses its trailing zero
-  (10.2020 is stored as 10.202), so the year is padded back. Text such as
-  "juuni-okt 2024", two periods in one cell, and stray numbers go into the report.
+  only (`2018`), and `01.03.2022`. A month typed as a number loses its trailing zeros
+  (10.2020 is stored as 10.202, and 03.2020 as 3.2, the same as 03.20), so a year
+  shorter than four digits goes into the report rather than being guessed, as do years
+  after the current one. Text such as "juuni-okt 2024", two periods in one cell, and stray
+  numbers go into the report too. The sheet is imported once, so such cells are fixed in
+  the sheet, not handled in the parser.
 - **Join and birth dates** are calendar dates; a join date the sheet has only as a month
   becomes that month's first day.
 - **Hours and cost** are approximate (`~3500h`, `> 10 000h`, `> 700 000€`, `3350+`,

@@ -30,11 +30,6 @@ describe('periods', () => {
     expect(parsePeriodDate('01.03.2022')).toEqual({ ok: true, value: '2022-03-01' })
   })
 
-  test('puts back the zero a month typed as a number loses', () => {
-    expect(parsePeriodDate('10.202')).toEqual({ ok: true, value: '2020-10' })
-    expect(parsePeriodDate('12.2018')).toEqual({ ok: true, value: '2018-12' })
-  })
-
   test('reads open ends as ongoing', () => {
     for (const end of ['jätkuv', 'Jätkuv', '...', '-', null]) {
       expect(parsePeriod(month(2021, 10), end)).toEqual({
@@ -45,7 +40,20 @@ describe('periods', () => {
   })
 
   test('sheet-migration.unparsed-reported: a range in one cell, a stray number, or a reversed period has a reason', () => {
-    for (const text of ['juuni-okt 2024', '06-2024, 02-2025', 'sept-dets 2022', '498', '1618.5']) {
+    const nextYear = String(new Date().getUTCFullYear() + 1)
+    for (const text of [
+      'juuni-okt 2024',
+      '06-2024, 02-2025',
+      'sept-dets 2022',
+      '498',
+      '1618.5',
+      // A month typed as a number loses its year's trailing zeros, so the year is a guess.
+      '10.202',
+      '03.21',
+      '03.20',
+      `05.${nextYear}`,
+      nextYear,
+    ]) {
       const parsed = parsePeriodDate(text)
       expect(parsed.ok).toBe(false)
       if (!parsed.ok) expect(parsed.reason).toStartWith('Not a date')
@@ -80,6 +88,9 @@ describe('periods', () => {
     expect(parseCalendarDate(month(2021, 3))).toEqual({ ok: true, value: '2021-03-01' })
     expect(parseCalendarDate('3.2024')).toEqual({ ok: true, value: '2024-03-01' })
     expect(parseCalendarDate('2021.0').ok).toBe(false)
+    const nextYear = new Date().getUTCFullYear() + 1
+    expect(parseCalendarDate(`14.06.${nextYear}`).ok).toBe(false)
+    expect(parseCalendarDate(month(nextYear, 3)).ok).toBe(false)
   })
 })
 

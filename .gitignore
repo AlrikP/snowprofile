@@ -35,3 +35,8 @@ prototypes/build/
 e2e/.auth/
 test-results/
 playwright-report/
+
+# Spreadsheets and documents can hold personal data, such as the CV sheet and downloaded
+# CVs. A committed fixture is un-ignored by name.
+*.xlsx
+*.docx

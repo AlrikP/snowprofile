@@ -28,7 +28,8 @@ export function cellText(cell: Cell): string {
 const OPEN_ENDS = new Set(['jätkuv', 'kestab', '...', '…', '-', '–'])
 
 const FIRST_YEAR = 1950
-const LAST_YEAR = 2100
+// The sheet is historical, so a later year is a typo the report should show.
+const LAST_YEAR = new Date().getUTCFullYear()
 
 function year(value: string): number | null {
   const number = Number(value)
@@ -43,8 +44,9 @@ const NOT_A_DATE = 'Not a date: use a month and year (05.2020), a year, or "jät
 
 // A period date as the sheet writes it, at the precision it has: a cell formatted as a date
 // (the sheet's dates are months), 05.2020, 6.2015, 10-2021, 2018, or 01.03.2022. A month
-// typed as a number loses its trailing zero (10.2020 is stored as 10.202), so the year is
-// padded back.
+// typed as a number loses its trailing zeros (10.2020 is stored as 10.202, 03.2020 as 3.2,
+// the same as 03.20), so a year shorter than four digits is reported, not guessed; the
+// operator fixes the cell in the sheet.
 export function parsePeriodDate(cell: Cell): Parsed<string> {
   if (cell instanceof Date) {
     const value = `${cell.getUTCFullYear()}-${pad(cell.getUTCMonth() + 1)}`
@@ -53,11 +55,10 @@ export function parsePeriodDate(cell: Cell): Parsed<string> {
   const text = cellText(cell)
   const yearOnly = /^(\d{4})(?:\.0+)?$/.exec(text)
   if (yearOnly?.[1]) return year(yearOnly[1]) ? ok(yearOnly[1]) : fail(NOT_A_DATE)
-  const monthYear = /^(\d{1,2})[.\-/](\d{1,4})$/.exec(text)
+  const monthYear = /^(\d{1,2})[.\-/](\d{4})$/.exec(text)
   if (monthYear?.[1] && monthYear[2]) {
-    const digits = text.includes('.') ? monthYear[2].padEnd(4, '0') : monthYear[2]
-    const value = `${digits}-${pad(monthYear[1])}`
-    return year(digits) && isPeriodDate(value) ? ok(value) : fail(NOT_A_DATE)
+    const value = `${monthYear[2]}-${pad(monthYear[1])}`
+    return year(monthYear[2]) && isPeriodDate(value) ? ok(value) : fail(NOT_A_DATE)
   }
   const day = parseDay(text)
   if (day) return ok(day)

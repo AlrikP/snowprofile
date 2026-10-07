@@ -97,7 +97,7 @@ describe('an employee sheet', () => {
       },
       {
         project: { number: 2 },
-        period: { startDate: '2020-10', endDate: null },
+        period: null,
         roles: ['Arhitekt', 'team lead'],
         hours: { value: 2100, qualifier: 'exact' },
         tasks: null,
@@ -156,6 +156,12 @@ describe('the report', () => {
         reason: 'Not a date: use a month and year (05.2020), a year, or "jätkuv".',
       },
       {
+        sheet: 'Anna ✅',
+        cell: 'C15',
+        value: '10.202',
+        reason: 'Not a date: use a month and year (05.2020), a year, or "jätkuv".',
+      },
+      {
         sheet: 'Peeter',
         cell: 'B1',
         value: 'Peeter Puudub',
@@ -198,7 +204,7 @@ describe('the report', () => {
     const printed = await sheetReport(await fictionalWorkbook())
 
     expect(printed).toStartWith(
-      "Read 4 projects and 2 people, with 6 participations and 1 own projects.\n7 values weren't read:",
+      "Read 4 projects and 2 people, with 6 participations and 1 own projects.\n8 values weren't read:",
     )
     expect(printed).toContain('\n\nPeeter\n  B1    "Peeter Puudub": No company email')
     expect(printed).toContain('\n  C15   "2022-01-01": The end is before the start.\n')
