@@ -207,7 +207,14 @@ describe('SearchPage', () => {
   })
 
   it('search.make-cv: makes a CV of the chosen people with the same filter', async () => {
-    await show({ t: ['react'], match: 'all', from: '2019', leavers: true })
+    await show({
+      t: ['react'],
+      match: 'all',
+      r: ['analyst'],
+      c: ['xroad'],
+      from: '2019',
+      leavers: true,
+    })
 
     const make = screen.getByRole('link', { name: 'Make CV (1)' })
     const url = new URL(make.getAttribute('href') ?? '', 'http://localhost')
@@ -215,6 +222,8 @@ describe('SearchPage', () => {
     expect(JSON.parse(url.searchParams.get('people') ?? '[]')).toEqual(['erik'])
     expect(JSON.parse(url.searchParams.get('t') ?? '[]')).toEqual(['react'])
     expect(url.searchParams.get('match')).toBe('all')
+    expect(JSON.parse(url.searchParams.get('r') ?? '[]')).toEqual(['analyst'])
+    expect(JSON.parse(url.searchParams.get('c') ?? '[]')).toEqual(['xroad'])
     expect(JSON.parse(url.searchParams.get('from') ?? 'null')).toBe('2019')
 
     // A leaver isn't chosen until ticked.

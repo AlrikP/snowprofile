@@ -8,9 +8,11 @@ export const CvInput = v.object({
   // One person makes a personal CV, several a team CV.
   profileIds: v.pipe(v.array(Uuidv7), v.minLength(1), v.maxLength(50)),
   language: v.picklist(['et', 'en']),
-  // No technologies and no period: every project. Otherwise only the work that used one
-  // of the technologies, within the period.
+  // No filter: every project. Otherwise only the work that search's filter matches
+  // (docs/product.md, "Search filters"), within the period.
   technologyIds: v.pipe(v.array(Uuidv7), v.maxLength(20)),
+  roleIds: v.pipe(v.array(Uuidv7), v.maxLength(20)),
+  criterionIds: v.pipe(v.array(Uuidv7), v.maxLength(20)),
   from: PeriodDate,
   to: PeriodDate,
   birthDate: v.boolean(),
@@ -28,6 +30,8 @@ export function cvDocumentHref(organizationId: string, input: CvInput): string {
   const params = new URLSearchParams({ organizationId, language: input.language })
   for (const id of input.profileIds) params.append('people', id)
   for (const id of input.technologyIds) params.append('t', id)
+  for (const id of input.roleIds) params.append('r', id)
+  for (const id of input.criterionIds) params.append('c', id)
   if (input.from) params.set('from', input.from)
   if (input.to) params.set('to', input.to)
   if (input.birthDate) params.set('birth', 'true')
@@ -40,6 +44,8 @@ export function readCvDocumentParams(params: URLSearchParams) {
     language: params.get('language'),
     profileIds: params.getAll('people'),
     technologyIds: params.getAll('t'),
+    roleIds: params.getAll('r'),
+    criterionIds: params.getAll('c'),
     from: params.get('from'),
     to: params.get('to'),
     birthDate: params.get('birth') === 'true',

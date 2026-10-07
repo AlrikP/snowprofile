@@ -3,6 +3,7 @@ import { Link } from '@tanstack/react-router'
 import { FileTextIcon } from 'lucide-react'
 import { useState } from 'react'
 import { BilingualText } from '#/components/bilingual-text'
+import { CriteriaFilter } from '#/components/criteria-filter'
 import { PeriodFilter } from '#/components/period-filter'
 import { RadioToggle } from '#/components/radio-toggle'
 import { RolePicker } from '#/components/role-picker'
@@ -10,7 +11,7 @@ import { TechnologyPicker } from '#/components/technology-picker'
 import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
 import { Card, CardContent, CardHeader } from '#/components/ui/card'
-import { type Criterion, criteriaQuery, criterionLabel } from '#/lib/criteria'
+import { criteriaQuery } from '#/lib/criteria'
 import { formatDate } from '#/lib/date-time'
 import { formatPeriod } from '#/lib/period'
 import { roleCatalogueQuery } from '#/lib/role-catalogue'
@@ -203,48 +204,9 @@ function Results({
   )
 }
 
-// The checklist as toggles; a project must have every chosen one.
-function CriteriaFilter({
-  criteria,
-  value,
-  onChange,
-}: {
-  criteria: Criterion[]
-  value: string[]
-  onChange: (value: string[]) => void
-}) {
-  return (
-    <fieldset className="flex flex-col gap-2 lg:col-span-2" aria-describedby="search-criteria-hint">
-      <legend className="mb-2 text-sm font-medium">{m.search_characteristics()}</legend>
-      <div className="flex flex-wrap gap-x-4 gap-y-2">
-        {criteria.map((criterion) => (
-          <label key={criterion.id} className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              className="accent-foreground size-4"
-              checked={value.includes(criterion.id)}
-              onChange={(event) =>
-                onChange(
-                  event.target.checked
-                    ? [...value, criterion.id]
-                    : value.filter((id) => id !== criterion.id),
-                )
-              }
-            />
-            {criterionLabel(criterion)}
-          </label>
-        ))}
-      </div>
-      <p id="search-criteria-hint" className="text-muted-foreground text-sm">
-        {m.search_characteristics_hint()}
-      </p>
-    </fieldset>
-  )
-}
-
 // People by the technologies they used, their roles, their projects' solution
-// characteristics, and when, for admins (prototypes/search.html). The
-// filters live in the URL, so a search can be shared and reloaded.
+// characteristics, and when, for admins (prototypes/search.html). The filters live in the
+// URL, so a search can be shared and reloaded.
 export function SearchPage({
   organizationId,
   organization,
@@ -333,6 +295,8 @@ export function SearchPage({
           </fieldset>
           {criteria.length > 0 && (
             <CriteriaFilter
+              id="search-criteria"
+              className="lg:col-span-2"
               criteria={criteria}
               value={chosenCriteria}
               onChange={(c) => set({ c: c.length > 0 ? c : undefined })}

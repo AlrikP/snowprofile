@@ -46,9 +46,12 @@ asks for them.
 
 ### Requirement: Projects to include
 
-A CV must include every project by default. When technologies or a period are chosen, it
-must include only the work that used one of the technologies and overlaps the period, read
-as in search. Own projects are included like organization projects.
+A CV must include every project by default. When technologies, roles, characteristics, or
+a period are chosen, it must include only the work that search's filter matches and that
+overlaps the period, read as in search (`docs/product.md`, "Search filters"): one of the
+technologies and one of the roles on the same work, on a project with every chosen
+characteristic. Own projects are included like organization projects, except while
+characteristics are chosen. The pickers offer only the catalogues' entries.
 
 #### Scenario: cv-selection.all-projects
 
@@ -61,6 +64,18 @@ as in search. Own projects are included like organization projects.
 - **Given** a person who used Elixir on two of their three projects
 - **When** an admin reads a CV filtered to Elixir
 - **Then** only those two are in
+
+#### Scenario: cv-selection.filtered-by-role
+
+- **Given** a person who was an architect on one of their three projects
+- **When** an admin reads a CV filtered to Architect
+- **Then** only that project is in
+
+#### Scenario: cv-selection.filtered-by-characteristic
+
+- **Given** a person whose projects include one with X-Road, and an own project
+- **When** an admin reads a CV filtered to X-Road
+- **Then** only the X-Road project is in
 
 #### Scenario: cv-selection.filtered-by-period
 

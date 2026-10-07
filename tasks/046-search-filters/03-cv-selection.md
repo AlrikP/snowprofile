@@ -1,6 +1,6 @@
 # 046.3: Filter CVs by role and characteristics
 
-Status: todo
+Status: done
 Depends on: task 046.2 (the role and characteristic filters in search)
 
 "Make CV" passes the search's roles and characteristics to CV selection, and the CV
@@ -9,13 +9,13 @@ includes only the work the whole filter matches, read as in search (task 046, de
 
 ## Acceptance criteria
 
-- [ ] `CvInput` (`src/server/cvs/cvs.schemas.ts`) takes role and characteristic IDs, and
+- [x] `CvInput` (`src/server/cvs/cvs.schemas.ts`) takes role and characteristic IDs, and
       the DOCX link (`cvDocumentHref`) carries them, so the download matches the screen.
-- [ ] The CV page's filter offers roles and characteristics, read from and written to its
+- [x] The CV page's filter offers roles and characteristics, read from and written to its
       search params.
-- [ ] Search and CV selection share one matching rule, so a person's work in the search
+- [x] Search and CV selection share one matching rule, so a person's work in the search
       results is the work their CV includes.
-- [ ] Labels are in Estonian and English.
+- [x] Labels are in Estonian and English.
 
 ## Spec changes
 
@@ -30,3 +30,19 @@ includes only the work the whole filter matches, read as in search (task 046, de
   project is in.
 - Modified: scenario `search.make-cv` in `docs/specs/search.md`: CV selection opens with
   the same technologies, match, roles, characteristics, and period.
+
+## Outcome
+
+- `matchingWork` in `src/server/search/search.server.ts` is the one matching rule: it
+  resolves live roles and characteristics, then runs the matching queries, which now take
+  an optional `profileIds`. Search calls it for everyone; the CV read calls it for the
+  chosen people and keeps the work whose ID it returns, then applies the period as
+  before. The CV's own technology check in code is gone.
+- When nothing live is left to filter by, search lists no one and the CV includes every
+  project, since an empty filter means "all projects" there.
+- `CriteriaFilter` moved from the search page to `src/components/criteria-filter.tsx`,
+  now that the CV page uses it too. The CV page's technology picker also stopped offering
+  to add entries, as on the search page.
+- The DOCX link carries `r` and `c` as repeated keys, like `t`; task 048 reviews the two
+  URL styles.
+- Checked with server and component tests; not in a browser.

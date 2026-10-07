@@ -1,6 +1,6 @@
 # 046: Search by role and solution characteristics
 
-Status: in-progress
+Status: done
 
 Tenders ask for people who held a role, such as an architect, or who worked on projects
 with a given solution, such as X-Road or containers. Search finds people only by
@@ -30,3 +30,9 @@ Decided with the user, recorded in `docs/product.md`, "Search filters":
 - 046.1: Search by solution characteristics (`01-characteristics.md`)
 - 046.2: Search by role (`02-roles.md`)
 - 046.3: Filter CVs by role and characteristics (`03-cv-selection.md`)
+
+## Outcome
+
+- All three subtasks are done; their Outcome sections hold the details.
+- Search and CV selection share `matchingWork`, so the work a search shows for a person is
+  the work their CV includes.

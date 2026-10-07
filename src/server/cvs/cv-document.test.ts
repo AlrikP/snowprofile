@@ -55,6 +55,8 @@ function input(profileIds: string[], overrides: Partial<CvInput> = {}): CvInput 
     profileIds,
     language: 'en',
     technologyIds: [],
+    roleIds: [],
+    criterionIds: [],
     from: null,
     to: null,
     birthDate: false,

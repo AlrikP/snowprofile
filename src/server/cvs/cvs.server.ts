@@ -13,6 +13,7 @@ import {
   participationRoles,
   participationTechnologies,
 } from '../search/search.repository.server'
+import { matchingWork } from '../search/search.server'
 import * as repository from './cvs.repository.server'
 import type { CvInput } from './cvs.schemas'
 
@@ -87,10 +88,13 @@ export async function cv(
   const rolesOf = new Map([...grouped(pRoles), ...grouped(oRoles)])
   const technologiesOf = new Map([...grouped(pTechnologies), ...grouped(oTechnologies)])
 
-  const chosen = new Set(input.technologyIds)
+  // Null when nothing narrows: every piece of work is in, within the period.
+  const matched = await matchingWork(db, scope, input, input.profileIds)
+  const matchedIds = matched
+    ? new Set([...matched.participations, ...matched.ownProjects].map((each) => each.id))
+    : null
   function included(item: { id: string; startDate: string; endDate: string | null }) {
-    const used = technologiesOf.get(item.id) ?? []
-    if (chosen.size > 0 && !used.some((each) => chosen.has(each.id))) return false
+    if (matchedIds && !matchedIds.has(item.id)) return false
     return overlaps(item, input, today)
   }
 

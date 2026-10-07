@@ -31,9 +31,11 @@ describe('readCvSelection', () => {
   })
 })
 
-test('a technology or either end of a period filters the projects', () => {
+test('a technology, role, or characteristic, or either end of a period filters the projects', () => {
   expect(isFiltered({ people: ['a'], match: 'all', leavers: true })).toBe(false)
   expect(isFiltered({ t: ['java'] })).toBe(true)
+  expect(isFiltered({ r: ['architect'] })).toBe(true)
+  expect(isFiltered({ c: ['xroad'] })).toBe(true)
   expect(isFiltered({ to: '2017-06' })).toBe(true)
 })
 
@@ -42,6 +44,8 @@ test('the CV read gets Estonian, every project, and no birth date unless chosen'
     profileIds: ['a'],
     language: 'et',
     technologyIds: [],
+    roleIds: [],
+    criterionIds: [],
     from: null,
     to: null,
     birthDate: false,

@@ -14,9 +14,11 @@ import {
   participationRole,
   participationTechnology,
   project,
+  projectCriterionAnswer,
   projectRole,
   technology,
   technologyCategory,
+  tenderCriterion,
   user,
 } from '#/db/schema'
 import { seedIds } from '#/db/seed-accounts'
@@ -43,6 +45,8 @@ const ids = {
   elixir: uuidv7(),
   roleEtOnly: uuidv7(),
   roleBoth: uuidv7(),
+  architect: uuidv7(),
+  xroad: uuidv7(),
   mariPortal: uuidv7(),
   jaanPortal: uuidv7(),
   mariOlder: uuidv7(),
@@ -106,6 +110,13 @@ beforeAll(async () => {
         nameEn: 'Developer CV',
         normalizedName: 'arendajacv',
       },
+      {
+        id: ids.architect,
+        organizationId: org,
+        nameEt: 'Arhitekt CV',
+        nameEn: 'Architect CV',
+        normalizedName: 'arhitektcv',
+      },
     ])
     await db.insert(project).values([
       {
@@ -161,7 +172,17 @@ beforeAll(async () => {
       { participationId: ids.mariPortal, roleId: ids.roleBoth, organizationId: org },
       { participationId: ids.jaanPortal, roleId: ids.roleEtOnly, organizationId: org },
       { participationId: ids.mariOlder, roleId: ids.roleBoth, organizationId: org },
+      { participationId: ids.mariOlder, roleId: ids.architect, organizationId: org },
     ])
+    await db
+      .insert(tenderCriterion)
+      .values({ id: ids.xroad, organizationId: org, nameEt: 'X-tee CV', nameEn: 'X-Road CV' })
+    await db.insert(projectCriterionAnswer).values({
+      projectId: ids.portal,
+      criterionId: ids.xroad,
+      organizationId: org,
+      answer: true,
+    })
     await db.insert(participationTechnology).values([
       { participationId: ids.mariPortal, technologyId: ids.kotlin, organizationId: org },
       { participationId: ids.jaanPortal, technologyId: ids.kotlin, organizationId: org },
@@ -203,6 +224,8 @@ function read(input: Partial<CvInput> = {}) {
       profileIds: [ids.mari],
       language: 'et',
       technologyIds: [],
+      roleIds: [],
+      criterionIds: [],
       from: null,
       to: null,
       birthDate: false,
@@ -279,6 +302,8 @@ describe('people', () => {
           profileIds: [ids.mari],
           language: 'et',
           technologyIds: [],
+          roleIds: [],
+          criterionIds: [],
           from: null,
           to: null,
           birthDate: false,
@@ -298,6 +323,15 @@ describe('projects', () => {
       `project:${ids.older}`,
       `own:${ids.mariOwn}`,
     ])
+  })
+
+  test('cv-selection.filtered-by-role: only the work with a chosen role', async () => {
+    expect(keys(await read({ roleIds: [ids.architect] }))).toEqual([`project:${ids.older}`])
+  })
+
+  test('cv-selection.filtered-by-characteristic: only the work on projects with every chosen characteristic, own projects left out', async () => {
+    expect(keys(await read({ criterionIds: [ids.xroad] }))).toEqual([`project:${ids.portal}`])
+    expect(keys(await read({ criterionIds: [ids.xroad], technologyIds: [ids.elixir] }))).toEqual([])
   })
 
   test('cv-selection.filtered-by-period: only the work that overlaps the period', async () => {

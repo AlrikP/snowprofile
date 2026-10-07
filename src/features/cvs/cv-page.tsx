@@ -1,12 +1,16 @@
 import { keepPreviousData, useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import { useState } from 'react'
+import { CriteriaFilter } from '#/components/criteria-filter'
 import { LANGUAGES } from '#/components/language-switch'
 import { PeriodFilter } from '#/components/period-filter'
 import { RadioToggle } from '#/components/radio-toggle'
+import { RolePicker } from '#/components/role-picker'
 import { TechnologyPicker } from '#/components/technology-picker'
 import { Card, CardContent } from '#/components/ui/card'
+import { criteriaQuery } from '#/lib/criteria'
 import { errorMessage } from '#/lib/errors'
 import { peopleQuery } from '#/lib/people'
+import { roleCatalogueQuery } from '#/lib/role-catalogue'
 import { technologyCatalogueQuery } from '#/lib/technology-catalogue'
 import { m } from '#/paraglide/messages.js'
 import { cvDocumentHref } from '#/server/cvs/cvs.schemas'
@@ -29,12 +33,16 @@ function Selection({
 }) {
   const { data: people } = useSuspenseQuery(peopleQuery(organizationId))
   const { data: catalogue } = useSuspenseQuery(technologyCatalogueQuery(organizationId))
-  // "Filtered" stays chosen while its technologies and period are still empty.
+  const { data: roles } = useSuspenseQuery(roleCatalogueQuery(organizationId))
+  const { data: criteria } = useSuspenseQuery(criteriaQuery(organizationId))
+  // "Filtered" stays chosen while its filters and period are still empty.
   const [filtering, setFiltering] = useState(() => isFiltered(selection))
 
   function chooseProjects(filtered: boolean) {
     setFiltering(filtered)
-    if (!filtered) set({ t: undefined, from: undefined, to: undefined })
+    if (!filtered) {
+      set({ t: undefined, r: undefined, c: undefined, from: undefined, to: undefined })
+    }
   }
 
   return (
@@ -105,7 +113,27 @@ function Selection({
                 catalogue={catalogue}
                 value={selection.t ?? []}
                 onChange={(t) => set({ t: t.length > 0 ? t : undefined })}
+                canAdd={false}
               />
+              <RolePicker
+                id="cv-roles"
+                label={m.search_roles()}
+                organizationId={organizationId}
+                catalogue={roles}
+                value={(selection.r ?? []).filter((id) => roles.some((role) => role.id === id))}
+                onChange={(r) => set({ r: r.length > 0 ? r : undefined })}
+                canAdd={false}
+              />
+              {criteria.length > 0 && (
+                <CriteriaFilter
+                  id="cv-criteria"
+                  criteria={criteria}
+                  value={(selection.c ?? []).filter((id) =>
+                    criteria.some((criterion) => criterion.id === id),
+                  )}
+                  onChange={(c) => set({ c: c.length > 0 ? c : undefined })}
+                />
+              )}
               <PeriodFilter id="cv-period" value={selection} onChange={set} />
             </div>
           )}

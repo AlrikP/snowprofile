@@ -25,10 +25,13 @@ export function readCvSelection(search: Record<string, unknown>): CvSelection {
   return selection
 }
 
-// Whether the selection keeps only some projects: a technology or either end of a period.
+// Whether the selection keeps only some projects: a technology, role, or characteristic, or
+// either end of a period.
 export function isFiltered(selection: CvSelection): boolean {
   return (
-    (selection.t?.length ?? 0) > 0 || selection.from !== undefined || selection.to !== undefined
+    [selection.t, selection.r, selection.c].some((ids) => (ids?.length ?? 0) > 0) ||
+    selection.from !== undefined ||
+    selection.to !== undefined
   )
 }
 
@@ -39,6 +42,8 @@ export function cvInput(selection: CvSelection): CvInput {
     profileIds: selection.people ?? [],
     language: selection.lang ?? 'et',
     technologyIds: selection.t ?? [],
+    roleIds: selection.r ?? [],
+    criterionIds: selection.c ?? [],
     from: selection.from ?? null,
     to: selection.to ?? null,
     birthDate: selection.birth ?? false,

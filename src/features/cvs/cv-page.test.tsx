@@ -1,10 +1,13 @@
 import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { type Criterion, criteriaQuery } from '#/lib/criteria'
 import { peopleQuery } from '#/lib/people'
+import { roleCatalogueQuery } from '#/lib/role-catalogue'
 import { technologyCatalogueQuery } from '#/lib/technology-catalogue'
 import type { Cv } from '#/server/cvs/cvs.functions'
 import type { Person } from '#/server/profiles/profiles.functions'
+import { testRoles } from '#/test/role-catalogue'
 import { renderPage } from '#/test/router'
 import { testCatalogue } from '#/test/technology-catalogue'
 import { CvPage } from './cv-page'
@@ -14,6 +17,8 @@ import { type CvSelection, cvInput } from './cv-selection'
 const server = vi.hoisted(() => ({ getCv: vi.fn() }))
 vi.mock('#/server/cvs/cvs.functions', () => server)
 vi.mock('#/server/profiles/profiles.functions', () => ({ getPeople: vi.fn() }))
+vi.mock('#/server/roles/roles.functions', () => ({ getRoleCatalogue: vi.fn(), addRole: vi.fn() }))
+vi.mock('#/server/criteria/criteria.functions', () => ({ getCriteria: vi.fn() }))
 vi.mock('#/server/technologies/technologies.functions', () => ({
   getTechnologyCatalogue: vi.fn(),
   addTechnology: vi.fn(),
@@ -31,6 +36,11 @@ function person(id: string, fullName: string, leftDate: string | null = null): P
     canMarkLeft: leftDate === null,
   }
 }
+
+const checklist: Criterion[] = [
+  { id: 'xroad', nameEt: 'X-tee', nameEn: 'X-Road', answers: 3 },
+  { id: 'k8s', nameEt: 'Kubernetes', nameEn: 'Kubernetes', answers: 1 },
+]
 
 const people = [
   person('erik', 'Erik Employee'),
@@ -106,6 +116,8 @@ function show(selection: CvSelection, cv: Cv | null = english) {
   const data: [readonly unknown[], unknown][] = [
     [peopleQuery('org').queryKey, people],
     [technologyCatalogueQuery('org').queryKey, testCatalogue],
+    [roleCatalogueQuery('org').queryKey, testRoles],
+    [criteriaQuery('org').queryKey, checklist],
   ]
   if (cv) data.push([cvQuery('org', cvInput(selection)).queryKey, cv])
   return renderPage(
@@ -184,7 +196,9 @@ describe('CvPage', () => {
   it('cv-selection.all-projects: all projects by default, and choosing all clears the filter', async () => {
     await show({ people: ['erik'], t: ['react'], from: '2019' })
 
-    expect(screen.getByRole('radio', { name: 'By technology or period' })).toBeChecked()
+    expect(
+      screen.getByRole('radio', { name: 'By technology, role, characteristic, or period' }),
+    ).toBeChecked()
     expect(screen.getByLabelText('From')).toHaveValue('2019')
     await userEvent.click(screen.getByRole('radio', { name: 'All projects' }))
     expect(onSelectionChange).toHaveBeenCalledWith({ people: ['erik'] })
@@ -195,12 +209,38 @@ describe('CvPage', () => {
     await show({ people: ['erik'] })
 
     expect(screen.getByRole('radio', { name: 'All projects' })).toBeChecked()
-    await userEvent.click(screen.getByRole('radio', { name: 'By technology or period' }))
+    await userEvent.click(
+      screen.getByRole('radio', { name: 'By technology, role, characteristic, or period' }),
+    )
     await userEvent.type(
       screen.getByRole('combobox', { name: 'Add a technology from the catalogue' }),
       'angu{Enter}',
     )
     expect(onSelectionChange).toHaveBeenCalledWith({ people: ['erik'], t: ['angular'] })
+  })
+
+  it('cv-selection.filtered-by-role: a role goes into the filter, and the picker adds nothing', async () => {
+    await show({ people: ['erik'], t: ['react'] })
+
+    await userEvent.type(screen.getByRole('combobox', { name: 'Add a role' }), 'Arhitekt')
+    expect(screen.queryByRole('option')).not.toBeInTheDocument()
+    await userEvent.clear(screen.getByRole('combobox', { name: 'Add a role' }))
+    await userEvent.type(screen.getByRole('combobox', { name: 'Add a role' }), 'analyst{Enter}')
+    expect(onSelectionChange).toHaveBeenCalledWith({
+      people: ['erik'],
+      t: ['react'],
+      r: ['analyst'],
+    })
+  })
+
+  it('cv-selection.filtered-by-characteristic: a characteristic goes into the filter', async () => {
+    await show({ people: ['erik'], c: ['k8s'] })
+
+    expect(screen.getByRole('radio', { name: /By technology/ })).toBeChecked()
+    const group = within(screen.getByRole('group', { name: 'Solution characteristics' }))
+    expect(group.getByRole('checkbox', { name: 'Kubernetes' })).toBeChecked()
+    await userEvent.click(group.getByRole('checkbox', { name: 'X-Road' }))
+    expect(onSelectionChange).toHaveBeenCalledWith({ people: ['erik'], c: ['k8s', 'xroad'] })
   })
 
   it('cv-selection.missing-translations-listed: lists each missing translation with where it is fixed', async () => {
@@ -301,7 +341,14 @@ describe('CvPage', () => {
   })
 
   it('cv-document.language: downloads the DOCX of the same CV', async () => {
-    await show({ people: ['erik'], lang: 'en', birth: true, t: ['react'] })
+    await show({
+      people: ['erik'],
+      lang: 'en',
+      birth: true,
+      t: ['react'],
+      r: ['analyst'],
+      c: ['xroad'],
+    })
 
     const link = screen.getByRole('link', { name: 'Download DOCX' })
     const url = new URL(link.getAttribute('href') ?? '', 'http://localhost')
@@ -311,6 +358,8 @@ describe('CvPage', () => {
       language: 'en',
       people: 'erik',
       t: 'react',
+      r: 'analyst',
+      c: 'xroad',
       birth: 'true',
     })
   })

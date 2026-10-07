@@ -259,6 +259,8 @@ describe('participations', () => {
         profileIds: [profile?.id ?? ''],
         language: 'en',
         technologyIds: [],
+        roleIds: [],
+        criterionIds: [],
         from: null,
         to: null,
         birthDate: false,

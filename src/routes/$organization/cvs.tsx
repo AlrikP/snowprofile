@@ -1,8 +1,10 @@
 import { createFileRoute, getRouteApi, redirect } from '@tanstack/react-router'
 import { CvPage, CvPending } from '#/features/cvs/cv-page'
 import { readCvSelection } from '#/features/cvs/cv-selection'
+import { criteriaQuery } from '#/lib/criteria'
 import { peopleQuery } from '#/lib/people'
 import { roleHasPermission } from '#/lib/permissions'
+import { roleCatalogueQuery } from '#/lib/role-catalogue'
 import { technologyCatalogueQuery } from '#/lib/technology-catalogue'
 
 const organizationRoute = getRouteApi('/$organization')
@@ -21,6 +23,8 @@ export const Route = createFileRoute('/$organization/cvs')({
     await Promise.all([
       context.queryClient.ensureQueryData(peopleQuery(organization.id)),
       context.queryClient.ensureQueryData(technologyCatalogueQuery(organization.id)),
+      context.queryClient.ensureQueryData(roleCatalogueQuery(organization.id)),
+      context.queryClient.ensureQueryData(criteriaQuery(organization.id)),
     ])
   },
   pendingComponent: CvPending,

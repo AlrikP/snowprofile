@@ -1,8 +1,9 @@
 // Rules for search (docs/product.md, "Search filters"): admins find people by the
 // technologies they used, their roles, the solution characteristics of their projects, and,
-// optionally, when. All of them must match on the same piece of work. A participation matches through its own technologies, not its project's, because
-// those are what the person did. Own projects count too, except while characteristics are
-// chosen: they have no answers.
+// optionally, when. All of them must match on the same piece of work. A participation
+// matches through its own technologies, not its project's, because those are what the
+// person did. Own projects count too, except while characteristics are chosen: they have no
+// answers.
 import type { Database } from '#/db'
 import { overlaps } from '#/lib/period'
 import { findLiveRoles } from '../profiles/participations.repository.server'
@@ -19,6 +20,31 @@ type Item = {
   endDate: string | null
 }
 
+// The work a filter matches, shared by search and CV selection so both read a filter the
+// same way. A role or characteristic removed since the filter was made no longer narrows
+// it; a merged role's work has moved to the role that stayed. Null when nothing live is
+// left to filter by. The period is left to the caller.
+export async function matchingWork(
+  db: Database,
+  scope: Scope,
+  filter: repository.WorkFilter,
+  profileIds?: string[],
+) {
+  const [criteria, roles] = await Promise.all([
+    repository.liveCriteria(db, scope, filter.criterionIds),
+    findLiveRoles(db, scope, filter.roleIds),
+  ])
+  const criterionIds = criteria.map((each) => each.id)
+  const roleIds = roles.map((each) => each.id)
+  if (filter.technologyIds.length + roleIds.length + criterionIds.length === 0) return null
+  const live = { technologyIds: filter.technologyIds, roleIds, criterionIds, profileIds }
+  const [participations, ownProjects] = await Promise.all([
+    repository.matchingParticipations(db, scope, live),
+    criterionIds.length > 0 ? [] : repository.matchingOwnProjects(db, scope, live),
+  ])
+  return { roleIds, criteria, participations, ownProjects }
+}
+
 function grouped<T extends { itemId: string }>(rows: T[]) {
   const map = new Map<string, Omit<T, 'itemId'>[]>()
   for (const { itemId, ...rest } of rows) map.set(itemId, [...(map.get(itemId) ?? []), rest])
@@ -33,26 +59,10 @@ export async function search(
 ) {
   requirePermission(scope, { profile: ['readAll'] }, 'profile_forbidden')
   const chosen = new Set(input.technologyIds)
-  // A role or characteristic removed since the search was made no longer narrows it. A
-  // merged role's work has moved to the role it was merged into.
-  const [criteria, roles] = await Promise.all([
-    repository.liveCriteria(db, scope, input.criterionIds),
-    findLiveRoles(db, scope, input.roleIds),
-  ])
-  const criterionIds = criteria.map((each) => each.id)
-  const roleIds = roles.map((each) => each.id)
-  if (input.technologyIds.length + roleIds.length + criterionIds.length === 0) return []
-  const chosenRoles = new Set(roleIds)
-  const [participations, ownProjects] = await Promise.all([
-    repository.matchingParticipations(db, scope, {
-      technologyIds: input.technologyIds,
-      roleIds,
-      criterionIds,
-    }),
-    criterionIds.length > 0
-      ? []
-      : repository.matchingOwnProjects(db, scope, { technologyIds: input.technologyIds, roleIds }),
-  ])
+  const work = await matchingWork(db, scope, input)
+  if (!work) return []
+  const { criteria, participations, ownProjects } = work
+  const chosenRoles = new Set(work.roleIds)
   const criteriaShown = criteria.map(({ id, nameEt, nameEn }) => ({
     id,
     name: { et: nameEt, en: nameEn },

@@ -83,7 +83,7 @@ must take the duplicate out of the catalogue.
 
 A form that takes technologies must let people search the catalogue by name and pick
 entries, and offer to add the typed name when nothing matches. A picker that only filters,
-as in search, offers only the catalogue's entries.
+as in search and CV selection, offers only the catalogue's entries.
 
 #### Scenario: technology-catalogue.picker-adds-missing
 

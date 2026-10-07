@@ -21,6 +21,9 @@ import {
 import { participationEndDate } from '../profiles/participations.repository.server'
 import type { Scope } from '../scope.server'
 
+// What a piece of work must match; an empty list doesn't narrow.
+export type WorkFilter = { technologyIds: string[]; roleIds: string[]; criterionIds: string[] }
+
 // The chosen characteristics that are still on the checklist, in its order.
 export async function liveCriteria(db: Executor, scope: Scope, ids: string[]) {
   if (ids.length === 0) return []
@@ -43,11 +46,11 @@ export async function liveCriteria(db: Executor, scope: Scope, ids: string[]) {
 
 // Live participations on live projects that list one of the technologies themselves (the
 // project's own list doesn't count), have one of the roles, and are on a project that
-// answered yes to every characteristic. An empty list doesn't narrow.
+// answered yes to every characteristic; of these people only, when profileIds is given.
 export async function matchingParticipations(
   db: Executor,
   scope: Scope,
-  filter: { technologyIds: string[]; roleIds: string[]; criterionIds: string[] },
+  filter: WorkFilter & { profileIds?: string[] },
 ) {
   return db
     .selectDistinct({
@@ -67,6 +70,7 @@ export async function matchingParticipations(
         eq(participation.organizationId, scope.organizationId),
         eq(participation.sysDeleted, sql`0`),
         eq(project.sysDeleted, sql`0`),
+        filter.profileIds ? inArray(participation.profileId, filter.profileIds) : undefined,
         filter.technologyIds.length > 0
           ? exists(
               db
@@ -111,12 +115,12 @@ export async function matchingParticipations(
     )
 }
 
-// Live own projects that list one of the technologies and have one of the roles. An empty
-// list doesn't narrow.
+// Live own projects that list one of the technologies and have one of the roles; of these
+// people only, when profileIds is given.
 export async function matchingOwnProjects(
   db: Executor,
   scope: Scope,
-  filter: { technologyIds: string[]; roleIds: string[] },
+  filter: Omit<WorkFilter, 'criterionIds'> & { profileIds?: string[] },
 ) {
   return db
     .select({
@@ -133,6 +137,7 @@ export async function matchingOwnProjects(
       and(
         eq(ownProject.organizationId, scope.organizationId),
         eq(ownProject.sysDeleted, sql`0`),
+        filter.profileIds ? inArray(ownProject.profileId, filter.profileIds) : undefined,
         filter.technologyIds.length > 0
           ? exists(
               db

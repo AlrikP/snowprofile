@@ -161,10 +161,11 @@ leavers at first, and the same filter.
 
 #### Scenario: search.make-cv
 
-- **Given** search results for React from 2019, with a leaver among them
+- **Given** search results for React, Architect, and X-Road from 2019, with a leaver
+  among them
 - **When** the admin chooses "Make CV"
 - **Then** CV selection opens with the chosen people and the same technologies, match,
-  and period
+  roles, characteristics, and period
 
 ### Requirement: Admins only
 
