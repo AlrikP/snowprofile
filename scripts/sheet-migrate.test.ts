@@ -49,6 +49,9 @@ const url = 'file:test.db'
 // IDs of the catalogue entries made before the first run, which it must reuse.
 const existing = { react: uuidv7(), typescript: uuidv7(), typescriptMerged: uuidv7() }
 let first: Awaited<ReturnType<typeof sheetMigrate>>
+// Anna's user, accounts, and invitations as the first run left them, before a test signs
+// her in and accepts.
+let annaAfterFirstRun: { user: unknown; accounts: unknown[]; invitations: unknown[] }
 
 beforeAll(async () => {
   ;({ db, cleanup } = await createTestDatabase({ seeded: false }))
@@ -94,6 +97,21 @@ beforeAll(async () => {
     })
   })
   first = await sheetMigrate(db, url, [file, 'snowhound'])
+  const [annaUser] = await db
+    .select()
+    .from(user)
+    .where(eq(user.email, 'anna.arendaja@snowhound.example'))
+  annaAfterFirstRun = {
+    user: annaUser,
+    accounts: await db
+      .select()
+      .from(account)
+      .where(eq(account.userId, annaUser?.id ?? '')),
+    invitations: await db
+      .select()
+      .from(invitation)
+      .where(eq(invitation.email, 'anna.arendaja@snowhound.example')),
+  }
 })
 
 afterAll(() => {
@@ -285,9 +303,9 @@ describe('people and participations', () => {
   }
 
   test('sheet-migration.people-loaded: a person loads by company email, with profile, education, work, and an invitation', async () => {
-    const { user: loaded, profile } = await anna()
-    expect(loaded).toMatchObject({ name: 'Anna Arendaja', emailVerified: true })
-    expect(await db.select().from(account).where(eq(account.userId, loaded.id))).toEqual([])
+    const { profile } = await anna()
+    expect(annaAfterFirstRun.user).toMatchObject({ name: 'Anna Arendaja', emailVerified: true })
+    expect(annaAfterFirstRun.accounts).toEqual([])
     expect(profile).toMatchObject({
       fullName: 'Anna Arendaja',
       birthDate: '1990-06-14',
@@ -333,8 +351,9 @@ describe('people and participations', () => {
       (await technologiesOf(portal?.id ?? '')).map((each) => each.id).sort(),
     )
 
-    const [invited] = await db.select().from(invitation).where(eq(invitation.email, email))
-    expect(invited).toMatchObject({ organizationId, role: 'employee', status: 'pending' })
+    expect(annaAfterFirstRun.invitations).toMatchObject([
+      { organizationId, role: 'employee', status: 'pending' },
+    ])
 
     const [own] = await db.select().from(ownProject).where(eq(ownProject.profileId, profile.id))
     expect(own).toMatchObject({
