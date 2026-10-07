@@ -1,6 +1,6 @@
 # 037: CV view
 
-Status: in-progress
+Status: done
 Depends on: task 036 (the selection and the CV read)
 
 The CV shown on screen as a project and technology table that pastes into Word, Google
@@ -17,7 +17,7 @@ and its copy button (`data-copy`, HTML with inline styles plus plain text).
 - [x] A team CV shows one table per person or one combined table, as chosen.
 - [x] "Copy table" puts the table on the clipboard as HTML with inline styles and as tab-
       separated plain text.
-- [ ] A manual check pastes a personal and a team CV into Word, Google Docs, and a
+- [x] A manual check pastes a personal and a team CV into Word, Google Docs, and a
       spreadsheet; the Outcome records the result.
 
 ## Spec changes
@@ -45,3 +45,10 @@ and its copy button (`data-copy`, HTML with inline styles plus plain text).
 - Checked in a browser against the seeded e2e server: a four-person Java CV in both
   layouts, and "Copy table" succeeds in Chrome. Headless Chrome doesn't paste from its
   clipboard, so the paste check below is manual.
+- Manual paste check, 2026-10-07: in Word and Google Docs the pasted table looks much like
+  the downloaded DOCX. In Google Sheets the data arrives intact, but the columns keep
+  their default widths and the font is too large, so the user resizes them by hand. The
+  copied HTML sets no font size or column widths (`CELL` and `HEADER` in
+  `src/lib/cv-table.ts`).
+- Left as is on purpose: the Sheets formatting is revisited once there is a concrete use
+  case for pasting CVs into a spreadsheet.
