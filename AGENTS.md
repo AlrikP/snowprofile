@@ -11,6 +11,8 @@
 - Task tracking: `tasks/` (see `tasks/README.md`)
 - Writing docs: `.claude/skills/google-style/SKILL.md`
 - Checking UI in a browser: `docs/skills/ui-review/SKILL.md`
+- Reviewing everything since the last `cr-` review: `.claude/skills/cr-review/SKILL.md`
+  (`/cr-review`)
 
 Follow the recorded decisions; if a change contradicts one, update the doc in the same
 change or ask first. An open question in `docs/` stays open until the user decides it;

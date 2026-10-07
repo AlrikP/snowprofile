@@ -14,7 +14,10 @@ subtask as `NN-short-slug.md`, numbered within the folder (for example
 `006-environments/01-databases.md`). Subtasks use the same format as tasks.
 
 Fixes from a code review are numbered in their own sequence with a `cr-` prefix, for
-example `cr-001-review-001-010.md`; their commits use `task-cr-001`.
+example `cr-001-review-001-010.md`; their commits use `task-cr-001`. The review
+(`/cr-review`, `.claude/skills/cr-review/`) writes the task as a folder, with its report
+in `review.md`. A review that finds nothing to fix writes only a `README.md` marked done,
+which records the reviewed range for the next review.
 
 ## Format
 
