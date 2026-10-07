@@ -13,7 +13,8 @@ type Option = { kind: 'pick'; id: string; name: string; category: string } | { k
 
 // Picks technologies from the catalogue: a combobox that searches by name, with the chosen
 // ones as removable badges. When nothing matches the typed name, it offers to add it, through
-// the same dialog as the technologies page, and picks the new entry.
+// the same dialog as the technologies page, and picks the new entry, unless canAdd is off,
+// as where it only filters.
 export function TechnologyPicker({
   id,
   label,
@@ -21,6 +22,7 @@ export function TechnologyPicker({
   catalogue,
   value,
   onChange,
+  canAdd = true,
 }: {
   id: string
   label: string
@@ -28,6 +30,7 @@ export function TechnologyPicker({
   catalogue: TechnologyCatalogue
   value: string[]
   onChange: (ids: string[]) => void
+  canAdd?: boolean
 }) {
   const [query, setQuery] = useState('')
   const [active, setActive] = useState(0)
@@ -48,7 +51,9 @@ export function TechnologyPicker({
           category: categories.get(each.categoryId) ?? '',
         }))
     : []
-  if (needle && !findDuplicate(catalogue.technologies, query)) options.push({ kind: 'add' })
+  if (canAdd && needle && !findDuplicate(catalogue.technologies, query)) {
+    options.push({ kind: 'add' })
+  }
   const expanded = options.length > 0
 
   function choose(option: Option) {
@@ -155,14 +160,16 @@ export function TechnologyPicker({
           </div>
         )}
       </div>
-      <AddTechnologyDialog
-        open={adding !== null}
-        onOpenChange={(open) => !open && setAdding(null)}
-        organizationId={organizationId}
-        catalogue={catalogue}
-        initialName={adding ?? ''}
-        onAdded={(newId) => onChange([...value, newId])}
-      />
+      {canAdd && (
+        <AddTechnologyDialog
+          open={adding !== null}
+          onOpenChange={(open) => !open && setAdding(null)}
+          organizationId={organizationId}
+          catalogue={catalogue}
+          initialName={adding ?? ''}
+          onAdded={(newId) => onChange([...value, newId])}
+        />
+      )}
     </div>
   )
 }

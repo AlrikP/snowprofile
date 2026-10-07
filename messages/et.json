@@ -400,8 +400,10 @@
   "profile_confirmed_title": "Aitäh! Profiil on kinnitatud.",
   "profile_confirmed_body": "Administraatorid näevad, et su andmed on ajakohased.",
   "search_title": "Otsing",
-  "search_description": "Leia inimesed tehnoloogia ja nende projektide tehniliste näitajate ning soovi korral perioodi järgi.",
+  "search_description": "Leia inimesed tehnoloogia, rolli ja nende projektide tehniliste näitajate ning soovi korral perioodi järgi.",
   "search_technologies": "Tehnoloogiad",
+  "search_roles": "Rollid",
+  "search_roles_hint": "Sobib töö, millel on mõni valitud rollidest.",
   "search_characteristics": "Lahenduse tehnilised näitajad",
   "search_characteristics_hint": "Projektil peavad olema kõik valitud näitajad. Oma projektidel neid pole, nii et need jäävad välja.",
   "search_period": "Periood (valikuline)",
@@ -423,8 +425,8 @@
       }
     }
   ],
-  "search_prompt": "Vali vähemalt üks tehnoloogia või näitaja.",
-  "search_no_match": "Keegi ei vasta valikule. Proovi laiemat perioodi, vähem tehnoloogiaid või vähem näitajaid.",
+  "search_prompt": "Vali vähemalt üks tehnoloogia, roll või näitaja.",
+  "search_no_match": "Keegi ei vasta valikule. Proovi laiemat perioodi või vähem filtreid.",
   "search_searching": "Otsin…",
   "search_matches": [
     {

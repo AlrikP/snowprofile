@@ -14,7 +14,7 @@ beforeEach(() => {
   server.getRoleCatalogue.mockResolvedValue(testRoles)
 })
 
-function Picker({ initial = [] as string[] }) {
+function Picker({ initial = [] as string[], canAdd = true }) {
   const [value, setValue] = useState(initial)
   return (
     <QueryClientProvider client={new QueryClient()}>
@@ -25,6 +25,7 @@ function Picker({ initial = [] as string[] }) {
         catalogue={testRoles}
         value={value}
         onChange={setValue}
+        canAdd={canAdd}
       />
     </QueryClientProvider>
   )
@@ -104,5 +105,13 @@ describe('RolePicker', () => {
     await userEvent.type(screen.getByRole('combobox'), 'analüütik')
 
     expect(screen.queryByRole('option', { name: /Add a new role/ })).not.toBeInTheDocument()
+  })
+
+  it('offers nothing to add when adding is off', async () => {
+    render(<Picker canAdd={false} />)
+
+    await userEvent.type(screen.getByRole('combobox'), 'arhitekt')
+
+    expect(screen.queryByRole('option')).not.toBeInTheDocument()
   })
 })

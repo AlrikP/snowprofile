@@ -1,7 +1,7 @@
 # Search
 
-Admins find people by the technologies they used, the solution characteristics of their
-projects, and, optionally, when, and go from the results to a CV. Results show each
+Admins find people by the technologies they used, their roles, the solution
+characteristics of their projects, and, optionally, when, and go from the results to a CV. Results show each
 person's matching participations and own projects (`docs/product.md`, "Search filters").
 
 ## Requirements
@@ -9,7 +9,9 @@ person's matching participations and own projects (`docs/product.md`, "Search fi
 ### Requirement: Search by technology and solution characteristic
 
 An admin must be able to search by one or more technologies, one or more solution
-characteristics, or both. Each is optional, but a search must name at least one.
+characteristics, or both, and by roles ("Search by role"). Each is optional, but a search
+must name at least one technology, role, or characteristic. The technology and role
+pickers must offer only the catalogues' entries: search never adds to a catalogue.
 
 Technologies match any or all, as the admin chooses. With all, a person matches when their
 matching work together covers every chosen technology. A participation must match through
@@ -23,7 +25,7 @@ they must be left out while characteristics are chosen.
 #### Scenario: search.filter-required
 
 - **Given** the search page
-- **When** an admin searches with no technology and no characteristic
+- **When** an admin searches with no technology, role, or characteristic
 - **Then** the page asks for one, and the server refuses
 
 #### Scenario: search.any-technology
@@ -52,6 +54,12 @@ they must be left out while characteristics are chosen.
 - **When** an admin searches for Kotlin
 - **Then** the person is listed with the own project, marked as own
 
+#### Scenario: search.pickers-catalogue-only
+
+- **Given** the search page
+- **When** an admin types a technology or role name that matches no entry
+- **Then** the picker offers nothing to add
+
 #### Scenario: search.characteristics-all
 
 - **Given** one project with X-Road and containers, and another with X-Road only
@@ -76,6 +84,34 @@ they must be left out while characteristics are chosen.
 - **Given** a person whose own project used Kotlin
 - **When** an admin searches for Kotlin and X-Road
 - **Then** the own project isn't listed
+
+### Requirement: Search by role
+
+An admin must be able to search by one or more roles from the role catalogue. Work matches
+when it has one of the chosen roles, and the same participation or own project must match
+the chosen technologies and characteristics too. Results must mark the chosen roles. A role
+merged into another no longer narrows a search; its work is found under the role that
+stayed.
+
+#### Scenario: search.role
+
+- **Given** one person who was an architect on a project, and another who was only a
+  developer
+- **When** an admin searches for Architect
+- **Then** only the first is listed, with that project and the role marked
+
+#### Scenario: search.role-with-technology
+
+- **Given** a person who was an architect on a project without Kotlin, and a developer on
+  one with Kotlin
+- **When** an admin searches for Architect and Kotlin
+- **Then** the person isn't listed
+
+#### Scenario: search.role-own-projects-included
+
+- **Given** a person whose own project has the role Architect
+- **When** an admin searches for Architect
+- **Then** the person is listed with the own project, marked as own
 
 ### Requirement: Optional period
 

@@ -444,8 +444,10 @@
   "profile_confirmed_title": "Thanks! Your profile is confirmed.",
   "profile_confirmed_body": "Admins can see that your details are current.",
   "search_title": "Search",
-  "search_description": "Find people by technology and by the solution characteristics of their projects, and by period if you like.",
+  "search_description": "Find people by technology, by role, and by the solution characteristics of their projects, and by period if you like.",
   "search_technologies": "Technologies",
+  "search_roles": "Roles",
+  "search_roles_hint": "Work with any of the chosen roles matches.",
   "search_characteristics": "Solution characteristics",
   "search_characteristics_hint": "The project must have every one you choose. Own projects have none, so they are left out.",
   "search_period": "Period (optional)",
@@ -467,8 +469,8 @@
       }
     }
   ],
-  "search_prompt": "Choose at least one technology or characteristic.",
-  "search_no_match": "Nobody matches. Try a wider period, fewer technologies, or fewer characteristics.",
+  "search_prompt": "Choose at least one technology, role, or characteristic.",
+  "search_no_match": "Nobody matches. Try a wider period or fewer filters.",
   "search_searching": "Searching…",
   "search_matches": [
     {

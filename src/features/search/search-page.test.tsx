@@ -2,9 +2,11 @@ import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { type Criterion, criteriaQuery } from '#/lib/criteria'
+import { roleCatalogueQuery } from '#/lib/role-catalogue'
 import type { SearchFilters } from '#/lib/search-filters'
 import { technologyCatalogueQuery } from '#/lib/technology-catalogue'
 import type { SearchResult } from '#/server/search/search.functions'
+import { testRoles } from '#/test/role-catalogue'
 import { renderPage } from '#/test/router'
 import { testCatalogue } from '#/test/technology-catalogue'
 import { SearchPage } from './search-page'
@@ -13,6 +15,7 @@ import { searchQuery } from './search-query'
 const server = vi.hoisted(() => ({ searchPeople: vi.fn() }))
 vi.mock('#/server/search/search.functions', () => server)
 vi.mock('#/server/criteria/criteria.functions', () => ({ getCriteria: vi.fn() }))
+vi.mock('#/server/roles/roles.functions', () => ({ getRoleCatalogue: vi.fn(), addRole: vi.fn() }))
 vi.mock('#/server/technologies/technologies.functions', () => ({
   getTechnologyCatalogue: vi.fn(),
   addTechnology: vi.fn(),
@@ -38,7 +41,10 @@ const results: SearchResult[] = [
         employer: null,
         startDate: '2021-05',
         endDate: '2023-12',
-        roles: [{ et: 'Arendaja', en: 'Developer' }],
+        roles: [
+          { id: 'developer', name: { et: 'Arendaja', en: 'Developer' }, matched: false },
+          { id: 'analyst', name: { et: 'Analüütik', en: 'Analyst' }, matched: true },
+        ],
         technologies: [
           { id: 'react', name: 'React', matched: true },
           { id: 'angular', name: 'Angular', matched: false },
@@ -85,6 +91,7 @@ function show(filters: SearchFilters) {
     />,
     [
       [technologyCatalogueQuery('org').queryKey, testCatalogue],
+      [roleCatalogueQuery('org').queryKey, testRoles],
       [criteriaQuery('org').queryKey, checklist],
       [searchQuery('org', filters).queryKey, results],
     ],
@@ -92,11 +99,11 @@ function show(filters: SearchFilters) {
 }
 
 describe('SearchPage', () => {
-  it('search.filter-required: asks for a technology or a characteristic before searching', async () => {
+  it('search.filter-required: asks for a technology, role, or characteristic before searching', async () => {
     await show({})
 
     expect(
-      screen.getByText('Choose at least one technology or characteristic.'),
+      screen.getByText('Choose at least one technology, role, or characteristic.'),
     ).toBeInTheDocument()
     expect(server.searchPeople).not.toHaveBeenCalled()
   })
@@ -133,6 +140,7 @@ describe('SearchPage', () => {
       />,
       [
         [technologyCatalogueQuery('org').queryKey, testCatalogue],
+        [roleCatalogueQuery('org').queryKey, testRoles],
         [criteriaQuery('org').queryKey, checklist],
         [searchQuery('org', filters).queryKey, shown],
       ],
@@ -160,8 +168,34 @@ describe('SearchPage', () => {
       '/demo/projects/tax',
     )
     expect(erik.getAllByRole('listitem')[0]).toHaveTextContent(
-      'Maksu- ja Tolliamet · Developer · 05-2021 – 12-2023',
+      'Maksu- ja Tolliamet · Developer, Analyst · 05-2021 – 12-2023',
     )
+  })
+
+  it('search.role: picks roles, and marks the chosen ones on the matching work', async () => {
+    await show({ t: ['react'], r: ['analyst'] })
+
+    const roles = within(screen.getByRole('group', { name: 'Roles' }))
+    expect(roles.getByRole('list', { name: 'Roles' })).toHaveTextContent('Analyst')
+    await userEvent.type(roles.getByRole('combobox', { name: 'Add a role' }), 'arend')
+    await userEvent.click(roles.getByRole('option', { name: /^Developer/ }))
+    expect(onFiltersChange).toHaveBeenCalledWith({ t: ['react'], r: ['analyst', 'developer'] })
+
+    const erik = within(screen.getByRole('region', { name: 'Erik Employee' }))
+    expect(erik.getAllByRole('listitem')[0]).toHaveTextContent(
+      'Maksu- ja Tolliamet · Developer, Analyst · 05-2021 – 12-2023',
+    )
+    expect(erik.getByText('Analyst').closest('strong')).not.toBeNull()
+    expect(erik.getByText('Developer').closest('strong')).toBeNull()
+  })
+
+  it('search.pickers-catalogue-only: the pickers offer nothing to add to a catalogue', async () => {
+    await show({ t: ['react'] })
+
+    await userEvent.type(screen.getByRole('combobox', { name: /technology/i }), 'Svelte')
+    await userEvent.type(screen.getByRole('combobox', { name: 'Add a role' }), 'Arhitekt')
+
+    expect(screen.queryByRole('option')).not.toBeInTheDocument()
   })
 
   it('search.own-projects-included: marks own projects', async () => {
@@ -224,6 +258,7 @@ describe('SearchPage', () => {
       />,
       [
         [technologyCatalogueQuery('org').queryKey, testCatalogue],
+        [roleCatalogueQuery('org').queryKey, testRoles],
         [criteriaQuery('org').queryKey, checklist],
         [searchQuery('org', { t: ['angular'] }).queryKey, []],
       ],

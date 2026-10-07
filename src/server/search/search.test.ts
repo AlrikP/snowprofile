@@ -10,11 +10,14 @@ import {
   employeeProfile,
   member,
   ownProject,
+  ownProjectRole,
   ownProjectTechnology,
   participation,
+  participationRole,
   participationTechnology,
   project,
   projectCriterionAnswer,
+  projectRole,
   projectTechnology,
   technology,
   technologyCategory,
@@ -23,6 +26,7 @@ import {
 } from '#/db/schema'
 import { seedIds } from '#/db/seed-accounts'
 import { createTestDatabase } from '#/db/testing'
+import { mergeRole } from '../roles/roles.server'
 import { resolveScope, type Scope } from '../scope.server'
 import { rejection } from '../testing'
 import { SearchInput } from './search.schemas'
@@ -157,6 +161,7 @@ function find(input: Partial<SearchInput>) {
     {
       technologyIds: [t.kotlin],
       match: 'any',
+      roleIds: [],
       criterionIds: [],
       from: null,
       to: null,
@@ -364,10 +369,11 @@ describe('characteristics', () => {
     expect(await find({ technologyIds: [], criterionIds: [c.removed] })).toEqual([])
   })
 
-  test('search.filter-required: a search with no technology or characteristic is refused', () => {
+  test('search.filter-required: a search with no technology, role, or characteristic is refused', () => {
     const input = {
       technologyIds: [],
       match: 'any',
+      roleIds: [],
       criterionIds: [],
       from: null,
       to: null,
@@ -375,6 +381,103 @@ describe('characteristics', () => {
     }
     expect(v.safeParse(SearchInput, input).success).toBe(false)
     expect(v.safeParse(SearchInput, { ...input, criterionIds: [uuidv7()] }).success).toBe(true)
+    expect(v.safeParse(SearchInput, { ...input, roleIds: [uuidv7()] }).success).toBe(true)
+  })
+})
+
+describe('roles', () => {
+  // Roles only these tests use, so the seed's people never match.
+  const r = { architect: uuidv7(), developer: uuidv7(), duplicate: uuidv7() }
+
+  beforeAll(() =>
+    as(async () => {
+      for (const [name, id] of Object.entries(r)) {
+        await db.insert(projectRole).values({
+          id,
+          organizationId: org,
+          nameEt: `Test ${name}`,
+          nameEn: `Test ${name}`,
+          normalizedName: `test${name}`,
+        })
+      }
+    }),
+  )
+
+  async function withRoles(kind: 'participation' | 'own', id: string, roleIds: string[]) {
+    await as(async () => {
+      for (const roleId of roleIds) {
+        if (kind === 'participation') {
+          await db
+            .insert(participationRole)
+            .values({ participationId: id, roleId, organizationId: org })
+        } else {
+          await db.insert(ownProjectRole).values({ ownProjectId: id, roleId, organizationId: org })
+        }
+      }
+    })
+  }
+
+  function ids(results: Awaited<ReturnType<typeof find>>) {
+    return results.map((each) => each.id)
+  }
+
+  test('search.role: anyone with one of the roles matches, with the role marked', async () => {
+    const architect = await person('Role Architect')
+    const developer = await person('Role Developer')
+    const pa = await worked(architect, [])
+    await withRoles('participation', pa, [r.architect, r.developer])
+    await withRoles('participation', await worked(developer, []), [r.developer])
+
+    const results = await find({ technologyIds: [], roleIds: [r.architect] })
+
+    expect(ids(results)).toContain(architect)
+    expect(ids(results)).not.toContain(developer)
+    expect(results.find((each) => each.id === architect)?.items).toMatchObject([
+      {
+        id: pa,
+        roles: expect.arrayContaining([
+          { id: r.architect, name: { et: 'Test architect', en: 'Test architect' }, matched: true },
+          { id: r.developer, name: { et: 'Test developer', en: 'Test developer' }, matched: false },
+        ]),
+      },
+    ])
+  })
+
+  test('search.role-with-technology: the role and the technology must be on the same work', async () => {
+    const someone = await person('Role Split')
+    await withRoles('participation', await worked(someone, []), [r.architect])
+    await withRoles('participation', await worked(someone, [t.kotlin]), [r.developer])
+
+    expect(ids(await find({ technologyIds: [t.kotlin], roleIds: [r.architect] }))).not.toContain(
+      someone,
+    )
+    expect(ids(await find({ technologyIds: [t.kotlin], roleIds: [r.developer] }))).toContain(
+      someone,
+    )
+  })
+
+  test('search.role-own-projects-included: an own project with the role matches, marked as own', async () => {
+    const someone = await person('Role Own')
+    const own = await ownWork(someone, [])
+    await withRoles('own', own, [r.architect])
+
+    const results = await find({ technologyIds: [], roleIds: [r.architect] })
+    expect(results.find((each) => each.id === someone)?.items).toMatchObject([
+      { id: own, kind: 'own', roles: [{ id: r.architect, matched: true }] },
+    ])
+  })
+
+  test('a search for the role that stays after a merge finds the merged role’s work', async () => {
+    const someone = await person('Role Merged')
+    await withRoles('participation', await worked(someone, []), [r.duplicate])
+
+    await withActor(seedIds.users.admin, () =>
+      mergeRole(db, admin, { roleId: r.duplicate, intoId: r.architect }),
+    )
+
+    expect(ids(await find({ technologyIds: [], roleIds: [r.architect] }))).toContain(someone)
+    // The merged role is gone, so it no longer narrows anything.
+    expect(await find({ technologyIds: [], roleIds: [r.duplicate] })).toEqual([])
   })
 })
 
@@ -402,6 +505,7 @@ test('search.employee-refused: an employee can’t search', async () => {
       search(db, employee, {
         technologyIds: [t.kotlin],
         match: 'any',
+        roleIds: [],
         criterionIds: [],
         from: null,
         to: null,

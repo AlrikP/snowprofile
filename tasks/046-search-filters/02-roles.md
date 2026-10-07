@@ -1,6 +1,6 @@
 # 046.2: Search by role
 
-Status: todo
+Status: done
 Depends on: task 046.1 (optional technologies and the extended search input)
 
 The search page lets an admin pick one or more roles from the role catalogue
@@ -10,16 +10,16 @@ also match the chosen technologies and characteristics (task 046, decisions 3 an
 
 ## Acceptance criteria
 
-- [ ] The search form offers the live roles in the interface language, with the same
+- [x] The search form offers the live roles in the interface language, with the same
       picker style as technologies, and an admin can pick one or more.
-- [ ] The chosen roles are in the page's search params.
-- [ ] The server matches on the work's own roles, for participations and own projects.
+- [x] The chosen roles are in the page's search params.
+- [x] The server matches on the work's own roles, for participations and own projects.
       Merging a role moves its links (`role-catalogue.merge-moves-links`), so a test checks
       that a search for the surviving role finds work that had the merged one. Queries
       stay scoped by organization, with a case in `src/server/tenancy.test.ts` for any new
       repository function.
-- [ ] Each result marks the chosen roles on its matching work.
-- [ ] Labels and messages are in Estonian and English.
+- [x] Each result marks the chosen roles on its matching work.
+- [x] Labels and messages are in Estonian and English.
 
 ## Spec changes
 
@@ -35,3 +35,19 @@ also match the chosen technologies and characteristics (task 046, decisions 3 an
 - Added: scenario `search.role-own-projects-included`: given a person whose own project
   has the role Architect, when an admin searches for Architect, then the person is listed
   with the own project, marked as own.
+
+## Outcome
+
+- Both matching queries now start from the work itself and add an `EXISTS` per filter, so
+  technologies, roles, and characteristics each narrow only when chosen.
+  `matchingOwnProjects` takes the same filter object as `matchingParticipations`.
+- The server keeps only live chosen roles (`findLiveRoles` from the participations
+  repository). Merging moves a role's links, so its work shows under the role that stayed,
+  and the merged ID stops narrowing.
+- Result roles now carry their ID and a `matched` flag. The page shows matched roles in
+  bold within the item's details line.
+- The role picker is the same one the participation form uses. Both pickers take
+  `canAdd`, which the search page turns off, so search never adds to a catalogue
+  (`search.pickers-catalogue-only`); the forms keep offering to add.
+- "Make CV" carries `r` in its link, but the CV ignores it until task 046.3.
+- Checked with server, tenancy, and component tests; not in a browser.

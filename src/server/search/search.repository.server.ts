@@ -1,5 +1,5 @@
 // Database access for search: participations and own projects that match the chosen
-// technologies and characteristics, with what the results show about them. Every query filters by the
+// technologies, roles, and characteristics, with what the results show about them. Every query filters by the
 // scope's organization and leaves out deleted rows.
 import { and, asc, eq, exists, inArray, sql } from 'drizzle-orm'
 import type { Executor } from '#/db'
@@ -42,12 +42,12 @@ export async function liveCriteria(db: Executor, scope: Scope, ids: string[]) {
 }
 
 // Live participations on live projects that list one of the technologies themselves (the
-// project's own list doesn't count), on a project that answered yes to every
-// characteristic. An empty list of either doesn't narrow.
+// project's own list doesn't count), have one of the roles, and are on a project that
+// answered yes to every characteristic. An empty list doesn't narrow.
 export async function matchingParticipations(
   db: Executor,
   scope: Scope,
-  filter: { technologyIds: string[]; criterionIds: string[] },
+  filter: { technologyIds: string[]; roleIds: string[]; criterionIds: string[] },
 ) {
   return db
     .selectDistinct({
@@ -80,6 +80,19 @@ export async function matchingParticipations(
                 ),
             )
           : undefined,
+        filter.roleIds.length > 0
+          ? exists(
+              db
+                .select({ one: sql`1` })
+                .from(participationRole)
+                .where(
+                  and(
+                    eq(participationRole.participationId, participation.id),
+                    inArray(participationRole.roleId, filter.roleIds),
+                  ),
+                ),
+            )
+          : undefined,
         ...filter.criterionIds.map((criterionId) =>
           exists(
             db
@@ -98,10 +111,15 @@ export async function matchingParticipations(
     )
 }
 
-// Live own projects that list one of the technologies.
-export async function matchingOwnProjects(db: Executor, scope: Scope, technologyIds: string[]) {
+// Live own projects that list one of the technologies and have one of the roles. An empty
+// list doesn't narrow.
+export async function matchingOwnProjects(
+  db: Executor,
+  scope: Scope,
+  filter: { technologyIds: string[]; roleIds: string[] },
+) {
   return db
-    .selectDistinct({
+    .select({
       id: ownProject.id,
       profileId: ownProject.profileId,
       name: ownProject.name,
@@ -110,13 +128,37 @@ export async function matchingOwnProjects(db: Executor, scope: Scope, technology
       startDate: ownProject.startDate,
       endDate: ownProject.endDate,
     })
-    .from(ownProjectTechnology)
-    .innerJoin(ownProject, eq(ownProject.id, ownProjectTechnology.ownProjectId))
+    .from(ownProject)
     .where(
       and(
         eq(ownProject.organizationId, scope.organizationId),
         eq(ownProject.sysDeleted, sql`0`),
-        inArray(ownProjectTechnology.technologyId, technologyIds),
+        filter.technologyIds.length > 0
+          ? exists(
+              db
+                .select({ one: sql`1` })
+                .from(ownProjectTechnology)
+                .where(
+                  and(
+                    eq(ownProjectTechnology.ownProjectId, ownProject.id),
+                    inArray(ownProjectTechnology.technologyId, filter.technologyIds),
+                  ),
+                ),
+            )
+          : undefined,
+        filter.roleIds.length > 0
+          ? exists(
+              db
+                .select({ one: sql`1` })
+                .from(ownProjectRole)
+                .where(
+                  and(
+                    eq(ownProjectRole.ownProjectId, ownProject.id),
+                    inArray(ownProjectRole.roleId, filter.roleIds),
+                  ),
+                ),
+            )
+          : undefined,
       ),
     )
 }
@@ -163,6 +205,7 @@ export async function participationRoles(db: Executor, scope: Scope, ids: string
   return db
     .select({
       itemId: participationRole.participationId,
+      id: projectRole.id,
       nameEt: projectRole.nameEt,
       nameEn: projectRole.nameEn,
     })
@@ -182,6 +225,7 @@ export async function ownProjectRoles(db: Executor, scope: Scope, ids: string[])
   return db
     .select({
       itemId: ownProjectRole.ownProjectId,
+      id: projectRole.id,
       nameEt: projectRole.nameEt,
       nameEn: projectRole.nameEn,
     })

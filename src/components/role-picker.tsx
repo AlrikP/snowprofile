@@ -14,7 +14,8 @@ type Option = { kind: 'pick'; id: string; name: string } | { kind: 'add' }
 
 // Picks roles from the catalogue: a combobox that searches both names, with the chosen ones
 // as removable badges. When no entry has the typed name in either language, it offers to
-// add one, through the same dialog as the roles page, and picks the new entry.
+// add one, through the same dialog as the roles page, and picks the new entry, unless
+// canAdd is off, as where it only filters.
 export function RolePicker({
   id,
   label,
@@ -22,6 +23,7 @@ export function RolePicker({
   catalogue,
   value,
   onChange,
+  canAdd = true,
 }: {
   id: string
   label: string
@@ -29,6 +31,7 @@ export function RolePicker({
   catalogue: RoleCatalogue
   value: string[]
   onChange: (ids: string[]) => void
+  canAdd?: boolean
 }) {
   const [query, setQuery] = useState('')
   const [active, setActive] = useState(0)
@@ -46,7 +49,7 @@ export function RolePicker({
   const exact = catalogue.some((each) =>
     [each.nameEt, each.nameEn].some((name) => name && normalizeName(name) === needle),
   )
-  if (needle && !exact) options.push({ kind: 'add' })
+  if (canAdd && needle && !exact) options.push({ kind: 'add' })
   const expanded = options.length > 0
 
   function choose(option: Option) {
@@ -151,18 +154,20 @@ export function RolePicker({
           </div>
         )}
       </div>
-      <RoleDialog
-        open={adding !== null}
-        onClose={() => setAdding(null)}
-        organizationId={organizationId}
-        catalogue={catalogue}
-        role={null}
-        // The typed name fills the field of the UI language.
-        initialName={
-          getLocale() === 'en' ? { et: '', en: adding ?? '' } : { et: adding ?? '', en: '' }
-        }
-        onSaved={(newId) => onChange([...value, newId])}
-      />
+      {canAdd && (
+        <RoleDialog
+          open={adding !== null}
+          onClose={() => setAdding(null)}
+          organizationId={organizationId}
+          catalogue={catalogue}
+          role={null}
+          // The typed name fills the field of the UI language.
+          initialName={
+            getLocale() === 'en' ? { et: '', en: adding ?? '' } : { et: adding ?? '', en: '' }
+          }
+          onSaved={(newId) => onChange([...value, newId])}
+        />
+      )}
     </div>
   )
 }

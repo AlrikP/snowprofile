@@ -6,6 +6,7 @@ export function searchQuery(organizationId: string, filters: SearchFilters) {
   const input = {
     technologyIds: filters.t ?? [],
     match: filters.match ?? 'any',
+    roleIds: filters.r ?? [],
     criterionIds: filters.c ?? [],
     from: filters.from ?? null,
     to: filters.to ?? null,

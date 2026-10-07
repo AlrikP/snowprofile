@@ -1,10 +1,11 @@
 // Rules for search (docs/product.md, "Search filters"): admins find people by the
-// technologies they used, the solution characteristics of their projects, and, optionally,
-// when. A participation matches through its own technologies, not its project's, because
+// technologies they used, their roles, the solution characteristics of their projects, and,
+// optionally, when. All of them must match on the same piece of work. A participation matches through its own technologies, not its project's, because
 // those are what the person did. Own projects count too, except while characteristics are
 // chosen: they have no answers.
 import type { Database } from '#/db'
 import { overlaps } from '#/lib/period'
+import { findLiveRoles } from '../profiles/participations.repository.server'
 import { requirePermission, type Scope } from '../scope.server'
 import * as repository from './search.repository.server'
 import type { SearchInput } from './search.schemas'
@@ -32,16 +33,25 @@ export async function search(
 ) {
   requirePermission(scope, { profile: ['readAll'] }, 'profile_forbidden')
   const chosen = new Set(input.technologyIds)
-  // A characteristic removed since the search was made no longer narrows it.
-  const criteria = await repository.liveCriteria(db, scope, input.criterionIds)
-  if (input.technologyIds.length === 0 && criteria.length === 0) return []
+  // A role or characteristic removed since the search was made no longer narrows it. A
+  // merged role's work has moved to the role it was merged into.
+  const [criteria, roles] = await Promise.all([
+    repository.liveCriteria(db, scope, input.criterionIds),
+    findLiveRoles(db, scope, input.roleIds),
+  ])
   const criterionIds = criteria.map((each) => each.id)
+  const roleIds = roles.map((each) => each.id)
+  if (input.technologyIds.length + roleIds.length + criterionIds.length === 0) return []
+  const chosenRoles = new Set(roleIds)
   const [participations, ownProjects] = await Promise.all([
     repository.matchingParticipations(db, scope, {
       technologyIds: input.technologyIds,
+      roleIds,
       criterionIds,
     }),
-    criterionIds.length > 0 ? [] : repository.matchingOwnProjects(db, scope, input.technologyIds),
+    criterionIds.length > 0
+      ? []
+      : repository.matchingOwnProjects(db, scope, { technologyIds: input.technologyIds, roleIds }),
   ])
   const criteriaShown = criteria.map(({ id, nameEt, nameEn }) => ({
     id,
@@ -96,7 +106,11 @@ export async function search(
       employer: source.kind === 'own' ? source.employer : null,
       startDate: item.startDate,
       endDate: item.endDate,
-      roles: (rolesOf.get(item.id) ?? []).map(({ nameEt, nameEn }) => ({ et: nameEt, en: nameEn })),
+      roles: (rolesOf.get(item.id) ?? []).map(({ id, nameEt, nameEn }) => ({
+        id,
+        name: { et: nameEt, en: nameEn },
+        matched: chosenRoles.has(id),
+      })),
       technologies: (technologiesOf.get(item.id) ?? []).map((each) => ({
         ...each,
         matched: chosen.has(each.id),

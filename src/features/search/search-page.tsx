@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { BilingualText } from '#/components/bilingual-text'
 import { PeriodFilter } from '#/components/period-filter'
 import { RadioToggle } from '#/components/radio-toggle'
+import { RolePicker } from '#/components/role-picker'
 import { TechnologyPicker } from '#/components/technology-picker'
 import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
@@ -12,6 +13,7 @@ import { Card, CardContent, CardHeader } from '#/components/ui/card'
 import { type Criterion, criteriaQuery, criterionLabel } from '#/lib/criteria'
 import { formatDate } from '#/lib/date-time'
 import { formatPeriod } from '#/lib/period'
+import { roleCatalogueQuery } from '#/lib/role-catalogue'
 import type { SearchFilters } from '#/lib/search-filters'
 import { technologyCatalogueQuery } from '#/lib/technology-catalogue'
 import { m } from '#/paraglide/messages.js'
@@ -53,9 +55,15 @@ function Item({ organization, item }: { organization: string; item: SearchItem }
               {index > 0 && ' · '}
               {Array.isArray(part)
                 ? part.map((role, roleIndex) => (
-                    <span key={roleIndex}>
+                    <span key={role.id}>
                       {roleIndex > 0 && ', '}
-                      <BilingualText value={role} />
+                      {role.matched ? (
+                        <strong className="text-foreground font-medium">
+                          <BilingualText value={role.name} />
+                        </strong>
+                      ) : (
+                        <BilingualText value={role.name} />
+                      )}
                     </span>
                   ))
                 : part}
@@ -234,7 +242,8 @@ function CriteriaFilter({
   )
 }
 
-// People by the technologies they used, their projects' solution characteristics, and when, for admins (prototypes/search.html). The
+// People by the technologies they used, their roles, their projects' solution
+// characteristics, and when, for admins (prototypes/search.html). The
 // filters live in the URL, so a search can be shared and reloaded.
 export function SearchPage({
   organizationId,
@@ -249,8 +258,11 @@ export function SearchPage({
   onFiltersChange: (filters: SearchFilters) => void
 }) {
   const { data: catalogue } = useSuspenseQuery(technologyCatalogueQuery(organizationId))
+  const { data: roles } = useSuspenseQuery(roleCatalogueQuery(organizationId))
   const { data: criteria } = useSuspenseQuery(criteriaQuery(organizationId))
   const technologies = filters.t ?? []
+  // Roles removed or merged since the link was made are dropped, as the server ignores them.
+  const chosenRoles = (filters.r ?? []).filter((id) => roles.some((role) => role.id === id))
   // Characteristics removed since the link was made are dropped, as the server ignores them.
   const chosenCriteria = (filters.c ?? []).filter((id) =>
     criteria.some((criterion) => criterion.id === id),
@@ -278,6 +290,7 @@ export function SearchPage({
               catalogue={catalogue}
               value={technologies}
               onChange={(t) => set({ t: t.length > 0 ? t : undefined })}
+              canAdd={false}
             />
             <div className="flex flex-wrap items-center gap-3 text-sm">
               <span id="search-match">{m.search_match_label()}</span>
@@ -303,6 +316,21 @@ export function SearchPage({
               {m.people_show_leavers()}
             </label>
           </fieldset>
+          <fieldset className="flex flex-col gap-2" aria-describedby="search-roles-hint">
+            <legend className="mb-2 text-sm font-medium">{m.search_roles()}</legend>
+            <RolePicker
+              id="search-roles"
+              label={m.search_roles()}
+              organizationId={organizationId}
+              catalogue={roles}
+              value={chosenRoles}
+              onChange={(r) => set({ r: r.length > 0 ? r : undefined })}
+              canAdd={false}
+            />
+            <p id="search-roles-hint" className="text-muted-foreground text-sm">
+              {m.search_roles_hint()}
+            </p>
+          </fieldset>
           {criteria.length > 0 && (
             <CriteriaFilter
               criteria={criteria}
@@ -312,7 +340,7 @@ export function SearchPage({
           )}
         </CardContent>
       </Card>
-      {technologies.length === 0 && chosenCriteria.length === 0 ? (
+      {technologies.length + chosenRoles.length + chosenCriteria.length === 0 ? (
         <p className="text-muted-foreground">{m.search_prompt()}</p>
       ) : (
         <Results organizationId={organizationId} organization={organization} filters={filters} />

@@ -1176,8 +1176,9 @@ const cases: Record<string, () => Promise<void>> = {
   },
   'search.matchingParticipations': async () => {
     for (const filter of [
-      { technologyIds: [b.technologyId], criterionIds: [] },
-      { technologyIds: [], criterionIds: [b.criterionId] },
+      { technologyIds: [b.technologyId], roleIds: [], criterionIds: [] },
+      { technologyIds: [], roleIds: [b.roleId], criterionIds: [] },
+      { technologyIds: [], roleIds: [], criterionIds: [b.criterionId] },
     ]) {
       expect(await search.matchingParticipations(db, scopeA, filter)).toEqual([])
     }
@@ -1186,8 +1187,12 @@ const cases: Record<string, () => Promise<void>> = {
     expect(await search.liveCriteria(db, scopeA, [b.criterionId])).toEqual([])
   },
   'search.matchingOwnProjects': async () => {
-    const rows = await search.matchingOwnProjects(db, scopeA, [b.technologyId])
-    expect(rows).toEqual([])
+    for (const filter of [
+      { technologyIds: [b.technologyId], roleIds: [] },
+      { technologyIds: [], roleIds: [b.roleId] },
+    ]) {
+      expect(await search.matchingOwnProjects(db, scopeA, filter)).toEqual([])
+    }
   },
   'search.participationTechnologies': async () => {
     expect(await search.participationTechnologies(db, scopeA, [b.participationId])).toEqual([])

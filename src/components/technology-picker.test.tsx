@@ -11,7 +11,7 @@ vi.mock('#/server/technologies/technologies.functions', () => ({
   addTechnology: vi.fn(),
 }))
 
-function Picker({ initial = [] as string[] }) {
+function Picker({ initial = [] as string[], canAdd = true }) {
   const [value, setValue] = useState(initial)
   return (
     <QueryClientProvider client={new QueryClient()}>
@@ -22,6 +22,7 @@ function Picker({ initial = [] as string[] }) {
         catalogue={testCatalogue}
         value={value}
         onChange={setValue}
+        canAdd={canAdd}
       />
     </QueryClientProvider>
   )
@@ -62,5 +63,18 @@ describe('TechnologyPicker', () => {
 
     expect(screen.getByRole('dialog', { name: 'Add technology' })).toBeInTheDocument()
     expect(screen.getByLabelText('Name')).toHaveValue('Svelte')
+  })
+
+  it('offers nothing to add when adding is off', async () => {
+    render(<Picker canAdd={false} />)
+
+    await userEvent.type(screen.getByRole('combobox'), 'postgre')
+    expect(screen.getAllByRole('option').map((each) => each.textContent)).toEqual([
+      'PostgreSQLData',
+      'PostgresData',
+    ])
+    await userEvent.clear(screen.getByRole('combobox'))
+    await userEvent.type(screen.getByRole('combobox'), 'Svelte')
+    expect(screen.queryByRole('option')).not.toBeInTheDocument()
   })
 })
