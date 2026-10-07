@@ -34,23 +34,6 @@ export function invitationLink(invitationId: string) {
   return `${window.location.origin}/invite/${invitationId}`
 }
 
-function CopyButton({ text }: { text: string }) {
-  const [copied, setCopied] = useState(false)
-  return (
-    <Button
-      type="button"
-      variant="outline"
-      onClick={async () => {
-        await navigator.clipboard.writeText(text)
-        setCopied(true)
-      }}
-    >
-      <CopyIcon />
-      {copied ? m.action_copied() : m.action_copy()}
-    </Button>
-  )
-}
-
 function LinkCreated({
   email,
   invitationId,
@@ -61,6 +44,17 @@ function LinkCreated({
   expiresAt: Date
 }) {
   const link = invitationLink(invitationId)
+  const [copy, setCopy] = useState<'idle' | 'copied' | 'failed'>('idle')
+
+  async function copyLink() {
+    try {
+      await navigator.clipboard.writeText(link)
+      setCopy('copied')
+    } catch {
+      setCopy('failed')
+    }
+  }
+
   return (
     <div className="grid gap-4">
       <DialogHeader>
@@ -76,8 +70,16 @@ function LinkCreated({
             value={link}
             onFocus={(event) => event.target.select()}
           />
-          <CopyButton text={link} />
+          <Button type="button" variant="outline" onClick={() => void copyLink()}>
+            <CopyIcon />
+            {copy === 'copied' ? m.action_copied() : m.action_copy()}
+          </Button>
         </div>
+        {copy === 'failed' && (
+          <p role="alert" className="text-destructive text-sm">
+            {m.invite_copy_failed()}
+          </p>
+        )}
         <p className="text-muted-foreground text-sm">
           {m.invite_expires({ date: formatDate(expiresAt.toISOString().slice(0, 10)) })}
         </p>
@@ -132,7 +134,7 @@ function InviteForm({ organizationId }: { organizationId: string }) {
           id="invite-email"
           type="email"
           autoComplete="off"
-          placeholder="nimi@example.com"
+          placeholder={m.invite_email_placeholder()}
           value={email}
           onChange={(event) => setEmail(event.target.value)}
           aria-invalid={(submitted && !valid) || undefined}

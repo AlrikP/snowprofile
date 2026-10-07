@@ -38,7 +38,7 @@ function PeriodField({
       <Input
         id={id}
         inputMode="numeric"
-        placeholder="MM-YYYY"
+        placeholder={m.period_filter_placeholder()}
         value={text}
         aria-invalid={invalid || undefined}
         aria-describedby={invalid ? `${id}-error` : hintId}

@@ -142,6 +142,25 @@ describe('MembersPage', () => {
       expect(screen.getByRole('dialog')).toHaveTextContent('Expires: 13 Oct 2026')
     })
 
+    it('says when the browser refuses to copy the link', async () => {
+      const writeText = vi.fn().mockRejectedValue(new DOMException('Denied', 'NotAllowedError'))
+      Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true })
+      show()
+
+      await userEvent.click(screen.getByRole('button', { name: 'Invite member' }))
+      const form = within(screen.getByRole('dialog'))
+      await userEvent.type(form.getByLabelText('Email'), 'jaan@example.com')
+      await userEvent.click(form.getByRole('button', { name: 'Create invitation link' }))
+      await userEvent.click(
+        within(screen.getByRole('dialog')).getByRole('button', { name: 'Copy' }),
+      )
+
+      expect(writeText).toHaveBeenCalled()
+      expect(screen.getByRole('alert')).toHaveTextContent(
+        'Couldn’t copy. Select the link and copy it instead.',
+      )
+    })
+
     it('asks for an email address', async () => {
       show()
 
