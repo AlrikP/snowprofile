@@ -1,6 +1,6 @@
 # 038: CV document
 
-Status: in-progress
+Status: done
 Depends on: task 036 (the CV read)
 
 A DOCX generated on request from one minimal built-in template per language. No stored
@@ -18,7 +18,7 @@ Builds on: `docs/product.md` ("CV document"); `prototypes/cv.html` ("Download DO
       one document with shared projects listed once.
 - [x] The file name names the person or the team, and the date.
 - [x] A server route serves it behind the same `cv: ['generate']` check as the page.
-- [ ] A test opens the generated file and checks its text; a manual check opens it in
+- [x] A test opens the generated file and checks its text; a manual check opens it in
       Word and Google Docs.
 
 ## Spec changes
@@ -49,3 +49,5 @@ Builds on: `docs/product.md` ("CV document"); `prototypes/cv.html` ("Download DO
   rendered in macOS Quick Look; the first render showed the Size column too narrow,
   which set the widths and table size above. `test:e2e` downloads a DOCX through the
   production build.
+- Manual check, 2026-10-07: a downloaded DOCX opened without problems in Word and in
+  Google Docs, which showed the expected table much as Word does.
