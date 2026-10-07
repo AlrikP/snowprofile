@@ -53,7 +53,14 @@ names, and use it at once.
 ### Requirement: Periods
 
 A participation's start and end must each be a day, a month, or a year. The end must be
-empty while the participation is ongoing, and an end before the start must be refused.
+empty while the participation is ongoing, and an end before the start must be refused. The
+form must show the chosen project's period, so the member can see when the project ran.
+
+#### Scenario: project-participation.project-period-shown
+
+- **Given** a project running from 03-2024 to 06-2025
+- **When** a member picks it in the participation form
+- **Then** the form shows the project's period
 
 #### Scenario: project-participation.ongoing-clears-end
 

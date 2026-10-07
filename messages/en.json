@@ -308,6 +308,7 @@
   "participation_project": "Project",
   "participation_project_choose": "Choose a project",
   "participation_project_required": "Choose the project.",
+  "participation_project_period": "Project period: {period}",
   "participation_roles": "Roles",
   "participation_roles_required": "Add at least one role.",
   "participation_hours": "Your hours",

@@ -22,7 +22,7 @@ import { NativeSelect, NativeSelectOption } from '#/components/ui/native-select'
 import { approximateNumberInputValue, parseApproximateNumber } from '#/lib/approximate-number'
 import { bilingualInputValue, parseBilingual } from '#/lib/bilingual'
 import { errorMessage } from '#/lib/errors'
-import { parsePeriodInput, periodInputValue } from '#/lib/period'
+import { formatPeriod, parsePeriodInput, periodInputValue } from '#/lib/period'
 import { projectsKey, projectsQuery } from '#/lib/project-list'
 import { roleCatalogueQuery } from '#/lib/role-catalogue'
 import { technologyCatalogueQuery } from '#/lib/technology-catalogue'
@@ -151,8 +151,8 @@ function ParticipationForm({ organizationId, participation, onDone }: FormProps)
 
   // The chosen project's technologies the person's list lacks, offered one click each.
   // Computed when shown; nothing records them.
-  const projectTechnologies =
-    projects.find((project) => project.id === values.projectId)?.technologies ?? []
+  const chosenProject = projects.find((project) => project.id === values.projectId)
+  const projectTechnologies = chosenProject?.technologies ?? []
   const suggestions = projectTechnologies.filter(
     (technology) => !values.technologyIds.includes(technology.id),
   )
@@ -200,6 +200,7 @@ function ParticipationForm({ organizationId, participation, onDone }: FormProps)
           value={values.projectId}
           onChange={(event) => chooseProject(event.target.value)}
           aria-invalid={(submitted && !values.projectId) || undefined}
+          aria-describedby={chosenProject ? 'participation-project-period' : undefined}
         >
           <NativeSelectOption value="">{m.participation_project_choose()}</NativeSelectOption>
           {projects.map((project) => (
@@ -208,6 +209,13 @@ function ParticipationForm({ organizationId, participation, onDone }: FormProps)
             </NativeSelectOption>
           ))}
         </NativeSelect>
+        {chosenProject && (
+          <p id="participation-project-period" className="text-muted-foreground text-sm">
+            {m.participation_project_period({
+              period: formatPeriod(chosenProject.startDate, chosenProject.endDate),
+            })}
+          </p>
+        )}
         {submitted && !values.projectId && (
           <p className="text-destructive text-sm">{m.participation_project_required()}</p>
         )}

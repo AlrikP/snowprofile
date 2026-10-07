@@ -41,13 +41,13 @@ function project(
   name: string,
   customerName: string | null,
   technologies: ProjectListItem['technologies'] = [],
+  period: Pick<ProjectListItem, 'startDate' | 'endDate'> = { startDate: '2024-03', endDate: null },
 ): ProjectListItem {
   return {
     id,
     name,
     customerName,
-    startDate: '2024-03',
-    endDate: null,
+    ...period,
     descriptionEt: null,
     descriptionEn: null,
     people: 3,
@@ -61,10 +61,16 @@ const projects = [
     { id: 'react', name: 'React' },
     { id: 'postgresql', name: 'PostgreSQL' },
   ]),
-  project('tax', 'e-MTA deklaratsioonid', null, [
-    { id: 'angular', name: 'Angular' },
-    { id: 'postgres', name: 'Postgres' },
-  ]),
+  project(
+    'tax',
+    'e-MTA deklaratsioonid',
+    null,
+    [
+      { id: 'angular', name: 'Angular' },
+      { id: 'postgres', name: 'Postgres' },
+    ],
+    { startDate: '2021-03', endDate: '2025-06' },
+  ),
 ]
 
 const participations: Participation[] = [
@@ -350,6 +356,34 @@ describe('ProfilePage', () => {
         tasks: { et: null, en: 'Declaration forms.' },
         technologyIds: ['angular', 'postgres'],
       })
+    })
+
+    it('project-participation.project-period-shown: shows the chosen project’s period', async () => {
+      await show()
+
+      await userEvent.click(
+        participationsSection().getByRole('button', { name: 'Add participation' }),
+      )
+      const dialog = within(screen.getByRole('dialog'))
+      expect(dialog.queryByText(/^Project period/)).not.toBeInTheDocument()
+      await userEvent.selectOptions(dialog.getByLabelText('Project'), 'tax')
+      expect(dialog.getByLabelText('Project')).toHaveAccessibleDescription(
+        'Project period: 03-2021 – 06-2025',
+      )
+      await userEvent.selectOptions(dialog.getByLabelText('Project'), 'portal')
+      expect(dialog.getByLabelText('Project')).toHaveAccessibleDescription(
+        'Project period: 03-2024 – ongoing',
+      )
+    })
+
+    it('shows the project’s period when editing a participation', async () => {
+      await show()
+
+      await userEvent.click(
+        participationsSection().getByRole('button', { name: 'Edit Kodanikuportaali uuendus' }),
+      )
+      const dialog = within(screen.getByRole('dialog'))
+      expect(dialog.getByText('Project period: 03-2024 – ongoing')).toBeInTheDocument()
     })
 
     it('asks for a project and a role', async () => {

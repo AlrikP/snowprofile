@@ -264,6 +264,7 @@
   "participation_project": "Projekt",
   "participation_project_choose": "Vali projekt",
   "participation_project_required": "Vali projekt.",
+  "participation_project_period": "Projekti periood: {period}",
   "participation_roles": "Rollid",
   "participation_roles_required": "Lisa vähemalt üks roll.",
   "participation_hours": "Sinu töötunnid",
