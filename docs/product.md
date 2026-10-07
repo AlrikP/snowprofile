@@ -43,8 +43,8 @@ More roles come later; the role model must allow adding them.
 | Project participation     | Employee on a project: start and end month (or ongoing), one or more roles from the role catalogue, approximate hours, tasks (ET/EN), technologies they used (a subset of or addition to the project's)                                                                                                                                                     |
 | Own projects              | An employee adds a project that appears only on their own CV (from an earlier employer, or several engagements merged into one); same fields as an org project                                                                                                                                                                                              |
 | Profile update requests   | An admin requests an update from an employee; the employee sees it on sign-in and confirms the profile is current. Admins see each profile's last confirmation and open requests                                                                                                                                                                            |
-| Search                    | Filter people by technology and optionally a time period; results show the matching projects and participations                                                                                                                                                                                                                                             |
-| CV selection              | Pick one person (personal CV) or several (team CV), pick the language (ET/EN), and choose which projects to include (all by default, or filtered by technology or period)                                                                                                                                                                                   |
+| Search                    | Filter people by technology, role, solution characteristic, and optionally a time period; results show the matching projects and participations                                                                                                                                                                                                             |
+| CV selection              | Pick one person (personal CV) or several (team CV), pick the language (ET/EN), and choose which projects to include (all by default, or filtered by technology, role, solution characteristic, or period)                                                                                                                                                   |
 | CV view                   | The selection shown on screen as a project and technology table, built so it pastes cleanly into Word or Google Docs with its table structure kept                                                                                                                                                                                                          |
 | CV document               | DOCX from one minimal built-in template per language: people, their projects, roles, periods, and technologies. A team CV is one document, with shared projects listed once. No per-organization or per-tender templates                                                                                                                                    |
 | Bilingual content         | Text fields hold an Estonian and an English version; the CV uses the chosen language and flags missing translations before generating                                                                                                                                                                                                                       |
@@ -146,6 +146,22 @@ the project's dates.
 - **The project's period changes:** an admin's change is accepted even when it leaves
   participations outside the new period. They stay as they are until their owner edits
   them, and the rule then applies.
+
+## Search filters
+
+Admins search for people by technologies, roles, and solution characteristics, each
+optional, and optionally a period. A search must name at least one technology, role, or
+characteristic.
+
+- **Technologies:** any or all, as the admin chooses. With all, a person matches when their
+  matching work together covers every chosen technology.
+- **Roles:** work matches when it has one of the chosen roles.
+- **Characteristics:** work matches when its project answered yes to every chosen
+  characteristic, the way a tender's requirements read. Own projects have no answers, so
+  they are left out while characteristics are chosen.
+- **Together:** a role, a characteristic, and a technology must match on the same
+  participation or own project, since the CV shows them together.
+- **Make CV:** CV selection gets the whole filter and includes only the work it matches.
 
 ## Data and privacy
 
