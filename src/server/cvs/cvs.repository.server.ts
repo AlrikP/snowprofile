@@ -11,6 +11,7 @@ import {
   participation,
   project,
 } from '#/db/schema'
+import { participationEndDate } from '../profiles/participations.repository.server'
 import type { Scope } from '../scope.server'
 
 export async function cvProfiles(db: Executor, scope: Scope, profileIds: string[]) {
@@ -65,7 +66,7 @@ export async function cvParticipations(db: Executor, scope: Scope, profileIds: s
       descriptionEt: project.descriptionEt,
       descriptionEn: project.descriptionEn,
       startDate: participation.startDate,
-      endDate: participation.endDate,
+      endDate: participationEndDate,
       hours: participation.hours,
       hoursQualifier: participation.hoursQualifier,
       tasksEt: participation.tasksEt,

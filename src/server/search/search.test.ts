@@ -34,6 +34,7 @@ const today = '2026-10-06'
 // Technologies only these tests use, so the seed's people never match.
 const t = { kotlin: uuidv7(), elixir: uuidv7(), zig: uuidv7() }
 let projectId = ''
+let endedProjectId = ''
 
 function as<T>(run: () => Promise<T>) {
   return withActor(seedIds.users.admin, run)
@@ -47,12 +48,22 @@ beforeAll(async () => {
     .select({ id: technologyCategory.id })
     .from(technologyCategory)
     .where(eq(technologyCategory.organizationId, org))
-  const [first] = await db
+  const [first, second] = await db
     .select({ id: project.id })
     .from(project)
     .where(eq(project.organizationId, org))
   projectId = first?.id ?? ''
+  endedProjectId = second?.id ?? ''
   await as(async () => {
+    // Seeded periods are random; an ongoing participation ends with an ended project.
+    await db
+      .update(project)
+      .set({ startDate: '2000', endDate: null })
+      .where(eq(project.id, projectId))
+    await db
+      .update(project)
+      .set({ startDate: '2020', endDate: '2023' })
+      .where(eq(project.id, endedProjectId))
     for (const [name, id] of Object.entries(t)) {
       await db.insert(technology).values({
         id,
@@ -99,12 +110,13 @@ async function worked(
     startDate: '2022-01',
     endDate: '2023-06',
   },
+  onProject = projectId,
 ) {
   const id = uuidv7()
   await as(async () => {
     await db
       .insert(participation)
-      .values({ id, organizationId: org, profileId, projectId, ...period })
+      .values({ id, organizationId: org, profileId, projectId: onProject, ...period })
     for (const technologyId of technologies) {
       await db
         .insert(participationTechnology)
@@ -216,6 +228,18 @@ describe('period', () => {
     const thisYear = await find({ technologyIds: [t.elixir], from: '2026-10', to: null })
     expect(thisYear.map((each) => each.id)).toContain(ongoing)
     expect(thisYear.map((each) => each.id)).not.toContain(early)
+  })
+
+  test('search.ongoing-ends-with-project: ongoing work on an ended project ends with the project', async () => {
+    const someone = await person('Period Ended Project')
+    await worked(someone, [t.zig], { startDate: '2021', endDate: null }, endedProjectId)
+
+    const from2024 = await find({ technologyIds: [t.zig], from: '2024', to: null })
+    expect(from2024.map((each) => each.id)).not.toContain(someone)
+    const in2022 = await find({ technologyIds: [t.zig], from: '2022', to: '2022' })
+    expect(in2022.find((each) => each.id === someone)?.items).toMatchObject([
+      { startDate: '2021', endDate: '2023' },
+    ])
   })
 
   test('search.partial-dates: a year-only filter reads as the whole year', async () => {

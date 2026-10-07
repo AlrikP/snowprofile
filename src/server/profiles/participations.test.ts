@@ -6,9 +6,10 @@ import { v7 as uuidv7 } from 'uuid'
 import * as v from 'valibot'
 import type { Database } from '#/db'
 import { withActor } from '#/db/actor'
-import { participation, project } from '#/db/schema'
+import { employeeProfile, participation, project } from '#/db/schema'
 import { seedIds } from '#/db/seed-accounts'
 import { createTestDatabase } from '#/db/testing'
+import { cv } from '../cvs/cvs.server'
 import { projectForm, projectView, updateProject } from '../projects/projects.server'
 import { addRole } from '../roles/roles.server'
 import { resolveScope, type Scope } from '../scope.server'
@@ -237,6 +238,52 @@ describe('participations', () => {
         ),
       ).toMatchObject({ code: 'INVALID', key: 'participation_outside_project' })
     })
+  })
+
+  test('project-participation.ongoing-ends-with-project: ongoing work reads as ending with its project', async () => {
+    const projectId = projects[5] ?? ''
+    const added = input({ projectId, period: { startDate: '2024-05-17', endDate: null } })
+    await as(employee, () => addParticipation(db, employee, added))
+    async function setProjectEnd(endDate: string | null) {
+      await as(admin, async () => {
+        await db.update(project).set({ endDate }).where(eq(project.id, projectId))
+      })
+    }
+    const [profile] = await db
+      .select({ id: employeeProfile.id })
+      .from(employeeProfile)
+      .where(eq(employeeProfile.userId, seedIds.users.employee))
+    async function ends() {
+      const view = await projectView(db, admin, { projectId })
+      const read = await cv(db, admin, {
+        profileIds: [profile?.id ?? ''],
+        language: 'en',
+        technologyIds: [],
+        from: null,
+        to: null,
+        birthDate: false,
+      })
+      return {
+        profile: (await mine(employee, added.id))?.endDate,
+        project: view.people.find((each) => each.participationId === added.id)?.endDate,
+        cv: read.projects
+          .find((each) => each.projectId === projectId)
+          ?.parts.find((part) => part.startDate === '2024-05-17')?.endDate,
+      }
+    }
+
+    await setProjectEnd('2025-06')
+    expect(await ends()).toEqual({ profile: '2025-06', project: '2025-06', cv: '2025-06' })
+    const [stored] = await db.select().from(participation).where(eq(participation.id, added.id))
+    expect(stored?.endDate).toBeNull()
+
+    await setProjectEnd(null)
+    expect(await ends()).toEqual({ profile: null, project: null, cv: null })
+
+    // A project that ended before the participation started leaves it as stored.
+    await setProjectEnd('2024-04')
+    expect(await ends()).toEqual({ profile: null, project: null, cv: null })
+    await setProjectEnd(null)
   })
 
   test('project-participation.other-person-refused: nobody changes or deletes another person’s participation', async () => {

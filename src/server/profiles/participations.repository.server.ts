@@ -13,6 +13,17 @@ import {
 } from '#/db/schema'
 import type { Scope } from '../scope.server'
 
+// A participation's end as every view reads it, for queries that join its project
+// (docs/product.md, "Participation periods"): an ongoing participation on an ended project
+// ends with the project, while its stored end stays empty. A project that ended before the
+// participation started leaves it as stored, outside the project.
+export const participationEndDate = sql<string | null>`CASE
+  WHEN ${participation.endDate} IS NULL AND ${project.endDate} IS NOT NULL
+    AND ${project.endDate} >= substr(${participation.startDate}, 1, length(${project.endDate}))
+  THEN ${project.endDate}
+  ELSE ${participation.endDate}
+END`
+
 function liveParticipations(scope: Scope, profileId: string) {
   return and(
     eq(participation.organizationId, scope.organizationId),
@@ -30,7 +41,7 @@ export async function listParticipations(db: Executor, scope: Scope, profileId: 
       projectName: project.name,
       customerName: customer.name,
       startDate: participation.startDate,
-      endDate: participation.endDate,
+      endDate: participationEndDate,
       hours: participation.hours,
       hoursQualifier: participation.hoursQualifier,
       tasksEt: participation.tasksEt,

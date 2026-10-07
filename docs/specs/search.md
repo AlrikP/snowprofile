@@ -42,13 +42,19 @@ own projects must count too, marked as own.
 
 An admin can narrow the search to a period. Work matches when it overlaps the period: a
 partial start reads as its first day, a partial end as its last, and ongoing work runs to
-today.
+today. Ongoing work on a project that has ended ends with the project.
 
 #### Scenario: search.period-overlap
 
 - **Given** work that ended in December 2018, and ongoing work that started in 2025
 - **When** an admin searches within 2019, and then from October 2026
 - **Then** neither matches 2019, and only the ongoing work matches from October 2026
+
+#### Scenario: search.ongoing-ends-with-project
+
+- **Given** an ongoing participation on a project that ended in 2023
+- **When** an admin searches from 2024
+- **Then** the participation doesn't match
 
 #### Scenario: search.partial-dates
 

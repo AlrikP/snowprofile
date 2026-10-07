@@ -16,6 +16,7 @@ import {
   tenderCriterion,
   user,
 } from '#/db/schema'
+import { participationEndDate } from '../profiles/participations.repository.server'
 import type { Scope } from '../scope.server'
 
 function liveProjects(scope: Scope) {
@@ -142,9 +143,10 @@ export async function listProjectPeople(db: Executor, scope: Scope, projectId: s
       fullName: employeeProfile.fullName,
       leftDate: employeeProfile.leftDate,
       startDate: participation.startDate,
-      endDate: participation.endDate,
+      endDate: participationEndDate,
     })
     .from(participation)
+    .innerJoin(project, eq(project.id, participation.projectId))
     .innerJoin(employeeProfile, eq(employeeProfile.id, participation.profileId))
     .where(
       and(

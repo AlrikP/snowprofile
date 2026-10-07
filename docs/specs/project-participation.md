@@ -59,7 +59,9 @@ form must show the chosen project's period, so the member can see when the proje
 The period must lie within the project's, each pair of dates compared at the coarser
 precision; an ongoing project has no end limit, and a participation must not be saved as
 ongoing on a project that has ended. A period outside the project's must be refused
-(`docs/product.md`, "Participation periods").
+(`docs/product.md`, "Participation periods"). An ongoing participation saved before its
+project ended must read everywhere as ending with the project, while its stored end stays
+empty.
 
 #### Scenario: project-participation.project-period-shown
 
@@ -86,6 +88,13 @@ ongoing on a project that has ended. A period outside the project's must be refu
 - **Given** a project starting in 03-2024
 - **When** a member saves a participation on it starting in 2024
 - **Then** the participation is saved
+
+#### Scenario: project-participation.ongoing-ends-with-project
+
+- **Given** an ongoing participation on a project
+- **When** an admin sets the project's end to 06-2025
+- **Then** the profile, the project page, and the CV show the participation ending in
+  06-2025, and its edit form opens with that end
 
 #### Scenario: project-participation.ongoing-clears-end
 

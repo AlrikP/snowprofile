@@ -1,6 +1,6 @@
 # 045: Check a participation's period against the project's
 
-Status: in-progress
+Status: done
 
 Neither the participation form nor the server compares a participation's period with its
 project's. A member can save a participation on a project that ran 2022–2023 with the
@@ -29,3 +29,9 @@ Decided with the user, recorded in `docs/product.md`, "Participation periods":
   (`01-refuse-outside-period.md`)
 - 045.2: Read an ongoing participation on an ended project as ending with it
   (`02-ongoing-ends-with-project.md`)
+
+## Outcome
+
+- Both subtasks are done; their Outcome sections hold the details.
+- Company data outside its project's period wasn't counted, because no copy is available
+  locally (045.1). Count it once the sheet migration (task 039) has run.

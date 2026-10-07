@@ -16,6 +16,7 @@ import {
   projectRole,
   technology,
 } from '#/db/schema'
+import { participationEndDate } from '../profiles/participations.repository.server'
 import type { Scope } from '../scope.server'
 
 // Live participations on live projects that list one of the technologies themselves; the
@@ -29,7 +30,7 @@ export async function matchingParticipations(db: Executor, scope: Scope, technol
       name: project.name,
       customerName: customer.name,
       startDate: participation.startDate,
-      endDate: participation.endDate,
+      endDate: participationEndDate,
     })
     .from(participationTechnology)
     .innerJoin(participation, eq(participation.id, participationTechnology.participationId))
