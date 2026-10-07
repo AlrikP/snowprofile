@@ -52,6 +52,8 @@ export type SheetProject = {
 }
 
 type SheetParticipation = {
+  // The project reference's cell ("B12"), for the report.
+  cell: string
   project: ProjectRef
   period: Period | null
   roles: string[]
@@ -60,6 +62,8 @@ type SheetParticipation = {
 }
 
 type SheetOwnProject = {
+  // The name's cell, for the report.
+  cell: string
   name: string
   description: string | null
   period: Period | null
@@ -80,7 +84,7 @@ type SheetEducation = {
   period: Period | null
 }
 
-type SheetPerson = {
+export type SheetPerson = {
   sheet: string
   fullName: string
   // The company email, lowercased: how a re-run and the first sign-in find the person.
@@ -348,6 +352,7 @@ function readPerson(grid: Grid): SheetPerson | null {
         const project = grid.take(refRow, column, parseProjectRef(grid.cell(refRow, column)))
         if (project) {
           person.participations.push({
+            cell: `${columnName(column)}${refRow + 1}`,
             project,
             period: period(grid, work.start, work.end, column),
             roles: parseRoles(grid.cell(work.roles, column)),
@@ -361,6 +366,7 @@ function readPerson(grid: Grid): SheetPerson | null {
     const ownName = ownFrom === -1 ? null : grid.text(own.name, column)
     if (ownName) {
       person.ownProjects.push({
+        cell: `${columnName(column)}${own.name + 1}`,
         name: ownName,
         description: grid.text(own.description, column),
         period: period(grid, own.start, own.end, column),

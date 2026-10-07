@@ -60,3 +60,52 @@ the migration can be rehearsed.
 - **When** the operator runs it again
 - **Then** the projects are updated, and no project, customer, contact, technology,
   characteristic, link, or answer is added twice
+
+### Requirement: People load by company email
+
+The script must load each employee sheet with a company email: a user for the address,
+with no linked account, the profile, education, participations with their roles, and own
+projects, and an employee invitation unless the person is already a member. A sheet
+without a company email must go into the report and not be loaded. The personal ID code
+must never be stored. Work that names an unknown project, or that falls outside its
+project's period, must go into the report. Roles must join the catalogue with their
+Estonian names.
+
+#### Scenario: sheet-migration.people-loaded
+
+- **Given** an employee sheet with a company email, education, participations, and an own
+  project
+- **When** the operator runs the script
+- **Then** the person is in the organization with all of it, their roles are in the
+  catalogue without English names, and they have a pending invitation
+
+#### Scenario: sheet-migration.missing-email-reported
+
+- **Given** an employee sheet without a company email
+- **When** the operator runs the script
+- **Then** the report names the sheet, and the person isn't loaded
+
+#### Scenario: sheet-migration.id-code-skipped
+
+- **Given** an employee sheet with a personal ID code
+- **When** the operator runs the script
+- **Then** the code is stored nowhere
+
+#### Scenario: sheet-migration.unresolved-project-reported
+
+- **Given** a participation naming a project the sheet doesn't have, and one outside its
+  project's period
+- **When** the operator runs the script
+- **Then** the first is reported and not loaded, and the second is loaded and reported
+
+### Requirement: Imported people find their profile on first sign-in
+
+When an imported employee first signs in with Google at their company address, the
+session must belong to the imported user, and accepting their invitation must keep the
+imported profile.
+
+#### Scenario: sheet-migration.profile-claimed
+
+- **Given** an imported employee who has never signed in
+- **When** they sign in with Google at their company address and accept their invitation
+- **Then** they are the imported user, with the imported profile, as an employee

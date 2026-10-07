@@ -90,6 +90,7 @@ describe('an employee sheet', () => {
   test('reads participations by project number or name', () => {
     expect(person('Anna Arendaja').participations).toEqual([
       {
+        cell: 'B14',
         project: { number: 1 },
         period: { startDate: '2020-05', endDate: null },
         roles: ['Arendaja'],
@@ -97,6 +98,7 @@ describe('an employee sheet', () => {
         tasks: 'Kasutajaliidese arendus.',
       },
       {
+        cell: 'C14',
         project: { number: 2 },
         period: null,
         roles: ['Arhitekt', 'team lead'],
@@ -104,6 +106,7 @@ describe('an employee sheet', () => {
         tasks: null,
       },
       {
+        cell: 'D14',
         project: { number: 3 },
         period: { startDate: '2018', endDate: '2020' },
         roles: ['Tehniline analüütik', 'arhitekt'],
@@ -111,6 +114,7 @@ describe('an employee sheet', () => {
         tasks: null,
       },
       {
+        cell: 'E13',
         project: { name: 'Telia iseteenindus', normalizedName: 'teliaiseteenindus' },
         period: { startDate: '2022-03-01', endDate: null },
         roles: ['(noorem)Arendaja'],
@@ -123,6 +127,7 @@ describe('an employee sheet', () => {
   test('reads own projects, with the person’s share of the size', () => {
     expect(person('Anna Arendaja').ownProjects).toEqual([
       {
+        cell: 'B25',
         name: 'Kliendiportaal',
         description: 'Varasema tööandja projekt.',
         period: { startDate: '2016-09', endDate: '2019-01' },

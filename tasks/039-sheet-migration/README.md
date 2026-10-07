@@ -24,6 +24,6 @@ Builds on: `docs/product.md` ("Sheet migration", "Users and access": platform op
 
 ## Acceptance criteria
 
-- [ ] All subtasks are done.
+- [x] All subtasks are done.
 - [ ] A rehearsal on a copy of the sheet, against a local Compose stack, runs twice with
       the same result; the Outcome records the report's size.

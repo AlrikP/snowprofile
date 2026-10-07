@@ -105,6 +105,9 @@ docker compose up -d --wait
 ```
 
 It loads everything in one transaction and prints what it loaded and the values it
-couldn't read, for an admin to fix in the app. Running it again updates what it loaded
+couldn't read, for an admin to fix in the app. Each imported employee gets a pending
+invitation, valid for 7 days: the admin copies the links from the members page and sends
+them, and each employee signs in with Google at their company address to find their
+profile. Running it again updates what it loaded
 instead of duplicating it, so rehearse it on a local Compose stack first. Locally,
 `bun run sheet:migrate <file> <slug>` does the same against `DATABASE_URL`.

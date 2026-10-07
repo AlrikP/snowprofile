@@ -263,6 +263,20 @@ must handle:
   first signs in with Google at that address, the session belongs to that user, and
   accepting their invitation keeps the imported profile. A sheet without an email goes to
   the report.
+- **Account linking** needs no setting beyond Better Auth's defaults: it links a Google
+  sign-in to an existing user with the same address when both Google and the local user
+  say the address is verified (`accountLinking.requireLocalEmailVerified`, on by default).
+  The import creates its users with `email_verified` set, since the company vouches for
+  its own addresses. Each imported person gets a pending `employee` invitation; an admin
+  copies the links from the members page.
+- **Participations** match on a re-run by project and start, since one person can work on
+  a project in several periods. A new one starts with the project's technologies, as in
+  the app. One outside its project's period is loaded as it is and reported, except
+  ongoing work on an ended project, which reads as ending with it ("Participation
+  periods" in `product.md`).
+- **Own projects** match by name and start. The sheet has no roles for them, so each is
+  reported for a role to be added in the app, and their characteristic answers and
+  contact persons aren't kept: the data model has no place for them.
 
 ## Application rules
 

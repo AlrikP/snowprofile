@@ -10,6 +10,8 @@ import { SYSTEM_USER_ID, withActor } from '#/db/actor'
 import { openDatabase } from '#/db/connection'
 import { organization } from '#/db/schema'
 import { env } from '#/env'
+import { catalogues } from './sheet-migration/catalogue'
+import { loadPeople } from './sheet-migration/people'
 import { loadProjects } from './sheet-migration/projects'
 import { readWorkbook } from './sheet-migration/read'
 
@@ -37,17 +39,30 @@ export async function sheetMigrate(
     }
   }
 
-  const { projects, report } = await readWorkbook(file)
-  const loaded = await withActor(SYSTEM_USER_ID, () =>
-    db.transaction((tx) => loadProjects(tx, found.id, projects, report)),
+  const { projects, people, report } = await readWorkbook(file)
+  const { loadedProjects, loadedPeople, added } = await withActor(SYSTEM_USER_ID, () =>
+    db.transaction(async (tx) => {
+      const catalogue = await catalogues(tx, found.id)
+      const loadedProjects = await loadProjects(tx, found.id, projects, catalogue, report)
+      const loadedPeople = await loadPeople(tx, found.id, people, catalogue, report)
+      return { loadedProjects, loadedPeople, added: catalogue.added }
+    }),
   )
+  function counted(counts: { added: number; updated: number }) {
+    return `${counts.added} added, ${counts.updated} updated`
+  }
   return {
     ok: true,
     message: [
       `Loaded into ${found.name}:`,
-      `  projects: ${loaded.projects.added} added, ${loaded.projects.updated} updated`,
-      `  customers added: ${loaded.customers}, contact persons added: ${loaded.contacts}`,
-      `  technologies added: ${loaded.technologies}, characteristics added: ${loaded.criteria}`,
+      `  projects: ${counted(loadedProjects.projects)}`,
+      `  customers added: ${loadedProjects.customers}, contact persons added: ${loadedProjects.contacts}`,
+      `  technologies added: ${added.technologies}, characteristics added: ${loadedProjects.criteria}`,
+      `  people: ${counted(loadedPeople.profiles)}, of them ${loadedPeople.users} new users`,
+      `  invitations created: ${loadedPeople.invitations}`,
+      `  education: ${counted(loadedPeople.education)}`,
+      `  participations: ${counted(loadedPeople.participations)}, roles added: ${added.roles}`,
+      `  own projects: ${counted(loadedPeople.ownProjects)}`,
       '',
       report.format(),
     ].join('\n'),
