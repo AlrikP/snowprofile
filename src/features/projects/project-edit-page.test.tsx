@@ -368,6 +368,22 @@ describe('ProjectEditPage', () => {
       expect(saved(server.updateProject)?.contactIds).toEqual([])
     })
 
+    it('closes the contact on Esc at once after Delete and Cancel', async () => {
+      await show('portal')
+
+      await userEvent.click(contactsSection().getByRole('button', { name: 'Edit Mari Mets' }))
+      await userEvent.click(
+        within(screen.getByRole('dialog')).getByRole('button', { name: 'Delete' }),
+      )
+      await userEvent.click(
+        within(screen.getByRole('dialog')).getByRole('button', { name: 'Cancel' }),
+      )
+      await userEvent.keyboard('{Escape}')
+
+      expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    })
+
     it('asks before changing the customer drops the contacts', async () => {
       await show('portal')
       const select = screen.getByRole('combobox', { name: 'Customer' })

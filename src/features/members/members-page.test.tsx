@@ -161,6 +161,26 @@ describe('MembersPage', () => {
       )
     })
 
+    it('closes on Esc at once after the invitation is created and its link copied', async () => {
+      Object.defineProperty(navigator, 'clipboard', {
+        value: { writeText: vi.fn().mockResolvedValue(undefined) },
+        configurable: true,
+      })
+      show()
+
+      await userEvent.click(screen.getByRole('button', { name: 'Invite member' }))
+      const form = within(screen.getByRole('dialog'))
+      await userEvent.type(form.getByLabelText('Email'), 'jaan@example.com')
+      await userEvent.click(form.getByRole('button', { name: 'Create invitation link' }))
+      await userEvent.click(
+        within(screen.getByRole('dialog')).getByRole('button', { name: 'Copy' }),
+      )
+      await userEvent.keyboard('{Escape}')
+
+      expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    })
+
     it('asks for an email address', async () => {
       show()
 

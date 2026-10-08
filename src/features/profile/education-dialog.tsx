@@ -67,11 +67,12 @@ function ConfirmDelete({
       </DialogHeader>
       {remove.error && <p role="alert">{errorMessage(remove.error)}</p>}
       <DialogFooter>
-        <Button type="button" variant="outline" onClick={onBack}>
+        <Button type="button" variant="outline" data-no-change onClick={onBack}>
           {m.action_cancel()}
         </Button>
         <Button
           type="button"
+          data-no-change
           variant="destructive"
           disabled={remove.isPending}
           onClick={() => remove.mutate()}
@@ -180,6 +181,7 @@ function EducationForm({ organizationId, entry, onDone }: FormProps) {
         {entry ? (
           <Button
             type="button"
+            data-no-change
             variant="ghost"
             className="text-destructive"
             onClick={() => setConfirming(true)}

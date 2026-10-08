@@ -37,9 +37,19 @@ function DialogOverlay({
   )
 }
 
+const MarkUnchangedContext = React.createContext<() => void>(() => {})
+
+// For a dialog that saves and stays open, such as the invite dialog showing its link: what
+// was typed before the save is no longer at risk.
+function useMarkDialogUnchanged() {
+  return React.useContext(MarkUnchangedContext)
+}
+
 // Once anything in the dialog has changed (typing, choosing, ticking, or a button such as a
-// picker's add or remove), Esc and a click outside ask before discarding it. The dialog's
-// own Cancel and close buttons stay immediate: they are deliberate.
+// picker's add or remove), Esc and a click outside ask before discarding it. A button that
+// changes no value, such as Delete opening its confirmation or Copy, carries
+// data-no-change. The dialog's own Cancel and close buttons stay immediate: they are
+// deliberate.
 function DialogContent({
   className,
   children,
@@ -56,10 +66,14 @@ function DialogContent({
 
   function markChanged(event: React.SyntheticEvent) {
     const target = event.target as Element
-    if (event.type === 'input' || target.closest('[role="option"], button[type="button"]')) {
+    if (
+      event.type === 'input' ||
+      target.closest('[role="option"], button[type="button"]:not([data-no-change])')
+    ) {
       setChanged(true)
     }
   }
+  const markUnchanged = React.useCallback(() => setChanged(false), [])
 
   return (
     <DialogPortal data-slot="dialog-portal">
@@ -98,7 +112,7 @@ function DialogContent({
         )}
         {...props}
       >
-        {children}
+        <MarkUnchangedContext value={markUnchanged}>{children}</MarkUnchangedContext>
         {/* Closes this dialog when the person confirms discarding. */}
         <DialogPrimitive.Close ref={discardRef} hidden />
         <DialogPrimitive.Root open={confirming} onOpenChange={setConfirming}>
@@ -216,4 +230,5 @@ export {
   DialogPortal,
   DialogTitle,
   DialogTrigger,
+  useMarkDialogUnchanged,
 }

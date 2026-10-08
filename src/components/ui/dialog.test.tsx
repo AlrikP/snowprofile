@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { useState } from 'react'
 import { afterEach, describe, expect, it } from 'vitest'
 import { overwriteGetLocale } from '#/paraglide/runtime.js'
-import { Dialog, DialogClose, DialogContent, DialogTitle } from './dialog'
+import { Dialog, DialogClose, DialogContent, DialogTitle, useMarkDialogUnchanged } from './dialog'
 
 afterEach(() => overwriteGetLocale(() => 'en'))
 
@@ -21,6 +21,15 @@ it('labels the close button in the UI language', () => {
 })
 
 describe('discarding changes', () => {
+  function Save() {
+    const markUnchanged = useMarkDialogUnchanged()
+    return (
+      <button type="button" onClick={markUnchanged}>
+        Save and stay
+      </button>
+    )
+  }
+
   function Form() {
     const [open, setOpen] = useState(true)
     return open ? (
@@ -29,6 +38,10 @@ describe('discarding changes', () => {
           <DialogTitle>Own project</DialogTitle>
           <input aria-label="Name" />
           <button type="button" aria-label="Remove React" />
+          <button type="button" data-no-change>
+            Delete
+          </button>
+          <Save />
           <DialogClose asChild>
             <button type="button">Cancel</button>
           </DialogClose>
@@ -81,6 +94,21 @@ describe('discarding changes', () => {
     render(<Form />)
     await userEvent.type(screen.getByLabelText('Name'), 'Portal')
     await userEvent.click(screen.getByRole('button', { name: 'Cancel' }))
+    expect(screen.getByText('Closed')).toBeInTheDocument()
+  })
+
+  it('closes on Esc at once after a button marked data-no-change', async () => {
+    render(<Form />)
+    await userEvent.click(screen.getByRole('button', { name: 'Delete' }))
+    await userEvent.keyboard('{Escape}')
+    expect(screen.getByText('Closed')).toBeInTheDocument()
+  })
+
+  it('closes on Esc at once after the dialog marks what it saved as unchanged', async () => {
+    render(<Form />)
+    await userEvent.type(screen.getByLabelText('Name'), 'Portal')
+    await userEvent.click(screen.getByRole('button', { name: 'Save and stay' }))
+    await userEvent.keyboard('{Escape}')
     expect(screen.getByText('Closed')).toBeInTheDocument()
   })
 })

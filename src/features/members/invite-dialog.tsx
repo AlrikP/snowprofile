@@ -11,6 +11,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  useMarkDialogUnchanged,
 } from '#/components/ui/dialog'
 import { Input } from '#/components/ui/input'
 import { Label } from '#/components/ui/label'
@@ -70,7 +71,7 @@ function LinkCreated({
             value={link}
             onFocus={(event) => event.target.select()}
           />
-          <Button type="button" variant="outline" onClick={() => void copyLink()}>
+          <Button type="button" variant="outline" data-no-change onClick={() => void copyLink()}>
             <CopyIcon />
             {copy === 'copied' ? m.action_copied() : m.action_copy()}
           </Button>
@@ -96,6 +97,7 @@ function LinkCreated({
 // Mounted only while the dialog is open, so each opening starts empty.
 function InviteForm({ organizationId }: { organizationId: string }) {
   const queryClient = useQueryClient()
+  const markUnchanged = useMarkDialogUnchanged()
   const [email, setEmail] = useState('')
   const [role, setRole] = useState<RoleName>('employee')
   const [submitted, setSubmitted] = useState(false)
@@ -103,7 +105,10 @@ function InviteForm({ organizationId }: { organizationId: string }) {
   const create = useMutation({
     mutationFn: () =>
       createInvitation({ data: { organizationId, id: uuidv7(), email: email.trim(), role } }),
-    onSuccess: () => queryClient.invalidateQueries(invitationsQuery(organizationId)),
+    onSuccess: () => {
+      markUnchanged()
+      return queryClient.invalidateQueries(invitationsQuery(organizationId))
+    },
   })
 
   function submit(event: FormEvent) {

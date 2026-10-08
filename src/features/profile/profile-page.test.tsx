@@ -807,6 +807,28 @@ describe('ProfilePage', () => {
     })
   })
 
+  it('closes on Esc at once after Delete and Cancel, with nothing changed', async () => {
+    await show()
+
+    for (const [name, edit] of [
+      ['Education', 'Edit Coursera'],
+      ['Project participations', 'Edit Kodanikuportaali uuendus'],
+      ['Own projects', 'Edit Kliendiportaal'],
+    ]) {
+      await userEvent.click(section(name).getByRole('button', { name: edit }))
+      await userEvent.click(
+        within(screen.getByRole('dialog')).getByRole('button', { name: 'Delete' }),
+      )
+      await userEvent.click(
+        within(screen.getByRole('dialog')).getByRole('button', { name: 'Cancel' }),
+      )
+      await userEvent.keyboard('{Escape}')
+
+      expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    }
+  })
+
   describe('confirmation', () => {
     it('profile-update-requests.confirmed-without-request: shows the last confirmation and confirms without a request', async () => {
       await show()
