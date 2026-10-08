@@ -266,7 +266,7 @@ describe('projects and catalogues', () => {
     expect(second.message).toContain('technologies added: 0, characteristics added: 0')
     expect(second.message).toContain('people: 0 added, 1 updated, of them 0 new users')
     expect(second.message).toContain('invitations created: 0')
-    expect(second.message).toContain('participations: 0 added, 2 updated, roles added: 0')
+    expect(second.message).toContain('participations: 0 added, 3 updated, roles added: 0')
     expect(await counts()).toEqual(before)
   })
 
@@ -331,11 +331,14 @@ describe('people and participations', () => {
     expect(work.map((each) => [each.projectId, each.startDate])).toEqual(
       expect.arrayContaining([
         [portal?.id, '2020-05'],
+        [portal?.id, '2022-03'],
         [(await loadedProject('3'))?.id, '2018'],
       ]),
     )
-    expect(work).toHaveLength(2)
-    const onPortal = work.find((each) => each.projectId === portal?.id)
+    expect(work).toHaveLength(3)
+    const onPortal = work.find(
+      (each) => each.projectId === portal?.id && each.startDate === '2020-05',
+    )
     expect(onPortal).toMatchObject({
       endDate: null,
       hours: 3000,
@@ -400,6 +403,12 @@ describe('people and participations', () => {
       '"Telia iseteenindus": Not loaded: no project with this number or name.',
     )
     expect(first.message).toContain('"Projekt3": Outside the project’s period; fix it in the app.')
+    // Ongoing work that starts after its project ended can't end with it, so it's reported;
+    // ongoing work on the same project from before its end isn't.
+    expect(first.message).toContain(
+      'F14   "Projekt1": Outside the project’s period; fix it in the app.',
+    )
+    expect(first.message).not.toContain('B14   "Projekt1": Outside')
     expect(first.message).toContain(
       '"Projekt2": Not loaded: the participation needs a readable start date.',
     )

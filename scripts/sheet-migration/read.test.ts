@@ -121,6 +121,14 @@ describe('an employee sheet', () => {
         hours: { value: 10000, qualifier: 'more_than' },
         tasks: 'Iseteeninduse arendus.',
       },
+      {
+        cell: 'F14',
+        project: { number: 1 },
+        period: { startDate: '2022-03', endDate: null },
+        roles: ['Arendaja'],
+        hours: null,
+        tasks: null,
+      },
     ])
   })
 
@@ -210,7 +218,7 @@ describe('the report', () => {
     const printed = await sheetReport(await fictionalWorkbook())
 
     expect(printed).toStartWith(
-      "Read 4 projects and 2 people, with 6 participations and 1 own projects.\n8 values weren't read:",
+      "Read 4 projects and 2 people, with 7 participations and 1 own projects.\n8 values weren't read:",
     )
     expect(printed).toContain('\n\nPeeter\n  B1    "Peeter Puudub": No company email')
     expect(printed).toContain('\n  C15   "2022-01-01": The end is before the start.\n')

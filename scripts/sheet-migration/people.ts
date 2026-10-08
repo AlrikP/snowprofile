@@ -23,7 +23,7 @@ import {
   user,
 } from '#/db/schema'
 import { normalizeName } from '#/lib/normalize-name'
-import { outsidePeriod } from '#/lib/period'
+import { endsBeforeStart, outsidePeriod } from '#/lib/period'
 import { INVITATION_DAYS } from '#/server/invitations/invitations.server'
 import type { Catalogues } from './catalogue'
 import type { SheetPerson } from './read'
@@ -227,9 +227,16 @@ export async function loadPeople(
         continue
       }
       // Loaded as the sheet has it, for the person to fix. Ongoing work on a project that
-      // has ended reads as ending with it, so it isn't flagged.
+      // ended after the work started reads as ending with it (participationEndDate), so
+      // only ongoing work that starts after its project ended is flagged.
       const outside = outsidePeriod(work.period, onProject)
-      if (outside.start || outside.end === 'after_outer_end') {
+      const startsAfterProjectEnded =
+        onProject.endDate !== null && endsBeforeStart(work.period.startDate, onProject.endDate)
+      if (
+        outside.start ||
+        outside.end === 'after_outer_end' ||
+        (outside.end === 'ongoing_after_outer_end' && startsAfterProjectEnded)
+      ) {
         flag('Outside the project’s period; fix it in the app.')
       }
       if (work.roles.length === 0) flag('No role; add one in the app.')
