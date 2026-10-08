@@ -219,12 +219,13 @@ describe('SearchPage', () => {
     const make = screen.getByRole('link', { name: 'Make CV (1)' })
     const url = new URL(make.getAttribute('href') ?? '', 'http://localhost')
     expect(url.pathname).toBe('/demo/cvs')
-    expect(JSON.parse(url.searchParams.get('people') ?? '[]')).toEqual(['erik'])
-    expect(JSON.parse(url.searchParams.get('t') ?? '[]')).toEqual(['react'])
+    expect(url.searchParams.getAll('people')).toEqual(['erik'])
+    expect(url.searchParams.getAll('t')).toEqual(['react'])
     expect(url.searchParams.get('match')).toBe('all')
-    expect(JSON.parse(url.searchParams.get('r') ?? '[]')).toEqual(['analyst'])
-    expect(JSON.parse(url.searchParams.get('c') ?? '[]')).toEqual(['xroad'])
-    expect(JSON.parse(url.searchParams.get('from') ?? 'null')).toBe('2019')
+    expect(url.searchParams.getAll('r')).toEqual(['analyst'])
+    expect(url.searchParams.getAll('c')).toEqual(['xroad'])
+    expect(url.searchParams.get('from')).toBe('2019')
+    expect(url.searchParams.get('leavers')).toBe('true')
 
     // A leaver isn't chosen until ticked.
     await userEvent.click(screen.getByRole('checkbox', { name: 'Select Tõnu Tamm' }))

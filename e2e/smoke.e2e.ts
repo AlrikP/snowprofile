@@ -86,10 +86,11 @@ test.describe('the admin', () => {
       .first()
       .click()
 
-    await expect(page).toHaveURL(/[?&]t=/)
+    // Repeated keys with plain IDs, not percent-encoded JSON.
+    await expect(page).toHaveURL(/[?&]t=[0-9a-f-]{36}(&|$)/)
     await expect(page.getByRole('status')).toContainText(/\d+ (person|people)/)
     await page.getByRole('link', { name: /Make CV \(\d+\)/ }).click()
-    await expect(page).toHaveURL(/\/demo\/cvs\?.*people=/)
+    await expect(page).toHaveURL(/\/demo\/cvs\?.*people=[0-9a-f-]{36}(&|$)/)
     const view = page.getByRole('region', { name: 'Preview' })
     await expect(view.getByRole('columnheader', { name: 'Projekt' }).first()).toBeVisible()
   })

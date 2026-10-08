@@ -1,6 +1,6 @@
 # 048: Review how URLs encode search params
 
-Status: todo
+Status: done
 
 Pages keep their filters and selections in the URL, so a search or a CV can be shared and
 reloaded. The router uses TanStack Router's default encoding, with no `stringifySearch`
@@ -53,10 +53,27 @@ Questions to settle alongside the format:
 
 ## Acceptance criteria
 
-- [ ] The chosen scheme and the reasons are recorded in `docs/architecture.md`.
-- [ ] Every route above and the download link use it, through one shared serializer.
-- [ ] Each page's reader still drops a value it can't read and keeps the rest, as
+- [x] The chosen scheme and the reasons are recorded in `docs/architecture.md`.
+- [x] Every route above and the download link use it, through one shared serializer.
+- [x] Each page's reader still drops a value it can't read and keeps the rest, as
       `readSearchFilters` and `readCvSelection` do now.
-- [ ] Tests cover a round trip for each page's params, including lists of one and of
+- [x] Tests cover a round trip for each page's params, including lists of one and of
       several, booleans, and period dates.
-- [ ] The "Make CV" link and the download link open the same selection, checked by a test.
+- [x] The "Make CV" link and the download link open the same selection, checked by a test.
+
+## Outcome
+
+- Repeated keys, decided with the user on 2026-10-08 and recorded in
+  `docs/architecture.md`, "Application rules". Booleans are `true` and `false`; strings
+  are never quoted, so a year reads `from=2019`.
+- `src/lib/search-params.ts` holds `stringifySearch` and `parseSearch`, which the router
+  and the component tests' router use, and which `cvDocumentHref` writes with. The server
+  reads the download link with `URLSearchParams`, the same format.
+- The URL can't tell a list of one from a single value, so `ListParam` reads either as a
+  list. `BooleanParam` takes the words and real booleans, because the router also
+  validates the typed search a page navigates with.
+- Tests: round trips for the search, CV, profile, and sign-in params; the "Make CV"
+  selection checked against what the download link reads back; and the e2e "Make CV" test
+  checks for plain IDs in both URLs.
+- A team CV of 50 people is about 2.2 KB of `people=` params, well within browser and
+  server limits.

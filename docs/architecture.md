@@ -343,6 +343,14 @@ must handle:
   requests never fail on SQLite's write lock (`src/db/connection.ts`, after snowtime's
   task 043). Code inside a transaction uses its handle, never the client; the client
   throws if it's used there, instead of waiting for the transaction forever.
+- **Search params as repeated keys:** `people=a&people=b&from=2019&leavers=true`, a key
+  per value, booleans as `true` and `false`, and strings never quoted. Shared searches and
+  CVs then have URLs a person can read, edit, and paste into a ticket, which the router's
+  default percent-encoded JSON isn't. It is the web's common form, which `URLSearchParams`
+  reads as it is, and the one the CV download link already used. Comma-separated lists
+  were shorter but would need escaping for a value with a comma. `src/lib/search-params.ts`
+  writes them for the router and the download link, and each page's reader takes one
+  value as a list of one (task 048).
 - **No stored files:** CVs are generated on request. Background work, if ever needed,
   runs in the app process.
 - **No hosting-platform SDKs or services in app code.**

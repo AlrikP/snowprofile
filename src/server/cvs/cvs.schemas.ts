@@ -1,5 +1,6 @@
 import * as v from 'valibot'
 import { isPeriodDate } from '#/lib/period'
+import { stringifySearch } from '#/lib/search-params'
 import { Uuidv7 } from '../schemas'
 
 const PeriodDate = v.nullable(v.pipe(v.string(), v.check(isPeriodDate, 'Invalid period date.')))
@@ -27,15 +28,18 @@ const CvDocumentInput = v.object({
 })
 
 export function cvDocumentHref(organizationId: string, input: CvInput): string {
-  const params = new URLSearchParams({ organizationId, language: input.language })
-  for (const id of input.profileIds) params.append('people', id)
-  for (const id of input.technologyIds) params.append('t', id)
-  for (const id of input.roleIds) params.append('r', id)
-  for (const id of input.criterionIds) params.append('c', id)
-  if (input.from) params.set('from', input.from)
-  if (input.to) params.set('to', input.to)
-  if (input.birthDate) params.set('birth', 'true')
-  return `/api/cv-document?${params}`
+  const search = stringifySearch({
+    organizationId,
+    language: input.language,
+    people: input.profileIds,
+    t: input.technologyIds,
+    r: input.roleIds,
+    c: input.criterionIds,
+    from: input.from,
+    to: input.to,
+    birth: input.birthDate || undefined,
+  })
+  return `/api/cv-document${search}`
 }
 
 export function readCvDocumentParams(params: URLSearchParams) {

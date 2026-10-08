@@ -2,13 +2,14 @@
 // be shared and reloaded. The project filter and the leavers box use search's keys.
 import * as v from 'valibot'
 import { readSearchFilters, type SearchFilters } from '#/lib/search-filters'
+import { BooleanParam, ListParam } from '#/lib/search-params'
 import type { CvInput } from '#/server/cvs/cvs.schemas'
 
 const Extra = v.object({
   // Profile IDs.
-  people: v.optional(v.array(v.string())),
+  people: ListParam,
   lang: v.optional(v.picklist(['et', 'en'])),
-  birth: v.optional(v.boolean()),
+  birth: BooleanParam,
   layout: v.optional(v.picklist(['each', 'combined'])),
 })
 

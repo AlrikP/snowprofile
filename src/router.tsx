@@ -3,6 +3,7 @@ import { setupRouterSsrQueryIntegration } from '@tanstack/react-router-ssr-query
 import { RouteError } from '#/components/route-error'
 import { getContext } from '#/integrations/tanstack-query/root-provider'
 import { reloadOnForbidden } from '#/lib/forbidden-reload'
+import { parseSearch, stringifySearch } from '#/lib/search-params'
 import { routeTree } from '#/routeTree.gen'
 
 export function getRouter() {
@@ -15,6 +16,8 @@ export function getRouter() {
     defaultPreload: 'intent',
     defaultPreloadStaleTime: 0,
     defaultErrorComponent: RouteError,
+    parseSearch,
+    stringifySearch,
   })
 
   setupRouterSsrQueryIntegration({ router, queryClient: context.queryClient })
