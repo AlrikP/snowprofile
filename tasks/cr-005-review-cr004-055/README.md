@@ -1,6 +1,6 @@
 # CR-005: Fixes from the review of cr-004 through task 055
 
-Status: in-progress
+Status: done
 
 A code review of the commits from cr-004 through task 055 (`f99e034..21fb124`, reviewed
 2026-10-08) found the issues below. These pass in the working copy, and the first three in
@@ -20,4 +20,10 @@ earlier migration. Fix these before task 018. The full report is in
 
 ## Acceptance criteria
 
-- [ ] All subtasks are done.
+- [x] All subtasks are done.
+
+## Outcome
+
+- The subtasks' Outcome sections hold the details. Task 056 (notes in the project form's
+  picker) came out of cr-005.1.
+- Still unverified: CI's `bun run perf` on Linux against baselines recorded on macOS.

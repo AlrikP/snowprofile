@@ -39,8 +39,8 @@ Decided with the user on 2026-10-08, together with task 050's expandable row:
       the work starts, with a target for the projects page's HTML bytes and DOM nodes at
       the benchmark's 300 projects.
 - [x] `bun run perf:pages` meets that target, and `perf/baselines/pages.json` holds the
-      new numbers. DOM nodes met it (968). HTML, at 314 KB, didn't; the user accepted it
-      on 2026-10-08 (Outcome).
+      new numbers. DOM nodes met it (968; task 050 took it to 1,021, which the user
+      accepted). HTML, at 314 KB, didn't; the user accepted it on 2026-10-08 (Outcome).
 - [x] The name, customer, and "only mine" filters and the project count still cover
       every live project, including those not shown at first.
 

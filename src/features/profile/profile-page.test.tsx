@@ -623,21 +623,6 @@ describe('ProfilePage', () => {
 
       expect(sent(server.updateParticipation)?.technologyIds).toEqual(['react', 'postgresql'])
     })
-
-    it('project-participation.own-copy: changing a saved participation’s project keeps its list', async () => {
-      await show()
-
-      await userEvent.click(
-        participationsSection().getByRole('button', { name: 'Edit Kodanikuportaali uuendus' }),
-      )
-      const dialog = within(screen.getByRole('dialog'))
-      await userEvent.selectOptions(dialog.getByLabelText('Project'), 'tax')
-
-      expect(dialog.getByRole('list', { name: 'Technologies used' })).toHaveTextContent('React')
-      expect(dialog.getByRole('list', { name: 'Technologies used' })).not.toHaveTextContent(
-        'Angular',
-      )
-    })
   })
 
   describe('own projects', () => {

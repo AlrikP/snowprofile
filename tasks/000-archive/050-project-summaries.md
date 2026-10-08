@@ -85,6 +85,6 @@ Decided with the user on 2026-10-08, together with task 054:
 - The toggle is one element per row with a text chevron, positioned in the cell's
   padding. A shadcn `Button` with a Lucide icon and wrappers added 28 KB of HTML and 253
   DOM nodes at 50 rows; this one adds 15 KB and 53. The page is at 329 KB and 1,021 DOM
-  nodes, just over task 054's 1,000.
+  nodes, just over task 054's 1,000. The user accepted 1,021 on 2026-10-08 (cr-005.3).
 - Tests: `projects.summary-opened` in the component tests (categories, yes only, no
   notes, closing again, and no read until opened) and in the e2e suite as an employee.

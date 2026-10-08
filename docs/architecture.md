@@ -48,29 +48,33 @@ not from Google, so pages make no requests to Google. The Snowhound mark is
 
 ## Repository layout
 
-| Path                   | Holds                                                        |
-| ---------------------- | ------------------------------------------------------------ |
-| `src/routes/`          | Route files: wiring only                                     |
-| `src/features/<name>/` | One view: page, pending state, subcomponents, queries, tests |
-| `src/components/`      | Shared components; `ui/` holds shadcn copies only            |
-| `src/lib/`             | Shared helpers, including code the server shares             |
-| `src/server/<domain>/` | Server functions, rules, schemas, and tests per domain       |
-| `src/db/`              | Database connection, `schema.ts`, relations, seed, demo data |
-| `src/integrations/`    | TanStack Query setup and devtools, from the scaffold         |
-| `src/env.ts`           | Server environment, validated with Valibot                   |
-| `src/test/`            | Test setup: Vitest for components, a preload for `bun test`  |
-| `messages/`            | UI messages per locale (`et.json`, `en.json`)                |
-| `project.inlang/`      | Paraglide settings; `i18n:compile` builds `src/paraglide/`   |
-| `drizzle/`             | SQL migrations, `<timestamp>_<name>/migration.sql`           |
-| `datamodel/`           | DBML diagram and ChartDB viewer (`datamodel/README.md`)      |
-| `scripts/`             | Project scripts, such as `env-init.ts`                       |
-| `perf/`                | Performance checks and their baselines (`perf/README.md`)    |
-| `e2e/`                 | Playwright end-to-end tests and their server (`server.ts`)   |
-| `prototypes/`          | Static HTML prototypes (`prototypes/README.md`)              |
-| `public/`              | Files served as they are, such as the Snowhound mark         |
-| `deploy/compose/`      | Compose stack and Caddyfile (`docs/deployment.md`)           |
-| `docs/`                | Product scope, architecture, hosting, skills                 |
-| `tasks/`               | Task files (`tasks/README.md`)                               |
+| Path                   | Holds                                                           |
+| ---------------------- | --------------------------------------------------------------- |
+| `src/routes/`          | Route files: wiring only                                        |
+| `src/features/<name>/` | One view: page, pending state, subcomponents, queries, tests    |
+| `src/components/`      | Shared components; `ui/` holds shadcn copies, one with app code |
+| `src/lib/`             | Shared helpers, including code the server shares                |
+| `src/server/<domain>/` | Server functions, rules, schemas, and tests per domain          |
+| `src/db/`              | Database connection, `schema.ts`, relations, seed, demo data    |
+| `src/integrations/`    | TanStack Query setup and devtools, from the scaffold            |
+| `src/env.ts`           | Server environment, validated with Valibot                      |
+| `src/test/`            | Test setup: Vitest for components, a preload for `bun test`     |
+| `messages/`            | UI messages per locale (`et.json`, `en.json`)                   |
+| `project.inlang/`      | Paraglide settings; `i18n:compile` builds `src/paraglide/`      |
+| `drizzle/`             | SQL migrations, `<timestamp>_<name>/migration.sql`              |
+| `datamodel/`           | DBML diagram and ChartDB viewer (`datamodel/README.md`)         |
+| `scripts/`             | Project scripts, such as `env-init.ts`                          |
+| `perf/`                | Performance checks and their baselines (`perf/README.md`)       |
+| `e2e/`                 | Playwright end-to-end tests and their server (`server.ts`)      |
+| `prototypes/`          | Static HTML prototypes (`prototypes/README.md`)                 |
+| `public/`              | Files served as they are, such as the Snowhound mark            |
+| `deploy/compose/`      | Compose stack and Caddyfile (`docs/deployment.md`)              |
+| `docs/`                | Product scope, architecture, hosting, skills                    |
+| `tasks/`               | Task files (`tasks/README.md`)                                  |
+
+Besides the shadcn dialog, `src/components/ui/dialog.tsx` holds the guard that asks
+before Esc or a click outside discards changes, with its tests. Merge a
+`shadcn add dialog` update into it by hand rather than overwriting it.
 
 ## Scaffold
 

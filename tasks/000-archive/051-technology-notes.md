@@ -50,7 +50,7 @@ Decided with the user on 2026-10-08:
 
 - Migration `20261008132035_technology_note` adds a nullable `note` column. The length
   limit is in Valibot only, as for names; the database has no check.
-- `LinkedText` (`src/components/linked-text.tsx`) makes https URLs links that open in a
+- `LinkedText` (`src/features/technologies/linked-text.tsx`) makes https URLs links that open in a
   new tab with `rel="noopener noreferrer"`, and leaves trailing sentence punctuation out
   of the link.
 - A merge can leave a note longer than 1,000 characters. It is stored, and the edit

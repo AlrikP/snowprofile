@@ -27,3 +27,6 @@ Builds on: `docs/product.md` ("Sheet migration", "Users and access": platform op
 - [x] All subtasks are done.
 - [ ] A rehearsal on a copy of the sheet, against a local Compose stack, runs twice with
       the same result; the Outcome records the report's size.
+- [ ] The rehearsal lists the real sheet's distinct characteristic answers. Any that
+      `readAnswer` (`scripts/sheet-migration/projects.ts`) reads as yes but that mean no,
+      such as "Puudub" or "None", are fixed there or recorded as accepted.

@@ -136,8 +136,7 @@ projects and participations").
 #### Scenario: project-participation.own-copy
 
 - **Given** a saved participation with its technologies
-- **When** an admin changes the project's technologies, or the member picks another
-  project for the participation
+- **When** an admin changes the project's technologies
 - **Then** the participation keeps its own list
 
 ### Requirement: Missing project technologies are suggested
