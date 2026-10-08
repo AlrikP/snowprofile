@@ -11,7 +11,11 @@ vi.mock('#/server/technologies/technologies.functions', () => ({
   addTechnology: vi.fn(),
 }))
 
-function Picker({ initial = [] as string[], canAdd = true }) {
+function Picker({
+  initial = [] as string[],
+  canAdd = true,
+  suggested = undefined as string[] | undefined,
+}) {
   const [value, setValue] = useState(initial)
   return (
     <QueryClientProvider client={new QueryClient()}>
@@ -23,6 +27,7 @@ function Picker({ initial = [] as string[], canAdd = true }) {
         value={value}
         onChange={setValue}
         canAdd={canAdd}
+        suggested={suggested}
       />
     </QueryClientProvider>
   )
@@ -53,6 +58,23 @@ describe('TechnologyPicker', () => {
     expect(screen.getByRole('list', { name: 'Technologies' })).toHaveTextContent(
       'PostgreSQLPostgres',
     )
+  })
+
+  it('technology-catalogue.picker-suggests: an empty field suggests the given ones first, then the most used', async () => {
+    render(<Picker initial={['react']} suggested={['react', 'postgres']} />)
+    const combobox = screen.getByRole('combobox')
+
+    await userEvent.click(combobox)
+    expect(combobox).toHaveAttribute('aria-expanded', 'true')
+    expect(screen.getAllByRole('option').map((each) => each.textContent)).toEqual([
+      'PostgresData',
+      'PostgreSQLData',
+      'AngularFrontend',
+    ])
+    await userEvent.keyboard('{ArrowDown}{ArrowDown}{Enter}')
+    expect(screen.getByRole('list', { name: 'Technologies' })).toHaveTextContent('ReactAngular')
+    await userEvent.tab()
+    expect(combobox).toHaveAttribute('aria-expanded', 'false')
   })
 
   it('technology-catalogue.picker-adds-missing: offers to add a name nothing matches', async () => {

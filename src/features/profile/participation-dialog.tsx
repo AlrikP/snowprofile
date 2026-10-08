@@ -294,6 +294,7 @@ function ParticipationForm({ organizationId, participation, onDone }: FormProps)
           catalogue={catalogue}
           value={values.technologyIds}
           onChange={(technologyIds) => set('technologyIds', technologyIds)}
+          suggested={projectTechnologies.map((technology) => technology.id)}
         />
         {suggestions.length > 0 && (
           <div

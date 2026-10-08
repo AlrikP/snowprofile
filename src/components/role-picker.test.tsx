@@ -49,6 +49,27 @@ describe('RolePicker', () => {
     expect(screen.getByRole('list', { name: 'Roles' })).toHaveTextContent('Analyst')
   })
 
+  it('role-catalogue.picker-suggests: an empty field suggests the roles not chosen, most used first', async () => {
+    render(<Picker initial={['developer']} />)
+
+    await userEvent.click(screen.getByRole('combobox'))
+    expect(screen.getAllByRole('option').map((each) => each.textContent)).toEqual([
+      'Analyst',
+      'Süsteemianalüütik',
+      'Software developer',
+    ])
+    await userEvent.keyboard('{ArrowDown}{Enter}')
+    expect(screen.getByRole('list', { name: 'Roles' })).toHaveTextContent(
+      'DeveloperSüsteemianalüütik',
+    )
+    // Typing narrows the suggestions as before.
+    await userEvent.type(screen.getByRole('combobox'), 'soft')
+    expect(screen.getAllByRole('option').map((each) => each.textContent)).toEqual([
+      'Software developer',
+      'Add a new role: soft',
+    ])
+  })
+
   it('role-catalogue.added: adds a missing role through the dialog and picks it', async () => {
     server.addRole.mockImplementation(({ data }: { data: { id: string } }) =>
       Promise.resolve({ id: data.id }),

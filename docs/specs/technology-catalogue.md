@@ -37,6 +37,20 @@ refused.
 - **When** someone adds "postgre-sql"
 - **Then** the addition is refused, and the dialog names the existing PostgreSQL
 
+### Requirement: Pickers suggest before typing
+
+A technology picker must suggest entries when its empty field gets focus or a click, so a
+person sees what the catalogue holds: on a participation, the project's technologies the
+person hasn't chosen first, then the entries most projects use. Typing narrows the list
+as before.
+
+#### Scenario: technology-catalogue.picker-suggests
+
+- **Given** a participation on a project with technologies, one of them already chosen
+- **When** the person focuses the empty technology field
+- **Then** the list shows the project's other technologies first, then the most used
+  entries, without the chosen one
+
 ### Requirement: Admins curate
 
 Admins must be able to rename an entry and move it to another category. A rename that

@@ -59,6 +59,17 @@ page must send them to their organization's start page.
 - **Then** the page sends them to their organization's start page, and the server refuses
   each call
 
+### Requirement: Pickers suggest before typing
+
+A role picker must suggest the most used roles when its empty field gets focus or a click.
+Typing narrows the list as before.
+
+#### Scenario: role-catalogue.picker-suggests
+
+- **Given** a role catalogue with roles of different uses
+- **When** someone focuses an empty role field
+- **Then** the list shows the roles not yet chosen, most used first
+
 ### Requirement: Missing English names are flagged
 
 Roles from the sheet migration can lack an English name. The roles page must show each

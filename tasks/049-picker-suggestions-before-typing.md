@@ -1,6 +1,6 @@
 # 049: Suggestions in pickers before typing
 
-Status: todo
+Status: done
 
 The autocomplete pickers list options only once something is typed: an empty field shows
 nothing, so a person can't see what kind of entry the field expects or what the catalogue
@@ -36,16 +36,43 @@ customer.
 - **Shared code:** the three pickers repeat the same combobox logic; a shared hook or
   component could carry the new behavior once.
 
+## Decision
+
+Decided with the user on 2026-10-08:
+
+- **When:** the list opens when the empty field gets focus or a click, and on the down
+  arrow. Escape, leaving the field, and a click outside close it.
+- **What, 8 at most:** technologies: the IDs the caller suggests first (a participation
+  passes its project's technologies), then the entries most projects use. Roles: most
+  used first. People: everyone the picker offers, in name order.
+- **Shared code:** `useCombobox` (`src/components/use-combobox.ts`) holds the state and
+  keys the three pickers repeated; each picker keeps its own options and markup.
+
 ## Acceptance criteria
 
-- [ ] The chosen behavior, per picker, is agreed and recorded in the task before the work
+- [x] The chosen behavior, per picker, is agreed and recorded in the task before the work
       starts.
-- [ ] Each picker shows its suggestions on an empty field as agreed, and typing narrows
+- [x] Each picker shows its suggestions on an empty field as agreed, and typing narrows
       them as now.
-- [ ] Keyboard use works the same with an empty field as with a typed one.
-- [ ] Component tests cover the empty-field suggestions for each picker.
+- [x] Keyboard use works the same with an empty field as with a typed one.
+- [x] Component tests cover the empty-field suggestions for each picker.
 
 ## Spec changes
 
-To decide with the behavior; likely a scenario per catalogue spec
-(`technology-catalogue.md`, `role-catalogue.md`) and in `cv-selection.md` for people.
+- Added: requirement "Pickers suggest before typing" with scenario
+  `technology-catalogue.picker-suggests` in `docs/specs/technology-catalogue.md`, and with
+  `role-catalogue.picker-suggests` in `docs/specs/role-catalogue.md`.
+- Modified: "Leavers on request" in `docs/specs/cv-selection.md` says the empty field
+  suggests everyone offered, in name order. Added scenario `cv-selection.people-suggested`.
+
+## Outcome
+
+- A new participation starts with all of its project's technologies chosen, so its
+  picker suggests the project's other technologies only after the person removes some.
+  The "Also on the project" buttons under the picker stay.
+- Escape in a picker inside a dialog closes the list and leaves the dialog open, checked
+  in Chromium. Near the bottom of a dialog the list runs past the visible area and the
+  dialog scrolls, as it already did while typing.
+- The person picker now sorts by name while typing too.
+- Not tried with a screen reader. The input keeps the combobox attributes it had, and
+  `aria-expanded` now follows the open list.

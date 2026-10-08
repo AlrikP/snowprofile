@@ -36,13 +36,19 @@ generate CVs must be refused.
 ### Requirement: Leavers on request
 
 The CV page must leave people who have left out of its people picker unless the admin
-asks for them.
+asks for them. The picker's empty field suggests everyone it offers, in name order.
 
 #### Scenario: cv-selection.leavers-hidden
 
 - **Given** a person who has left
 - **When** an admin looks for them in the CV page's people picker
 - **Then** they aren't offered until the admin ticks "Show leavers"
+
+#### Scenario: cv-selection.people-suggested
+
+- **Given** current people and a leaver
+- **When** an admin focuses the CV page's empty people field
+- **Then** the list shows the current people in name order, without the leaver
 
 ### Requirement: Projects to include
 

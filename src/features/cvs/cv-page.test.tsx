@@ -170,6 +170,19 @@ describe('CvPage', () => {
     expect(onSelectionChange).toHaveBeenCalledWith({ leavers: true })
   })
 
+  it('cv-selection.people-suggested: an empty field suggests the current people in name order', async () => {
+    await show({ people: ['kalle'] }, null)
+    const combobox = screen.getByRole('combobox', { name: 'Add person' })
+
+    await userEvent.click(combobox)
+    expect(combobox).toHaveAttribute('aria-expanded', 'true')
+    expect(screen.getAllByRole('option').map((each) => each.textContent)).toEqual(['Erik Employee'])
+    await userEvent.keyboard('{Escape}')
+    expect(combobox).toHaveAttribute('aria-expanded', 'false')
+    await userEvent.keyboard('{ArrowDown}{Enter}')
+    expect(onSelectionChange).toHaveBeenCalledWith({ people: ['kalle', 'erik'] })
+  })
+
   it('cv-selection.leavers-hidden: a leaver is offered with the leavers shown', async () => {
     await show({ leavers: true }, null)
 
