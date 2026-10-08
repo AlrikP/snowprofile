@@ -6,7 +6,8 @@
     "e2e/**/*.{setup,e2e}.ts",
     "prototypes/lib/main.ts",
     "prototypes/lib/icons.ts",
-    "prototypes/prototype.css"
+    "prototypes/prototype.css",
+    "perf/*.ts"
   ],
   "project": [
     "src/**/*.{ts,tsx,css}",

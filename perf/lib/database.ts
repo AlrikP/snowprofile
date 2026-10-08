@@ -19,8 +19,8 @@ import { openDatabase } from '#/db/connection'
 import { benchmarkOrganization, generateBenchmarkData, seed, seedBenchmark } from '#/db/seed'
 import { SEED_PASSWORD } from '#/db/seed-accounts'
 
-const ROOT = join(import.meta.dir, '../..')
-const CACHE = join(ROOT, 'perf/.cache')
+export const ROOT = join(import.meta.dir, '../..')
+export const CACHE = join(ROOT, 'perf/.cache')
 
 export const BENCHMARK = { id: benchmarkOrganization.id, slug: benchmarkOrganization.slug }
 

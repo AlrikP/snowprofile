@@ -8,6 +8,7 @@
 - Hosting constraints: `docs/hosting.md`
 - Deployment and the local Compose rehearsal: `docs/deployment.md`
 - Database migrations: `docs/migrations.md`
+- Performance checks: `perf/README.md`
 - Task tracking: `tasks/` (see `tasks/README.md`)
 - Writing docs: `.claude/skills/google-style/SKILL.md`
 - Checking UI in a browser: `docs/skills/ui-review/SKILL.md`
@@ -58,6 +59,7 @@ commits after reviewing.
 | `bun run test:server`                      | Server and database tests (`*.test.ts`), in random order; it prints `--seed`                            |
 | `bun run test:components`                  | Component tests (`*.test.tsx`) with Vitest in jsdom                                                     |
 | `bun run test:e2e`                         | Playwright against the production build on port 3100, with a fresh seeded database                      |
+| `bun run perf`                             | Builds the app and checks bundle budgets against `perf/baselines/`; `--update` accepts new ones         |
 
 `test:e2e` stays out of `test`, so `test` needs no browser; CI runs it as its own step.
 Install the browser once with `bunx playwright install chromium`.
@@ -137,7 +139,8 @@ convention names its check; the ones under "Checked in review" have none.
 - CI is one `check` job in `.github/workflows/ci.yml`, on pull requests and pushes to
   `main`. Its steps: install, compile messages, format check, lint, import areas, icon
   names, spec scenarios, type check, knip, test, schema drift, data model diagram, build,
-  end-to-end tests, both container images, and a smoke test of the app image. A task that adds a check adds it as a step there and to the table above.
+  performance budgets, end-to-end tests, both container images, and a smoke test of the
+  app image. A task that adds a check adds it as a step there and to the table above.
 - Unused code fails knip. A file only a later task uses goes in `knip.json`'s `ignore`
   with that task named, rather than staying unchecked by accident; shadcn copies in
   `src/components/ui/` are ignored because unused parts of them are normal.
