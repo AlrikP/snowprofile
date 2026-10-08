@@ -33,14 +33,21 @@ type EditProps = {
   organizationId: string
   catalogue: TechnologyCatalogue
   technology: Technology
+  initialNote: string | undefined
   onDone: () => void
 }
 
-function EditTechnologyForm({ organizationId, catalogue, technology, onDone }: EditProps) {
+function EditTechnologyForm({
+  organizationId,
+  catalogue,
+  technology,
+  initialNote,
+  onDone,
+}: EditProps) {
   const queryClient = useQueryClient()
   const [name, setName] = useState(technology.name)
   const [categoryId, setCategoryId] = useState(technology.categoryId)
-  const [note, setNote] = useState(technology.note ?? '')
+  const [note, setNote] = useState(initialNote ?? '')
   const duplicate = findDuplicate(catalogue.technologies, name, technology.id)
   // An unchanged name doesn't warn, so moving an entry to another category stays quiet.
   const renamed = normalizeName(name) !== normalizeName(technology.name)

@@ -4,6 +4,7 @@ import { queryOptions } from '@tanstack/react-query'
 import { getLocale } from '#/paraglide/runtime.js'
 import {
   getTechnologyCatalogue,
+  getTechnologyNotes,
   type TechnologyCatalogue,
 } from '#/server/technologies/technologies.functions'
 import { bilingualDisplay } from './bilingual'
@@ -18,6 +19,18 @@ export function technologyCatalogueQuery(organizationId: string) {
   return queryOptions({
     queryKey: ['technologies', organizationId],
     queryFn: () => getTechnologyCatalogue({ data: { organizationId } }),
+  })
+}
+
+// Notes load apart from the catalogue, only on pages that show them. The key sits under the
+// catalogue's, so invalidating the catalogue refreshes the notes too.
+export function technologyNotesQuery(organizationId: string) {
+  return queryOptions({
+    queryKey: ['technologies', organizationId, 'notes'],
+    queryFn: async () => {
+      const rows = await getTechnologyNotes({ data: { organizationId } })
+      return new Map(rows.flatMap(({ id, note }) => (note ? [[id, note] as const] : [])))
+    },
   })
 }
 

@@ -1,6 +1,6 @@
 // Database access for the technology catalogue. Every query filters by the scope's
 // organization; link rows can't cross organizations because of their composite keys.
-import { and, asc, eq, ne, sql } from 'drizzle-orm'
+import { and, asc, eq, isNotNull, ne, sql } from 'drizzle-orm'
 import type { Executor } from '#/db'
 import {
   ownProjectTechnology,
@@ -81,7 +81,6 @@ export async function listTechnologies(db: Executor, scope: Scope) {
       id: technology.id,
       name: technology.name,
       categoryId: technology.categoryId,
-      note: technology.note,
       projects: PROJECT_COUNT,
       people: PEOPLE_COUNT,
     })
@@ -90,6 +89,21 @@ export async function listTechnologies(db: Executor, scope: Scope) {
       and(eq(technology.organizationId, scope.organizationId), eq(technology.sysDeleted, sql`0`)),
     )
     .orderBy(asc(technology.normalizedName))
+}
+
+// Kept out of listTechnologies: every page with a picker loads the catalogue, and only some
+// show notes.
+export async function listTechnologyNotes(db: Executor, scope: Scope) {
+  return db
+    .select({ id: technology.id, note: technology.note })
+    .from(technology)
+    .where(
+      and(
+        eq(technology.organizationId, scope.organizationId),
+        eq(technology.sysDeleted, sql`0`),
+        isNotNull(technology.note),
+      ),
+    )
 }
 
 export async function findTechnology(db: Executor, scope: Scope, technologyId: string) {

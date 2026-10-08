@@ -64,3 +64,8 @@ Decided with the user on 2026-10-08:
   checks that each note names a demo technology, fits the limit, and links only with https.
 - Checked on the seeded demo organization in Chromium. A URL wraps as a whole onto its own
   line (`break-words`); `break-all` had split it mid-word.
+- The catalogue no longer carries notes (cr-005.1). Every page with a picker loaded
+  them, and the search and CV pages outgrew their page baselines. The
+  technologies page reads them with `getTechnologyNotes`. On 2026-10-08 the user decided
+  that search filters and lists don't show notes, and that the picker shows them where a
+  project's technologies are chosen (task 056).

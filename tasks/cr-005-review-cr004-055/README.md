@@ -1,6 +1,6 @@
 # CR-005: Fixes from the review of cr-004 through task 055
 
-Status: todo
+Status: in-progress
 
 A code review of the commits from cr-004 through task 055 (`f99e034..21fb124`, reviewed
 2026-10-08) found the issues below. These pass in the working copy, and the first three in

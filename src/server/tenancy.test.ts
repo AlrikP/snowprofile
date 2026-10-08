@@ -1235,6 +1235,10 @@ const cases: Record<string, () => Promise<void>> = {
     const ids = (await technologies.listTechnologies(db, scopeA)).map((row) => row.id)
     expect(ids).not.toContain(b.technologyId)
   },
+  'technologies.listTechnologyNotes': async () => {
+    const ids = (await technologies.listTechnologyNotes(db, scopeA)).map((row) => row.id)
+    expect(ids).not.toContain(b.technologyId)
+  },
   'technologies.findTechnology': async () => {
     expect(await technologies.findTechnology(db, scopeA, b.technologyId)).toBeUndefined()
   },

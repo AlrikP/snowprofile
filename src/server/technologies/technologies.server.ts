@@ -23,6 +23,10 @@ export async function catalogue(db: Database, scope: Scope) {
   return { categories, technologies, distinctPairs }
 }
 
+export function notes(db: Database, scope: Scope) {
+  return repository.listTechnologyNotes(db, scope)
+}
+
 // The name's normalized form, refused when it leaves nothing to compare, such as "!!".
 function normalized(name: string) {
   const value = normalizeName(name)

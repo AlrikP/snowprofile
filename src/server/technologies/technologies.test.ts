@@ -26,6 +26,7 @@ import {
   catalogue,
   markNotDuplicate,
   mergeTechnology,
+  notes,
   updateTechnology,
 } from './technologies.server'
 
@@ -240,14 +241,24 @@ describe('notes', () => {
     })
   }
 
+  async function noted(id: string) {
+    return (await notes(db, employee)).find((row) => row.id === id)?.note
+  }
+
   test('technology-catalogue.note-edited: an admin adds, changes, and clears a note', async () => {
     const id = await add(admin, 'Noteworthy')
     await note(admin, id, 'Docs: https://noteworthy.example/docs')
-    expect(await listed(id)).toMatchObject({ note: 'Docs: https://noteworthy.example/docs' })
+    expect(await noted(id)).toBe('Docs: https://noteworthy.example/docs')
     await note(admin, id, 'Not the same as Noteworthy Classic.')
-    expect(await listed(id)).toMatchObject({ note: 'Not the same as Noteworthy Classic.' })
+    expect(await noted(id)).toBe('Not the same as Noteworthy Classic.')
     await note(admin, id, null)
-    expect(await listed(id)).toMatchObject({ note: null })
+    expect(await noted(id)).toBeUndefined()
+  })
+
+  test('the catalogue carries no notes, so pages with a picker stay small', async () => {
+    const id = await add(admin, 'Unnoted')
+    await note(admin, id, 'Only on the technologies page.')
+    expect(await listed(id)).not.toHaveProperty('note')
   })
 
   test('technology-catalogue.note-edited: a blank note is none, and a long one is refused', () => {

@@ -14,6 +14,10 @@ export const getTechnologyCatalogue = createServerFn({ method: 'GET' })
   .middleware([scopeMiddleware])
   .handler(({ context }) => technologies.catalogue(context.db, context.scope))
 
+export const getTechnologyNotes = createServerFn({ method: 'GET' })
+  .middleware([scopeMiddleware])
+  .handler(({ context }) => technologies.notes(context.db, context.scope))
+
 export const addTechnology = createServerFn({ method: 'POST' })
   .middleware([scopeMiddleware])
   .validator(AddTechnologyInput)

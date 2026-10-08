@@ -14,7 +14,12 @@ import {
 } from '#/components/ui/dropdown-menu'
 import { Input } from '#/components/ui/input'
 import { normalizeName } from '#/lib/normalize-name'
-import { categoryName, type Technology, technologyCatalogueQuery } from '#/lib/technology-catalogue'
+import {
+  categoryName,
+  type Technology,
+  technologyCatalogueQuery,
+  technologyNotesQuery,
+} from '#/lib/technology-catalogue'
 import { nearDuplicatePairs } from '#/lib/technology-duplicates'
 import { m } from '#/paraglide/messages.js'
 import { EditTechnologyDialog } from './edit-technology-dialog'
@@ -63,6 +68,7 @@ export function TechnologiesPage({
   canCurate: boolean
 }) {
   const { data: catalogue } = useSuspenseQuery(technologyCatalogueQuery(organizationId))
+  const { data: notes } = useSuspenseQuery(technologyNotesQuery(organizationId))
   const [search, setSearch] = useState('')
   const [adding, setAdding] = useState(false)
   const [editing, setEditing] = useState<Technology | null>(null)
@@ -134,32 +140,32 @@ export function TechnologiesPage({
                 </CardHeader>
                 <CardContent>
                   <ul className="flex flex-col divide-y">
-                    {technologies.map((technology) => (
-                      <li key={technology.id} className="flex min-h-10 items-center gap-2 py-1">
-                        <div className="flex-1">
-                          <span className="font-medium">{technology.name}</span>
-                          {technology.note && (
-                            <LinkedText
-                              text={technology.note}
-                              className="text-muted-foreground text-sm"
+                    {technologies.map((technology) => {
+                      const note = notes.get(technology.id)
+                      return (
+                        <li key={technology.id} className="flex min-h-10 items-center gap-2 py-1">
+                          <div className="flex-1">
+                            <span className="font-medium">{technology.name}</span>
+                            {note && (
+                              <LinkedText text={note} className="text-muted-foreground text-sm" />
+                            )}
+                          </div>
+                          <span className="text-muted-foreground text-sm">
+                            {m.technologies_use_counts({
+                              projects: technology.projects,
+                              people: technology.people,
+                            })}
+                          </span>
+                          {canCurate && (
+                            <TechnologyActions
+                              technology={technology}
+                              onEdit={() => setEditing(technology)}
+                              onMerge={() => setMerging({ technology })}
                             />
                           )}
-                        </div>
-                        <span className="text-muted-foreground text-sm">
-                          {m.technologies_use_counts({
-                            projects: technology.projects,
-                            people: technology.people,
-                          })}
-                        </span>
-                        {canCurate && (
-                          <TechnologyActions
-                            technology={technology}
-                            onEdit={() => setEditing(technology)}
-                            onMerge={() => setMerging({ technology })}
-                          />
-                        )}
-                      </li>
-                    ))}
+                        </li>
+                      )
+                    })}
                   </ul>
                 </CardContent>
               </Card>
@@ -180,6 +186,7 @@ export function TechnologiesPage({
             organizationId={organizationId}
             catalogue={catalogue}
             technology={editing}
+            initialNote={editing ? notes.get(editing.id) : undefined}
             onClose={() => setEditing(null)}
           />
           <MergeTechnologyDialog

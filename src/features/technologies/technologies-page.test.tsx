@@ -2,12 +2,13 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { technologyCatalogueQuery } from '#/lib/technology-catalogue'
+import { technologyCatalogueQuery, technologyNotesQuery } from '#/lib/technology-catalogue'
 import { testCatalogue } from '#/test/technology-catalogue'
 import { TechnologiesPage } from './technologies-page'
 
 const server = vi.hoisted(() => ({
   getTechnologyCatalogue: vi.fn(),
+  getTechnologyNotes: vi.fn(),
   addTechnology: vi.fn(),
   updateTechnology: vi.fn(),
   mergeTechnology: vi.fn(),
@@ -18,11 +19,17 @@ vi.mock('#/server/technologies/technologies.functions', () => server)
 beforeEach(() => {
   vi.clearAllMocks()
   server.getTechnologyCatalogue.mockResolvedValue(testCatalogue)
+  server.getTechnologyNotes.mockResolvedValue([])
 })
 
-function renderPage(canCurate: boolean, catalogue = testCatalogue) {
+function renderPage(
+  canCurate: boolean,
+  catalogue = testCatalogue,
+  notes: Record<string, string> = {},
+) {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   queryClient.setQueryData(technologyCatalogueQuery('org').queryKey, catalogue)
+  queryClient.setQueryData(technologyNotesQuery('org').queryKey, new Map(Object.entries(notes)))
   render(
     <QueryClientProvider client={queryClient}>
       <TechnologiesPage organizationId="org" canCurate={canCurate} />
@@ -261,15 +268,9 @@ describe('TechnologiesPage', () => {
   })
 
   it('technology-catalogue.note-edited: an admin writes a note, and clears it', async () => {
-    const noted = {
-      ...testCatalogue,
-      technologies: testCatalogue.technologies.map((each) =>
-        each.id === 'react' ? { ...each, note: 'Old note' } : each,
-      ),
-    }
-    server.getTechnologyCatalogue.mockResolvedValue(noted)
+    server.getTechnologyNotes.mockResolvedValue([{ id: 'react', note: 'Old note' }])
     server.updateTechnology.mockResolvedValue(undefined)
-    renderPage(true, noted)
+    renderPage(true, testCatalogue, { react: 'Old note' })
 
     await userEvent.click(screen.getByRole('button', { name: 'Actions for Angular' }))
     await userEvent.click(screen.getByRole('menuitem', { name: 'Edit' }))
@@ -296,16 +297,9 @@ describe('TechnologiesPage', () => {
   })
 
   it('technology-catalogue.note-edited: every member sees a note, with https links only', () => {
-    renderPage(false, {
-      ...testCatalogue,
-      technologies: testCatalogue.technologies.map((each) =>
-        each.id === 'postgresql'
-          ? {
-              ...each,
-              note: 'Docs: https://www.postgresql.org/docs/.\nNot javascript:alert(1) or http://plain.example',
-            }
-          : each,
-      ),
+    renderPage(false, testCatalogue, {
+      postgresql:
+        'Docs: https://www.postgresql.org/docs/.\nNot javascript:alert(1) or http://plain.example',
     })
 
     const data = within(screen.getByRole('region', { name: 'Data' }))
