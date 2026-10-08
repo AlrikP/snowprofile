@@ -62,3 +62,20 @@ test('a failing migration rejects, so the server never starts', async () => {
   const error = await migrateOnStart(url, folder).catch((reason: unknown) => reason)
   expect(error).toBeInstanceOf(Error)
 })
+
+test('an older release starts on a database a newer release migrated, and applies nothing', async () => {
+  const newer = join(dir, 'newer')
+  cpSync('drizzle', newer, { recursive: true })
+  mkdirSync(join(newer, '20990101000000_added'))
+  writeFileSync(
+    join(newer, '20990101000000_added', 'migration.sql'),
+    'CREATE TABLE added (id text PRIMARY KEY NOT NULL);',
+  )
+  await migrateOnStart(url, newer)
+
+  await migrateOnStart(url, 'drizzle')
+
+  const migrations = readdirSync('drizzle').filter((name) => !name.startsWith('.'))
+  expect(await rows('SELECT name FROM __drizzle_migrations')).toHaveLength(migrations.length + 1)
+  expect(await rows("SELECT 1 FROM sqlite_master WHERE name = 'added'")).toHaveLength(1)
+})

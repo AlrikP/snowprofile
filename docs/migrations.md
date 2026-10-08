@@ -31,6 +31,8 @@ gitignored `.env.local` or on the command line.
 
 - **Roll forward only.** No down migrations. Fix a mistake with a new migration.
 - **Never edit or delete an applied migration.** `db:migrate` refuses to run if you do.
+  It accepts applied migrations newer than every one in `drizzle/`: an older release
+  rolled back onto a database a newer one migrated starts on it, and applies nothing.
   A migration that has only run on your local database may still be edited: delete
   `local.db` and migrate again.
 - **Backward compatible.** Deployed stacks migrate on startup (`AGENTS.md`, "Deployment"),

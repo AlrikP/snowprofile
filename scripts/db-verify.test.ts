@@ -56,3 +56,34 @@ test('fails when an applied migration was deleted', async () => {
   rmSync(join(dir, '20261002000000_first'), { recursive: true })
   expect(await verifyMigrations(client, dir)).toBe(false)
 })
+
+test('passes when the database applied migrations newer than every one in the folder', async () => {
+  await applied({
+    '20261002000000_first': 'CREATE TABLE a (id text);',
+    '20261003000000_second': 'CREATE TABLE b (id text);',
+  })
+  // A rollback: the newer release applied the second, and this one lacks it.
+  rmSync(join(dir, '20261003000000_second'), { recursive: true })
+  expect(await verifyMigrations(client, dir)).toBe(true)
+})
+
+test('fails when an earlier migration is missing, even with later ones unknown too', async () => {
+  await applied({
+    '20261002000000_first': 'CREATE TABLE a (id text);',
+    '20261003000000_second': 'CREATE TABLE b (id text);',
+    '20261004000000_third': 'CREATE TABLE c (id text);',
+  })
+  rmSync(join(dir, '20261002000000_first'), { recursive: true })
+  rmSync(join(dir, '20261004000000_third'), { recursive: true })
+  expect(await verifyMigrations(client, dir)).toBe(false)
+})
+
+test('fails when an applied migration was edited, though later ones are unknown', async () => {
+  await applied({
+    '20261002000000_first': 'CREATE TABLE a (id text);',
+    '20261003000000_second': 'CREATE TABLE b (id text);',
+  })
+  rmSync(join(dir, '20261003000000_second'), { recursive: true })
+  writeFileSync(join(dir, '20261002000000_first', 'migration.sql'), 'CREATE TABLE z (id text);')
+  expect(await verifyMigrations(client, dir)).toBe(false)
+})

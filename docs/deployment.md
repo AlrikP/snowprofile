@@ -98,9 +98,11 @@ docker compose pull
 docker compose up -d --no-build --wait
 ```
 
-To roll back, set an earlier release and run the same commands. This works only back to
-a release with the same migrations: on startup, a release that lacks a migration the
-database already applied reports it as deleted and refuses to start (`db:verify`). On an
+To roll back, set an earlier release and run the same commands. An earlier release starts
+on a database a later one migrated: `db:verify` accepts the migrations it doesn't have,
+since they all come after its own, and the backward-compatible rule
+(`docs/migrations.md`) keeps the old code working on the new schema. If a later
+migration broke that rule, the rollback needs a copy of the database from before it. On an
 Apple Silicon Mac the `linux/amd64` images run under emulation, slower than a local
 build. Set `RELEASE=local` to build from the checkout again.
 

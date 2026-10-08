@@ -2,11 +2,16 @@
 // SHA-256 of each migration.sql in __drizzle_migrations but never checks it again, so an
 // edited migration would be skipped silently on databases that already ran it.
 //
+// An applied migration newer than every one in the folder isn't deleted: a later release
+// applied it, and this one is a rollback. Migrations stay backward compatible, so the older
+// release runs on the newer schema (docs/migrations.md, "Rules"). Drizzle's migrator skips
+// it, since it applies only the folder's migrations the database lacks.
+//
 // Usage: bun run db:verify   (the database in DATABASE_URL)
 
 import { type Client, createClient } from '@libsql/client'
 import { createHash } from 'node:crypto'
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 // Returns false, after printing what changed, when an applied migration differs from its
@@ -24,14 +29,21 @@ export async function verifyMigrations(
   }
 
   const applied = await client.execute('SELECT name, hash FROM __drizzle_migrations ORDER BY id')
+  // Folder names start with their timestamp, so they sort in the order they were created.
+  const latest = readdirSync(folder)
+    .filter((name) => existsSync(join(folder, name, 'migration.sql')))
+    .sort()
+    .at(-1)
   const problems: string[] = []
+  const later: string[] = []
 
   for (const row of applied.rows) {
     // oxlint-disable-next-line typescript/no-base-to-string -- name is a text column.
     const name = String(row.name)
     const file = join(folder, name, 'migration.sql')
     if (!existsSync(file)) {
-      problems.push(`${name}: applied, but ${file} no longer exists`)
+      if (latest !== undefined && name > latest) later.push(name)
+      else problems.push(`${name}: applied, but ${file} no longer exists`)
       continue
     }
     const hash = createHash('sha256').update(readFileSync(file)).digest('hex')
@@ -44,7 +56,12 @@ export async function verifyMigrations(
     return false
   }
 
-  console.log(`[db-verify] ${applied.rows.length} applied migrations unchanged.`)
+  if (later.length) {
+    console.log(
+      `[db-verify] ${later.length} applied migrations come after this release's: ${later.join(', ')}`,
+    )
+  }
+  console.log(`[db-verify] ${applied.rows.length - later.length} applied migrations unchanged.`)
   return true
 }
 
