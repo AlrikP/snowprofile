@@ -62,6 +62,21 @@ export const demoOrganizations: readonly OrganizationSpec[] = [
   },
 ]
 
+// A larger organization for the performance checks (perf/README.md), with more projects
+// and people than the company has today. The seeder doesn't add it; perf/lib/database.ts
+// seeds it beside the demo organizations.
+export const benchmarkOrganization: OrganizationSpec = {
+  id: seedIds.orgs.benchmark,
+  slug: 'benchmark',
+  name: 'Benchmark Systems',
+  createdAt: daysAgo(500),
+  customers: 16,
+  projects: 300,
+  employees: 60,
+  participations: [8, 20],
+  devMembers: [],
+}
+
 export function generateDemoData(seed = DEMO_SEED): DemoOrganization[] {
   return demoOrganizations.map((spec) => generateOrganization(seed, spec))
 }
@@ -251,6 +266,17 @@ export async function seed(db: Database, seedValue = DEMO_SEED) {
     }),
   )
   return { added, skipped }
+}
+
+export function generateBenchmarkData(): DemoOrganization {
+  return generateOrganization(DEMO_SEED, benchmarkOrganization)
+}
+
+export async function seedBenchmark(db: Database) {
+  const passwordHash = await hashPassword(SEED_PASSWORD)
+  await db.transaction((tx) =>
+    withActor(SYSTEM_USER_ID, () => insertOrganization(tx, generateBenchmarkData(), passwordHash)),
+  )
 }
 
 // Replaces one demo organization's data with freshly generated rows, leaving the other

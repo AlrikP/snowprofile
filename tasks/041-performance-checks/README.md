@@ -1,6 +1,6 @@
 # 041: Performance checks
 
-Status: todo
+Status: in-progress
 Depends on: task 029.1 (project pages), task 035 (search), task 036 (the CV read)
 
 Measure what the app sends and what the server reads, so a change shows its effect in
@@ -27,3 +27,11 @@ gating them. Start once the first features exist; the list of hot paths grows wi
 - [ ] CI runs `bun run perf`; `AGENTS.md` lists the commands and the CI step.
 - [ ] A `perf/README.md` describes the harnesses, the benchmark data, and how to accept a
       baseline.
+
+## Subtasks
+
+1. `01-benchmark-data.md`: the larger organization and its cached database.
+2. `02-bundle-budgets.md`: `bun run perf` with bundle budgets, in CI.
+3. `03-query-plans-and-reads.md`: query plans and read sizes in `bun run perf`.
+4. `04-pages.md`: `bun run perf:pages`.
+5. `05-load.md`: `bun run perf:load`.

@@ -1,4 +1,4 @@
-# 042.2: A warning when adding or renaming
+    # 042.2: A warning when adding or renaming
 
 Status: done
 Depends on: task 042.1 (the rule)

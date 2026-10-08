@@ -12,7 +12,7 @@ function id(n: number) {
 
 export const seedIds = {
   users: { admin: id(0x101), employee: id(0x102) },
-  orgs: { demo: id(0x201), rabasaare: id(0x202), tormilind: id(0x203) },
+  orgs: { demo: id(0x201), rabasaare: id(0x202), tormilind: id(0x203), benchmark: id(0x204) },
 } as const
 
 // The sign-in page lists these in demo mode.

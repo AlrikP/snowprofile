@@ -14,7 +14,8 @@
     "e2e/**/*.ts",
     "prototypes/lib/**/*.ts",
     "prototypes/*.css",
-    "datamodel/*.ts"
+    "datamodel/*.ts",
+    "perf/**/*.ts"
   ],
   "ignore": ["src/components/ui/**"],
   "ignoreDependencies": ["@inlang/plugin-message-format", "@tailwindcss/cli"],

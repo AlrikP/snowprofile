@@ -40,3 +40,6 @@ playwright-report/
 # CVs. A committed fixture is un-ignored by name.
 *.xlsx
 *.docx
+
+# Benchmark database and build copies (perf/README.md).
+perf/.cache/

@@ -217,6 +217,7 @@
         "scripts/**",
         "e2e/**",
         "prototypes/**",
+        "perf/**",
         "*.config.ts",
         "datamodel/**"
       ],

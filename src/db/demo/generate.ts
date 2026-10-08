@@ -70,6 +70,8 @@ export type OrganizationSpec = {
   customers: number
   projects: number
   employees: number
+  // How many participations each person with a profile gets, as [min, max].
+  participations?: readonly [number, number]
   devMembers: readonly DevMember[]
 }
 
@@ -517,7 +519,8 @@ export function generateOrganization(seed: number, spec: OrganizationSpec) {
       const period = projectPeriods.get(row.id)
       return period !== undefined && overlaps(period, employment)
     })
-    for (const row of random.sample(candidates, random.int(2, 5))) {
+    const [fewest, most] = spec.participations ?? [2, 5]
+    for (const row of random.sample(candidates, random.int(fewest, most))) {
       const projectPeriod = projectPeriods.get(row.id)
       if (!projectPeriod) continue
       const from = Math.max(projectPeriod.start, employment.start)
