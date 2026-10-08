@@ -1,0 +1,739 @@
+{
+  "project list (admin)": [
+    {
+      "sql": "select \"project\".\"id\", \"project\".\"name\", \"customer\".\"name\", \"project\".\"start_dat",
+      "scans": 0,
+      "sorts": 2,
+      "plan": [
+        "SEARCH project USING INDEX project_organization_id_normalized_name_idx (organization_id=?)",
+        "SEARCH customer USING INDEX sqlite_autoindex_customer_1 (id=?) LEFT-JOIN",
+        "CORRELATED SCALAR SUBQUERY 1",
+        "USE TEMP B-TREE FOR count(DISTINCT)",
+        "SEARCH pa USING INDEX participation_project_id_idx (project_id=?)",
+        "CORRELATED SCALAR SUBQUERY 2",
+        "SEARCH pa USING INDEX participation_project_id_idx (project_id=?)",
+        "SEARCH ep USING INDEX sqlite_autoindex_employee_profile_1 (id=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    },
+    {
+      "sql": "select \"project_technology\".\"project_id\", \"technology\".\"id\", \"technology\".\"name\"",
+      "scans": 0,
+      "sorts": 1,
+      "plan": [
+        "SEARCH project USING INDEX project_organization_id_normalized_name_idx (organization_id=?)",
+        "SEARCH project_technology USING COVERING INDEX sqlite_autoindex_project_technology_1 (project_id=?)",
+        "SEARCH technology USING INDEX sqlite_autoindex_technology_1 (id=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    }
+  ],
+  "project list (employee)": [
+    {
+      "sql": "select \"project\".\"id\", \"project\".\"name\", \"customer\".\"name\", \"project\".\"start_dat",
+      "scans": 0,
+      "sorts": 2,
+      "plan": [
+        "SEARCH project USING INDEX project_organization_id_normalized_name_idx (organization_id=?)",
+        "SEARCH customer USING INDEX sqlite_autoindex_customer_1 (id=?) LEFT-JOIN",
+        "CORRELATED SCALAR SUBQUERY 1",
+        "USE TEMP B-TREE FOR count(DISTINCT)",
+        "SEARCH pa USING INDEX participation_project_id_idx (project_id=?)",
+        "CORRELATED SCALAR SUBQUERY 2",
+        "SEARCH pa USING INDEX participation_project_id_idx (project_id=?)",
+        "SEARCH ep USING INDEX sqlite_autoindex_employee_profile_1 (id=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    },
+    {
+      "sql": "select \"project_technology\".\"project_id\", \"technology\".\"id\", \"technology\".\"name\"",
+      "scans": 0,
+      "sorts": 1,
+      "plan": [
+        "SEARCH project USING INDEX project_organization_id_normalized_name_idx (organization_id=?)",
+        "SEARCH project_technology USING COVERING INDEX sqlite_autoindex_project_technology_1 (project_id=?)",
+        "SEARCH technology USING INDEX sqlite_autoindex_technology_1 (id=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    }
+  ],
+  "project page (admin)": [
+    {
+      "sql": "select \"project\".\"id\", \"project\".\"name\", \"project\".\"customer_id\", \"customer\".\"na",
+      "scans": 0,
+      "sorts": 0,
+      "plan": [
+        "SEARCH project USING INDEX project_id_organization_id_unique (id=? AND organization_id=?)",
+        "SEARCH customer USING INDEX sqlite_autoindex_customer_1 (id=?) LEFT-JOIN",
+        "SEARCH user USING INDEX sqlite_autoindex_user_1 (id=?)"
+      ]
+    },
+    {
+      "sql": "select \"project_technology\".\"project_id\", \"technology\".\"id\", \"technology\".\"name\"",
+      "scans": 0,
+      "sorts": 1,
+      "plan": [
+        "SEARCH project USING INDEX project_id_organization_id_unique (id=? AND organization_id=?)",
+        "SEARCH project_technology USING COVERING INDEX sqlite_autoindex_project_technology_1 (project_id=?)",
+        "SEARCH technology USING INDEX sqlite_autoindex_technology_1 (id=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    },
+    {
+      "sql": "select \"tender_criterion\".\"id\", \"tender_criterion\".\"name_et\", \"tender_criterion\"",
+      "scans": 0,
+      "sorts": 1,
+      "plan": [
+        "SEARCH tender_criterion USING INDEX tender_criterion_organization_id_idx (organization_id=?)",
+        "SEARCH project_criterion_answer USING INDEX sqlite_autoindex_project_criterion_answer_1 (project_id=? AND criterion_id=?) LEFT-JOIN",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    },
+    {
+      "sql": "select \"participation\".\"id\", \"employee_profile\".\"id\", \"employee_profile\".\"user_i",
+      "scans": 0,
+      "sorts": 1,
+      "plan": [
+        "SEARCH project USING INDEX sqlite_autoindex_project_1 (id=?)",
+        "SEARCH participation USING INDEX participation_organization_id_idx (organization_id=?)",
+        "SEARCH employee_profile USING INDEX sqlite_autoindex_employee_profile_1 (id=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    },
+    {
+      "sql": "select \"participation_role\".\"participation_id\", \"project_role\".\"name_et\", \"proje",
+      "scans": 0,
+      "sorts": 1,
+      "plan": [
+        "SEARCH participation_role USING INDEX participation_role_organization_id_idx (organization_id=?)",
+        "SEARCH participation USING INDEX sqlite_autoindex_participation_1 (id=?)",
+        "SEARCH project_role USING INDEX sqlite_autoindex_project_role_1 (id=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    },
+    {
+      "sql": "select \"technology\".\"id\", \"technology\".\"name\", count(DISTINCT \"participation\".\"p",
+      "scans": 0,
+      "sorts": 3,
+      "plan": [
+        "SEARCH participation USING INDEX participation_organization_id_idx (organization_id=?)",
+        "SEARCH participation_technology USING COVERING INDEX sqlite_autoindex_participation_technology_1 (participation_id=?)",
+        "SEARCH technology USING INDEX sqlite_autoindex_technology_1 (id=?)",
+        "CORRELATED SCALAR SUBQUERY 1",
+        "SEARCH pt USING COVERING INDEX sqlite_autoindex_project_technology_1 (project_id=? AND technology_id=?)",
+        "USE TEMP B-TREE FOR GROUP BY",
+        "USE TEMP B-TREE FOR count(DISTINCT)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    },
+    {
+      "sql": "select \"contact_person\".\"id\", \"contact_person\".\"name\", \"contact_person\".\"email\",",
+      "scans": 0,
+      "sorts": 1,
+      "plan": [
+        "SEARCH project_contact USING INDEX project_contact_organization_id_idx (organization_id=?)",
+        "SEARCH contact_person USING INDEX sqlite_autoindex_contact_person_1 (id=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    }
+  ],
+  "project page (employee)": [
+    {
+      "sql": "select \"project\".\"id\", \"project\".\"name\", \"project\".\"customer_id\", \"customer\".\"na",
+      "scans": 0,
+      "sorts": 0,
+      "plan": [
+        "SEARCH project USING INDEX project_id_organization_id_unique (id=? AND organization_id=?)",
+        "SEARCH customer USING INDEX sqlite_autoindex_customer_1 (id=?) LEFT-JOIN",
+        "SEARCH user USING INDEX sqlite_autoindex_user_1 (id=?)"
+      ]
+    },
+    {
+      "sql": "select \"project_technology\".\"project_id\", \"technology\".\"id\", \"technology\".\"name\"",
+      "scans": 0,
+      "sorts": 1,
+      "plan": [
+        "SEARCH project USING INDEX project_id_organization_id_unique (id=? AND organization_id=?)",
+        "SEARCH project_technology USING COVERING INDEX sqlite_autoindex_project_technology_1 (project_id=?)",
+        "SEARCH technology USING INDEX sqlite_autoindex_technology_1 (id=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    },
+    {
+      "sql": "select \"tender_criterion\".\"id\", \"tender_criterion\".\"name_et\", \"tender_criterion\"",
+      "scans": 0,
+      "sorts": 1,
+      "plan": [
+        "SEARCH tender_criterion USING INDEX tender_criterion_organization_id_idx (organization_id=?)",
+        "SEARCH project_criterion_answer USING INDEX sqlite_autoindex_project_criterion_answer_1 (project_id=? AND criterion_id=?) LEFT-JOIN",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    },
+    {
+      "sql": "select \"participation\".\"id\", \"employee_profile\".\"id\", \"employee_profile\".\"user_i",
+      "scans": 0,
+      "sorts": 1,
+      "plan": [
+        "SEARCH project USING INDEX sqlite_autoindex_project_1 (id=?)",
+        "SEARCH participation USING INDEX participation_organization_id_idx (organization_id=?)",
+        "SEARCH employee_profile USING INDEX sqlite_autoindex_employee_profile_1 (id=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    },
+    {
+      "sql": "select \"participation_role\".\"participation_id\", \"project_role\".\"name_et\", \"proje",
+      "scans": 0,
+      "sorts": 1,
+      "plan": [
+        "SEARCH participation_role USING INDEX participation_role_organization_id_idx (organization_id=?)",
+        "SEARCH participation USING INDEX sqlite_autoindex_participation_1 (id=?)",
+        "SEARCH project_role USING INDEX sqlite_autoindex_project_role_1 (id=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    },
+    {
+      "sql": "select \"contact_person\".\"id\", \"contact_person\".\"name\", \"contact_person\".\"email\",",
+      "scans": 0,
+      "sorts": 1,
+      "plan": [
+        "SEARCH project_contact USING INDEX project_contact_organization_id_idx (organization_id=?)",
+        "SEARCH contact_person USING INDEX sqlite_autoindex_contact_person_1 (id=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    }
+  ],
+  "search, one technology": [
+    {
+      "sql": "select distinct \"participation\".\"id\", \"participation\".\"profile_id\", \"project\".\"i",
+      "scans": 0,
+      "sorts": 1,
+      "plan": [
+        "SEARCH participation USING INDEX participation_organization_id_idx (organization_id=?)",
+        "CORRELATED SCALAR SUBQUERY 1",
+        "SEARCH participation_technology USING COVERING INDEX sqlite_autoindex_participation_technology_1 (participation_id=? AND technology_id=?)",
+        "SEARCH project USING INDEX sqlite_autoindex_project_1 (id=?)",
+        "SEARCH customer USING INDEX sqlite_autoindex_customer_1 (id=?) LEFT-JOIN",
+        "USE TEMP B-TREE FOR DISTINCT"
+      ]
+    },
+    {
+      "sql": "select \"id\", \"profile_id\", \"name\", \"customer_name\", \"employer\", \"start_date\", \"e",
+      "scans": 0,
+      "sorts": 0,
+      "plan": [
+        "SEARCH own_project USING INDEX own_project_organization_id_idx (organization_id=?)",
+        "CORRELATED SCALAR SUBQUERY 1",
+        "SEARCH own_project_technology USING COVERING INDEX sqlite_autoindex_own_project_technology_1 (own_project_id=? AND technology_id=?)"
+      ]
+    },
+    {
+      "sql": "select \"participation_technology\".\"participation_id\", \"technology\".\"id\", \"techno",
+      "scans": 0,
+      "sorts": 1,
+      "plan": [
+        "SEARCH participation_technology USING INDEX participation_technology_organization_id_idx (organization_id=?)",
+        "SEARCH technology USING INDEX sqlite_autoindex_technology_1 (id=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    },
+    {
+      "sql": "select \"own_project_technology\".\"own_project_id\", \"technology\".\"id\", \"technology",
+      "scans": 0,
+      "sorts": 1,
+      "plan": [
+        "SEARCH own_project_technology USING INDEX own_project_technology_organization_id_idx (organization_id=?)",
+        "SEARCH technology USING INDEX sqlite_autoindex_technology_1 (id=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    },
+    {
+      "sql": "select \"participation_role\".\"participation_id\", \"project_role\".\"id\", \"project_ro",
+      "scans": 0,
+      "sorts": 1,
+      "plan": [
+        "SEARCH participation_role USING INDEX participation_role_organization_id_idx (organization_id=?)",
+        "SEARCH project_role USING INDEX sqlite_autoindex_project_role_1 (id=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    },
+    {
+      "sql": "select \"own_project_role\".\"own_project_id\", \"project_role\".\"id\", \"project_role\".",
+      "scans": 0,
+      "sorts": 1,
+      "plan": [
+        "SEARCH own_project_role USING INDEX own_project_role_organization_id_idx (organization_id=?)",
+        "SEARCH project_role USING INDEX sqlite_autoindex_project_role_1 (id=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    },
+    {
+      "sql": "select \"id\", \"full_name\", \"left_date\" from \"employee_profile\" where ((\"employee_",
+      "scans": 0,
+      "sorts": 0,
+      "plan": [
+        "SEARCH employee_profile USING INDEX employee_profile_id_organization_id_unique (id=? AND organization_id=?)"
+      ]
+    }
+  ],
+  "search, all of three technologies since 2022": [
+    {
+      "sql": "select distinct \"participation\".\"id\", \"participation\".\"profile_id\", \"project\".\"i",
+      "scans": 0,
+      "sorts": 1,
+      "plan": [
+        "SEARCH participation USING INDEX participation_organization_id_idx (organization_id=?)",
+        "CORRELATED SCALAR SUBQUERY 1",
+        "SEARCH participation_technology USING COVERING INDEX sqlite_autoindex_participation_technology_1 (participation_id=? AND technology_id=?)",
+        "SEARCH project USING INDEX sqlite_autoindex_project_1 (id=?)",
+        "SEARCH customer USING INDEX sqlite_autoindex_customer_1 (id=?) LEFT-JOIN",
+        "USE TEMP B-TREE FOR DISTINCT"
+      ]
+    },
+    {
+      "sql": "select \"id\", \"profile_id\", \"name\", \"customer_name\", \"employer\", \"start_date\", \"e",
+      "scans": 0,
+      "sorts": 0,
+      "plan": [
+        "SEARCH own_project USING INDEX own_project_organization_id_idx (organization_id=?)",
+        "CORRELATED SCALAR SUBQUERY 1",
+        "SEARCH own_project_technology USING COVERING INDEX sqlite_autoindex_own_project_technology_1 (own_project_id=? AND technology_id=?)"
+      ]
+    },
+    {
+      "sql": "select \"participation_technology\".\"participation_id\", \"technology\".\"id\", \"techno",
+      "scans": 0,
+      "sorts": 1,
+      "plan": [
+        "SEARCH participation_technology USING INDEX participation_technology_organization_id_idx (organization_id=?)",
+        "SEARCH technology USING INDEX sqlite_autoindex_technology_1 (id=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    },
+    {
+      "sql": "select \"own_project_technology\".\"own_project_id\", \"technology\".\"id\", \"technology",
+      "scans": 0,
+      "sorts": 1,
+      "plan": [
+        "SEARCH own_project_technology USING INDEX own_project_technology_organization_id_idx (organization_id=?)",
+        "SEARCH technology USING INDEX sqlite_autoindex_technology_1 (id=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    },
+    {
+      "sql": "select \"participation_role\".\"participation_id\", \"project_role\".\"id\", \"project_ro",
+      "scans": 0,
+      "sorts": 1,
+      "plan": [
+        "SEARCH participation_role USING INDEX participation_role_organization_id_idx (organization_id=?)",
+        "SEARCH project_role USING INDEX sqlite_autoindex_project_role_1 (id=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    },
+    {
+      "sql": "select \"own_project_role\".\"own_project_id\", \"project_role\".\"id\", \"project_role\".",
+      "scans": 0,
+      "sorts": 1,
+      "plan": [
+        "SEARCH own_project_role USING INDEX own_project_role_organization_id_idx (organization_id=?)",
+        "SEARCH project_role USING INDEX sqlite_autoindex_project_role_1 (id=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    },
+    {
+      "sql": "select \"id\", \"full_name\", \"left_date\" from \"employee_profile\" where ((\"employee_",
+      "scans": 0,
+      "sorts": 0,
+      "plan": [
+        "SEARCH employee_profile USING INDEX employee_profile_id_organization_id_unique (id=? AND organization_id=?)"
+      ]
+    }
+  ],
+  "search, role and characteristic, with leavers": [
+    {
+      "sql": "select \"id\", \"name_et\", \"name_en\" from \"tender_criterion\" where ((\"tender_criter",
+      "scans": 0,
+      "sorts": 0,
+      "plan": [
+        "SEARCH tender_criterion USING INDEX tender_criterion_id_organization_id_unique (id=? AND organization_id=?)"
+      ]
+    },
+    {
+      "sql": "select \"id\" from \"project_role\" where ((\"project_role\".\"organization_id\" = ?) an",
+      "scans": 0,
+      "sorts": 0,
+      "plan": [
+        "SEARCH project_role USING INDEX project_role_id_organization_id_unique (id=? AND organization_id=?)"
+      ]
+    },
+    {
+      "sql": "select distinct \"participation\".\"id\", \"participation\".\"profile_id\", \"project\".\"i",
+      "scans": 0,
+      "sorts": 1,
+      "plan": [
+        "SEARCH participation USING INDEX participation_organization_id_idx (organization_id=?)",
+        "CORRELATED SCALAR SUBQUERY 1",
+        "SEARCH participation_role USING COVERING INDEX sqlite_autoindex_participation_role_1 (participation_id=? AND role_id=?)",
+        "SEARCH project USING INDEX sqlite_autoindex_project_1 (id=?)",
+        "CORRELATED SCALAR SUBQUERY 2",
+        "SEARCH project_criterion_answer USING INDEX sqlite_autoindex_project_criterion_answer_1 (project_id=? AND criterion_id=?)",
+        "SEARCH customer USING INDEX sqlite_autoindex_customer_1 (id=?) LEFT-JOIN",
+        "USE TEMP B-TREE FOR DISTINCT"
+      ]
+    },
+    {
+      "sql": "select \"participation_technology\".\"participation_id\", \"technology\".\"id\", \"techno",
+      "scans": 0,
+      "sorts": 1,
+      "plan": [
+        "SEARCH participation_technology USING INDEX participation_technology_organization_id_idx (organization_id=?)",
+        "SEARCH technology USING INDEX sqlite_autoindex_technology_1 (id=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    },
+    {
+      "sql": "select \"participation_role\".\"participation_id\", \"project_role\".\"id\", \"project_ro",
+      "scans": 0,
+      "sorts": 1,
+      "plan": [
+        "SEARCH participation_role USING INDEX participation_role_organization_id_idx (organization_id=?)",
+        "SEARCH project_role USING INDEX sqlite_autoindex_project_role_1 (id=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    },
+    {
+      "sql": "select \"id\", \"full_name\", \"left_date\" from \"employee_profile\" where ((\"employee_",
+      "scans": 0,
+      "sorts": 0,
+      "plan": [
+        "SEARCH employee_profile USING INDEX employee_profile_id_organization_id_unique (id=? AND organization_id=?)"
+      ]
+    }
+  ],
+  "cv, one person": [
+    {
+      "sql": "select \"id\", \"full_name\", \"birth_date\" from \"employee_profile\" where ((\"employee",
+      "scans": 0,
+      "sorts": 0,
+      "plan": [
+        "SEARCH employee_profile USING INDEX employee_profile_id_organization_id_unique (id=? AND organization_id=?)"
+      ]
+    },
+    {
+      "sql": "select \"profile_id\", \"institution_et\", \"institution_en\", \"field_et\", \"field_en\",",
+      "scans": 0,
+      "sorts": 1,
+      "plan": [
+        "SEARCH education USING INDEX education_organization_id_idx (organization_id=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    },
+    {
+      "sql": "select \"participation\".\"id\", \"participation\".\"profile_id\", \"project\".\"id\", \"proj",
+      "scans": 0,
+      "sorts": 1,
+      "plan": [
+        "SEARCH participation USING INDEX participation_organization_id_idx (organization_id=?)",
+        "SEARCH project USING INDEX sqlite_autoindex_project_1 (id=?)",
+        "SEARCH customer USING INDEX sqlite_autoindex_customer_1 (id=?) LEFT-JOIN",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    },
+    {
+      "sql": "select \"id\", \"profile_id\", \"name\", \"employer\", \"customer_name\", \"description_et\"",
+      "scans": 0,
+      "sorts": 0,
+      "plan": ["SEARCH own_project USING INDEX own_project_organization_id_idx (organization_id=?)"]
+    },
+    {
+      "sql": "select \"participation_role\".\"participation_id\", \"project_role\".\"id\", \"project_ro",
+      "scans": 0,
+      "sorts": 1,
+      "plan": [
+        "SEARCH participation_role USING INDEX participation_role_organization_id_idx (organization_id=?)",
+        "SEARCH project_role USING INDEX sqlite_autoindex_project_role_1 (id=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    },
+    {
+      "sql": "select \"own_project_role\".\"own_project_id\", \"project_role\".\"id\", \"project_role\".",
+      "scans": 0,
+      "sorts": 1,
+      "plan": [
+        "SEARCH own_project_role USING INDEX own_project_role_organization_id_idx (organization_id=?)",
+        "SEARCH project_role USING INDEX sqlite_autoindex_project_role_1 (id=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    },
+    {
+      "sql": "select \"participation_technology\".\"participation_id\", \"technology\".\"id\", \"techno",
+      "scans": 0,
+      "sorts": 1,
+      "plan": [
+        "SEARCH participation_technology USING INDEX participation_technology_organization_id_idx (organization_id=?)",
+        "SEARCH technology USING INDEX sqlite_autoindex_technology_1 (id=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    },
+    {
+      "sql": "select \"own_project_technology\".\"own_project_id\", \"technology\".\"id\", \"technology",
+      "scans": 0,
+      "sorts": 1,
+      "plan": [
+        "SEARCH own_project_technology USING INDEX own_project_technology_organization_id_idx (organization_id=?)",
+        "SEARCH technology USING INDEX sqlite_autoindex_technology_1 (id=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    }
+  ],
+  "cv, team of 10": [
+    {
+      "sql": "select \"id\", \"full_name\", \"birth_date\" from \"employee_profile\" where ((\"employee",
+      "scans": 0,
+      "sorts": 0,
+      "plan": [
+        "SEARCH employee_profile USING INDEX employee_profile_id_organization_id_unique (id=? AND organization_id=?)"
+      ]
+    },
+    {
+      "sql": "select \"profile_id\", \"institution_et\", \"institution_en\", \"field_et\", \"field_en\",",
+      "scans": 0,
+      "sorts": 1,
+      "plan": [
+        "SEARCH education USING INDEX education_organization_id_idx (organization_id=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    },
+    {
+      "sql": "select \"participation\".\"id\", \"participation\".\"profile_id\", \"project\".\"id\", \"proj",
+      "scans": 0,
+      "sorts": 1,
+      "plan": [
+        "SEARCH participation USING INDEX participation_organization_id_idx (organization_id=?)",
+        "SEARCH project USING INDEX sqlite_autoindex_project_1 (id=?)",
+        "SEARCH customer USING INDEX sqlite_autoindex_customer_1 (id=?) LEFT-JOIN",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    },
+    {
+      "sql": "select \"id\", \"profile_id\", \"name\", \"employer\", \"customer_name\", \"description_et\"",
+      "scans": 0,
+      "sorts": 0,
+      "plan": ["SEARCH own_project USING INDEX own_project_organization_id_idx (organization_id=?)"]
+    },
+    {
+      "sql": "select \"participation_role\".\"participation_id\", \"project_role\".\"id\", \"project_ro",
+      "scans": 0,
+      "sorts": 1,
+      "plan": [
+        "SEARCH participation_role USING INDEX participation_role_organization_id_idx (organization_id=?)",
+        "SEARCH project_role USING INDEX sqlite_autoindex_project_role_1 (id=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    },
+    {
+      "sql": "select \"own_project_role\".\"own_project_id\", \"project_role\".\"id\", \"project_role\".",
+      "scans": 0,
+      "sorts": 1,
+      "plan": [
+        "SEARCH own_project_role USING INDEX own_project_role_organization_id_idx (organization_id=?)",
+        "SEARCH project_role USING INDEX sqlite_autoindex_project_role_1 (id=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    },
+    {
+      "sql": "select \"participation_technology\".\"participation_id\", \"technology\".\"id\", \"techno",
+      "scans": 0,
+      "sorts": 1,
+      "plan": [
+        "SEARCH participation_technology USING INDEX participation_technology_organization_id_idx (organization_id=?)",
+        "SEARCH technology USING INDEX sqlite_autoindex_technology_1 (id=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    },
+    {
+      "sql": "select \"own_project_technology\".\"own_project_id\", \"technology\".\"id\", \"technology",
+      "scans": 0,
+      "sorts": 1,
+      "plan": [
+        "SEARCH own_project_technology USING INDEX own_project_technology_organization_id_idx (organization_id=?)",
+        "SEARCH technology USING INDEX sqlite_autoindex_technology_1 (id=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    }
+  ],
+  "cv, team of 10, one technology": [
+    {
+      "sql": "select \"id\", \"full_name\", \"birth_date\" from \"employee_profile\" where ((\"employee",
+      "scans": 0,
+      "sorts": 0,
+      "plan": [
+        "SEARCH employee_profile USING INDEX employee_profile_id_organization_id_unique (id=? AND organization_id=?)"
+      ]
+    },
+    {
+      "sql": "select \"profile_id\", \"institution_et\", \"institution_en\", \"field_et\", \"field_en\",",
+      "scans": 0,
+      "sorts": 1,
+      "plan": [
+        "SEARCH education USING INDEX education_organization_id_idx (organization_id=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    },
+    {
+      "sql": "select \"participation\".\"id\", \"participation\".\"profile_id\", \"project\".\"id\", \"proj",
+      "scans": 0,
+      "sorts": 1,
+      "plan": [
+        "SEARCH participation USING INDEX participation_organization_id_idx (organization_id=?)",
+        "SEARCH project USING INDEX sqlite_autoindex_project_1 (id=?)",
+        "SEARCH customer USING INDEX sqlite_autoindex_customer_1 (id=?) LEFT-JOIN",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    },
+    {
+      "sql": "select \"id\", \"profile_id\", \"name\", \"employer\", \"customer_name\", \"description_et\"",
+      "scans": 0,
+      "sorts": 0,
+      "plan": ["SEARCH own_project USING INDEX own_project_organization_id_idx (organization_id=?)"]
+    },
+    {
+      "sql": "select \"participation_role\".\"participation_id\", \"project_role\".\"id\", \"project_ro",
+      "scans": 0,
+      "sorts": 1,
+      "plan": [
+        "SEARCH participation_role USING INDEX participation_role_organization_id_idx (organization_id=?)",
+        "SEARCH project_role USING INDEX sqlite_autoindex_project_role_1 (id=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    },
+    {
+      "sql": "select \"own_project_role\".\"own_project_id\", \"project_role\".\"id\", \"project_role\".",
+      "scans": 0,
+      "sorts": 1,
+      "plan": [
+        "SEARCH own_project_role USING INDEX own_project_role_organization_id_idx (organization_id=?)",
+        "SEARCH project_role USING INDEX sqlite_autoindex_project_role_1 (id=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    },
+    {
+      "sql": "select \"participation_technology\".\"participation_id\", \"technology\".\"id\", \"techno",
+      "scans": 0,
+      "sorts": 1,
+      "plan": [
+        "SEARCH participation_technology USING INDEX participation_technology_organization_id_idx (organization_id=?)",
+        "SEARCH technology USING INDEX sqlite_autoindex_technology_1 (id=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    },
+    {
+      "sql": "select \"own_project_technology\".\"own_project_id\", \"technology\".\"id\", \"technology",
+      "scans": 0,
+      "sorts": 1,
+      "plan": [
+        "SEARCH own_project_technology USING INDEX own_project_technology_organization_id_idx (organization_id=?)",
+        "SEARCH technology USING INDEX sqlite_autoindex_technology_1 (id=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    },
+    {
+      "sql": "select distinct \"participation\".\"id\", \"participation\".\"profile_id\", \"project\".\"i",
+      "scans": 0,
+      "sorts": 1,
+      "plan": [
+        "SEARCH participation USING INDEX participation_organization_id_idx (organization_id=?)",
+        "CORRELATED SCALAR SUBQUERY 1",
+        "SEARCH participation_technology USING COVERING INDEX sqlite_autoindex_participation_technology_1 (participation_id=? AND technology_id=?)",
+        "SEARCH project USING INDEX sqlite_autoindex_project_1 (id=?)",
+        "SEARCH customer USING INDEX sqlite_autoindex_customer_1 (id=?) LEFT-JOIN",
+        "USE TEMP B-TREE FOR DISTINCT"
+      ]
+    },
+    {
+      "sql": "select \"id\", \"profile_id\", \"name\", \"customer_name\", \"employer\", \"start_date\", \"e",
+      "scans": 0,
+      "sorts": 0,
+      "plan": [
+        "SEARCH own_project USING INDEX own_project_organization_id_idx (organization_id=?)",
+        "CORRELATED SCALAR SUBQUERY 1",
+        "SEARCH own_project_technology USING COVERING INDEX sqlite_autoindex_own_project_technology_1 (own_project_id=? AND technology_id=?)"
+      ]
+    }
+  ],
+  "cv, team of 50 (the most a CV takes)": [
+    {
+      "sql": "select \"id\", \"full_name\", \"birth_date\" from \"employee_profile\" where ((\"employee",
+      "scans": 0,
+      "sorts": 0,
+      "plan": [
+        "SEARCH employee_profile USING INDEX employee_profile_id_organization_id_unique (id=? AND organization_id=?)"
+      ]
+    },
+    {
+      "sql": "select \"profile_id\", \"institution_et\", \"institution_en\", \"field_et\", \"field_en\",",
+      "scans": 0,
+      "sorts": 1,
+      "plan": [
+        "SEARCH education USING INDEX education_organization_id_idx (organization_id=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    },
+    {
+      "sql": "select \"participation\".\"id\", \"participation\".\"profile_id\", \"project\".\"id\", \"proj",
+      "scans": 0,
+      "sorts": 1,
+      "plan": [
+        "SEARCH participation USING INDEX participation_organization_id_idx (organization_id=?)",
+        "SEARCH project USING INDEX sqlite_autoindex_project_1 (id=?)",
+        "SEARCH customer USING INDEX sqlite_autoindex_customer_1 (id=?) LEFT-JOIN",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    },
+    {
+      "sql": "select \"id\", \"profile_id\", \"name\", \"employer\", \"customer_name\", \"description_et\"",
+      "scans": 0,
+      "sorts": 0,
+      "plan": ["SEARCH own_project USING INDEX own_project_organization_id_idx (organization_id=?)"]
+    },
+    {
+      "sql": "select \"participation_role\".\"participation_id\", \"project_role\".\"id\", \"project_ro",
+      "scans": 0,
+      "sorts": 1,
+      "plan": [
+        "SEARCH participation_role USING INDEX participation_role_organization_id_idx (organization_id=?)",
+        "SEARCH project_role USING INDEX sqlite_autoindex_project_role_1 (id=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    },
+    {
+      "sql": "select \"own_project_role\".\"own_project_id\", \"project_role\".\"id\", \"project_role\".",
+      "scans": 0,
+      "sorts": 1,
+      "plan": [
+        "SEARCH own_project_role USING INDEX own_project_role_organization_id_idx (organization_id=?)",
+        "SEARCH project_role USING INDEX sqlite_autoindex_project_role_1 (id=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    },
+    {
+      "sql": "select \"participation_technology\".\"participation_id\", \"technology\".\"id\", \"techno",
+      "scans": 0,
+      "sorts": 1,
+      "plan": [
+        "SEARCH participation_technology USING INDEX participation_technology_organization_id_idx (organization_id=?)",
+        "SEARCH technology USING INDEX sqlite_autoindex_technology_1 (id=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    },
+    {
+      "sql": "select \"own_project_technology\".\"own_project_id\", \"technology\".\"id\", \"technology",
+      "scans": 0,
+      "sorts": 1,
+      "plan": [
+        "SEARCH own_project_technology USING INDEX own_project_technology_organization_id_idx (organization_id=?)",
+        "SEARCH technology USING INDEX sqlite_autoindex_technology_1 (id=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    }
+  ]
+}

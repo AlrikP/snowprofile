@@ -1,0 +1,46 @@
+{
+  "project list (admin)": {
+    "rows": 2620,
+    "bytes": 292431
+  },
+  "project list (employee)": {
+    "rows": 2620,
+    "bytes": 292427
+  },
+  "project page (admin)": {
+    "rows": 43,
+    "bytes": 5115
+  },
+  "project page (employee)": {
+    "rows": 42,
+    "bytes": 5048
+  },
+  "search, one technology": {
+    "rows": 571,
+    "bytes": 65260
+  },
+  "search, all of three technologies since 2022": {
+    "rows": 861,
+    "bytes": 34795
+  },
+  "search, role and characteristic, with leavers": {
+    "rows": 334,
+    "bytes": 48539
+  },
+  "cv, one person": {
+    "rows": 64,
+    "bytes": 10912
+  },
+  "cv, team of 10": {
+    "rows": 738,
+    "bytes": 112970
+  },
+  "cv, team of 10, one technology": {
+    "rows": 761,
+    "bytes": 23249
+  },
+  "cv, team of 50 (the most a CV takes)": {
+    "rows": 3784,
+    "bytes": 444135
+  }
+}

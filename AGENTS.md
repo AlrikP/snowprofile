@@ -59,7 +59,7 @@ commits after reviewing.
 | `bun run test:server`                      | Server and database tests (`*.test.ts`), in random order; it prints `--seed`                            |
 | `bun run test:components`                  | Component tests (`*.test.tsx`) with Vitest in jsdom                                                     |
 | `bun run test:e2e`                         | Playwright against the production build on port 3100, with a fresh seeded database                      |
-| `bun run perf`                             | Builds the app and checks bundle budgets against `perf/baselines/`; `--update` accepts new ones         |
+| `bun run perf`                             | Builds the app; checks bundle budgets, query plans, and read sizes; `--update` accepts new baselines    |
 
 `test:e2e` stays out of `test`, so `test` needs no browser; CI runs it as its own step.
 Install the browser once with `bunx playwright install chromium`.

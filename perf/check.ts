@@ -1,14 +1,27 @@
-// Quick checks, no browser: bundle budgets against the baselines in perf/baselines/.
+// Quick checks, no browser: bundle budgets, query plans, and read sizes against the
+// baselines in perf/baselines/.
 // `bun run perf`; `--update` rewrites the baselines. See perf/README.md.
 
 import { checkBudgets } from './checks/budgets'
+import { checkPlans } from './checks/plans'
+import { checkReads } from './checks/reads'
+import { openRecorder } from './checks/recorder'
 import { buildApp } from './lib/app'
+import { seededDatabase } from './lib/database'
 
 const update = process.argv.includes('--update')
 const started = performance.now()
 
 const build = buildApp()
 const failures = (await checkBudgets(build, update)).failures
+
+const recorder = await openRecorder(await seededDatabase())
+try {
+  failures.push(...(await checkPlans(recorder, update)).failures)
+  failures.push(...(await checkReads(recorder, update)).failures)
+} finally {
+  recorder.close()
+}
 
 const seconds = ((performance.now() - started) / 1000).toFixed(1)
 if (update) {

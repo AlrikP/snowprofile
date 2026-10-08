@@ -72,7 +72,7 @@ jobs:
       - name: Build
         run: bun run build
 
-      # Gzipped JS per route, CSS, and the server bundle against perf/baselines/ (perf/README.md).
+      # Bundle budgets, query plans, and read sizes against perf/baselines/ (perf/README.md).
       - name: Performance budgets
         run: bun run perf
 
