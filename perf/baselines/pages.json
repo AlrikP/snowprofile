@@ -1,30 +1,30 @@
 {
   "projects": {
-    "htmlBytes": 1252482,
-    "htmlGzip": 61197,
-    "jsGzip": 266906,
+    "htmlBytes": 1252800,
+    "htmlGzip": 61314,
+    "jsGzip": 213002,
     "cssGzip": 36236,
-    "domNodes": 4717
+    "domNodes": 4721
   },
   "project": {
-    "htmlBytes": 51493,
-    "htmlGzip": 9384,
-    "jsGzip": 266926,
+    "htmlBytes": 52357,
+    "htmlGzip": 9644,
+    "jsGzip": 217440,
     "cssGzip": 36236,
-    "domNodes": 414
+    "domNodes": 424
   },
   "search": {
-    "htmlBytes": 38892,
-    "htmlGzip": 8674,
-    "jsGzip": 266936,
+    "htmlBytes": 39296,
+    "htmlGzip": 8762,
+    "jsGzip": 228296,
     "cssGzip": 36236,
-    "domNodes": 2187
+    "domNodes": 2205
   },
   "cv (team of 10)": {
-    "htmlBytes": 55757,
-    "htmlGzip": 10724,
-    "jsGzip": 266934,
+    "htmlBytes": 56373,
+    "htmlGzip": 10860,
+    "jsGzip": 233194,
     "cssGzip": 36236,
-    "domNodes": 4701
+    "domNodes": 4718
   }
 }
