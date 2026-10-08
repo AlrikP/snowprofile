@@ -156,7 +156,10 @@ const ownProjects: OwnProject[] = [
 
 const closed = vi.fn()
 
-function show(data = profile, { initialParticipation = undefined as string | undefined } = {}) {
+function show(
+  data = profile,
+  { initialParticipation = undefined as string | undefined, work = participations } = {},
+) {
   return renderPage(
     <ProfilePage
       organizationId="org"
@@ -166,7 +169,7 @@ function show(data = profile, { initialParticipation = undefined as string | und
     />,
     [
       [myProfileQuery('org').queryKey, data],
-      [myParticipationsQuery('org').queryKey, participations],
+      [myParticipationsQuery('org').queryKey, work],
       [myOwnProjectsQuery('org').queryKey, ownProjects],
       [projectsQuery('org').queryKey, projects],
       [roleCatalogueQuery('org').queryKey, testRoles],
@@ -475,6 +478,35 @@ describe('ProfilePage', () => {
       expect(sent(server.updateParticipation)?.period).toEqual({
         startDate: '2024-05',
         endDate: null,
+      })
+    })
+
+    it('project-participation.ongoing-ends-with-project: the edit form opens with the project’s end', async () => {
+      // The read gives the end the profile shows: the project's, though none is stored.
+      const endedWithProject: Participation = {
+        ...participations[0],
+        id: 'pa2',
+        projectId: 'tax',
+        projectName: 'e-MTA deklaratsioonid',
+        customerName: null,
+        startDate: '2022-01',
+        endDate: '2025-06',
+      }
+      await show(profile, { work: [endedWithProject] })
+
+      await userEvent.click(
+        participationsSection().getByRole('button', { name: 'Edit e-MTA deklaratsioonid' }),
+      )
+      const dialog = within(screen.getByRole('dialog'))
+      expect(dialog.getByRole('checkbox', { name: 'Ongoing' })).not.toBeChecked()
+      const end = within(dialog.getByRole('group', { name: 'End' }))
+      expect(end.getByLabelText('Month')).toHaveValue('6')
+      expect(end.getByLabelText('Year')).toHaveValue('2025')
+      await userEvent.click(dialog.getByRole('button', { name: 'Save' }))
+
+      expect(sent(server.updateParticipation)?.period).toEqual({
+        startDate: '2022-01',
+        endDate: '2025-06',
       })
     })
 

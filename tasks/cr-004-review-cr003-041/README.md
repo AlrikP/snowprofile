@@ -1,6 +1,6 @@
 # CR-004: Fixes from the review of cr-003 through task 041
 
-Status: todo
+Status: done
 
 A code review of the commits from cr-003 through task 041.5 (`d1cf192..f99e034`,
 reviewed 2026-10-08) found the issues below. These pass in the working copy and in a
@@ -20,4 +20,11 @@ rehearsal on the real sheet, and both before task 043. The full report is in
 
 ## Acceptance criteria
 
-- [ ] All subtasks are done.
+- [x] All subtasks are done.
+
+## Outcome
+
+- Both subtasks are done; their Outcome sections hold the details.
+- The review's follow-up is task 054 (projects list size).
+- Still open from the review: CI's `bun run perf` on Linux, and the real sheet's negative
+  characteristic answers, which task 039's rehearsal can list.

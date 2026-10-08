@@ -23,8 +23,8 @@ The app isn't in use yet, so no existing link needs to keep working.
 
 ## Where search params are used
 
-- `/$organization/search`: `t`, `match`, `c`, `from`, `to`, and `leavers`
-  (`src/lib/search-filters.ts`); task 046.2 adds roles.
+- `/$organization/search`: `t`, `match`, `r`, `c`, `from`, `to`, and `leavers`
+  (`src/lib/search-filters.ts`).
 - `/$organization/cvs`: the search keys plus `people`, `lang`, `birth`, and `layout`
   (`src/features/cvs/cv-selection.ts`).
 - `/$organization/profile`: `participation`, the participation a project page links to.

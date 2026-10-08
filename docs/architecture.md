@@ -64,6 +64,7 @@ not from Google, so pages make no requests to Google. The Snowhound mark is
 | `drizzle/`             | SQL migrations, `<timestamp>_<name>/migration.sql`           |
 | `datamodel/`           | DBML diagram and ChartDB viewer (`datamodel/README.md`)      |
 | `scripts/`             | Project scripts, such as `env-init.ts`                       |
+| `perf/`                | Performance checks and their baselines (`perf/README.md`)    |
 | `e2e/`                 | Playwright end-to-end tests and their server (`server.ts`)   |
 | `prototypes/`          | Static HTML prototypes (`prototypes/README.md`)              |
 | `public/`              | Files served as they are, such as the Snowhound mark         |
@@ -209,10 +210,10 @@ add and edit dialogs.
   names are written with or without: js, sql, db, lang, core, css, search. A stem keeps
   its suffix when stripping would leave fewer than two characters.
 - **Checked against** the seed's catalogue (no pairs) and about 50 names typed in
-  practice (task 042): it finds all 25 intended pairs and keeps apart Java and
+  practice (task 042): it finds all 22 intended pairs and keeps apart Java and
   JavaScript, Spring and Spring Boot, MySQL and MSSQL, C, C#, and C++, and Kafka and
   Kafka Streams. A prefix match pairs Java with JavaScript; an edit distance found 1 of the
-  25 pairs and matched MySQL with MSSQL. `technology-duplicates.test.ts` keeps both lists.
+  22 pairs and matched MySQL with MSSQL. `technology-duplicates.test.ts` keeps both lists.
 - **False matches** are expected (Angular and AngularJS is the known one), so an admin
   marks a pair "Not a duplicate". `technology_distinct_pair` stores it per organization,
   lower ID first, and the catalogue query returns the pairs so the client leaves them out.
@@ -302,8 +303,8 @@ must handle:
 - **Participations** match on a re-run by project and start, since one person can work on
   a project in several periods. A new one starts with the project's technologies, as in
   the app. One outside its project's period is loaded as it is and reported, except
-  ongoing work on an ended project, which reads as ending with it ("Participation
-  periods" in `product.md`).
+  ongoing work on a project that ended after the work started, which reads as ending
+  with it ("Participation periods" in `product.md`).
 - **Own projects** match by name and start. The sheet has no roles for them, so each is
   reported for a role to be added in the app, and their characteristic answers and
   contact persons aren't kept: the data model has no place for them.
@@ -314,7 +315,8 @@ must handle:
   `src/server/<domain>/<domain>.repository.server.ts`. Only they build queries or import
   `#/db/schema` and `drizzle-orm`; routes, server functions, rules, and UI code don't, so
   a database change stays inside the repositories. The exceptions are `src/db/` itself
-  (schema, seed, test helpers), `scripts/`, tests, and Better Auth's adapter.
+  (schema, seed, test helpers), `scripts/`, the `perf/` harnesses, tests, and Better
+  Auth's adapter.
 - **Every repository function takes the scope and applies it.** Its parameters are
   `(db, scope, ...)`; every query filters by `scope.organizationId`, and every insert sets
   it from the scope, never from input. Two kinds of function take no scope: the

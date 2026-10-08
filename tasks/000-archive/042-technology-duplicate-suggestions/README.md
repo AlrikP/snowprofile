@@ -30,3 +30,14 @@ Decided with the user; the rule goes into `docs/architecture.md` with 042.1.
 
 - 042.1: Possible duplicates for admins (`01-possible-duplicates.md`)
 - 042.2: A warning when adding or renaming (`02-add-warning.md`)
+
+## Acceptance criteria
+
+- [x] All subtasks are done.
+
+## Outcome
+
+- Both subtasks are done; their Outcome sections hold the details.
+- The rule was checked against 22 intended pairs, not the 25 decision 2 names;
+  `technology-duplicates.test.ts` holds them, and `docs/architecture.md`, "Technology
+  duplicates", records the rule.

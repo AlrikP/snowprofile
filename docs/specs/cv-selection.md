@@ -1,9 +1,9 @@
 # CV selection
 
 Admins make a CV of one person (a personal CV) or several (a team CV), in Estonian or
-English, from all of their projects or only those matching technologies and a period. They
-choose on the CV page, the CV read assembles the CV, and the table and the DOCX document
-render what it returns.
+English, from all of their projects or only those matching technologies, roles,
+characteristics, and a period. They choose on the CV page, the CV read assembles the CV,
+and the table and the DOCX document render what it returns.
 
 ## Requirements
 
