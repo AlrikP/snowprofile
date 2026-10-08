@@ -37,19 +37,61 @@ function DialogOverlay({
   )
 }
 
+// Once anything in the dialog has changed (typing, choosing, ticking, or a button such as a
+// picker's add or remove), Esc and a click outside ask before discarding it. The dialog's
+// own Cancel and close buttons stay immediate: they are deliberate.
 function DialogContent({
   className,
   children,
   showCloseButton = true,
+  onEscapeKeyDown,
+  onInteractOutside,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
   showCloseButton?: boolean
 }) {
+  const [changed, setChanged] = React.useState(false)
+  const [confirming, setConfirming] = React.useState(false)
+  const discardRef = React.useRef<HTMLButtonElement>(null)
+
+  function markChanged(event: React.SyntheticEvent) {
+    const target = event.target as Element
+    if (event.type === 'input' || target.closest('[role="option"], button[type="button"]')) {
+      setChanged(true)
+    }
+  }
+
   return (
     <DialogPortal data-slot="dialog-portal">
       <DialogOverlay />
       <DialogPrimitive.Content
         data-slot="dialog-content"
+        onInputCapture={markChanged}
+        onClickCapture={markChanged}
+        onEscapeKeyDown={(event) => {
+          onEscapeKeyDown?.(event)
+          if (event.defaultPrevented) return
+          // Radix hears Esc before the field does. A picker with its list open closes the
+          // list, and the dialog stays as it is.
+          const focused = document.activeElement
+          if (
+            focused?.getAttribute('role') === 'combobox' &&
+            focused.getAttribute('aria-expanded') === 'true'
+          ) {
+            event.preventDefault()
+            return
+          }
+          if (changed) {
+            event.preventDefault()
+            setConfirming(true)
+          }
+        }}
+        onInteractOutside={(event) => {
+          onInteractOutside?.(event)
+          if (event.defaultPrevented || !changed) return
+          event.preventDefault()
+          setConfirming(true)
+        }}
         className={cn(
           'fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border bg-background p-6 shadow-lg duration-200 outline-none data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 sm:max-w-lg',
           className,
@@ -57,6 +99,41 @@ function DialogContent({
         {...props}
       >
         {children}
+        {/* Closes this dialog when the person confirms discarding. */}
+        <DialogPrimitive.Close ref={discardRef} hidden />
+        <DialogPrimitive.Root open={confirming} onOpenChange={setConfirming}>
+          <DialogPrimitive.Portal>
+            <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/30" />
+            <DialogPrimitive.Content
+              role="alertdialog"
+              className="bg-background fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border p-6 shadow-lg outline-none sm:max-w-sm"
+            >
+              <DialogPrimitive.Title className="text-lg leading-none font-semibold">
+                {m.dialog_discard_title()}
+              </DialogPrimitive.Title>
+              <DialogPrimitive.Description className="text-muted-foreground text-sm">
+                {m.dialog_discard_body()}
+              </DialogPrimitive.Description>
+              <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                <DialogPrimitive.Close asChild>
+                  <Button type="button" variant="outline">
+                    {m.dialog_keep_editing()}
+                  </Button>
+                </DialogPrimitive.Close>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={() => {
+                    setConfirming(false)
+                    discardRef.current?.click()
+                  }}
+                >
+                  {m.dialog_discard()}
+                </Button>
+              </div>
+            </DialogPrimitive.Content>
+          </DialogPrimitive.Portal>
+        </DialogPrimitive.Root>
         {showCloseButton && (
           <DialogPrimitive.Close
             data-slot="dialog-close"

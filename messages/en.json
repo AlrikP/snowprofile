@@ -1,5 +1,9 @@
 {
   "$schema": "https://inlang.com/schema/inlang-message-format",
+  "dialog_discard_title": "Discard your changes?",
+  "dialog_discard_body": "What you changed in this dialog will be lost.",
+  "dialog_keep_editing": "Keep editing",
+  "dialog_discard": "Discard",
   "app_name": "snowprofile",
   "sign_in_title": "Sign in to snowprofile",
   "sign_in_demo_label": "Demo version",

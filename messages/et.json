@@ -1,5 +1,9 @@
 {
   "$schema": "https://inlang.com/schema/inlang-message-format",
+  "dialog_discard_title": "Kas loobud muudatustest?",
+  "dialog_discard_body": "Selles aknas tehtud muudatused lähevad kaduma.",
+  "dialog_keep_editing": "Jätka muutmist",
+  "dialog_discard": "Loobu",
   "app_name": "snowprofile",
   "sign_in_title": "Logi sisse: snowprofile",
   "sign_in_demo_label": "Demoversioon",

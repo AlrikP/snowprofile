@@ -240,6 +240,38 @@ test.describe('the employee', () => {
     await expect(page.getByRole('region', { name: 'Tender details' })).toHaveCount(0)
   })
 
+  test('asks before an own project’s changes are discarded by Esc or a click outside', async ({
+    page,
+  }) => {
+    await page.goto('/demo/profile')
+    const add = page.getByRole('button', { name: 'Add own project' })
+    const dialog = page.getByRole('dialog', { name: 'Own project' })
+    const confirm = page.getByRole('alertdialog', { name: 'Discard your changes?' })
+
+    await add.click()
+    await page.keyboard.press('Escape')
+    await expect(dialog).toHaveCount(0)
+
+    await add.click()
+    await dialog.getByLabel('Project name').fill('Half-written')
+    await page.keyboard.press('Escape')
+    await expect(confirm).toBeVisible()
+    await confirm.getByRole('button', { name: 'Keep editing' }).click()
+    await expect(dialog.getByLabel('Project name')).toHaveValue('Half-written')
+
+    // Esc in an open picker list closes the list first.
+    await dialog.getByRole('combobox', { name: 'Add a role' }).click()
+    await expect(dialog.getByRole('listbox')).toBeVisible()
+    await page.keyboard.press('Escape')
+    await expect(dialog.getByRole('listbox')).toHaveCount(0)
+    await expect(confirm).toHaveCount(0)
+
+    await page.mouse.click(5, 5)
+    await expect(confirm).toBeVisible()
+    await confirm.getByRole('button', { name: 'Discard' }).click()
+    await expect(dialog).toHaveCount(0)
+  })
+
   test('projects.summary-opened: opens a project’s row to its technologies and characteristics', async ({
     page,
   }) => {
