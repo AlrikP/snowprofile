@@ -8,6 +8,7 @@ import {
   projectTechnology,
   technology,
   technologyCategory,
+  technologyDistinctPair,
 } from '#/db/schema'
 import type { Scope } from '../scope.server'
 
@@ -196,4 +197,24 @@ export async function markTechnologyMerged(
     .where(
       and(eq(technology.organizationId, scope.organizationId), eq(technology.id, technologyId)),
     )
+}
+
+// The pairs admins marked "Not a duplicate", lower ID first.
+export async function listDistinctPairs(db: Executor, scope: Scope) {
+  return db
+    .select({
+      technologyId: technologyDistinctPair.technologyId,
+      otherTechnologyId: technologyDistinctPair.otherTechnologyId,
+    })
+    .from(technologyDistinctPair)
+    .where(eq(technologyDistinctPair.organizationId, scope.organizationId))
+}
+
+// Stores the pair once, lower ID first; marking it again changes nothing.
+export async function insertDistinctPair(db: Executor, scope: Scope, a: string, b: string) {
+  const [technologyId, otherTechnologyId] = a < b ? [a, b] : [b, a]
+  await db
+    .insert(technologyDistinctPair)
+    .values({ technologyId, otherTechnologyId, organizationId: scope.organizationId })
+    .onConflictDoNothing()
 }

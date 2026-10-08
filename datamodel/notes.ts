@@ -44,7 +44,13 @@ export const groups: Group[] = [
       'sys_deleted on entities users delete. Composite foreign keys keep references inside one',
       'organization; the diagram draws only the single-column part.',
     ],
-    tables: ['technology_category', 'technology', 'tender_criterion', 'project_role'],
+    tables: [
+      'technology_category',
+      'technology',
+      'technology_distinct_pair',
+      'tender_criterion',
+      'project_role',
+    ],
   },
   {
     name: 'projects',
@@ -265,6 +271,15 @@ export const tables: Record<string, TableNotes> = {
     columns: {
       organization_id:
         'Tenant key, equal to the organization of both sides through the composite foreign keys.',
+    },
+  },
+  technology_distinct_pair: {
+    note: 'Two technologies an admin marked "Not a duplicate", so the near-duplicate rule never suggests them again. Inserted once, never updated.',
+    columns: {
+      technology_id: 'The lower of the two IDs, so a pair is stored once.',
+      other_technology_id: 'The higher of the two IDs.',
+      organization_id:
+        'Tenant key, equal to the organization of both technologies through the composite foreign keys.',
     },
   },
   project_technology: {

@@ -303,6 +303,34 @@ export const technology = sqliteTable(
   ],
 )
 
+// Pairs an admin marked "Not a duplicate", so the near-duplicate rule never suggests them
+// again (docs/architecture.md, "Technology duplicates"). The lower ID comes first.
+export const technologyDistinctPair = sqliteTable(
+  'technology_distinct_pair',
+  {
+    technologyId: text('technology_id').notNull(),
+    otherTechnologyId: text('other_technology_id').notNull(),
+    organizationId: organizationId(),
+    ...createdAudit(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.technologyId, t.otherTechnologyId] }),
+    foreignKey({
+      name: 'technology_distinct_pair_technology',
+      columns: [t.technologyId, t.organizationId],
+      foreignColumns: [technology.id, technology.organizationId],
+    }),
+    foreignKey({
+      name: 'technology_distinct_pair_other_technology',
+      columns: [t.otherTechnologyId, t.organizationId],
+      foreignColumns: [technology.id, technology.organizationId],
+    }),
+    check('technology_distinct_pair_order', sql`technology_id < other_technology_id`),
+    index('technology_distinct_pair_organization_id_idx').on(t.organizationId),
+    index('technology_distinct_pair_other_technology_id_idx').on(t.otherTechnologyId),
+  ],
+)
+
 export const tenderCriterion = sqliteTable(
   'tender_criterion',
   {

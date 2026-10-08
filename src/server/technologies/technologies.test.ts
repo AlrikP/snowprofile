@@ -3,6 +3,7 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
 import { and, eq, ne, sql } from 'drizzle-orm'
 import { v7 as uuidv7 } from 'uuid'
+import * as v from 'valibot'
 import type { Database } from '#/db'
 import { withActor } from '#/db/actor'
 import {
@@ -19,7 +20,14 @@ import { seedIds } from '#/db/seed-accounts'
 import { createTestDatabase } from '#/db/testing'
 import { resolveScope, type Scope } from '../scope.server'
 import { rejection } from '../testing'
-import { addTechnology, catalogue, mergeTechnology, updateTechnology } from './technologies.server'
+import { MarkNotDuplicateInput } from './technologies.schemas'
+import {
+  addTechnology,
+  catalogue,
+  markNotDuplicate,
+  mergeTechnology,
+  updateTechnology,
+} from './technologies.server'
 
 let db: Database
 let cleanup: () => void
@@ -205,6 +213,7 @@ describe('curating', () => {
           categoryId: categories[0] ?? '',
         }),
       () => mergeTechnology(db, employee, { technologyId: id, intoId: target }),
+      () => markNotDuplicate(db, employee, { technologyId: id, otherTechnologyId: target }),
     ]) {
       expect(await rejection(as(employee, run))).toMatchObject({
         code: 'FORBIDDEN',
@@ -330,6 +339,41 @@ describe('merging', () => {
     expect(
       await rejection(
         as(admin, () => mergeTechnology(db, admin, { technologyId: survivor, intoId: duplicate })),
+      ),
+    ).toMatchObject({ code: 'NOT_FOUND', key: 'technology_not_found' })
+  })
+})
+
+describe('near-duplicates', () => {
+  test('technology-catalogue.near-duplicate-dismissed: an admin’s "Not a duplicate" is kept with the catalogue', async () => {
+    const angular = await add(admin, 'Angular Test')
+    const angularJs = await add(admin, 'Angular TestJS')
+
+    await as(admin, () =>
+      markNotDuplicate(db, admin, { technologyId: angularJs, otherTechnologyId: angular }),
+    )
+    // Marking it again changes nothing.
+    await as(admin, () =>
+      markNotDuplicate(db, admin, { technologyId: angular, otherTechnologyId: angularJs }),
+    )
+
+    const [low, high] = [angular, angularJs].sort()
+    const pairs = (await catalogue(db, admin)).distinctPairs
+    expect(pairs.filter((pair) => pair.technologyId === low)).toEqual([
+      { technologyId: low, otherTechnologyId: high },
+    ])
+  })
+
+  test('refuses a pair of one entry, and an entry that isn’t live', async () => {
+    const id = await add(admin, 'Lonely Tech')
+    expect(
+      v.safeParse(MarkNotDuplicateInput, { technologyId: id, otherTechnologyId: id }).success,
+    ).toBe(false)
+    expect(
+      await rejection(
+        as(admin, () =>
+          markNotDuplicate(db, admin, { technologyId: id, otherTechnologyId: uuidv7() }),
+        ),
       ),
     ).toMatchObject({ code: 'NOT_FOUND', key: 'technology_not_found' })
   })

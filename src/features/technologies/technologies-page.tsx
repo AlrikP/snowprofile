@@ -14,9 +14,11 @@ import {
 import { Input } from '#/components/ui/input'
 import { normalizeName } from '#/lib/normalize-name'
 import { categoryName, type Technology, technologyCatalogueQuery } from '#/lib/technology-catalogue'
+import { nearDuplicatePairs } from '#/lib/technology-duplicates'
 import { m } from '#/paraglide/messages.js'
 import { EditTechnologyDialog } from './edit-technology-dialog'
 import { MergeTechnologyDialog } from './merge-technology-dialog'
+import { PossibleDuplicates } from './possible-duplicates'
 
 function TechnologyActions({
   technology,
@@ -63,7 +65,8 @@ export function TechnologiesPage({
   const [search, setSearch] = useState('')
   const [adding, setAdding] = useState(false)
   const [editing, setEditing] = useState<Technology | null>(null)
-  const [merging, setMerging] = useState<Technology | null>(null)
+  const [merging, setMerging] = useState<{ technology: Technology; intoId?: string } | null>(null)
+  const pairs = canCurate ? nearDuplicatePairs(catalogue.technologies, catalogue.distinctPairs) : []
 
   const needle = normalizeName(search)
   const shown = catalogue.technologies.filter((each) => normalizeName(each.name).includes(needle))
@@ -88,6 +91,14 @@ export function TechnologiesPage({
           {m.technologies_add()}
         </Button>
       </div>
+
+      {canCurate && (
+        <PossibleDuplicates
+          organizationId={organizationId}
+          pairs={pairs}
+          onMerge={({ from, into }) => setMerging({ technology: from, intoId: into.id })}
+        />
+      )}
 
       <div className="relative max-w-sm">
         <SearchIcon className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
@@ -135,7 +146,7 @@ export function TechnologiesPage({
                           <TechnologyActions
                             technology={technology}
                             onEdit={() => setEditing(technology)}
-                            onMerge={() => setMerging(technology)}
+                            onMerge={() => setMerging({ technology })}
                           />
                         )}
                       </li>
@@ -165,7 +176,8 @@ export function TechnologiesPage({
           <MergeTechnologyDialog
             organizationId={organizationId}
             catalogue={catalogue}
-            technology={merging}
+            technology={merging?.technology ?? null}
+            initialIntoId={merging?.intoId}
             onClose={() => setMerging(null)}
           />
         </>

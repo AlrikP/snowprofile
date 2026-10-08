@@ -30,12 +30,20 @@ type MergeProps = {
   organizationId: string
   catalogue: TechnologyCatalogue
   technology: Technology
+  // The entry that stays, when a suggested pair names it.
+  initialIntoId?: string
   onDone: () => void
 }
 
-function MergeTechnologyForm({ organizationId, catalogue, technology, onDone }: MergeProps) {
+function MergeTechnologyForm({
+  organizationId,
+  catalogue,
+  technology,
+  initialIntoId,
+  onDone,
+}: MergeProps) {
   const queryClient = useQueryClient()
-  const [intoId, setIntoId] = useState('')
+  const [intoId, setIntoId] = useState(initialIntoId ?? '')
   const merge = useMutation({
     mutationFn: () =>
       mergeTechnology({ data: { organizationId, technologyId: technology.id, intoId } }),

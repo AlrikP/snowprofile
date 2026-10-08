@@ -4,6 +4,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { scopeMiddleware } from '../middleware'
 import {
   AddTechnologyInput,
+  MarkNotDuplicateInput,
   MergeTechnologyInput,
   UpdateTechnologyInput,
 } from './technologies.schemas'
@@ -27,5 +28,10 @@ export const mergeTechnology = createServerFn({ method: 'POST' })
   .middleware([scopeMiddleware])
   .validator(MergeTechnologyInput)
   .handler(({ data, context }) => technologies.mergeTechnology(context.db, context.scope, data))
+
+export const markNotDuplicate = createServerFn({ method: 'POST' })
+  .middleware([scopeMiddleware])
+  .validator(MarkNotDuplicateInput)
+  .handler(({ data, context }) => technologies.markNotDuplicate(context.db, context.scope, data))
 
 export type TechnologyCatalogue = Awaited<ReturnType<typeof getTechnologyCatalogue>>

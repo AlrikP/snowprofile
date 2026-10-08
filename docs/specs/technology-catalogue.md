@@ -90,3 +90,23 @@ as in search and CV selection, offers only the catalogue's entries.
 - **Given** a technology picker
 - **When** someone types a name that matches no entry
 - **Then** the picker offers to add that name to the catalogue
+
+### Requirement: Near-duplicates are suggested
+
+Admins must see the catalogue's near-duplicate pairs, such as Postgres and PostgreSQL, each
+with both entries' uses, so they can merge one into the other or mark the pair "Not a
+duplicate". A pair marked so must never be suggested again. Employees must not see the
+suggestions.
+
+#### Scenario: technology-catalogue.near-duplicates-listed
+
+- **Given** a catalogue with Postgres and PostgreSQL
+- **When** an admin opens the technologies page and chooses Merge on the pair
+- **Then** the merge dialog opens for Postgres with PostgreSQL chosen as the entry that
+  stays
+
+#### Scenario: technology-catalogue.near-duplicate-dismissed
+
+- **Given** a suggested pair of two different technologies, such as Angular and AngularJS
+- **When** an admin marks it "Not a duplicate"
+- **Then** the pair leaves the suggestions and stays out after a reload

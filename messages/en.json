@@ -108,6 +108,11 @@
   "technology_picker_add": "Add to the catalogue: {name}",
   "technology_remove": "Remove {name}",
   "technologies_use_counts": "Projects: {projects} · People: {people}",
+  "technologies_duplicates_title": "Possible duplicates",
+  "technologies_duplicates_body": "These names are nearly the same. Merge them so search and CVs find every use, or mark them as different technologies.",
+  "technologies_not_duplicate": "Not a duplicate",
+  "technologies_not_duplicate_pair": "{from} and {into} are different technologies",
+  "technologies_merge_pair": "Merge {from} into {into}",
   "technology_merge_explanation": [
     {
       "declarations": [

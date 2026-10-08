@@ -29,3 +29,13 @@ export const MergeTechnologyInput = v.object({
   intoId: Uuidv7,
 })
 export type MergeTechnologyInput = v.InferOutput<typeof MergeTechnologyInput>
+
+// Two entries the near-duplicate rule pairs, which an admin says are different.
+export const MarkNotDuplicateInput = v.pipe(
+  v.object({ technologyId: Uuidv7, otherTechnologyId: Uuidv7 }),
+  v.check(
+    (input) => input.technologyId !== input.otherTechnologyId,
+    'Choose two different technologies.',
+  ),
+)
+export type MarkNotDuplicateInput = v.InferOutput<typeof MarkNotDuplicateInput>

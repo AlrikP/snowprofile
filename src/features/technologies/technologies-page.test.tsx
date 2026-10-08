@@ -11,6 +11,7 @@ const server = vi.hoisted(() => ({
   addTechnology: vi.fn(),
   updateTechnology: vi.fn(),
   mergeTechnology: vi.fn(),
+  markNotDuplicate: vi.fn(),
 }))
 vi.mock('#/server/technologies/technologies.functions', () => server)
 
@@ -19,9 +20,9 @@ beforeEach(() => {
   server.getTechnologyCatalogue.mockResolvedValue(testCatalogue)
 })
 
-function renderPage(canCurate: boolean) {
+function renderPage(canCurate: boolean, catalogue = testCatalogue) {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
-  queryClient.setQueryData(technologyCatalogueQuery('org').queryKey, testCatalogue)
+  queryClient.setQueryData(technologyCatalogueQuery('org').queryKey, catalogue)
   render(
     <QueryClientProvider client={queryClient}>
       <TechnologiesPage organizationId="org" canCurate={canCurate} />
@@ -120,6 +121,53 @@ describe('TechnologiesPage', () => {
     expect(server.mergeTechnology).toHaveBeenCalledWith({
       data: { organizationId: 'org', technologyId: 'postgres', intoId: 'postgresql' },
     })
+  })
+
+  it('technology-catalogue.near-duplicates-listed: an admin sees a near-duplicate pair and merges it', async () => {
+    server.mergeTechnology.mockResolvedValue(undefined)
+    renderPage(true)
+
+    const duplicates = within(screen.getByRole('region', { name: 'Possible duplicates' }))
+    expect(duplicates.getByRole('listitem')).toHaveTextContent(
+      'PostgresProjects: 2 · People: 3PostgreSQLProjects: 20 · People: 41',
+    )
+    await userEvent.click(
+      duplicates.getByRole('button', { name: 'Merge Postgres into PostgreSQL' }),
+    )
+    const dialog = within(screen.getByRole('dialog'))
+    expect(dialog.getByLabelText('Merge into')).toHaveValue('postgresql')
+    await userEvent.click(dialog.getByRole('button', { name: 'Merge' }))
+
+    expect(server.mergeTechnology).toHaveBeenCalledWith({
+      data: { organizationId: 'org', technologyId: 'postgres', intoId: 'postgresql' },
+    })
+  })
+
+  it('shows an employee no possible duplicates', () => {
+    renderPage(false)
+
+    expect(screen.queryByRole('region', { name: 'Possible duplicates' })).not.toBeInTheDocument()
+  })
+
+  it('technology-catalogue.near-duplicate-dismissed: "Not a duplicate" is sent, and a dismissed pair stays out', async () => {
+    server.markNotDuplicate.mockResolvedValue(undefined)
+    renderPage(true)
+
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Postgres and PostgreSQL are different technologies' }),
+    )
+    expect(server.markNotDuplicate).toHaveBeenCalledWith({
+      data: { organizationId: 'org', technologyId: 'postgres', otherTechnologyId: 'postgresql' },
+    })
+  })
+
+  it('leaves out a pair an admin marked "Not a duplicate"', () => {
+    renderPage(true, {
+      ...testCatalogue,
+      distinctPairs: [{ technologyId: 'postgres', otherTechnologyId: 'postgresql' }],
+    })
+
+    expect(screen.queryByRole('region', { name: 'Possible duplicates' })).not.toBeInTheDocument()
   })
 
   it('technology-catalogue.admin-renames: an admin renames an entry', async () => {

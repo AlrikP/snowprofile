@@ -194,6 +194,32 @@ conventions apply to every app-owned table; Better Auth's tables keep the plugin
   participations stay on projects as references. Whether and when a leaver's profile is
   anonymized is open (`product.md`, "Leavers").
 
+### Technology duplicates
+
+What admins see is specified in
+[`specs/technology-catalogue.md`](specs/technology-catalogue.md), "Near-duplicates are
+suggested"; the rule is `src/lib/technology-duplicates.ts`, shared by the page and the
+client's dialogs.
+
+- **Exact duplicates** are names that normalize the same (`normalize-name.ts`); the
+  catalogue refuses them.
+- **Near-duplicates** are names whose stems match. A stem is the normalized name without a
+  trailing version (Java 21), mapped through a hand-kept alias list for abbreviations and
+  translations (Postgres, K8s, TS, JS, X-Road, Mongo), and then without one suffix that
+  names are written with or without: js, sql, db, lang, core, css, search. A stem keeps
+  its suffix when stripping would leave fewer than two characters.
+- **Checked against** the seed's catalogue (no pairs) and about 50 names typed in
+  practice (task 042): it finds all 25 intended pairs and keeps apart Java and
+  JavaScript, Spring and Spring Boot, MySQL and MSSQL, C, C#, and C++, and Kafka and
+  Kafka Streams. A prefix match pairs Java with JavaScript; an edit distance found 1 of the
+  25 pairs and matched MySQL with MSSQL. `technology-duplicates.test.ts` keeps both lists.
+- **False matches** are expected (Angular and AngularJS is the known one), so an admin
+  marks a pair "Not a duplicate". `technology_distinct_pair` stores it per organization,
+  lower ID first, and the catalogue query returns the pairs so the client leaves them out.
+- **Which entry stays** in a suggested merge: the one with more uses; on a tie, the one
+  written without an alias or a version, then the shorter. The admin can still pick
+  another in the merge dialog.
+
 ### PostgreSQL portability
 
 The conventions use SQL that PostgreSQL also accepts, except for these SQLite forms, which

@@ -7,16 +7,20 @@ import { requirePermission, type Scope } from '../scope.server'
 import * as repository from './technologies.repository.server'
 import type {
   AddTechnologyInput,
+  MarkNotDuplicateInput,
   MergeTechnologyInput,
   UpdateTechnologyInput,
 } from './technologies.schemas'
 
+// The pairs admins marked "Not a duplicate" come along, so the client leaves them out of
+// its near-duplicate suggestions (src/lib/technology-duplicates.ts).
 export async function catalogue(db: Database, scope: Scope) {
-  const [categories, technologies] = await Promise.all([
+  const [categories, technologies, distinctPairs] = await Promise.all([
     repository.listCategories(db, scope),
     repository.listTechnologies(db, scope),
+    repository.listDistinctPairs(db, scope),
   ])
-  return { categories, technologies }
+  return { categories, technologies, distinctPairs }
 }
 
 // The name's normalized form, refused when it leaves nothing to compare, such as "!!".
@@ -78,5 +82,19 @@ export async function mergeTechnology(db: Database, scope: Scope, input: MergeTe
     if (!from || !into) throw new AppError('NOT_FOUND', 'technology_not_found')
     await repository.moveTechnologyLinks(tx, scope, from.id, into.id)
     await repository.markTechnologyMerged(tx, scope, from.id, into.id)
+  })
+}
+
+// An admin's word that two entries the near-duplicate rule pairs are different
+// technologies, so the pair is never suggested again.
+export async function markNotDuplicate(db: Database, scope: Scope, input: MarkNotDuplicateInput) {
+  requirePermission(scope, { technology: ['curate'] }, 'technology_forbidden')
+  await db.transaction(async (tx) => {
+    const [one, other] = await Promise.all([
+      repository.findTechnology(tx, scope, input.technologyId),
+      repository.findTechnology(tx, scope, input.otherTechnologyId),
+    ])
+    if (!one || !other) throw new AppError('NOT_FOUND', 'technology_not_found')
+    await repository.insertDistinctPair(tx, scope, one.id, other.id)
   })
 }

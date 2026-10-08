@@ -23,6 +23,7 @@ import {
   projectTechnology,
   technology,
   technologyCategory,
+  technologyDistinctPair,
   tenderCriterion,
   updateRequest,
   user,
@@ -1258,6 +1259,33 @@ const cases: Record<string, () => Promise<void>> = {
           normalizedName: 'crossing',
           categoryId: b.categoryId,
         }),
+      )
+    }
+    expect(await failure(insert)).toContain('FOREIGN KEY')
+  },
+  'technologies.listDistinctPairs': async () => {
+    const [low, high] = [b.technologyId, b.otherTechnologyId].sort()
+    await withActor(scopeA.userId, async () => {
+      await db.insert(technologyDistinctPair).values({
+        technologyId: low ?? '',
+        otherTechnologyId: high ?? '',
+        organizationId: b.organizationId,
+      })
+    })
+    const listed = await technologies.listDistinctPairs(db, scopeA)
+    expect(listed.map((pair) => pair.technologyId)).not.toContain(low)
+  },
+  'technologies.insertDistinctPair': async () => {
+    // The organization comes from the scope, so B's entry can't be paired from A, even with
+    // one of A's.
+    const [own] = await db
+      .select({ id: technology.id })
+      .from(technology)
+      .where(eq(technology.organizationId, scopeA.organizationId))
+      .limit(1)
+    function insert() {
+      return withActor(scopeA.userId, () =>
+        technologies.insertDistinctPair(db, scopeA, b.technologyId, own?.id ?? ''),
       )
     }
     expect(await failure(insert)).toContain('FOREIGN KEY')

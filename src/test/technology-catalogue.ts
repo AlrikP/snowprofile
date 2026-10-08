@@ -12,4 +12,5 @@ export const testCatalogue: TechnologyCatalogue = {
     { id: 'postgresql', name: 'PostgreSQL', categoryId: 'data', projects: 20, people: 41 },
     { id: 'postgres', name: 'Postgres', categoryId: 'data', projects: 2, people: 3 },
   ],
+  distinctPairs: [],
 }
