@@ -178,6 +178,7 @@ export const tables: Record<string, TableNotes> = {
         'name lowercased with spaces and punctuation removed, set by the app. Catches Postgres SQL against PostgreSQL, and matches import values.',
       merged_into_id:
         'Set when an admin merges this entry into another: links move to the survivor and this row is soft-deleted. The import maps the old name to the survivor.',
+      note: 'Plain text an admin writes, up to 1,000 characters, in one language: what the entry covers, why it is not a duplicate of a look-alike, or documentation links. Every member reads it.',
     },
     indexes: {
       technology_organization_id_normalized_name_unique: 'One live entry per name.',

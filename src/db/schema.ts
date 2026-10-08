@@ -279,6 +279,7 @@ export const technology = sqliteTable(
     name: text().notNull(),
     normalizedName: text('normalized_name').notNull(),
     mergedIntoId: text('merged_into_id'),
+    note: text(),
     ...createdAudit(),
     ...updatedAudit(),
     ...sysDeleted(),

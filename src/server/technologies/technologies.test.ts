@@ -20,7 +20,7 @@ import { seedIds } from '#/db/seed-accounts'
 import { createTestDatabase } from '#/db/testing'
 import { resolveScope, type Scope } from '../scope.server'
 import { rejection } from '../testing'
-import { MarkNotDuplicateInput } from './technologies.schemas'
+import { MarkNotDuplicateInput, UpdateTechnologyInput } from './technologies.schemas'
 import {
   addTechnology,
   catalogue,
@@ -168,6 +168,7 @@ describe('curating', () => {
         technologyId: id,
         name: 'Quill.js',
         categoryId: categories[0] ?? '',
+        note: null,
       }),
     )
     expect(await listed(id)).toMatchObject({ name: 'Quill.js' })
@@ -181,6 +182,7 @@ describe('curating', () => {
         technologyId: id,
         name: 'Groundwork',
         categoryId: categories[3] ?? '',
+        note: null,
       }),
     )
     expect(await listed(id)).toMatchObject({ categoryId: categories[3] })
@@ -196,6 +198,7 @@ describe('curating', () => {
             technologyId: id,
             name: 'kestrel',
             categoryId: categories[0] ?? '',
+            note: null,
           }),
         ),
       ),
@@ -211,6 +214,7 @@ describe('curating', () => {
           technologyId: id,
           name: 'Brimstone 2',
           categoryId: categories[0] ?? '',
+          note: null,
         }),
       () => mergeTechnology(db, employee, { technologyId: id, intoId: target }),
       () => markNotDuplicate(db, employee, { technologyId: id, otherTechnologyId: target }),
@@ -220,6 +224,68 @@ describe('curating', () => {
         key: 'technology_forbidden',
       })
     }
+  })
+})
+
+describe('notes', () => {
+  function note(scope: Scope, technologyId: string, text: string | null) {
+    return as(scope, async () => {
+      const current = await entry(technologyId)
+      await updateTechnology(db, scope, {
+        technologyId,
+        name: current?.name ?? '',
+        categoryId: current?.categoryId ?? '',
+        note: text,
+      })
+    })
+  }
+
+  test('technology-catalogue.note-edited: an admin adds, changes, and clears a note', async () => {
+    const id = await add(admin, 'Noteworthy')
+    await note(admin, id, 'Docs: https://noteworthy.example/docs')
+    expect(await listed(id)).toMatchObject({ note: 'Docs: https://noteworthy.example/docs' })
+    await note(admin, id, 'Not the same as Noteworthy Classic.')
+    expect(await listed(id)).toMatchObject({ note: 'Not the same as Noteworthy Classic.' })
+    await note(admin, id, null)
+    expect(await listed(id)).toMatchObject({ note: null })
+  })
+
+  test('technology-catalogue.note-edited: a blank note is none, and a long one is refused', () => {
+    const input = { technologyId: uuidv7(), name: 'X', categoryId: uuidv7() }
+    expect(v.parse(UpdateTechnologyInput, { ...input, note: '  ' }).note).toBeNull()
+    expect(v.safeParse(UpdateTechnologyInput, { ...input, note: 'a'.repeat(1000) }).success).toBe(
+      true,
+    )
+    expect(v.safeParse(UpdateTechnologyInput, { ...input, note: 'a'.repeat(1001) }).success).toBe(
+      false,
+    )
+  })
+
+  test('technology-catalogue.employee-cannot-edit-note: the server refuses, and the note stays', async () => {
+    const id = await add(admin, 'Unchanged')
+    await note(admin, id, 'Kept')
+    expect(await rejection(note(employee, id, 'Changed'))).toMatchObject({
+      code: 'FORBIDDEN',
+      key: 'technology_forbidden',
+    })
+    expect((await entry(id))?.note).toBe('Kept')
+  })
+
+  test('technology-catalogue.merge-keeps-notes: the merged note, named, follows the survivor’s', async () => {
+    const from = await add(admin, 'Notes Old')
+    const into = await add(admin, 'Notes New')
+    const bare = await add(admin, 'Notes Bare')
+    await note(admin, from, 'From the old one.')
+    await note(admin, into, 'The one that stays.')
+
+    await as(admin, () => mergeTechnology(db, admin, { technologyId: from, intoId: into }))
+    expect((await entry(into))?.note).toBe('The one that stays.\n\nNotes Old: From the old one.')
+
+    // A survivor without a note takes the merged one as it is.
+    const other = await add(admin, 'Notes Other')
+    await note(admin, other, 'Only here.')
+    await as(admin, () => mergeTechnology(db, admin, { technologyId: other, intoId: bare }))
+    expect((await entry(bare))?.note).toBe('Only here.')
   })
 })
 

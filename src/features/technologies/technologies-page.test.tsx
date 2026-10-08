@@ -255,7 +255,64 @@ describe('TechnologiesPage', () => {
         technologyId: 'angular',
         name: 'AngularJS',
         categoryId: 'data',
+        note: null,
       },
     })
+  })
+
+  it('technology-catalogue.note-edited: an admin writes a note, and clears it', async () => {
+    const noted = {
+      ...testCatalogue,
+      technologies: testCatalogue.technologies.map((each) =>
+        each.id === 'react' ? { ...each, note: 'Old note' } : each,
+      ),
+    }
+    server.getTechnologyCatalogue.mockResolvedValue(noted)
+    server.updateTechnology.mockResolvedValue(undefined)
+    renderPage(true, noted)
+
+    await userEvent.click(screen.getByRole('button', { name: 'Actions for Angular' }))
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Edit' }))
+    expect(screen.getByLabelText('Note')).toHaveAccessibleDescription(
+      expect.stringContaining('at most 1000 characters'),
+    )
+    await userEvent.type(screen.getByLabelText('Note'), '  Not AngularJS. https://angular.dev  ')
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }))
+    expect(server.updateTechnology).toHaveBeenLastCalledWith({
+      data: expect.objectContaining({
+        technologyId: 'angular',
+        note: 'Not AngularJS. https://angular.dev',
+      }),
+    })
+
+    await userEvent.click(screen.getByRole('button', { name: 'Actions for React' }))
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Edit' }))
+    expect(screen.getByLabelText('Note')).toHaveValue('Old note')
+    await userEvent.clear(screen.getByLabelText('Note'))
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }))
+    expect(server.updateTechnology).toHaveBeenLastCalledWith({
+      data: expect.objectContaining({ technologyId: 'react', note: null }),
+    })
+  })
+
+  it('technology-catalogue.note-edited: every member sees a note, with https links only', () => {
+    renderPage(false, {
+      ...testCatalogue,
+      technologies: testCatalogue.technologies.map((each) =>
+        each.id === 'postgresql'
+          ? {
+              ...each,
+              note: 'Docs: https://www.postgresql.org/docs/.\nNot javascript:alert(1) or http://plain.example',
+            }
+          : each,
+      ),
+    })
+
+    const data = within(screen.getByRole('region', { name: 'Data' }))
+    expect(data.getByText(/^Docs:/)).toHaveTextContent('Not javascript:alert(1)')
+    expect(data.getAllByRole('link').map((each) => each.getAttribute('href'))).toEqual([
+      'https://www.postgresql.org/docs/',
+    ])
+    expect(data.getByRole('link')).toHaveAttribute('rel', 'noopener noreferrer')
   })
 })

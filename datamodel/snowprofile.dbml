@@ -143,6 +143,7 @@ Table technology [note: 'A catalogue entry, such as PostgreSQL. Anyone adds entr
   name text [not null, note: 'Proper name, the same in both languages.']
   normalized_name text [not null, note: 'name lowercased with spaces and punctuation removed, set by the app. Catches Postgres SQL against PostgreSQL, and matches import values.']
   merged_into_id text [ref: > technology.id, note: 'Set when an admin merges this entry into another: links move to the survivor and this row is soft-deleted. The import maps the old name to the survivor. Composite FK (merged_into_id, organization_id) to technology (id, organization_id).']
+  note text [note: 'Plain text an admin writes, up to 1,000 characters, in one language: what the entry covers, why it is not a duplicate of a look-alike, or documentation links. Every member reads it.']
   created_at integer [not null, default: `CAST(ROUND(unixepoch('subsec') * 1000) AS INTEGER)`, note: 'Audit. Epoch ms, set by the database.']
   created_by text [not null, ref: > user.id, note: 'Audit. Acting user, set by the app per request.']
   updated_at integer [not null, default: `CAST(ROUND(unixepoch('subsec') * 1000) AS INTEGER)`, note: 'Audit. Set by the app on update; trigger fallback.']

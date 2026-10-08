@@ -7,10 +7,17 @@ export const testCatalogue: TechnologyCatalogue = {
     { id: 'data', nameEt: 'Andmed', nameEn: 'Data' },
   ],
   technologies: [
-    { id: 'react', name: 'React', categoryId: 'frontend', projects: 12, people: 30 },
-    { id: 'angular', name: 'Angular', categoryId: 'frontend', projects: 4, people: 9 },
-    { id: 'postgresql', name: 'PostgreSQL', categoryId: 'data', projects: 20, people: 41 },
-    { id: 'postgres', name: 'Postgres', categoryId: 'data', projects: 2, people: 3 },
+    { id: 'react', name: 'React', categoryId: 'frontend', note: null, projects: 12, people: 30 },
+    { id: 'angular', name: 'Angular', categoryId: 'frontend', note: null, projects: 4, people: 9 },
+    {
+      id: 'postgresql',
+      name: 'PostgreSQL',
+      categoryId: 'data',
+      note: null,
+      projects: 20,
+      people: 41,
+    },
+    { id: 'postgres', name: 'Postgres', categoryId: 'data', note: null, projects: 2, people: 3 },
   ],
   distinctPairs: [],
 }

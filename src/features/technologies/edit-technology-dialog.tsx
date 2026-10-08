@@ -14,6 +14,7 @@ import {
 import { Input } from '#/components/ui/input'
 import { Label } from '#/components/ui/label'
 import { NativeSelect, NativeSelectOption } from '#/components/ui/native-select'
+import { Textarea } from '#/components/ui/textarea'
 import { errorMessage } from '#/lib/errors'
 import { normalizeName } from '#/lib/normalize-name'
 import {
@@ -24,6 +25,7 @@ import {
   technologyCatalogueQuery,
 } from '#/lib/technology-catalogue'
 import { nearDuplicateOf } from '#/lib/technology-duplicates'
+import { NOTE_MAX_LENGTH } from '#/lib/technology-note'
 import { m } from '#/paraglide/messages.js'
 import { updateTechnology } from '#/server/technologies/technologies.functions'
 
@@ -38,6 +40,7 @@ function EditTechnologyForm({ organizationId, catalogue, technology, onDone }: E
   const queryClient = useQueryClient()
   const [name, setName] = useState(technology.name)
   const [categoryId, setCategoryId] = useState(technology.categoryId)
+  const [note, setNote] = useState(technology.note ?? '')
   const duplicate = findDuplicate(catalogue.technologies, name, technology.id)
   // An unchanged name doesn't warn, so moving an entry to another category stays quiet.
   const renamed = normalizeName(name) !== normalizeName(technology.name)
@@ -48,7 +51,13 @@ function EditTechnologyForm({ organizationId, catalogue, technology, onDone }: E
   const save = useMutation({
     mutationFn: () =>
       updateTechnology({
-        data: { organizationId, technologyId: technology.id, name: name.trim(), categoryId },
+        data: {
+          organizationId,
+          technologyId: technology.id,
+          name: name.trim(),
+          categoryId,
+          note: note.trim() || null,
+        },
       }),
     onSuccess: async () => {
       await queryClient.invalidateQueries(technologyCatalogueQuery(organizationId))
@@ -99,6 +108,20 @@ function EditTechnologyForm({ organizationId, catalogue, technology, onDone }: E
           ))}
         </NativeSelect>
       </div>
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="edit-technology-note">{m.technology_note()}</Label>
+        <Textarea
+          id="edit-technology-note"
+          value={note}
+          maxLength={NOTE_MAX_LENGTH}
+          rows={4}
+          aria-describedby="edit-technology-note-hint"
+          onChange={(event) => setNote(event.target.value)}
+        />
+        <p id="edit-technology-note-hint" className="text-muted-foreground text-sm">
+          {m.technology_note_hint({ max: NOTE_MAX_LENGTH })}
+        </p>
+      </div>
       {duplicate && (
         <Alert id="edit-technology-name-duplicate" role="status">
           <TriangleAlertIcon />
@@ -130,7 +153,7 @@ function EditTechnologyForm({ organizationId, catalogue, technology, onDone }: E
   )
 }
 
-// Renames an entry or moves it to another category; admins only.
+// Renames an entry, moves it to another category, or changes its note; admins only.
 export function EditTechnologyDialog({
   technology,
   onClose,

@@ -398,6 +398,58 @@ export const CATEGORIES: readonly { name: Bilingual; technologies: readonly stri
   },
 ]
 
+// Admins' notes on catalogue entries: what an entry covers, how it differs from a
+// look-alike, and where its documentation is. Most entries have one; the rest show what an
+// entry without a note looks like.
+export const TECHNOLOGY_NOTES: Readonly<Record<string, string>> = {
+  React:
+    'Ka React Native mobiilirakendustes. Klassikomponentidega vanemad projektid samuti siia.\nhttps://react.dev',
+  Angular:
+    'Angular 2 ja uuemad. AngularJS (1.x) on eraldi tehnoloogia, mitte sama kirje duplikaat.\nhttps://angular.dev',
+  'Vue.js': 'Vue 2 ja Vue 3, ka Nuxt. https://vuejs.org',
+  TypeScript: 'Märgi ainult siis, kui projekt on TypeScriptis; JavaScript eraldi kirjet ei vaja.',
+  'Next.js':
+    'Reacti raamistik serveripoolse renderdusega. Märgi ka React.\nhttps://nextjs.org/docs',
+  'Tailwind CSS': 'https://tailwindcss.com/docs',
+  Java: 'Keel ise, mitte JavaScript. Versioon käib projekti kirjeldusse, mitte kirje nimesse (Java 21 = Java).\nhttps://docs.oracle.com/en/java/',
+  'Spring Boot':
+    'Spring Boot rakendused. Vana Spring MVC ilma Bootita märgi Java alla ja kirjelda projektis.\nhttps://docs.spring.io/spring-boot/',
+  Kotlin: 'Nii serveripoolne Kotlin kui ka Androidi rakendused.',
+  'Node.js':
+    'Serveripoolne JavaScript ja TypeScript, ka NestJS ja Express.\nhttps://nodejs.org/docs/latest/api/',
+  '.NET': '.NET Core ja .NET 5+. Vana .NET Framework (4.x) kirjelda projektis eraldi.',
+  Python: 'Python 3. Andmeanalüüsi skriptid (pandas) samuti siia.',
+  Django: 'Märgi ka Python. https://docs.djangoproject.com',
+  Go: 'Keel Go (Golang). https://go.dev/doc/',
+  PHP: 'PHP 7 ja 8, ka Laravel ja Symfony.',
+  PostgreSQL:
+    'Ka hallatud PostgreSQL (AWS RDS, Azure Database). Postgres on sama kirje ja liideti siia.\nhttps://www.postgresql.org/docs/',
+  Oracle: 'Oracle Database, mitte Oracle Cloud ega Java. Hangetes küsitakse sageli versiooni.',
+  MySQL: 'Ka MariaDB. MSSQL (Microsoft SQL Server) on eraldi tehnoloogia.',
+  MongoDB: 'https://www.mongodb.com/docs/',
+  Elasticsearch: 'Ka OpenSearch. Kibana märgi eraldi, kui see on kasutajatele nähtav.',
+  Kafka:
+    'Apache Kafka sõnumivahendusena. Kafka Streams on eraldi kirje, kui seda lisatakse.\nhttps://kafka.apache.org/documentation/',
+  Docker: 'Konteinerid arenduses ja paigalduses. Orkestreerimine käib Kubernetese alla.',
+  Kubernetes: 'Ka OpenShift ja hallatud klastrid (EKS, AKS). https://kubernetes.io/docs/',
+  Terraform: 'Taristu koodina; ka OpenTofu. https://developer.hashicorp.com/terraform/docs',
+  Ansible: 'Serverite seadistamine. https://docs.ansible.com',
+  AWS: 'Amazon Web Services. Teenused (RDS, S3, Lambda) kirjelda projektis.',
+  Azure: 'Microsoft Azure. Azure DevOps ainult CI jaoks ei ole Azure.',
+  Nginx: 'Veebiserver ja pöördproksi.',
+  JUnit: 'JUnit 4 ja 5, ka Mockito koos sellega. https://junit.org/junit5/docs/current/user-guide/',
+  Playwright: 'Brauseritestid. https://playwright.dev/docs/intro',
+  Cypress: 'https://docs.cypress.io',
+  Selenium: 'Ka Selenide ja WebDriver otse.',
+  JMeter: 'Koormustestid. Gatlingu ja k6 jaoks lisa eraldi kirje.',
+  'X-tee':
+    'Eesti andmevahetuskiht; ingliskeelsetes hangetes X-Road. Sõnumiprotokolli versioon käib projekti juurde.\nhttps://x-tee.ee',
+  Camunda: 'Camunda 7 ja 8 töövoomootorina (BPMN).',
+  Keycloak:
+    'Autentimine ja SSO, ka TARA liidestus Keycloaki kaudu. https://www.keycloak.org/documentation',
+  Grafana: 'Töölauad. Mõõdikute kogumine on Prometheuse all.',
+}
+
 // A duplicate an admin has merged, as the import leaves them: [duplicate, kept name].
 export const MERGED_TECHNOLOGY = ['Postgres', 'PostgreSQL'] as const
 

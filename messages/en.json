@@ -100,6 +100,8 @@
   "technologies_employee_hint": "Add a technology that’s missing. Admins tidy names and categories.",
   "technologies_no_match": "No technology matches.",
   "technology_name": "Name",
+  "technology_note": "Note",
+  "technology_note_hint": "Plain text, at most {max} characters. Every member sees it. Links starting with https:// open as links.",
   "technology_name_hint": "The same name in both languages, for example PostgreSQL.",
   "technology_category": "Category",
   "technology_exists": "{name} is already in the catalogue.",

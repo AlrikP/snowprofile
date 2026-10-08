@@ -81,6 +81,7 @@ export async function listTechnologies(db: Executor, scope: Scope) {
       id: technology.id,
       name: technology.name,
       categoryId: technology.categoryId,
+      note: technology.note,
       projects: PROJECT_COUNT,
       people: PEOPLE_COUNT,
     })
@@ -93,7 +94,7 @@ export async function listTechnologies(db: Executor, scope: Scope) {
 
 export async function findTechnology(db: Executor, scope: Scope, technologyId: string) {
   const [row] = await db
-    .select({ id: technology.id, name: technology.name })
+    .select({ id: technology.id, name: technology.name, note: technology.note })
     .from(technology)
     .where(
       and(
@@ -138,11 +139,25 @@ export async function updateTechnology(
   db: Executor,
   scope: Scope,
   technologyId: string,
-  values: { name: string; normalizedName: string; categoryId: string },
+  values: { name: string; normalizedName: string; categoryId: string; note: string | null },
 ) {
   await db
     .update(technology)
     .set(values)
+    .where(
+      and(eq(technology.organizationId, scope.organizationId), eq(technology.id, technologyId)),
+    )
+}
+
+export async function setTechnologyNote(
+  db: Executor,
+  scope: Scope,
+  technologyId: string,
+  note: string | null,
+) {
+  await db
+    .update(technology)
+    .set({ note })
     .where(
       and(eq(technology.organizationId, scope.organizationId), eq(technology.id, technologyId)),
     )

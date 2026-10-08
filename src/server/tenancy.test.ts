@@ -1300,9 +1300,17 @@ const cases: Record<string, () => Promise<void>> = {
         name: 'Renamed from A',
         normalizedName: 'renamedfroma',
         categoryId: aCategoryId,
+        note: 'From A',
       }),
     )
     expect((await bTechnology(b.technologyId))?.name).toBe(before?.name)
+  },
+  'technologies.setTechnologyNote': async () => {
+    const before = await bTechnology(b.technologyId)
+    await withActor(scopeA.userId, () =>
+      technologies.setTechnologyNote(db, scopeA, b.technologyId, 'From A'),
+    )
+    expect((await bTechnology(b.technologyId))?.note).toBe(before?.note)
   },
   'technologies.moveTechnologyLinks': async () => {
     const before = [await bLinks(b.technologyId), await bLinks(b.otherTechnologyId)]

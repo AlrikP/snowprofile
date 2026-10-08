@@ -160,6 +160,7 @@ async function insertOrganization(db: Executor, data: DemoOrganization, password
 // memberships and invitations cascade. Users stay.
 async function deleteOrganization(db: Executor, organizationId: string) {
   const tables = [
+    schema.technologyDistinctPair,
     schema.projectContact,
     schema.projectTechnology,
     schema.projectCriterionAnswer,

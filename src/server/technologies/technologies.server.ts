@@ -65,12 +65,14 @@ export async function updateTechnology(db: Database, scope: Scope, input: Update
       name: input.name,
       normalizedName,
       categoryId: input.categoryId,
+      note: input.note,
     })
   })
 }
 
 // Merges a duplicate into the entry that stays: every project, participation, and own
 // project that listed it lists the survivor instead, and the duplicate leaves the catalogue.
+// The duplicate's note goes below the survivor's, for the admin to edit.
 export async function mergeTechnology(db: Database, scope: Scope, input: MergeTechnologyInput) {
   requirePermission(scope, { technology: ['curate'] }, 'technology_forbidden')
   if (input.technologyId === input.intoId) throw new AppError('INVALID', 'technology_merge_self')
@@ -80,6 +82,10 @@ export async function mergeTechnology(db: Database, scope: Scope, input: MergeTe
       repository.findTechnology(tx, scope, input.intoId),
     ])
     if (!from || !into) throw new AppError('NOT_FOUND', 'technology_not_found')
+    if (from.note) {
+      const note = into.note ? `${into.note}\n\n${from.name}: ${from.note}` : from.note
+      await repository.setTechnologyNote(tx, scope, into.id, note)
+    }
     await repository.moveTechnologyLinks(tx, scope, from.id, into.id)
     await repository.markTechnologyMerged(tx, scope, from.id, into.id)
   })

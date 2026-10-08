@@ -4,9 +4,11 @@ import { afterAll, beforeAll, describe, expect, setSystemTime, test } from 'bun:
 import { and, count, eq, isNull } from 'drizzle-orm'
 import { v7 as uuidv7 } from 'uuid'
 import { outsidePeriod } from '#/lib/period'
+import { NOTE_MAX_LENGTH } from '#/lib/technology-note'
 import type { Database } from '.'
 import { SYSTEM_USER_ID, withActor } from './actor'
 import { generateOrganization } from './demo/generate'
+import { CATEGORIES, TECHNOLOGY_NOTES } from './demo/vocabulary'
 import {
   employeeProfile,
   member,
@@ -14,6 +16,7 @@ import {
   participation,
   project,
   technology,
+  technologyDistinctPair,
   updateRequest,
   user,
 } from './schema'
@@ -68,6 +71,19 @@ describe('the generator', () => {
     expect(participations.filter((row) => row.tasksEn).length).toBeGreaterThan(
       participations.length / 2,
     )
+  })
+
+  test('gives most technologies a note an admin could have saved', () => {
+    const names = new Set(CATEGORIES.flatMap((category) => category.technologies))
+    for (const [name, note] of Object.entries(TECHNOLOGY_NOTES)) {
+      expect(names).toContain(name)
+      expect(note.length).toBeLessThanOrEqual(NOTE_MAX_LENGTH)
+      expect(note).not.toMatch(/http:\/\//)
+    }
+    const technologies = data.flatMap((organization) => organization.technologies)
+    const live = technologies.filter((row) => !row.mergedIntoId)
+    expect(live.filter((row) => row.note).length).toBeGreaterThan(live.length * 0.7)
+    expect(live.some((row) => !row.note)).toBe(true)
   })
 
   test('demo-data.fictional: uses example.com addresses only', () => {
@@ -273,6 +289,33 @@ describe('resetOrganization', () => {
       .where(eq(technology.organizationId, seedIds.orgs.demo))
     expect(technologies?.n).toBe(data[0]?.technologies.length)
     expect(await db.select({ n: count() }).from(user)).toEqual([users])
+  })
+
+  test('demo-data.reset-one: resets an organization where an admin marked a pair "Not a duplicate"', async () => {
+    const [one, other] = (
+      await db
+        .select({ id: technology.id })
+        .from(technology)
+        .where(eq(technology.organizationId, seedIds.orgs.rabasaare))
+    )
+      .map((row) => row.id)
+      .sort()
+    await withActor(SYSTEM_USER_ID, async () => {
+      await db.insert(technologyDistinctPair).values({
+        technologyId: one ?? '',
+        otherTechnologyId: other ?? '',
+        organizationId: seedIds.orgs.rabasaare,
+      })
+    })
+
+    await resetOrganization(db, 'rabasaare')
+
+    expect(
+      await db
+        .select()
+        .from(technologyDistinctPair)
+        .where(eq(technologyDistinctPair.organizationId, seedIds.orgs.rabasaare)),
+    ).toEqual([])
   })
 
   test('demo-data.reset-refused-real: refuses an organization that isn’t a demo one', async () => {

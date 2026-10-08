@@ -2,6 +2,7 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { EllipsisIcon, GitMergeIcon, PencilIcon, PlusIcon, SearchIcon } from 'lucide-react'
 import { useState } from 'react'
 import { AddTechnologyDialog } from '#/components/add-technology-dialog'
+import { LinkedText } from '#/components/linked-text'
 import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
 import { Card, CardContent, CardHeader } from '#/components/ui/card'
@@ -135,7 +136,15 @@ export function TechnologiesPage({
                   <ul className="flex flex-col divide-y">
                     {technologies.map((technology) => (
                       <li key={technology.id} className="flex min-h-10 items-center gap-2 py-1">
-                        <span className="flex-1 font-medium">{technology.name}</span>
+                        <div className="flex-1">
+                          <span className="font-medium">{technology.name}</span>
+                          {technology.note && (
+                            <LinkedText
+                              text={technology.note}
+                              className="text-muted-foreground text-sm"
+                            />
+                          )}
+                        </div>
                         <span className="text-muted-foreground text-sm">
                           {m.technologies_use_counts({
                             projects: technology.projects,

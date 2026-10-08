@@ -45,6 +45,7 @@ import {
   PROJECT_SCOPES,
   ROLES,
   SYSTEMS,
+  TECHNOLOGY_NOTES,
   UPDATE_REQUEST_MESSAGES,
 } from './vocabulary'
 
@@ -191,6 +192,7 @@ export function generateOrganization(seed: number, spec: OrganizationSpec) {
         categoryId,
         name,
         normalizedName: normalizeName(name),
+        note: TECHNOLOGY_NOTES[name] ?? null,
         ...audit,
       })
       if (name === MERGED_TECHNOLOGY[1]) {

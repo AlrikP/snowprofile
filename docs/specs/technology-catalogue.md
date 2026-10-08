@@ -74,11 +74,32 @@ matches another live entry must be refused. Employees can't rename or move entri
 - **When** they try to rename, move, or merge an entry
 - **Then** the server refuses it, and the page offers them none of these actions
 
+### Requirement: Admins describe an entry
+
+An admin must be able to add, change, and clear a plain-text note on an entry, up to
+1,000 characters: what it covers, why it isn't a duplicate of a look-alike, or links to
+its documentation. Every member must see the note on the technologies page, with links
+that start with `https://` clickable and no other kind of link. Employees must not change
+notes.
+
+#### Scenario: technology-catalogue.note-edited
+
+- **Given** an admin and an entry without a note
+- **When** they write a note with an https link in the edit dialog, and later clear it
+- **Then** the technologies page shows the note with the link clickable, and then no note
+
+#### Scenario: technology-catalogue.employee-cannot-edit-note
+
+- **Given** an employee
+- **When** they send a change to an entry's note
+- **Then** the server refuses, and the note stays as it was
+
 ### Requirement: Merging keeps every use
 
 Merging a duplicate into another entry must move every project, participation, and own
 project that listed the duplicate to the entry that stays, without listing it twice, and
-must take the duplicate out of the catalogue.
+must take the duplicate out of the catalogue. The duplicate's note, named, goes below the
+note of the entry that stays.
 
 #### Scenario: technology-catalogue.merge-moves-links
 
@@ -86,6 +107,12 @@ must take the duplicate out of the catalogue.
   also list the entry that stays
 - **When** an admin merges the duplicate into that entry
 - **Then** each of them lists the entry that stays, once
+
+#### Scenario: technology-catalogue.merge-keeps-notes
+
+- **Given** two entries with notes
+- **When** an admin merges one into the other
+- **Then** the survivor's note is followed by the merged entry's name and note
 
 #### Scenario: technology-catalogue.merged-hidden
 
