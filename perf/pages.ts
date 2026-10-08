@@ -8,30 +8,14 @@ import { type Browser, chromium, type Page } from '@playwright/test'
 import { gzipSync } from 'node:zlib'
 import { change, readBaseline, table, withinTolerance, writeBaseline } from './checks/baseline'
 import { buildApp, type RunningApp, signedInContext, signInCookies, startApp } from './lib/app'
-import { BENCHMARK, seededDatabase } from './lib/database'
-import { benchmarkInputs } from './lib/inputs'
+import { seededDatabase } from './lib/database'
+import { benchmarkPages } from './lib/inputs'
 
 const BASELINE = 'pages.json'
 const CPU_SLOWDOWN = 4
 // Time after hydration in which lazy chunks and late tasks land, after which the run reads
 // the page.
 const SETTLE_MS = 1000
-
-// The router writes each search param that isn't a plain string as JSON.
-function json(value: unknown) {
-  return encodeURIComponent(JSON.stringify(value))
-}
-
-function pages() {
-  const given = benchmarkInputs()
-  const base = `/${BENCHMARK.slug}`
-  return [
-    { name: 'projects', path: `${base}/projects` },
-    { name: 'project', path: `${base}/projects/${given.projectId}` },
-    { name: 'search', path: `${base}/search?t=${json([given.postgres])}` },
-    { name: 'cv (team of 10)', path: `${base}/cvs?people=${json(given.profiles.slice(0, 10))}` },
-  ]
-}
 
 // The gated numbers of one page, all counts.
 type Sizes = {
@@ -171,7 +155,7 @@ async function run() {
   const timings: Record<string, Timings> = {}
   try {
     const cookies = await signInCookies(app)
-    for (const { name, path } of pages()) {
+    for (const { name, path } of benchmarkPages()) {
       const loaded = await loadPage(browser, app, cookies, path)
       sizes[name] = loaded.sizes
       timings[name] = loaded.timings

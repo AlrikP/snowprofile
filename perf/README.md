@@ -3,10 +3,11 @@
 Checks that measure what the app sends and what the server reads, so a change shows its
 effect in numbers (task 041). They follow snowtime's `perf/`.
 
-| Command              | Needs                 | Measures                                                 |
-| -------------------- | --------------------- | -------------------------------------------------------- |
-| `bun run perf`       | Nothing but Bun       | Bundle budgets, query plans, and rows and bytes of reads |
-| `bun run perf:pages` | Playwright's Chromium | Page bytes, DOM nodes, hydration, long tasks             |
+| Command              | Needs                 | Measures                                                   |
+| -------------------- | --------------------- | ---------------------------------------------------------- |
+| `bun run perf`       | Nothing but Bun       | Bundle budgets, query plans, and rows and bytes of reads   |
+| `bun run perf:pages` | Playwright's Chromium | Page bytes, DOM nodes, hydration, long tasks               |
+| `bun run perf:load`  | Nothing but Bun       | Response times, requests per second, server CPU and memory |
 
 ## Gated and reported
 
@@ -97,7 +98,8 @@ cache, at 1440 × 900 and pixel ratio 1.5, with a 4× CPU slowdown. A run takes 
 seconds; CI doesn't run it.
 
 The pages are the projects list, the busiest project, search by one technology, and the
-CV page for 10 people, with the inputs the read checks use (`perf/lib/inputs.ts`).
+CV page for 10 people (`benchmarkPages` in `perf/lib/inputs.ts`), with the inputs the read
+checks use.
 
 | Number                      | Kind     | How it's measured                                                           |
 | --------------------------- | -------- | --------------------------------------------------------------------------- |
@@ -118,6 +120,27 @@ twice: the numbers must repeat before the baseline is worth committing.
   sign-in, on a copy of the database; its log goes to `perf/.cache/server-<port>.log`.
   The session cookies are set in the browser without an expiry, because the server's
   clock is behind the browser's.
+
+## Server load: `bun run perf:load`
+
+Measures one server process rendering the same four pages, to size a server. It builds the
+app, serves it as `perf:pages` does, signs in as the benchmark admin over HTTP with no
+browser, and requests each page. Nothing is gated, and nothing is written to
+`perf/baselines/`. A run takes about 40 seconds; `--no-build` serves the last build.
+
+For each page, after 5 warm-up requests:
+
+| Number      | How it's measured                                                          |
+| ----------- | -------------------------------------------------------------------------- |
+| p50, p95    | 30 requests one after another, until the last byte                         |
+| req/s at 10 | 8 seconds with 10 requests in flight, the count divided by the time        |
+| p95 at 10   | The same 8 seconds                                                         |
+| CPU/req     | The server's CPU time (user plus system) over the phase, per request       |
+| RSS         | At the end, and the peak: `VmHWM` on Linux, sampled every 100 ms elsewhere |
+
+The load generator shares the machine with the server, so on a laptop read the numbers as
+ratios between runs, alternating the old and the new code. CPU per request is the number
+that carries over to another machine.
 
 ## Update a baseline on purpose
 

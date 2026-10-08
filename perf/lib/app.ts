@@ -44,7 +44,7 @@ function freePort(): Promise<number> {
   })
 }
 
-export type RunningApp = { url: string; stop: () => Promise<void> }
+export type RunningApp = { url: string; pid: number; stop: () => Promise<void> }
 
 // Serves a build on a free port, on a copy of the database so a run's writes don't reach the
 // next run, with the server's clock at DEMO_NOW. Demo mode turns on password sign-in for
@@ -100,8 +100,10 @@ export async function startApp(database: string, build = BUILD): Promise<Running
     await Bun.sleep(100)
   }
 
+  if (server.pid === undefined) throw new Error('[perf] The server has no process ID')
   return {
     url,
+    pid: server.pid,
     async stop() {
       if (server.exitCode === null) {
         const exited = new Promise((resolve) => server.once('exit', resolve))

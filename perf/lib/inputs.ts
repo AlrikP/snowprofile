@@ -4,6 +4,7 @@
 
 import { DEMO_NOW } from '#/db/demo/generate'
 import { generateBenchmarkData } from '#/db/seed'
+import { BENCHMARK } from './database'
 
 // The day search and the CV read take as today, for ongoing periods.
 export const TODAY = DEMO_NOW.toISOString().slice(0, 10)
@@ -37,4 +38,22 @@ export function benchmarkInputs() {
     criterionId: required(data.tenderCriteria[0]?.id, 'tender criterion'),
     profiles,
   }
+}
+
+// The router writes each search param that isn't a plain string as JSON.
+function json(value: unknown) {
+  return encodeURIComponent(JSON.stringify(value))
+}
+
+// The pages the page and load harnesses open: the projects list, the busiest project, search
+// by one technology, and the CV page for 10 people.
+export function benchmarkPages() {
+  const given = benchmarkInputs()
+  const base = `/${BENCHMARK.slug}`
+  return [
+    { name: 'projects', path: `${base}/projects` },
+    { name: 'project', path: `${base}/projects/${given.projectId}` },
+    { name: 'search', path: `${base}/search?t=${json([given.postgres])}` },
+    { name: 'cv (team of 10)', path: `${base}/cvs?people=${json(given.profiles.slice(0, 10))}` },
+  ]
 }

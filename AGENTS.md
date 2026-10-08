@@ -61,6 +61,7 @@ commits after reviewing.
 | `bun run test:e2e`                         | Playwright against the production build on port 3100, with a fresh seeded database                      |
 | `bun run perf`                             | Builds the app; checks bundle budgets, query plans, and read sizes; `--update` accepts new baselines    |
 | `bun run perf:pages`                       | Loads pages of the build in Chromium; gates bytes and DOM nodes, reports hydration; not in CI           |
+| `bun run perf:load`                        | Reports response times, requests per second, and server CPU for the same pages; gates nothing           |
 
 `test:e2e` stays out of `test`, so `test` needs no browser; CI runs it as its own step.
 Install the browser once with `bunx playwright install chromium`.
