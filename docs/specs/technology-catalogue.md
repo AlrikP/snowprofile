@@ -98,6 +98,10 @@ with both entries' uses, so they can merge one into the other or mark the pair "
 duplicate". A pair marked so must never be suggested again. Employees must not see the
 suggestions.
 
+Adding an entry, or renaming one, to a near-duplicate of a live entry must warn and name
+that entry, and must still let the user go on. A rename must not warn about an entry it is
+marked "Not a duplicate" of.
+
 #### Scenario: technology-catalogue.near-duplicates-listed
 
 - **Given** a catalogue with Postgres and PostgreSQL
@@ -110,3 +114,11 @@ suggestions.
 - **Given** a suggested pair of two different technologies, such as Angular and AngularJS
 - **When** an admin marks it "Not a duplicate"
 - **Then** the pair leaves the suggestions and stays out after a reload
+
+#### Scenario: technology-catalogue.near-duplicate-warned
+
+- **Given** a catalogue with React
+- **When** someone adds React.js
+- **Then** the dialog warns that React is already in the catalogue and may be the same
+  technology
+- **And** "Add anyway" adds React.js

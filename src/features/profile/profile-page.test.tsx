@@ -30,11 +30,13 @@ const server = vi.hoisted(() => ({
 }))
 vi.mock('#/server/profiles/profiles.functions', () => server)
 vi.mock('#/server/projects/projects.functions', () => ({ getProjects: vi.fn() }))
-vi.mock('#/server/roles/roles.functions', () => ({ getRoleCatalogue: vi.fn(), addRole: vi.fn() }))
-vi.mock('#/server/technologies/technologies.functions', () => ({
+const roles = vi.hoisted(() => ({ getRoleCatalogue: vi.fn(), addRole: vi.fn() }))
+vi.mock('#/server/roles/roles.functions', () => roles)
+const technologies = vi.hoisted(() => ({
   getTechnologyCatalogue: vi.fn(),
   addTechnology: vi.fn(),
 }))
+vi.mock('#/server/technologies/technologies.functions', () => technologies)
 
 function project(
   id: string,
@@ -639,6 +641,77 @@ describe('ProfilePage', () => {
         cost: { value: 12000, qualifier: 'approximately' },
         totalHours: null,
       })
+    })
+
+    // The add dialogs render in portals, but React passes their submit up to the own
+    // project form the picker sits in.
+    async function startOwnProject() {
+      await show()
+      await userEvent.click(ownSection().getByRole('button', { name: 'Add own project' }))
+      const own = within(screen.getByRole('dialog'))
+      await userEvent.type(own.getByLabelText('Project name'), 'Väikesed veebilahendused')
+      await userEvent.type(
+        within(own.getByRole('group', { name: 'Start' })).getByLabelText('Year'),
+        '2019',
+      )
+      return own
+    }
+
+    function added(mock: typeof technologies.addTechnology) {
+      mock.mockImplementation(({ data }: { data: { id: string } }) =>
+        Promise.resolve({ id: data.id }),
+      )
+      return () => mock.mock.calls[0]?.[0]?.data?.id as string
+    }
+
+    it('adding a technology from the picker keeps the own project open and picks it', async () => {
+      const newId = added(technologies.addTechnology)
+      technologies.getTechnologyCatalogue.mockImplementation(() =>
+        Promise.resolve({
+          ...testCatalogue,
+          technologies: [
+            ...testCatalogue.technologies,
+            { id: newId(), name: 'Svelte', categoryId: 'frontend', projects: 0, people: 0 },
+          ],
+        }),
+      )
+      const own = await startOwnProject()
+      await userEvent.type(own.getByRole('combobox', { name: 'Add a role' }), 'arend')
+      await userEvent.click(own.getByRole('option', { name: /^Developer/ }))
+      await userEvent.type(
+        own.getByRole('combobox', { name: 'Add a technology from the catalogue' }),
+        'Svelte',
+      )
+      await userEvent.click(own.getByRole('option', { name: 'Add to the catalogue: Svelte' }))
+      const add = within(screen.getByRole('dialog', { name: 'Add technology' }))
+      await userEvent.click(add.getByRole('button', { name: 'Save' }))
+
+      expect(await own.findByRole('button', { name: 'Remove Svelte' })).toBeInTheDocument()
+      expect(technologies.addTechnology).toHaveBeenCalledOnce()
+      expect(server.addOwnProject).not.toHaveBeenCalled()
+    })
+
+    it('adding a role from the picker keeps the own project open and picks it', async () => {
+      const newId = added(roles.addRole)
+      roles.getRoleCatalogue.mockImplementation(() =>
+        Promise.resolve([
+          ...testRoles,
+          { id: newId(), nameEt: 'Testija', nameEn: 'Tester', uses: 0 },
+        ]),
+      )
+      const own = await startOwnProject()
+      // Without a name, a submit reaching the own project form would show its error.
+      await userEvent.clear(own.getByLabelText('Project name'))
+      await userEvent.type(own.getByRole('combobox', { name: 'Add a role' }), 'Tester')
+      await userEvent.click(own.getByRole('option', { name: 'Add a new role: Tester' }))
+      const add = within(screen.getByRole('dialog', { name: 'New role' }))
+      await userEvent.type(add.getByLabelText('In Estonian'), 'Testija')
+      await userEvent.click(add.getByRole('button', { name: 'Save' }))
+
+      expect(await own.findByRole('button', { name: 'Remove Tester' })).toBeInTheDocument()
+      expect(own.queryByText('Enter the project’s name.')).not.toBeInTheDocument()
+      expect(roles.addRole).toHaveBeenCalledOnce()
+      expect(server.addOwnProject).not.toHaveBeenCalled()
     })
 
     it('own-projects.roles-from-catalogue: needs a role from the catalogue and a name', async () => {

@@ -1,6 +1,6 @@
 # 042: Technology duplicate suggestions
 
-Status: in-progress
+Status: done
 Depends on: task 026 (the technology catalogue)
 
 Task 026 refuses a name that matches a live entry exactly after normalizing. The prototype

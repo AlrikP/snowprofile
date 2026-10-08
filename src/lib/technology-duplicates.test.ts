@@ -2,7 +2,7 @@
 
 import { describe, expect, test } from 'bun:test'
 import { CATEGORIES } from '#/db/demo/vocabulary'
-import { areNearDuplicates, nearDuplicatePairs } from './technology-duplicates'
+import { areNearDuplicates, nearDuplicateOf, nearDuplicatePairs } from './technology-duplicates'
 
 // The pairs task 042 checked the rule against: variants typed in practice, each beside
 // the catalogue entry it means.
@@ -64,6 +64,11 @@ describe('the near-duplicate rule', () => {
     expect(areNearDuplicates('Constructor', 'React')).toBe(false)
   })
 
+  test('pairs no names that are only a version', () => {
+    expect(areNearDuplicates('1', '2')).toBe(false)
+    expect(nearDuplicatePairs([entry('1'), entry('2')], [])).toEqual([])
+  })
+
   test('leaves exact duplicates to the catalogue, which refuses them', () => {
     expect(areNearDuplicates('Node.js', 'NodeJS')).toBe(false)
   })
@@ -104,5 +109,22 @@ describe('pairs in a catalogue', () => {
       { technologyId: 'AngularJS', otherTechnologyId: 'Angular' },
     ])
     expect(pairs.map(({ from }) => from.name)).toEqual(['Vue.js'])
+  })
+})
+
+describe('a new or changed name', () => {
+  const catalogue = [entry('PostgreSQL'), entry('Postgres'), entry('React')]
+
+  test('names the live entry it nearly duplicates', () => {
+    expect(nearDuplicateOf(catalogue, 'React.js', [])?.name).toBe('React')
+    expect(nearDuplicateOf(catalogue, 'Svelte', [])).toBeUndefined()
+    expect(nearDuplicateOf(catalogue, 'react', [])).toBeUndefined()
+  })
+
+  test('skips the entry being renamed and a pair marked "Not a duplicate"', () => {
+    expect(nearDuplicateOf([entry('Postgres')], 'Postgres 16', [], 'Postgres')).toBeUndefined()
+    const dismissed = [{ technologyId: 'PostgreSQL', otherTechnologyId: 'Postgres' }]
+    expect(nearDuplicateOf(catalogue, 'Postgres 16', dismissed, 'Postgres')).toBeUndefined()
+    expect(nearDuplicateOf(catalogue, 'Postgres 16', [], 'Postgres')?.name).toBe('PostgreSQL')
   })
 })

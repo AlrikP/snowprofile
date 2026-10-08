@@ -15,6 +15,7 @@ import { Input } from '#/components/ui/input'
 import { Label } from '#/components/ui/label'
 import { NativeSelect, NativeSelectOption } from '#/components/ui/native-select'
 import { errorMessage } from '#/lib/errors'
+import { normalizeName } from '#/lib/normalize-name'
 import {
   categoryName,
   findDuplicate,
@@ -22,6 +23,7 @@ import {
   type TechnologyCatalogue,
   technologyCatalogueQuery,
 } from '#/lib/technology-catalogue'
+import { nearDuplicateOf } from '#/lib/technology-duplicates'
 import { m } from '#/paraglide/messages.js'
 import { updateTechnology } from '#/server/technologies/technologies.functions'
 
@@ -37,6 +39,12 @@ function EditTechnologyForm({ organizationId, catalogue, technology, onDone }: E
   const [name, setName] = useState(technology.name)
   const [categoryId, setCategoryId] = useState(technology.categoryId)
   const duplicate = findDuplicate(catalogue.technologies, name, technology.id)
+  // An unchanged name doesn't warn, so moving an entry to another category stays quiet.
+  const renamed = normalizeName(name) !== normalizeName(technology.name)
+  const nearDuplicate =
+    duplicate || !renamed
+      ? undefined
+      : nearDuplicateOf(catalogue.technologies, name, catalogue.distinctPairs, technology.id)
   const save = useMutation({
     mutationFn: () =>
       updateTechnology({
@@ -66,7 +74,7 @@ function EditTechnologyForm({ organizationId, catalogue, technology, onDone }: E
           required
           maxLength={100}
           aria-describedby={
-            duplicate
+            duplicate || nearDuplicate
               ? 'edit-technology-name-hint edit-technology-name-duplicate'
               : 'edit-technology-name-hint'
           }
@@ -99,6 +107,14 @@ function EditTechnologyForm({ organizationId, catalogue, technology, onDone }: E
           </AlertDescription>
         </Alert>
       )}
+      {nearDuplicate && (
+        <Alert id="edit-technology-name-duplicate" role="status">
+          <TriangleAlertIcon />
+          <AlertDescription className="text-foreground">
+            {m.technology_near_duplicate({ name: nearDuplicate.name })}
+          </AlertDescription>
+        </Alert>
+      )}
       {save.error && <p role="alert">{errorMessage(save.error)}</p>}
       <DialogFooter>
         <DialogClose asChild>
@@ -107,7 +123,7 @@ function EditTechnologyForm({ organizationId, catalogue, technology, onDone }: E
           </Button>
         </DialogClose>
         <Button type="submit" disabled={Boolean(duplicate) || save.isPending}>
-          {m.action_save()}
+          {nearDuplicate ? m.technology_save_anyway() : m.action_save()}
         </Button>
       </DialogFooter>
     </form>

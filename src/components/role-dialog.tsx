@@ -68,6 +68,9 @@ function RoleForm({
 
   function submit(event: FormEvent) {
     event.preventDefault()
+    // The dialog renders in a portal, but React passes events up the component tree, so a
+    // submit would also reach a form the picker sits in, such as the own project dialog.
+    event.stopPropagation()
     setSubmitted(true)
     if (!incomplete && !duplicate) save.mutate()
   }

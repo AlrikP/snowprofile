@@ -29,7 +29,8 @@ function technologyStem(name: string): string {
 }
 
 export function areNearDuplicates(a: string, b: string): boolean {
-  return normalizeName(a) !== normalizeName(b) && technologyStem(a) === technologyStem(b)
+  const stem = technologyStem(a)
+  return stem !== '' && normalizeName(a) !== normalizeName(b) && stem === technologyStem(b)
 }
 
 type Entry = { id: string; name: string; projects: number; people: number }
@@ -47,23 +48,45 @@ function keeps<T extends Entry>(a: T, b: T): T {
   return normalizeName(a.name).length <= normalizeName(b.name).length ? a : b
 }
 
+type DistinctPair = { technologyId: string; otherTechnologyId: string }
+
 // A pair as stored when an admin marks it "Not a duplicate": the lower ID first.
 function distinctPairKey(a: string, b: string) {
   return a < b ? `${a}|${b}` : `${b}|${a}`
+}
+
+function distinctPairKeys(distinct: DistinctPair[]) {
+  return new Set(distinct.map((pair) => distinctPairKey(pair.technologyId, pair.otherTechnologyId)))
+}
+
+// The live entry a new or changed name nearly duplicates, unless an admin marked that pair
+// "Not a duplicate". exceptId is the entry being renamed.
+export function nearDuplicateOf<T extends { id: string; name: string }>(
+  technologies: T[],
+  name: string,
+  distinct: DistinctPair[],
+  exceptId?: string,
+): T | undefined {
+  const dismissed = distinctPairKeys(distinct)
+  return technologies.find(
+    (each) =>
+      each.id !== exceptId &&
+      areNearDuplicates(name, each.name) &&
+      !(exceptId && dismissed.has(distinctPairKey(each.id, exceptId))),
+  )
 }
 
 // Every near-duplicate pair in the catalogue that no admin marked "Not a duplicate", each
 // as the entry to merge and the one to keep, most used first.
 export function nearDuplicatePairs<T extends Entry>(
   technologies: T[],
-  distinct: { technologyId: string; otherTechnologyId: string }[],
+  distinct: DistinctPair[],
 ): { from: T; into: T }[] {
-  const dismissed = new Set(
-    distinct.map((pair) => distinctPairKey(pair.technologyId, pair.otherTechnologyId)),
-  )
+  const dismissed = distinctPairKeys(distinct)
   const byStem = new Map<string, T[]>()
   for (const technology of technologies) {
     const stem = technologyStem(technology.name)
+    if (stem === '') continue
     byStem.set(stem, [...(byStem.get(stem) ?? []), technology])
   }
   const pairs: { from: T; into: T }[] = []

@@ -9,6 +9,7 @@ import {
   type TechnologyCatalogue,
   technologyCatalogueQuery,
 } from '#/lib/technology-catalogue'
+import { nearDuplicateOf } from '#/lib/technology-duplicates'
 import { m } from '#/paraglide/messages.js'
 import { addTechnology } from '#/server/technologies/technologies.functions'
 import { Alert, AlertDescription } from './ui/alert'
@@ -45,6 +46,9 @@ function AddTechnologyForm({
   const [name, setName] = useState(initialName)
   const [categoryId, setCategoryId] = useState(catalogue.categories[0]?.id ?? '')
   const duplicate = findDuplicate(catalogue.technologies, name)
+  const nearDuplicate = duplicate
+    ? undefined
+    : nearDuplicateOf(catalogue.technologies, name, catalogue.distinctPairs)
   const add = useMutation({
     mutationFn: (values: { id: string; name: string; categoryId: string }) =>
       addTechnology({ data: { organizationId, ...values } }),
@@ -57,6 +61,9 @@ function AddTechnologyForm({
 
   function submit(event: FormEvent) {
     event.preventDefault()
+    // The dialog renders in a portal, but React passes events up the component tree, so a
+    // submit would also reach a form the picker sits in, such as the own project dialog.
+    event.stopPropagation()
     if (duplicate || !name.trim()) return
     add.mutate({ id: uuidv7(), name: name.trim(), categoryId })
   }
@@ -74,7 +81,7 @@ function AddTechnologyForm({
           required
           maxLength={100}
           aria-describedby={
-            duplicate
+            duplicate || nearDuplicate
               ? 'add-technology-name-hint add-technology-name-duplicate'
               : 'add-technology-name-hint'
           }
@@ -107,6 +114,14 @@ function AddTechnologyForm({
           </AlertDescription>
         </Alert>
       )}
+      {nearDuplicate && (
+        <Alert id="add-technology-name-duplicate" role="status">
+          <TriangleAlertIcon />
+          <AlertDescription className="text-foreground">
+            {m.technology_near_duplicate({ name: nearDuplicate.name })}
+          </AlertDescription>
+        </Alert>
+      )}
       {add.error && <p role="alert">{errorMessage(add.error)}</p>}
       <DialogFooter>
         <DialogClose asChild>
@@ -115,7 +130,7 @@ function AddTechnologyForm({
           </Button>
         </DialogClose>
         <Button type="submit" disabled={Boolean(duplicate) || add.isPending}>
-          {m.action_save()}
+          {nearDuplicate ? m.technology_add_anyway() : m.action_save()}
         </Button>
       </DialogFooter>
     </form>
@@ -123,7 +138,8 @@ function AddTechnologyForm({
 }
 
 // Adds an entry to the catalogue. Anyone in the organization may; a name that duplicates a
-// live entry is caught here before the server refuses it.
+// live entry is caught here before the server refuses it, and a near-duplicate warns
+// (src/lib/technology-duplicates.ts) but may still be added.
 export function AddTechnologyDialog({
   open,
   onOpenChange,

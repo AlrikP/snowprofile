@@ -199,7 +199,7 @@ conventions apply to every app-owned table; Better Auth's tables keep the plugin
 What admins see is specified in
 [`specs/technology-catalogue.md`](specs/technology-catalogue.md), "Near-duplicates are
 suggested"; the rule is `src/lib/technology-duplicates.ts`, shared by the page and the
-client's dialogs.
+add and edit dialogs.
 
 - **Exact duplicates** are names that normalize the same (`normalize-name.ts`); the
   catalogue refuses them.
@@ -219,6 +219,9 @@ client's dialogs.
 - **Which entry stays** in a suggested merge: the one with more uses; on a tie, the one
   written without an alias or a version, then the shorter. The admin can still pick
   another in the merge dialog.
+- **Adding or renaming** to a near-duplicate warns in the dialog and offers "Add anyway"
+  or "Save anyway"; the server doesn't check near-duplicates. A rename that keeps the
+  normalized name doesn't warn, so changing only the category stays quiet.
 
 ### PostgreSQL portability
 

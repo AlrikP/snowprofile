@@ -86,6 +86,72 @@ describe('TechnologiesPage', () => {
     )
   })
 
+  it('technology-catalogue.near-duplicate-warned: the add dialog names a near-duplicate and adds anyway', async () => {
+    server.addTechnology.mockImplementation(({ data }: { data: { id: string } }) =>
+      Promise.resolve({ id: data.id }),
+    )
+    renderPage(false)
+
+    await userEvent.click(screen.getByRole('button', { name: 'Add technology' }))
+    await userEvent.type(screen.getByLabelText('Name'), 'React.js')
+
+    const warning = 'React is already in the catalogue and may be the same technology.'
+    expect(screen.getByRole('status')).toHaveTextContent(warning)
+    expect(screen.getByLabelText('Name')).toHaveAccessibleDescription(
+      expect.stringContaining(warning),
+    )
+    expect(screen.queryByRole('button', { name: 'Save' })).not.toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Add anyway' }))
+
+    expect(server.addTechnology).toHaveBeenCalledWith({
+      data: expect.objectContaining({ name: 'React.js' }),
+    })
+  })
+
+  it('the edit dialog warns about a near-duplicate name and saves anyway', async () => {
+    server.updateTechnology.mockResolvedValue(undefined)
+    renderPage(true)
+
+    await userEvent.click(screen.getByRole('button', { name: 'Actions for Angular' }))
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Edit' }))
+    const name = screen.getByLabelText('Name')
+    await userEvent.clear(name)
+    await userEvent.type(name, 'React 18')
+
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'React is already in the catalogue and may be the same technology.',
+    )
+    await userEvent.click(screen.getByRole('button', { name: 'Save anyway' }))
+    expect(server.updateTechnology).toHaveBeenCalledWith({
+      data: expect.objectContaining({ technologyId: 'angular', name: 'React 18' }),
+    })
+  })
+
+  it('the edit dialog doesn’t warn about an unchanged name', async () => {
+    renderPage(true)
+
+    await userEvent.click(screen.getByRole('button', { name: 'Actions for Postgres' }))
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Edit' }))
+    await userEvent.selectOptions(screen.getByLabelText('Category'), 'Frontend')
+
+    expect(screen.queryByRole('status')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled()
+  })
+
+  it('the edit dialog doesn’t warn about a pair marked "Not a duplicate"', async () => {
+    renderPage(true, {
+      ...testCatalogue,
+      distinctPairs: [{ technologyId: 'postgres', otherTechnologyId: 'postgresql' }],
+    })
+
+    await userEvent.click(screen.getByRole('button', { name: 'Actions for Postgres' }))
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Edit' }))
+    await userEvent.type(screen.getByLabelText('Name'), ' 16')
+
+    expect(screen.queryByRole('status')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled()
+  })
+
   it('technology-catalogue.employee-adds: adds an entry under the chosen category', async () => {
     server.addTechnology.mockImplementation(({ data }: { data: { id: string } }) =>
       Promise.resolve({ id: data.id }),
@@ -94,6 +160,7 @@ describe('TechnologiesPage', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Add technology' }))
     await userEvent.type(screen.getByLabelText('Name'), 'Svelte')
+    expect(screen.queryByRole('status')).not.toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: 'Save' }))
 
     expect(server.addTechnology).toHaveBeenCalledWith({
