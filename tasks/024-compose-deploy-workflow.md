@@ -35,8 +35,8 @@ belongs to the task that sets up the Hetzner server.
 - Verified locally with Docker 24: the app image builds in about 40 seconds, and the smoke
   steps pass on port 3199 (3000 was the dev server). The first `/api/health` poll gets an
   empty reply while the server starts, so the step retries quietly for up to 30 seconds.
-- Neither workflow has run on GitHub yet: the first CI run checks the image steps there,
-  and the first "Compose deploy" run creates both GHCR packages, private by default.
+- Both workflows passed on GitHub after the commit: CI with the image steps, and a first
+  "Compose deploy" run, which created both GHCR packages, private by default.
 - Rolling back to a release with fewer migrations fails: `db:verify` at startup reports
   the newer migration as deleted. `docs/deployment.md` and `docs/architecture.md` now say
   so; whether to allow it went to task 052.
