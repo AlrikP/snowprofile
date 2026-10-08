@@ -90,8 +90,6 @@ function listItem(overrides: Partial<ProjectListItem>): ProjectListItem {
     customerName: 'Elering',
     startDate: '2023-09',
     endDate: null,
-    descriptionEt: null,
-    descriptionEn: null,
     people: 3,
     mine: false,
     technologies: [],

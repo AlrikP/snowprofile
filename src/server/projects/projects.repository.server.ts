@@ -49,8 +49,6 @@ export async function listProjects(db: Executor, scope: Scope) {
       customerName: customer.name,
       startDate: project.startDate,
       endDate: project.endDate,
-      descriptionEt: project.descriptionEt,
-      descriptionEn: project.descriptionEn,
       people: PEOPLE_COUNT,
       mine: tookPart(scope),
     })

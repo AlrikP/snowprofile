@@ -1,11 +1,11 @@
 {
   "project list (admin)": {
     "rows": 2620,
-    "bytes": 292431
+    "bytes": 208864
   },
   "project list (employee)": {
     "rows": 2620,
-    "bytes": 292427
+    "bytes": 208860
   },
   "project page (admin)": {
     "rows": 43,

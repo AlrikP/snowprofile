@@ -1,29 +1,29 @@
 {
   "projects": {
-    "htmlBytes": 1252800,
-    "htmlGzip": 61314,
-    "jsGzip": 213002,
+    "htmlBytes": 314158,
+    "htmlGzip": 33715,
+    "jsGzip": 213157,
     "cssGzip": 36236,
-    "domNodes": 4721
+    "domNodes": 968
   },
   "project": {
     "htmlBytes": 52357,
-    "htmlGzip": 9644,
+    "htmlGzip": 9645,
     "jsGzip": 217440,
     "cssGzip": 36236,
     "domNodes": 424
   },
   "search": {
     "htmlBytes": 39296,
-    "htmlGzip": 8762,
-    "jsGzip": 228296,
+    "htmlGzip": 8763,
+    "jsGzip": 228297,
     "cssGzip": 36236,
     "domNodes": 2205
   },
   "cv (team of 10)": {
     "htmlBytes": 56373,
-    "htmlGzip": 10860,
-    "jsGzip": 233194,
+    "htmlGzip": 10858,
+    "jsGzip": 233197,
     "cssGzip": 36236,
     "domNodes": 4718
   }

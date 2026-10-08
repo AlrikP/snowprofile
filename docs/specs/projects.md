@@ -10,7 +10,8 @@ and the people who took part (`docs/product.md`, "Projects" and "Data and privac
 
 Every member must see the organization's live projects, newest first, each with its
 customer, period, and technologies. A member must be able to narrow the list to the
-projects they took part in.
+projects they took part in. The page must show the first 50 matching projects and more on
+request, while its count and filters cover them all.
 
 #### Scenario: projects.list
 
@@ -18,6 +19,13 @@ projects they took part in.
 - **When** a member opens the projects page
 - **Then** it lists the live projects, newest first, with customer, period, and
   technologies, and leaves out the removed one
+
+#### Scenario: projects.show-more
+
+- **Given** an organization with more than 50 projects
+- **When** a member opens the projects page
+- **Then** it shows the first 50 and counts them all, a filter finds a project beyond the
+  first 50, and "Show more" adds the next ones
 
 #### Scenario: projects.only-mine
 

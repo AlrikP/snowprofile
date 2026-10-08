@@ -202,6 +202,7 @@
   "projects_you_took_part": "You took part",
   "projects_no_customer": "No customer",
   "projects_more": "+{count}",
+  "projects_show_more": "Show {count} more",
   "projects_empty": "No projects yet.",
   "projects_no_match": "No project matches.",
   "project_section_description": "Description",

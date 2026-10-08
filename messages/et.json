@@ -167,6 +167,7 @@
   "projects_you_took_part": "Osalesid",
   "projects_no_customer": "Klient puudub",
   "projects_more": "+{count}",
+  "projects_show_more": "Näita veel {count}",
   "projects_empty": "Projekte pole veel.",
   "projects_no_match": "Ühtegi projekti ei leitud.",
   "project_section_description": "Kirjeldus",

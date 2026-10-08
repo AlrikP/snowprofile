@@ -14,17 +14,24 @@ import { m } from '#/paraglide/messages.js'
 import type { ProjectListItem } from '#/server/projects/projects.functions'
 
 const SHOWN_TECHNOLOGIES = 3
+// Rows rendered at first and per "Show more", so a large organization's page stays light.
+// The filters and the count still cover every project.
+const ROWS_AT_ONCE = 50
+
+// Plain spans, not Badge: Badge's interactive styles cost about 600 bytes of HTML each, and
+// every row has up to four.
+const CHIP = 'rounded-full px-2 py-0.5 text-xs font-medium whitespace-nowrap'
 
 function Technologies({ project }: { project: ProjectListItem }) {
   const hidden = project.technologies.length - SHOWN_TECHNOLOGIES
   return (
     <div className="flex flex-wrap gap-1">
       {project.technologies.slice(0, SHOWN_TECHNOLOGIES).map((technology) => (
-        <Badge key={technology.id} variant="secondary">
+        <span key={technology.id} className={`${CHIP} bg-secondary text-secondary-foreground`}>
           {technology.name}
-        </Badge>
+        </span>
       ))}
-      {hidden > 0 && <Badge variant="outline">{m.projects_more({ count: hidden })}</Badge>}
+      {hidden > 0 && <span className={`${CHIP} border`}>{m.projects_more({ count: hidden })}</span>}
     </div>
   )
 }
@@ -73,6 +80,7 @@ export function ProjectsPage({
   const [search, setSearch] = useState('')
   const [customer, setCustomer] = useState('')
   const [onlyMine, setOnlyMine] = useState(false)
+  const [rows, setRows] = useState(ROWS_AT_ONCE)
 
   const customers = [...new Set(projects.flatMap((each) => each.customerName ?? []))].sort((a, b) =>
     a.localeCompare(b),
@@ -171,13 +179,22 @@ export function ProjectsPage({
                     </tr>
                   </thead>
                   <tbody>
-                    {shown.map((project) => (
+                    {shown.slice(0, rows).map((project) => (
                       <ProjectRow key={project.id} organization={organization} project={project} />
                     ))}
                   </tbody>
                 </table>
               </div>
             </Card>
+          )}
+          {shown.length > rows && (
+            <Button
+              variant="outline"
+              className="self-start"
+              onClick={() => setRows((current) => current + ROWS_AT_ONCE)}
+            >
+              {m.projects_show_more({ count: Math.min(ROWS_AT_ONCE, shown.length - rows) })}
+            </Button>
           )}
         </>
       )}

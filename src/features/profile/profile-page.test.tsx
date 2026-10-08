@@ -50,8 +50,6 @@ function project(
     name,
     customerName,
     ...period,
-    descriptionEt: null,
-    descriptionEn: null,
     people: 3,
     mine: false,
     technologies,

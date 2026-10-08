@@ -18,8 +18,6 @@ function project(overrides: Partial<ProjectListItem>): ProjectListItem {
     customerName: 'Elering',
     startDate: '2024-03',
     endDate: null,
-    descriptionEt: null,
-    descriptionEn: null,
     people: 3,
     mine: false,
     technologies: [],
@@ -97,6 +95,25 @@ describe('ProjectsPage', () => {
     expect(names()).toEqual(['Võrguandmete platvorm'])
     await userEvent.type(screen.getByRole('searchbox'), 'blockchain')
     expect(screen.getByText('No project matches.')).toBeInTheDocument()
+  })
+
+  it('projects.show-more: shows the first 50, finds the rest by filter, and shows more on request', async () => {
+    const many = Array.from({ length: 120 }, (_, index) =>
+      project({ id: `p${index}`, name: `Projekt ${String(index).padStart(3, '0')}` }),
+    )
+    await show(many)
+
+    expect(names()).toHaveLength(50)
+    expect(screen.getByText('120 projects')).toBeInTheDocument()
+    await userEvent.type(screen.getByRole('searchbox'), 'Projekt 119')
+    expect(names()).toEqual(['Projekt 119'])
+    await userEvent.clear(screen.getByRole('searchbox'))
+
+    await userEvent.click(screen.getByRole('button', { name: 'Show 50 more' }))
+    expect(names()).toHaveLength(100)
+    await userEvent.click(screen.getByRole('button', { name: 'Show 20 more' }))
+    expect(names()).toHaveLength(120)
+    expect(screen.queryByRole('button', { name: /^Show \d+ more$/ })).not.toBeInTheDocument()
   })
 
   it('offers adding a project only to those who may', async () => {
