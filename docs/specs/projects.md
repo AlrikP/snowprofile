@@ -11,7 +11,9 @@ and the people who took part (`docs/product.md`, "Projects" and "Data and privac
 Every member must see the organization's live projects, newest first, each with its
 customer, period, and technologies. A member must be able to narrow the list to the
 projects they took part in. The page must show the first 50 matching projects and more on
-request, while its count and filters cover them all.
+request, while its count and filters cover them all. A member must be able to open a
+project's row, on any screen width, to see all its technologies by category and the
+characteristics it answers yes.
 
 #### Scenario: projects.list
 
@@ -26,6 +28,14 @@ request, while its count and filters cover them all.
 - **When** a member opens the projects page
 - **Then** it shows the first 50 and counts them all, a filter finds a project beyond the
   first 50, and "Show more" adds the next ones
+
+#### Scenario: projects.summary-opened
+
+- **Given** a project with technologies in two categories, and characteristics answered
+  yes, no, and not at all
+- **When** a member opens its row on the projects page
+- **Then** the row shows every technology under its category, and only the
+  characteristics answered yes, without their notes
 
 #### Scenario: projects.only-mine
 

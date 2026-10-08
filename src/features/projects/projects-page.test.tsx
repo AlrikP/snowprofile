@@ -1,15 +1,19 @@
-import { screen } from '@testing-library/react'
+import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { projectsQuery } from '#/lib/project-list'
-import type { ProjectListItem } from '#/server/projects/projects.functions'
+import { technologyCatalogueQuery } from '#/lib/technology-catalogue'
+import type { ProjectListItem, ProjectView } from '#/server/projects/projects.functions'
 import { renderPage } from '#/test/router'
+import { testCatalogue } from '#/test/technology-catalogue'
 import { ProjectsPage } from './projects-page'
 
-vi.mock('#/server/projects/projects.functions', () => ({
-  getProjects: vi.fn(),
-  getProject: vi.fn(),
-}))
+const server = vi.hoisted(() => ({ getProjects: vi.fn(), getProject: vi.fn() }))
+vi.mock('#/server/projects/projects.functions', () => server)
+vi.mock('#/server/technologies/technologies.functions', async () => {
+  const { testCatalogue } = await import('#/test/technology-catalogue')
+  return { getTechnologyCatalogue: vi.fn().mockResolvedValue(testCatalogue) }
+})
 
 function project(overrides: Partial<ProjectListItem>): ProjectListItem {
   return {
@@ -51,8 +55,41 @@ const projects = [
 function show(list = projects, { canCreate = false } = {}) {
   return renderPage(
     <ProjectsPage organizationId="org" organization="demo" canCreate={canCreate} />,
-    [[projectsQuery('org').queryKey, list]],
+    [
+      [projectsQuery('org').queryKey, list],
+      [technologyCatalogueQuery('org').queryKey, testCatalogue],
+    ],
   )
+}
+
+// The project page's read of the portal: technologies in two categories, and one
+// characteristic each answered yes, no, and not at all.
+const portalView: ProjectView = {
+  id: 'portal',
+  name: 'Kodanikuportaali uuendus',
+  customerName: 'Siseministeerium',
+  description: { et: null, en: null },
+  startDate: '2024-03',
+  endDate: null,
+  technologies: [
+    { id: 'angular', name: 'Angular' },
+    { id: 'react', name: 'React' },
+    { id: 'postgresql', name: 'PostgreSQL' },
+  ],
+  participantTechnologies: null,
+  criteria: [
+    {
+      id: 'k1',
+      name: { et: 'Automaattestid', en: 'Automated tests' },
+      answer: true,
+      note: 'JUnit',
+    },
+    { id: 'k2', name: { et: 'X-tee', en: 'X-Road' }, answer: false, note: null },
+    { id: 'k3', name: { et: 'Monitooring', en: 'Monitoring' }, answer: null, note: null },
+  ],
+  people: [],
+  details: null,
+  lastChange: { at: new Date('2026-10-06T14:05:00'), by: null },
 }
 
 function names() {
@@ -114,6 +151,40 @@ describe('ProjectsPage', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Show 20 more' }))
     expect(names()).toHaveLength(120)
     expect(screen.queryByRole('button', { name: /^Show \d+ more$/ })).not.toBeInTheDocument()
+  })
+
+  it('projects.summary-opened: a row opens to every technology by category and the yes characteristics', async () => {
+    server.getProject.mockResolvedValue(portalView)
+    await show()
+
+    const toggle = screen.getByRole('button', {
+      name: 'Technologies and characteristics of Kodanikuportaali uuendus',
+    })
+    expect(toggle).toHaveAttribute('aria-expanded', 'false')
+    await userEvent.click(toggle)
+    expect(toggle).toHaveAttribute('aria-expanded', 'true')
+
+    const summary = within(
+      document.getElementById(toggle.getAttribute('aria-controls') ?? '') ?? document.body,
+    )
+    expect(await summary.findByText('Angular, React')).toBeInTheDocument()
+    expect(summary.getByText('Frontend').nextSibling).toHaveTextContent('Angular, React')
+    expect(summary.getByText('Data').nextSibling).toHaveTextContent('PostgreSQL')
+    expect(summary.getByText('Automated tests')).toBeInTheDocument()
+    expect(summary.queryByText('X-Road')).not.toBeInTheDocument()
+    expect(summary.queryByText('Monitoring')).not.toBeInTheDocument()
+    expect(summary.queryByText(/JUnit/)).not.toBeInTheDocument()
+    expect(server.getProject).toHaveBeenCalledWith({
+      data: { organizationId: 'org', projectId: 'portal' },
+    })
+
+    await userEvent.click(toggle)
+    expect(summary.queryByText('Automated tests')).not.toBeInTheDocument()
+  })
+
+  it('opens no project read until a row is opened', async () => {
+    await show()
+    expect(server.getProject).not.toHaveBeenCalled()
   })
 
   it('offers adding a project only to those who may', async () => {

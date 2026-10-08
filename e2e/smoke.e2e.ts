@@ -239,6 +239,20 @@ test.describe('the employee', () => {
     await expect(page.getByText(/see the tender details and contact persons/)).toBeVisible()
     await expect(page.getByRole('region', { name: 'Tender details' })).toHaveCount(0)
   })
+
+  test('projects.summary-opened: opens a project’s row to its technologies and characteristics', async ({
+    page,
+  }) => {
+    await page.goto('/demo/projects')
+    const toggle = page.getByRole('button', { name: /^Technologies and characteristics of / })
+    await toggle.first().click()
+
+    await expect(toggle.first()).toHaveAttribute('aria-expanded', 'true')
+    const summary = page.locator(`#${await toggle.first().getAttribute('aria-controls')}`)
+    await expect(summary.getByRole('heading', { name: 'Solution characteristics' })).toBeVisible()
+    await expect(summary.getByRole('definition').first()).not.toBeEmpty()
+    await expect(summary.getByRole('alert')).toHaveCount(0)
+  })
 })
 
 // Last in the file, so the employee tests above run with the employee's own role.

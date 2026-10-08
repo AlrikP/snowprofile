@@ -12,6 +12,7 @@ import { formatPeriod } from '#/lib/period'
 import { projectsQuery } from '#/lib/project-list'
 import { m } from '#/paraglide/messages.js'
 import type { ProjectListItem } from '#/server/projects/projects.functions'
+import { ProjectSummary } from './project-summary'
 
 const SHOWN_TECHNOLOGIES = 3
 // Rows rendered at first and per "Show more", so a large organization's page stays light.
@@ -36,32 +37,63 @@ function Technologies({ project }: { project: ProjectListItem }) {
   )
 }
 
-function ProjectRow({ organization, project }: { organization: string; project: ProjectListItem }) {
+function ProjectRow({
+  organizationId,
+  organization,
+  project,
+}: {
+  organizationId: string
+  organization: string
+  project: ProjectListItem
+}) {
+  const [open, setOpen] = useState(false)
   const customer = project.customerName ?? m.projects_no_customer()
   const period = formatPeriod(project.startDate, project.endDate)
+  const summaryId = `project-summary-${project.id}`
   return (
-    <tr className="border-b last:border-0">
-      <td className="px-4 py-3 align-top">
-        <div className="flex flex-wrap items-center gap-2">
-          <Link
-            to="/$organization/projects/$projectId"
-            params={{ organization, projectId: project.id }}
-            className="font-medium hover:underline"
+    <>
+      <tr className="border-b last:border-0">
+        <td className="relative py-3 pr-4 pl-10 align-top">
+          {/* One plain element per row, with a text chevron: Button and an icon in every row
+              would undo the lighter rows. */}
+          <button
+            type="button"
+            className={`hover:bg-accent absolute top-2.5 left-3 grid size-6 place-items-center rounded-md pb-0.5 text-xl leading-none transition-transform ${open ? 'rotate-90' : ''}`}
+            aria-expanded={open}
+            aria-controls={open ? summaryId : undefined}
+            aria-label={m.projects_summary_toggle({ name: project.name })}
+            onClick={() => setOpen((current) => !current)}
           >
-            {project.name}
-          </Link>
-          {project.mine && <Badge>{m.projects_you_took_part()}</Badge>}
-        </div>
-        <div className="text-muted-foreground text-sm md:hidden">{customer}</div>
-        <div className="text-muted-foreground text-sm md:hidden">{period}</div>
-      </td>
-      <td className="hidden px-4 py-3 align-top md:table-cell">{customer}</td>
-      <td className="hidden px-4 py-3 align-top whitespace-nowrap md:table-cell">{period}</td>
-      <td className="hidden px-4 py-3 align-top lg:table-cell">
-        <Technologies project={project} />
-      </td>
-      <td className="px-4 py-3 text-right align-top tabular-nums">{project.people}</td>
-    </tr>
+            ›
+          </button>
+          <div className="flex flex-wrap items-center gap-2">
+            <Link
+              to="/$organization/projects/$projectId"
+              params={{ organization, projectId: project.id }}
+              className="font-medium hover:underline"
+            >
+              {project.name}
+            </Link>
+            {project.mine && <Badge>{m.projects_you_took_part()}</Badge>}
+          </div>
+          <div className="text-muted-foreground text-sm md:hidden">{customer}</div>
+          <div className="text-muted-foreground text-sm md:hidden">{period}</div>
+        </td>
+        <td className="hidden px-4 py-3 align-top md:table-cell">{customer}</td>
+        <td className="hidden px-4 py-3 align-top whitespace-nowrap md:table-cell">{period}</td>
+        <td className="hidden px-4 py-3 align-top lg:table-cell">
+          <Technologies project={project} />
+        </td>
+        <td className="px-4 py-3 text-right align-top tabular-nums">{project.people}</td>
+      </tr>
+      {open && (
+        <tr id={summaryId} className="bg-muted/40 border-b last:border-0">
+          <td colSpan={5} className="px-4 py-3">
+            <ProjectSummary organizationId={organizationId} projectId={project.id} />
+          </td>
+        </tr>
+      )}
+    </>
   )
 }
 
@@ -163,7 +195,7 @@ export function ProjectsPage({
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b text-left">
-                      <th className="h-10 px-4 font-medium">{m.projects_col_name()}</th>
+                      <th className="h-10 pr-4 pl-10 font-medium">{m.projects_col_name()}</th>
                       <th className="hidden h-10 px-4 font-medium md:table-cell">
                         {m.projects_col_customer()}
                       </th>
@@ -180,7 +212,12 @@ export function ProjectsPage({
                   </thead>
                   <tbody>
                     {shown.slice(0, rows).map((project) => (
-                      <ProjectRow key={project.id} organization={organization} project={project} />
+                      <ProjectRow
+                        key={project.id}
+                        organizationId={organizationId}
+                        organization={organization}
+                        project={project}
+                      />
                     ))}
                   </tbody>
                 </table>

@@ -1,6 +1,6 @@
 # 050: Technologies and characteristics in project summaries
 
-Status: todo
+Status: done
 
 The projects page (`src/features/projects/projects-page.tsx`) shows each project as one
 table row: name, customer, period, technologies, and people. The technologies column
@@ -47,17 +47,44 @@ wherever a project's summary line appears, and builds the chosen option.
   project, and its cost at the sizes task 041 checks.
 - Whether search results and profile items use the same component as the project list.
 
+## Decision
+
+Decided with the user on 2026-10-08, together with task 054:
+
+- **Expandable row, on the projects page only.** A toggle beside the name opens a row
+  under it with every technology, grouped by category in the catalogue's order, and the
+  characteristics answered yes. Search results and profile items already show all of a
+  participation's technologies, so they don't change.
+- **Read when opened,** from the project page's query (`getProject`) and the technology
+  catalogue, not added to the list query. The list stays as light as task 054 made it,
+  and opening a row warms the project page's cache.
+- **Only "yes" answers, and no notes.** The summary shows nothing the project page doesn't
+  show the same member; notes stay on the project page.
+
 ## Acceptance criteria
 
-- [ ] The chosen option, and where it applies, is agreed and recorded in the task before
+- [x] The chosen option, and where it applies, is agreed and recorded in the task before
       the work starts.
-- [ ] Every technology and every "yes" characteristic of a project can be seen from its
+- [x] Every technology and every "yes" characteristic of a project can be seen from its
       summary, on wide and narrow screens, with a keyboard and a screen reader.
-- [ ] Notes stay where they are visible today.
-- [ ] Component tests cover the summary in each place it applies.
+- [x] Notes stay where they are visible today.
+- [x] Component tests cover the summary in each place it applies.
 
 ## Spec changes
 
-To decide with the option; likely a modified `projects.list` scenario in
-`docs/specs/projects.md`, and scenarios in `search.md` and `employee-profile.md` if those
-views change.
+- Modified: "Every member sees the projects" in `docs/specs/projects.md` says a member can
+  open a row to see its technologies by category and its "yes" characteristics. Added
+  scenario `projects.summary-opened`.
+
+## Outcome
+
+- The toggle is a native `<button>` with `aria-expanded`, `aria-controls`, and a label
+  naming the project, so it works by keyboard and exposes its state; not tried with a
+  screen reader. Checked in Chromium at 1280 and 390 pixels wide; the summary row spans
+  every column, so it shows the technologies that narrow screens hide.
+- The toggle is one element per row with a text chevron, positioned in the cell's
+  padding. A shadcn `Button` with a Lucide icon and wrappers added 28 KB of HTML and 253
+  DOM nodes at 50 rows; this one adds 15 KB and 53. The page is at 329 KB and 1,021 DOM
+  nodes, just over task 054's 1,000.
+- Tests: `projects.summary-opened` in the component tests (categories, yes only, no
+  notes, closing again, and no read until opened) and in the e2e suite as an employee.
