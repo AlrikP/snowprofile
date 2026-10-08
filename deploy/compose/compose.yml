@@ -1,6 +1,7 @@
 name: snowprofile
 # Settings come from .env next to this file (.env.example lists them). `build` builds both
-# images from this checkout; a deploy workflow, when one exists, publishes them instead.
+# images from this checkout; the Compose deploy workflow publishes them as a release
+# (docs/deployment.md, "Publish a release").
 services:
   app:
     image: ghcr.io/alrikp/snowprofile-app:${RELEASE:-local}

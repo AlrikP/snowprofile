@@ -18,7 +18,7 @@ concurrency:
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
 
@@ -79,3 +79,53 @@ jobs:
 
       - name: End-to-end tests
         run: bun run test:e2e
+
+      # Builds both Dockerfile targets without pushing, so a broken image fails here. The
+      # GitHub Actions cache is shared with the Compose deploy workflow; `load` keeps the app
+      # image for the next step.
+      - uses: docker/setup-buildx-action@v4
+
+      - name: App image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          target: app
+          load: true
+          tags: snowprofile-app:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # Reuses the app build's stages.
+      - name: Caddy image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          target: caddy
+          cache-from: type=gha
+
+      # Runs the app image on an empty volume as Compose does, then the bundled seeder with the
+      # app stopped, then the app again on the seeded database. The e2e tests run scripts/*.ts
+      # from source, so only this step runs the scripts the image starts with.
+      - name: App image smoke test
+        run: |
+          settings=(
+            -v snowprofile_ci_data:/data
+            -e BETTER_AUTH_SECRET="$(openssl rand -hex 32)"
+            -e BETTER_AUTH_URL=http://localhost:3000
+            -e DEMO_MODE=true
+          )
+          healthy() {
+            for _ in $(seq 30); do
+              curl -fs http://localhost:3000/api/health > /dev/null && return 0
+              sleep 1
+            done
+            docker logs app
+            return 1
+          }
+          docker run -d --name app -p 3000:3000 -e MIGRATE_ON_START=true "${settings[@]}" snowprofile-app:ci
+          healthy
+          docker stop app
+          docker run --rm "${settings[@]}" snowprofile-app:ci \
+            bun --no-env-file .output/server/scripts/db-seed.js
+          docker start app
+          healthy

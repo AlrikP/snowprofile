@@ -2,8 +2,8 @@
 
 snowprofile runs as a Docker Compose stack: Caddy in front, and one app container with
 its SQLite database on a named volume (`docs/hosting.md`). This page covers rehearsing the
-stack locally. The Hetzner server, the deploy workflow, and Litestream backups get their
-own steps here when their tasks add them.
+stack locally and publishing a release. The Hetzner server and Litestream backups get
+their own steps here when their tasks add them.
 
 ## The stack
 
@@ -70,6 +70,39 @@ rehearsal over from an empty database, stop the stack and remove that one volume
 
 A demo stack and the company stack never share a database volume, and `DEMO_MODE` and
 `ALLOWED_LOGIN_DOMAINS` are never on together; the app refuses to start with both.
+
+## Publish a release
+
+The "Compose deploy" workflow (`.github/workflows/compose-deploy.yml`) builds both images
+for `linux/amd64` and pushes them to GitHub Container Registry as
+`ghcr.io/alrikp/snowprofile-app` and `ghcr.io/alrikp/snowprofile-caddy`. Both are tagged
+with the commit's short ID, the release. It deploys nothing: a stack picks up a release
+when its `.env` names it.
+
+1. In the repository's Actions tab, open "Compose deploy", choose **Run workflow**, and
+   pick the branch, usually `main`.
+2. Read the release from the run's summary, for example `2870cce`.
+
+CI builds the same images on every push and pull request without pushing them, and runs
+the app image on an empty volume with the bundled seeder, so a broken image fails there
+first.
+
+To run a release, set it in the stack's `.env` and start the stack without building. The
+packages are private unless made public on GitHub, so log in first with a personal access
+token that can read packages:
+
+```bash
+echo "$TOKEN" | docker login ghcr.io -u <github-user> --password-stdin
+# in deploy/compose/.env: RELEASE=2870cce
+docker compose pull
+docker compose up -d --no-build --wait
+```
+
+To roll back, set an earlier release and run the same commands. This works only back to
+a release with the same migrations: on startup, a release that lacks a migration the
+database already applied reports it as deleted and refuses to start (`db:verify`). On an
+Apple Silicon Mac the `linux/amd64` images run under emulation, slower than a local
+build. Set `RELEASE=local` to build from the checkout again.
 
 ## Create an organization
 

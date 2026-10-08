@@ -439,7 +439,9 @@ This section holds the reasons and where the code lives.
   doesn't. A second image, `caddy`, serves `.output/public` (`Dockerfile`).
 - **Images** are built by a manual "Compose deploy" GitHub Actions workflow, pushed to
   GitHub Container Registry, and tagged with the commit's short ID (`RELEASE`). Rolling
-  back means picking an earlier tag.
+  back means picking an earlier tag, but only one with the same migrations: startup
+  verification refuses a database that applied a migration the release doesn't have.
+  CI builds both images on every push without pushing them.
 - **Migrations run on startup** (`MIGRATE_ON_START`) in Compose: a failed migration keeps
   the app from listening, so the deploy fails. Locally, `db:migrate` applies them. This
   departs from the kit profile, which never migrates on startup because Vercel's previous

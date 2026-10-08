@@ -137,8 +137,7 @@ convention names its check; the ones under "Checked in review" have none.
 - CI is one `check` job in `.github/workflows/ci.yml`, on pull requests and pushes to
   `main`. Its steps: install, compile messages, format check, lint, import areas, icon
   names, spec scenarios, type check, knip, test, schema drift, data model diagram, build,
-  and end-to-end
-  tests. A task that adds a check adds it as a step there and to the table above.
+  end-to-end tests, both container images, and a smoke test of the app image. A task that adds a check adds it as a step there and to the table above.
 - Unused code fails knip. A file only a later task uses goes in `knip.json`'s `ignore`
   with that task named, rather than staying unchecked by accident; shadcn copies in
   `src/components/ui/` are ignored because unused parts of them are normal.

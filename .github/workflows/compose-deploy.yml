@@ -1,0 +1,63 @@
+# Builds both Compose images from the chosen branch and pushes them to GitHub Container
+# Registry, tagged with the commit's short ID (docs/deployment.md, "Publish a release").
+# Runs only when started from the Actions tab.
+name: Compose deploy
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: compose-deploy
+  cancel-in-progress: false
+
+jobs:
+  images:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - id: release
+        run: echo "release=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/setup-buildx-action@v4
+
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Shares the GitHub Actions cache with CI's image steps. The Caddy build reuses the app
+      # build's stages.
+      - name: App image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          target: app
+          platforms: linux/amd64
+          push: true
+          tags: ghcr.io/alrikp/snowprofile-app:${{ steps.release.outputs.release }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Caddy image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          target: caddy
+          platforms: linux/amd64
+          push: true
+          tags: ghcr.io/alrikp/snowprofile-caddy:${{ steps.release.outputs.release }}
+
+      - name: Summary
+        env:
+          RELEASE: ${{ steps.release.outputs.release }}
+        run: |
+          echo "Published release \`$RELEASE\`. To run it, set \`RELEASE=$RELEASE\` in the stack's \`.env\`." >> "$GITHUB_STEP_SUMMARY"
