@@ -3,9 +3,10 @@
 Checks that measure what the app sends and what the server reads, so a change shows its
 effect in numbers (task 041). They follow snowtime's `perf/`.
 
-| Command        | Needs           | Measures                                                 |
-| -------------- | --------------- | -------------------------------------------------------- |
-| `bun run perf` | Nothing but Bun | Bundle budgets, query plans, and rows and bytes of reads |
+| Command              | Needs                 | Measures                                                 |
+| -------------------- | --------------------- | -------------------------------------------------------- |
+| `bun run perf`       | Nothing but Bun       | Bundle budgets, query plans, and rows and bytes of reads |
+| `bun run perf:pages` | Playwright's Chromium | Page bytes, DOM nodes, hydration, long tasks             |
 
 ## Gated and reported
 
@@ -87,11 +88,43 @@ Rows are the rows the statements returned, not the rows SQLite visited, which li
 doesn't expose. Bytes are the result as JSON. The time per call is the median of 5 runs
 after one warm-up, printed and never gated.
 
+## Pages: `bun run perf:pages`
+
+Builds the app, serves the build with the benchmark database, and loads pages in the
+Chromium that `bunx playwright install chromium` installed for the end-to-end tests. It
+signs in once as the benchmark admin and opens each page in a fresh context with an empty
+cache, at 1440 × 900 and pixel ratio 1.5, with a 4× CPU slowdown. A run takes about 14
+seconds; CI doesn't run it.
+
+The pages are the projects list, the busiest project, search by one technology, and the
+CV page for 10 people, with the inputs the read checks use (`perf/lib/inputs.ts`).
+
+| Number                      | Kind     | How it's measured                                                           |
+| --------------------------- | -------- | --------------------------------------------------------------------------- |
+| HTML bytes, raw and gzipped | Gated    | The document, with the router's timestamps replaced by text of equal length |
+| JS and CSS, gzipped         | Gated    | Every script and stylesheet loaded until a second after hydration           |
+| DOM nodes                   | Gated    | Elements a second after hydration                                           |
+| Hydrated                    | Reported | React's first commit, the hydration, through a stub of its DevTools hook    |
+| Long tasks                  | Reported | Count and total from a `longtask` observer                                  |
+
+A byte count fails when it grows by more than 1% or 200 bytes; DOM nodes when they grow by
+more than 1%. `--no-build` serves the last build in `perf/.cache/build`. Run `--update`
+twice: the numbers must repeat before the baseline is worth committing.
+
+- **The clock:** the server and the browser run with `Date` moved to `DEMO_NOW`
+  (`perf/lib/clock.ts`), so "today" lands on the generated data and the browser hydrates
+  what the server rendered. Timers and `performance.now()` stay real.
+- **The server** runs the build with `bun --no-env-file`, in demo mode for password
+  sign-in, on a copy of the database; its log goes to `perf/.cache/server-<port>.log`.
+  The session cookies are set in the browser without an expiry, because the server's
+  clock is behind the browser's.
+
 ## Update a baseline on purpose
 
 When a change moves a number for a reason you accept, or an optimization lowers one,
 rewrite the baseline and commit it with the change, saying why in the commit:
 
-```sh
-bun run perf --update
-```
+| Baseline                                                  | Command                                                                     |
+| --------------------------------------------------------- | --------------------------------------------------------------------------- |
+| `perf/baselines/budgets.json`, `plans.json`, `reads.json` | `bun run perf --update`                                                     |
+| `perf/baselines/pages.json`                               | `bun run perf:pages --update` (run it twice first; the numbers must repeat) |

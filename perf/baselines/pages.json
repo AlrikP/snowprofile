@@ -1,0 +1,30 @@
+{
+  "projects": {
+    "htmlBytes": 1252482,
+    "htmlGzip": 61197,
+    "jsGzip": 266906,
+    "cssGzip": 36236,
+    "domNodes": 4717
+  },
+  "project": {
+    "htmlBytes": 51493,
+    "htmlGzip": 9384,
+    "jsGzip": 266926,
+    "cssGzip": 36236,
+    "domNodes": 414
+  },
+  "search": {
+    "htmlBytes": 38892,
+    "htmlGzip": 8674,
+    "jsGzip": 266936,
+    "cssGzip": 36236,
+    "domNodes": 2187
+  },
+  "cv (team of 10)": {
+    "htmlBytes": 55757,
+    "htmlGzip": 10724,
+    "jsGzip": 266934,
+    "cssGzip": 36236,
+    "domNodes": 4701
+  }
+}

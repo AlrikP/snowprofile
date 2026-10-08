@@ -41,6 +41,7 @@
     "test:components": "vitest run",
     "test:e2e": "bun run i18n:compile && playwright test",
     "perf": "bun run i18n:compile && bun perf/check.ts",
+    "perf:pages": "bun run i18n:compile && bun perf/pages.ts",
     "prepare": "lefthook install || true"
   },
   "dependencies": {
