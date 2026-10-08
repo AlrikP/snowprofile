@@ -14,8 +14,22 @@ const config = defineConfig({
     paraglideVitePlugin({ project: './project.inlang' }),
     nitro({ rollupConfig: { external: [/^@sentry\//] } }),
     tailwindcss(),
-    // src/server.ts is Start's default, which would sit beside the src/server/ folder.
-    tanstackStart({ server: { entry: 'server-entry' } }),
+    tanstackStart({
+      // src/server.ts is Start's default, which would sit beside the src/server/ folder.
+      server: { entry: 'server-entry' },
+      // The router's default leaves pendingComponent in the route, which the entry chunk
+      // imports, and with it the whole page module. Grouped with component, a page and its
+      // pending state load together, with the route.
+      router: {
+        codeSplittingOptions: {
+          defaultBehavior: [
+            ['component', 'pendingComponent'],
+            ['errorComponent'],
+            ['notFoundComponent'],
+          ],
+        },
+      },
+    }),
     viteReact(),
   ],
 })

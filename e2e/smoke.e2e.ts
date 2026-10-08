@@ -55,6 +55,29 @@ test.describe('the admin', () => {
     await expect(page).toHaveURL(/\/rabasaare\/profile$/)
   })
 
+  test('shows a page’s pending state while its loader waits', async ({ page }) => {
+    await page.goto('/demo/profile')
+    await expect(page.getByRole('heading', { name: 'My profile' })).toBeVisible()
+    // Slower than the router's pendingMs, so the pending component, which loads in the
+    // page's own chunk, must show first.
+    await page.route('**/_serverFn/**', async (route) => {
+      await new Promise((resolve) => setTimeout(resolve, 2500))
+      await route.continue()
+    })
+
+    await page
+      .getByRole('navigation', { name: 'Work' })
+      .getByRole('link', { name: 'Search' })
+      .click()
+
+    const busy = page.locator('main[aria-busy="true"]')
+    await expect(busy.getByRole('heading', { name: 'Search' })).toBeVisible()
+    await expect(busy).toHaveCount(0, { timeout: 15_000 })
+    await expect(
+      page.getByRole('combobox', { name: 'Add a technology from the catalogue' }),
+    ).toBeVisible()
+  })
+
   test('search.make-cv: finds people by a technology and opens a CV of them', async ({ page }) => {
     await page.goto('/demo/search')
     await page.getByRole('combobox', { name: 'Add a technology from the catalogue' }).fill('java')
