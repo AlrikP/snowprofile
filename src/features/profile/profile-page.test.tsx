@@ -442,6 +442,24 @@ describe('ProfilePage', () => {
       expect(server.addParticipation).not.toHaveBeenCalled()
     })
 
+    it('project-participation.project-kept: the edit form shows the project without letting it change', async () => {
+      await show()
+
+      await userEvent.click(
+        participationsSection().getByRole('button', { name: 'Edit Kodanikuportaali uuendus' }),
+      )
+      const dialog = within(screen.getByRole('dialog'))
+      const select = dialog.getByLabelText('Project')
+      expect(select).toHaveValue('portal')
+      expect(select).toBeDisabled()
+      expect(select).toHaveAccessibleDescription(
+        'Project period: 03-2024 – ongoing The project can’t be changed. For another project, delete this participation and add a new one.',
+      )
+      await userEvent.click(dialog.getByRole('button', { name: 'Save' }))
+
+      expect(sent(server.updateParticipation)).not.toHaveProperty('projectId')
+    })
+
     it('project-participation.several-roles: keeps several roles', async () => {
       await show()
 

@@ -323,6 +323,53 @@ describe('participations', () => {
     expect(row?.sysDeleted).toBe(true)
   })
 
+  test('projects.details-access-traced: a deleted participation hides the details again, and keeps who added and deleted it', async () => {
+    const [projectId = ''] = await column(
+      `SELECT id FROM project WHERE organization_id = '${org}' AND sys_deleted = 0
+        AND id NOT IN (SELECT pa.project_id FROM participation pa
+          JOIN employee_profile ep ON ep.id = pa.profile_id
+          WHERE ep.user_id = '${employee.userId}')
+        ORDER BY id LIMIT 1`,
+    )
+    async function details() {
+      return (await projectView(db, employee, { projectId })).details
+    }
+    expect(await details()).toBeNull()
+    const added = input({ projectId })
+    await as(employee, () => addParticipation(db, employee, added))
+    expect(await details()).not.toBeNull()
+
+    await as(employee, () => deleteParticipation(db, employee, { participationId: added.id }))
+
+    expect(await details()).toBeNull()
+    const [row] = await db.select().from(participation).where(eq(participation.id, added.id))
+    expect(row).toMatchObject({
+      projectId,
+      sysDeleted: true,
+      createdBy: employee.userId,
+      updatedBy: employee.userId,
+    })
+  })
+
+  test('project-participation.project-kept: a change keeps the project, whatever it names', async () => {
+    const added = input({ projectId: projects[0] ?? '' })
+    await as(employee, () => addParticipation(db, employee, added))
+    const parsed = v.parse(UpdateParticipationInput, {
+      ...added,
+      participationId: added.id,
+      projectId: projects[1],
+      tasks: { et: 'Muudetud', en: null },
+    })
+    expect(Object.keys(parsed)).not.toContain('projectId')
+
+    await as(employee, () => updateParticipation(db, employee, parsed))
+
+    expect(await mine(employee, added.id)).toMatchObject({
+      projectId: projects[0],
+      tasks: { et: 'Muudetud', en: null },
+    })
+  })
+
   test('refuses a removed project, another organization’s project, and an unknown role', async () => {
     const removed = projects[2] ?? ''
     await as(admin, async () => {

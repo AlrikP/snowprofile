@@ -321,6 +321,7 @@
   "participation_project_choose": "Choose a project",
   "participation_project_required": "Choose the project.",
   "participation_project_period": "Project period: {period}",
+  "participation_project_kept": "The project can’t be changed. For another project, delete this participation and add a new one.",
   "participation_roles": "Roles",
   "participation_roles_required": "Add at least one role.",
   "participation_hours": "Your hours",

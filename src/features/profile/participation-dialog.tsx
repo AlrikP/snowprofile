@@ -135,7 +135,6 @@ function ParticipationForm({ organizationId, participation, onDone }: FormProps)
     mutationFn: async () => {
       if (!period.ok || !hours.ok || period.startDate === null) return
       const fields = {
-        projectId: values.projectId,
         period: { startDate: period.startDate, endDate: period.endDate },
         roleIds: values.roleIds,
         hours: hours.value,
@@ -147,7 +146,9 @@ function ParticipationForm({ organizationId, participation, onDone }: FormProps)
           data: { organizationId, participationId: participation.id, ...fields },
         })
       } else {
-        await addParticipation({ data: { organizationId, id: uuidv7(), ...fields } })
+        await addParticipation({
+          data: { organizationId, id: uuidv7(), projectId: values.projectId, ...fields },
+        })
       }
     },
     onSuccess: async () => {
@@ -205,12 +206,22 @@ function ParticipationForm({ organizationId, participation, onDone }: FormProps)
       </DialogHeader>
       <div className="flex flex-col gap-2">
         <Label htmlFor="participation-project">{m.participation_project()}</Label>
+        {/* A saved participation keeps its project, so who took part in a project can't
+            be rewritten (docs/specs/project-participation.md). */}
         <NativeSelect
           id="participation-project"
           value={values.projectId}
           onChange={(event) => chooseProject(event.target.value)}
+          disabled={participation !== null}
           aria-invalid={(submitted && !values.projectId) || undefined}
-          aria-describedby={chosenProject ? 'participation-project-period' : undefined}
+          aria-describedby={
+            [
+              chosenProject && 'participation-project-period',
+              participation && 'participation-project-kept',
+            ]
+              .filter(Boolean)
+              .join(' ') || undefined
+          }
         >
           <NativeSelectOption value="">{m.participation_project_choose()}</NativeSelectOption>
           {projects.map((project) => (
@@ -224,6 +235,11 @@ function ParticipationForm({ organizationId, participation, onDone }: FormProps)
             {m.participation_project_period({
               period: formatPeriod(chosenProject.startDate, chosenProject.endDate),
             })}
+          </p>
+        )}
+        {participation && (
+          <p id="participation-project-kept" className="text-muted-foreground text-sm">
+            {m.participation_project_kept()}
           </p>
         )}
         {submitted && !values.projectId && (

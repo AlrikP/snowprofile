@@ -286,8 +286,7 @@ async function bParticipationRoles() {
   return rows.map((row) => `${row.roleId}|${row.by}`).sort()
 }
 
-const participationValues = {
-  projectId: '',
+const participationChanges = {
   startDate: '2024',
   endDate: null,
   hours: null,
@@ -295,6 +294,7 @@ const participationValues = {
   tasksEt: 'A-st',
   tasksEn: null,
 }
+const participationValues = { projectId: '', ...participationChanges }
 
 async function bEducation() {
   const [row] = await db.select().from(education).where(eq(education.id, b.educationId))
@@ -804,10 +804,13 @@ const cases: Record<string, () => Promise<void>> = {
   'participations.updateParticipation': async () => {
     const before = await bParticipation()
     await withActor(scopeA.userId, () =>
-      participations.updateParticipation(db, scopeA, b.participationProfileId, b.participationId, {
-        ...participationValues,
-        projectId: before?.projectId ?? '',
-      }),
+      participations.updateParticipation(
+        db,
+        scopeA,
+        b.participationProfileId,
+        b.participationId,
+        participationChanges,
+      ),
     )
     expect((await bParticipation())?.tasksEt).toBe(before?.tasksEt)
   },

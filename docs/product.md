@@ -184,7 +184,12 @@ characteristic.
   valid (the sheet already notes "no longer works at Telia").
 - **Visibility:** admins edit cost, hours, customer contacts, and tender reference
   numbers. Employees can read them on projects they took part in, except contacts marked
-  as no longer valid and the admins' notes on contacts, which only admins see.
+  as no longer valid and the admins' notes on contacts, which only admins see. An
+  employee's own participation is enough, though they add it themselves: the contacts
+  are tender references, not sensitive data, so the rule stops casual browsing, not a
+  determined employee. Access can be traced instead. A deleted participation stays
+  stored with who added and deleted it, and when, and a participation keeps its project
+  once saved.
 - **Birth date** shows only to admins and the person, and goes into a CV only when chosen
   explicitly.
 - **Residency:** data stays in the EU (`hosting.md`).

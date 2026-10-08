@@ -92,7 +92,7 @@ export async function findParticipation(
   participationId: string,
 ) {
   const [row] = await db
-    .select({ id: participation.id })
+    .select({ id: participation.id, projectId: participation.projectId })
     .from(participation)
     .where(and(liveParticipations(scope, profileId), eq(participation.id, participationId)))
   return row
@@ -145,7 +145,7 @@ export async function updateParticipation(
   scope: Scope,
   profileId: string,
   participationId: string,
-  values: ParticipationValues,
+  values: Omit<ParticipationValues, 'projectId'>,
 ) {
   await db
     .update(participation)

@@ -52,7 +52,6 @@ export const DeleteEducationInput = v.object({ educationId: Uuidv7 })
 export type DeleteEducationInput = v.InferOutput<typeof DeleteEducationInput>
 
 const ParticipationFields = {
-  projectId: Uuidv7,
   period: Period,
   roleIds: v.pipe(v.array(Uuidv7), v.minLength(1, 'At least one role.')),
   hours: ApproximateNumber,
@@ -64,10 +63,13 @@ const ParticipationFields = {
 export const AddParticipationInput = v.object({
   // The new participation's ID, from the client.
   id: Uuidv7,
+  projectId: Uuidv7,
   ...ParticipationFields,
 })
 export type AddParticipationInput = v.InferOutput<typeof AddParticipationInput>
 
+// No project: a participation keeps its own, so the record of who took part in a project
+// can't be rewritten (docs/specs/project-participation.md).
 export const UpdateParticipationInput = v.object({
   participationId: Uuidv7,
   ...ParticipationFields,

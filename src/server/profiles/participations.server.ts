@@ -63,8 +63,8 @@ export async function myParticipations(db: Database, scope: Scope) {
 
 type Fields = Omit<AddParticipationInput, 'id'>
 
-// The stored columns, refused unless the project and every role are live and the period
-// lies within the project's.
+// The stored columns but the project, refused unless the project and every role are live
+// and the period lies within the project's.
 async function participationValues(db: Executor, scope: Scope, fields: Fields) {
   const project = await repository.findLiveProject(db, scope, fields.projectId)
   if (!project) throw new AppError('INVALID', 'project_not_found')
@@ -82,7 +82,6 @@ async function participationValues(db: Executor, scope: Scope, fields: Fields) {
     roleIds,
     technologyIds,
     values: {
-      projectId: fields.projectId,
       startDate: fields.period.startDate,
       endDate: fields.period.endDate,
       hours: fields.hours?.value ?? null,
@@ -99,7 +98,12 @@ export async function addParticipation(db: Database, scope: Scope, input: AddPar
   await db.transaction(async (tx) => {
     const { roleIds, technologyIds, values } = await participationValues(tx, scope, input)
     const profileId = await ownProfileId(tx, scope)
-    await repository.insertParticipation(tx, scope, { id: input.id, profileId, ...values })
+    await repository.insertParticipation(tx, scope, {
+      id: input.id,
+      profileId,
+      projectId: input.projectId,
+      ...values,
+    })
     await repository.setParticipationRoles(tx, scope, input.id, roleIds)
     await repository.setParticipationTechnologies(tx, scope, input.id, technologyIds)
     await profiles.touchProfile(tx, scope, profileId)
@@ -107,13 +111,13 @@ export async function addParticipation(db: Database, scope: Scope, input: AddPar
   return { id: input.id }
 }
 
-// The session user's profile, refused unless the participation is on it.
-async function profileWithParticipation(db: Executor, scope: Scope, participationId: string) {
+// The session user's profile and the participation on it, refused unless it is there.
+async function ownParticipation(db: Executor, scope: Scope, participationId: string) {
   const profile = await profiles.findOwnProfile(db, scope)
-  if (!profile || !(await repository.findParticipation(db, scope, profile.id, participationId))) {
-    throw new AppError('NOT_FOUND', 'participation_not_found')
-  }
-  return profile.id
+  const found =
+    profile && (await repository.findParticipation(db, scope, profile.id, participationId))
+  if (!profile || !found) throw new AppError('NOT_FOUND', 'participation_not_found')
+  return { profileId: profile.id, projectId: found.projectId }
 }
 
 export async function updateParticipation(
@@ -122,8 +126,11 @@ export async function updateParticipation(
   input: UpdateParticipationInput,
 ) {
   await db.transaction(async (tx) => {
-    const profileId = await profileWithParticipation(tx, scope, input.participationId)
-    const { roleIds, technologyIds, values } = await participationValues(tx, scope, input)
+    const { profileId, projectId } = await ownParticipation(tx, scope, input.participationId)
+    const { roleIds, technologyIds, values } = await participationValues(tx, scope, {
+      ...input,
+      projectId,
+    })
     await repository.updateParticipation(tx, scope, profileId, input.participationId, values)
     await repository.setParticipationRoles(tx, scope, input.participationId, roleIds)
     await repository.setParticipationTechnologies(tx, scope, input.participationId, technologyIds)
@@ -137,7 +144,7 @@ export async function deleteParticipation(
   input: DeleteParticipationInput,
 ) {
   await db.transaction(async (tx) => {
-    const profileId = await profileWithParticipation(tx, scope, input.participationId)
+    const { profileId } = await ownParticipation(tx, scope, input.participationId)
     await repository.removeParticipation(tx, scope, profileId, input.participationId)
     await profiles.touchProfile(tx, scope, profileId)
   })

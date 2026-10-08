@@ -12,7 +12,9 @@ A member must be able to add, change, and delete their own participations: a liv
 project, a period, one or more roles, approximate hours, and their tasks in Estonian and
 English. Their profile must list them newest first. A member can have several
 participations on one project. Only the person must change their participations: the
-server must change only the signed-in user's, whatever the input names.
+server must change only the signed-in user's, whatever the input names. A participation
+must keep its project once saved, so the record of who took part in a project, which
+shows its tender details (`projects.md`), can't be rewritten.
 
 #### Scenario: project-participation.added
 
@@ -25,6 +27,13 @@ server must change only the signed-in user's, whatever the input names.
 - **Given** a member with a participation on a project
 - **When** they add another participation on the same project, for another period
 - **Then** their profile lists both
+
+#### Scenario: project-participation.project-kept
+
+- **Given** a saved participation
+- **When** the member edits it
+- **Then** the form shows its project without letting them change it, and the server
+  keeps the project whatever the change names
 
 #### Scenario: project-participation.other-person-refused
 

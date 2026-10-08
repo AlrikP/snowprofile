@@ -29,7 +29,9 @@ projects they took part in.
 
 A project's cost, total hours, tender reference, and contact persons must show only to
 admins and to the people who took part in it. For anyone else, the server must leave them
-out of the response, and the page must say that they are hidden.
+out of the response, and the page must say that they are hidden. A participation the
+person added themselves counts. A deleted one must stay stored with who added and deleted
+it, and when, so access can be traced.
 
 #### Scenario: projects.details-for-admin
 
@@ -50,6 +52,14 @@ out of the response, and the page must say that they are hidden.
 - **When** they open the project
 - **Then** the response holds none of its tender details, and the page says they are
   hidden
+
+#### Scenario: projects.details-access-traced
+
+- **Given** an employee who added a participation on a project and read its tender
+  details
+- **When** they delete the participation
+- **Then** the response holds none of the details again, and the deleted participation
+  stays stored with them as the one who added it and deleted it
 
 ### Requirement: A project shows its people
 
